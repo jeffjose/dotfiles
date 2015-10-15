@@ -1,0 +1,7 @@
+# Precmd
+
+    source ~/.aliases
+    source ~/.prompt
+
+    # Save history after every command
+    #history -S
