@@ -10,4 +10,16 @@
 
     set prompt='[%n@%m %B%c%b]%# '
     set ellipsis
-    set prompt = "-(${cyan}%B%P%b${end} ${green}%B%/%b${end})-\n#${end} "
+
+if (${HOST} == "spectre") then
+    set host_color = "${magenta}"
+else
+    set host_color = "${yellow}"
+endif
+
+#if ($?STY) then
+#    set prompt = "-(${cyan}%B%P%b${end} ${host_color}${HOST}${end} ${green}%B%/%b${end})-\n#${end} "
+#else
+#    set prompt = "-(${white}%B%P%b${end} ${white}${HOST}${end} ${white}%B%/%b${end})-\n#${end} "
+#endif
+set prompt = "-(${cyan}%B%P%b${end} ${host_color}${HOST}${end} ${green}%B%/%b${end})-\n#${end} "
