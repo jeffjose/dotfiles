@@ -1,0 +1,86 @@
+[user]
+	name  = Jeffrey Jose
+	email = jeffjosejeff@gmail.com
+[alias]
+    ci = commit
+    st = status
+    sb = show-branch
+    co = checkout
+    one = log --pretty=oneline
+    cached = diff --cached
+    changelog = "!f() { r=${1:-`git describe --tags --abbrev=0`..HEAD}; echo Changelog for $r; git log --reverse --no-merges --format='* %s' $r; }; f"
+    br = branch
+    bra = branch -a
+    la = log --pretty=\"format:%ad %h (%an): %s\" --date=short
+    list = diff --name-status
+    cam = commit -a -m
+    cm = commit -m
+    search = grep --color -n
+    searchf = grep --name-only
+    searchn = grep --files-without-match
+    pull = pull -v
+
+[color]
+    diff = auto
+    status = auto
+    branch = auto
+
+[color "branch"]
+    local = yellow
+    current = green
+    remote = red
+    plain = normal
+
+[color "diff"]
+    old = red
+    new = green
+    plain = normal
+    meta = bold
+    frag = cyan
+    commit = yellow
+    whitespace = normal red
+
+[color "status"]
+    updated   = green
+    changed   = yellow
+
+    added     = green
+    modified  = yellow
+    header    = normal
+    untracked = red
+    nobranch  = red
+
+[color "grep"]
+    match = normal
+
+[color "interactive"]
+    prompt = normal
+    header = normal
+    help = normal
+    error = normal
+[gui]
+	fontdiff = -family \"liberation mono\" -size 10 -weight normal -slant roman -underline 0 -overstrike 0
+
+#[core]
+#	gitproxy = /home/jjose/bin/git-proxy
+#[http]
+#	sslVerify = false
+#	proxy = socks://highnut.ddu-india.com:9999
+#[socks]
+#	proxy = socks://highnut.ddu-india.com:9999
+#[https]
+#   proxy = socks://highnut.ddu-india.com:9999
+
+[branch]
+	autosetuprebase = always
+[merge]
+	tool = kdiff3
+[guitool "mergetool"]
+	cmd = kdiff3
+[http]
+	postBuffer = 100M
+    sslVerify = false
+[credential]
+	helper = cache --timeout=36000
+[push]
+	default = simple
