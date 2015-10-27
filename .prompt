@@ -22,4 +22,4 @@ endif
 #else
 #    set prompt = "-(${white}%B%P%b${end} ${white}${HOST}${end} ${white}%B%/%b${end})-\n#${end} "
 #endif
-set prompt = "-(${cyan}%B%P%b${end} ${host_color}${HOST}${end} ${green}%B%/%b${end})-\n#${end} "
+set prompt = "-(${cyan}%d %D %w, %B%P%b${end} ${host_color}${HOST}${end} ${green}%B%/%b${end})-\n#${end} "
