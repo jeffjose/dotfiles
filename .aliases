@@ -1,0 +1,209 @@
+# Aliases
+
+    # Source the aliases.sensitive
+    source ~/.aliases.sensitive
+
+    alias ls 'ls --color'
+    alias vi vim
+    alias ll 'ls -lGh'
+    alias l ll
+    alias pgrep pgrep -fl
+    alias pkill pkill -f
+    alias kill9 kill -9
+
+    alias md mkdir -p
+
+    alias vimrc vim ~/.vimrc
+    alias aliases vim ~/.aliases
+    alias del rm -rf
+
+    alias sipy ipython
+
+    alias so 'echo "Sourcing ~/.cshrc .."; source ~/.cshrc'
+    alias grep grep -iE --color=always
+
+    alias exe chmod a+x
+
+    alias vv vi
+
+    alias yum yum -y
+
+    # Search in the apt-cache for a package
+    alias search 'apt-cache search'
+
+    # Install a package
+    alias install 'sudo apt-get -y install \!*; rehash'
+
+    # Remove a package
+    alias remove 'sudo apt-get purge \!*'
+
+    # Remove a ppa and all associated packages.
+    alias removeppa 'sudo ppa-purge \!*'
+
+    complete remove 'p/1/c/'
+
+    alias fwc 'find . | wc'
+
+    alias coursera 'cd /mnt/disk2/coursera'
+    
+    # Wharton Canvas
+    # Token: 25~0BSCo871KwDf3wDcVX5DiezXVoVavIPHMqeFeS1ValI3kWa2n6whwMAuwk4inTJG
+    alias canvas-dl '/home/jeffjose/scripts/canvas-command-line/canvas_tools.py'
+
+
+
+    alias dc 'cd ~/Downloads/dcpp_share'
+
+    alias du 'du --total'
+
+# Navigation
+    alias scripts 'cd ~/scripts'
+    alias desktop 'cd ~/Desktop'
+
+    alias ack ack-grep -i
+
+    alias fb 'nautilus . &'
+
+    alias dl 'nautilus ~/Downloads &'
+
+    alias eog 'feh -z -D 5 --scale-down --auto-zoom --fullscreen'
+
+    alias babypink 'new ~/Downloads/imgur/babypink/* &'
+    alias whiney babypink
+    alias dietcoke 'new ~/Downloads/imgur/dietcoke/* &'
+    alias fatty dietcoke
+    alias poppy 'new ~/Downloads/imgur/poppy/* &'
+    alias paddy poppy
+    alias leanpaddy 'new ~/Downloads/imgur/leanpaddy/* &'
+    alias protein 'new ~/Downloads/imgur/protein &'
+    alias layout protein
+    alias biriyani 'new ~/Downloads/imgur/biriyani &'
+    alias blackberry 'new ~/Downloads/imgur/biriyani &'
+    alias cover 'new ~/Downloads/imgur/cover &'
+
+    alias celebs 'new ~/Downloads/imgur/celebs &'
+
+    alias scooby 'new ~/Downloads/WhatsApp_Images/sel/* &'
+
+    alias pears 'new ~/Downloads/imgur/calculus/* &'
+    alias petite 'new ~/Downloads/imgur/petite/* &'
+
+    alias lambda pears
+    alias calculus pears
+
+    alias ashi 'new ~/Downloads/imgur/python/* &'
+
+    alias vid 'mplayer ~/Downloads/imgur/webm/test/*mkv'
+
+
+    alias torrent 'qbittorrent \!* &'
+
+    alias music 'rhythmbox \!* &'
+
+    alias valknut 'valknut &'
+    alias dcpp valknut
+    alias sound 'alsamixer -c 0'
+
+    alias chrome 'google-chrome &'
+
+    alias evince 'evince \!* &'
+    alias vlc 'vlc \!* &'
+
+    alias starthub 'sudo iptables -A INPUT -m state --state NEW -p {tcp,udp} --dport {1234,9176} -j ACCEPT; sudo service iptables restart; sudo opendchub'
+
+
+# VPN
+
+    #alias vpn_gld 'cd ~/.juniper_networks/network_connect/; sudo ./ncsvc -h connect.dreamworks.com     -u jjose -r RSA -L 1 -f outfile.cert     -p1234\!*'
+    #alias vpn_pdi 'cd ~/.juniper_networks/network_connect/; sudo ./ncsvc -h connect.pdi.com            -u jjose -r RSA -L 1 -f outfile.pdi.cert -p1234\!*'
+    #alias vpn_ddu 'cd ~/.juniper_networks/network_connect/; sudo ./ncsvc -h connect.ddu.dreamworks.com -u jjose -r RSA -L 1 -f outfile.ddu.cert -p1234\!*'
+
+    alias vpn_gld 'cd ~/.juniper_networks/network_connect/; sudo ./ncsvc -h connect.dreamworks.com     -u jjose -r PingID -L 1 -f connect.dreamworks.com     -p kleyB00ard'
+    alias vpn_pdi 'cd ~/.juniper_networks/network_connect/; sudo ./ncsvc -h connect.pdi.com            -u jjose -r PingID -L 1 -f connect.pdi.com            -p kleyB00ard'
+    alias vpn_ddu 'cd ~/.juniper_networks/network_connect/; sudo ./ncsvc -h connect.ddu.dreamworks.com -u jjose -r PingID -L 1 -f connect.ddu.dreamworks.com -p kleyB00ard'
+
+    alias vpn_dwa vpn_gld
+    alias ddu_vpn vpn_ddu
+    alias dwa_vpn vpn_dwa
+    alias gld_vpn vpn_gld
+    alias pdi_vpn vpn_pdi
+
+    alias highnut 'ssh jjose@highnut.ddu-india.com'
+    alias highaid 'ssh jjose@highaid.ddu-india.com'
+    alias js2coffee js2coffee -i4
+
+    alias gitg 'git gui'
+
+    alias foxit 'foxit \!* &'
+    alias fox foxit
+
+    alias vol 'alsamixer -c 0'
+
+    alias play 'peerflix --vlc \!*'
+
+    alias touchpad_off 'synclient TouchpadOff=1'
+
+    alias extract_audio ~/scripts/extract_audio.sh
+
+    alias order 'ls -1 -t | xargs feh -D 5 --scale-down --auto-zoom --fullscreen'
+
+    alias new 'find \!* | xargs ls -1tc | xargs feh -D 5 --scale-down --auto-zoom --fullscreen'
+
+    # \mplayer -loop 0 -zoom ../webm/test/*mkv
+    # "f" for fullscreen
+
+    alias imgur-download '/usr/bin/python3 /home/jeffjose/scripts/imgur-album-downloader/imguralbum.py'
+    
+    alias skipper 'cd /run/user/1000/gvfs/smb-share:server=10.0.0.66,share=jeffjose'
+    
+# Palm detection
+# syndaemon -i 1 -K -d
+
+    alias update    'sudo apt-get update'
+    alias updateall 'sudo apt-get autoclean && sudo apt-get clean && sudo apt-get update && sudo apt-get upgrade && sudo apt-get autoremove'
+    alias ubuntuupdate 'sudo do-release-upgrade -d'
+
+    alias acads 'cd ~/Downloads/acads'
+    alias windows 'cd /media/jeffjose/503AD7853AD7670E/Documents\ and\ Settings/jeffjose'
+
+    alias pdfgrep 'pdfgrep \!*'
+    alias pack pdfgrep
+
+# Course Navigation
+    alias acads 'cd ~/Downloads/acads/s1'
+
+    alias mgmt  'acads; cd MGMT611/'
+    alias mktg  'acads; cd MKTG611/'
+    alias acct  'acads; cd ACCT613/'
+    alias mgec  'acads; cd MGEC611/'
+    alias stat  'acads; cd STAT613/'
+    alias mkt   mktg
+
+    alias fixit '~/.screenlayout/3monitor.sh'
+
+    alias gdebi 'sudo gdebi'
+
+    alias talks 'cd ~/talks'
+
+    alias uberwriter '/opt/extras.ubuntu.com/uberwriter/bin/uberwriter'
+
+    alias disk1 'cd /mnt/disk1'
+    alias disk2 'cd /mnt/disk2'
+
+    alias d 'cd ~/Downloads'
+    alias s 'cd ~/scripts'
+    alias c 'cd /mnt/disk2/coursera'
+    alias a 'cd ~/Downloads/acads'
+
+    alias getaudio 'youtube-dl --extract-audio --audio-format mp3 --audio-quality 0 \!*'
+
+    alias abs '~/scripts/abs'
+    alias expose '~/scripts/Expose/expose.sh'
+
+    alias tweet '~/scripts/tweet'
+
+    alias www 'cd ~/scripts/jeffjose.github.io'
+
+    alias screen 'screen -c ~/.screen/default'
+
+    alias ansible-update-all-hosts 'ansible-playbook ~/ansible/base.yml --ask-sudo-pass'
