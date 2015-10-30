@@ -68,33 +68,6 @@
 
     alias eog 'feh -z -D 5 --scale-down --auto-zoom --fullscreen'
 
-    alias babypink 'new ~/Downloads/imgur/babypink/* &'
-    alias whiney babypink
-    alias dietcoke 'new ~/Downloads/imgur/dietcoke/* &'
-    alias fatty dietcoke
-    alias poppy 'new ~/Downloads/imgur/poppy/* &'
-    alias paddy poppy
-    alias leanpaddy 'new ~/Downloads/imgur/leanpaddy/* &'
-    alias protein 'new ~/Downloads/imgur/protein &'
-    alias layout protein
-    alias biriyani 'new ~/Downloads/imgur/biriyani &'
-    alias blackberry 'new ~/Downloads/imgur/biriyani &'
-    alias cover 'new ~/Downloads/imgur/cover &'
-
-    alias celebs 'new ~/Downloads/imgur/celebs &'
-
-    alias scooby 'new ~/Downloads/WhatsApp_Images/sel/* &'
-
-    alias pears 'new ~/Downloads/imgur/calculus/* &'
-    alias petite 'new ~/Downloads/imgur/petite/* &'
-
-    alias lambda pears
-    alias calculus pears
-
-    alias ashi 'new ~/Downloads/imgur/python/* &'
-
-    alias vid 'mplayer ~/Downloads/imgur/webm/test/*mkv'
-
 
     alias torrent 'qbittorrent \!* &'
 
