@@ -66,8 +66,8 @@
 
     alias dl 'nautilus ~/Downloads &'
 
-    alias eog 'feh -z -D 5 --scale-down --auto-zoom --fullscreen'
-
+    alias eog  'feh -z -D 5 --scale-down --auto-zoom --fullscreen'
+    alias eogn 'feh -D 5 --scale-down --auto-zoom --fullscreen'
 
     alias torrent 'qbittorrent \!* &'
 
