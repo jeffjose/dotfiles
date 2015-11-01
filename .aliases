@@ -62,7 +62,7 @@
 
     alias ack ack-grep -i
 
-    alias fb 'nautilus . &'
+    alias fb 'nemo . &'
 
     alias dl 'nautilus ~/Downloads &'
 
