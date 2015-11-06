@@ -4,6 +4,7 @@
     source ~/.aliases.sensitive
 
     alias ls 'ls --color'
+    #alias vim nvim
     alias vi vim
     alias ll 'ls -lGh'
     alias l ll
@@ -174,9 +175,12 @@
     alias expose '~/scripts/Expose/expose.sh'
 
     alias tweet '~/scripts/tweet'
+    alias sense '~/scripts/sense'
 
     alias www 'cd ~/scripts/jeffjose.github.io'
 
     alias screen 'screen -c ~/.screen/default'
 
     alias ansible-update-all-hosts 'ansible-playbook ~/ansible/base.yml --ask-sudo-pass'
+
+    alias ar arandr /home/jeffjose/.screenlayout/3monitor.sh
