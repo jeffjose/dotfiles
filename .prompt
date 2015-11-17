@@ -17,9 +17,9 @@ else
     set host_color = "${yellow}"
 endif
 
-#if ($?STY) then
-#    set prompt = "-(${cyan}%B%P%b${end} ${host_color}${HOST}${end} ${green}%B%/%b${end})-\n#${end} "
-#else
-#    set prompt = "-(${white}%B%P%b${end} ${white}${HOST}${end} ${white}%B%/%b${end})-\n#${end} "
-#endif
-set prompt = "-(${cyan}%d %D %w, %B%P%b${end} ${host_color}${HOST}${end} ${green}%B%/%b${end})-\n#${end} "
+if ($?STY) then
+    set prompt = "-(${cyan}%B%P%b${end} ${host_color}${HOST}${end} ${green}%B%/%b${end})-\n#${end} "
+else
+    set prompt = "-(${white}%P${end} ${white}${HOST}${end} ${white}%/${end})-\n?${end} "
+endif
+#set prompt = "-(${cyan}%d %D %w, %B%P%b${end} ${host_color}${HOST}${end} ${green}%B%/%b${end})-\n#${end} "
