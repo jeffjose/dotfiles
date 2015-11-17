@@ -42,7 +42,8 @@
     # Setup our precmd; this gets executed before every prompt
     alias precmd 'source ~/.precmd'
 
-    setenv PATH /usr/lib/dart/bin:/home/jeffjose/.pub-cache/bin:/home/jeffjose/bin:/home/jeffjose/anaconda/bin:/home/jeffjose/.local/bin:${PATH}
+    setenv GOPATH /home/jeffjose/scripts/go
+    setenv PATH ${GOPATH}/bin:/usr/lib/dart/bin:/home/jeffjose/.pub-cache/bin:/home/jeffjose/bin:/home/jeffjose/anaconda/bin:/home/jeffjose/.local/bin:${PATH}
     setenv JAVA_HOME /usr/lib/jvm/java-8-oracle
 
     complete sudo 'p/1/c/'
