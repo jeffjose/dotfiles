@@ -186,3 +186,5 @@
     alias ar arandr /home/jeffjose/.screenlayout/3monitor.sh
 
     alias rsync rsync --progress
+
+    alias signapk java -jar /home/jeffjose/scripts/apktool/signapk.jar /home/jeffjose/scripts//apktool/certificate.pem /home/jeffjose/scripts//apktool/key.pk8 
