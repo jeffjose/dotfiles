@@ -3,10 +3,11 @@
 set nocompatible
 
 " Automatically indent when adding a curly bracket, etc.
-"set autoindent
-set cindent
-set cinkeys-=0#
-set indentkeys-=0#
+set autoindent
+"set cindent
+"set cinkeys-=0#
+"set indentkeys-=0#
+"set nosmartindent
 
 " Automatically detect file types
 filetype plugin indent on 
