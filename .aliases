@@ -8,6 +8,7 @@
     alias vi vim
     alias ll 'ls -lGh'
     alias l ll
+    alias lll ll
     alias pgrep pgrep -fl
     alias pkill pkill -f
     alias kill9 kill -9
@@ -188,3 +189,6 @@
     alias rsync rsync --progress
 
     alias signapk java -jar /home/jeffjose/scripts/apktool/signapk.jar /home/jeffjose/scripts//apktool/certificate.pem /home/jeffjose/scripts//apktool/key.pk8 
+
+    alias removepdfpassword 'qpdf --password=\!:2 --decrypt \!:1 `basename \!:1 .pdf`.nopw.pdf'
+
