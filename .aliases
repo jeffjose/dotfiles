@@ -19,7 +19,8 @@
     alias aliases vim ~/.aliases
     alias del rm -rf
 
-    alias sipy ipython
+    alias sipy  ipython
+    alias sipy3 ipython3
 
     alias so 'echo "Sourcing ~/.cshrc .."; source ~/.cshrc'
     alias grep grep -iE --color=always
