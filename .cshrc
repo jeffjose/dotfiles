@@ -24,6 +24,8 @@
     bindkey -k up   history-search-backward
     bindkey -k down history-search-forward
 
+    set ignoreeof  # prevent accidental shell termination
+
 # History
     set history = 10000
     set savehist = (10000 merge)
