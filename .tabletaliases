@@ -1,0 +1,60 @@
+#
+#          Dims
+#
+#   Left: 1080x1920+0+0 
+# Middle: 1080x1920+1080+0 
+#  Right: 2560x1440+2160+0
+
+#        [c0 c1 c2]   >    [scaleX     0     offsetX]
+#        [c3 c4 c5]   >    [0       scaleY   offsetY]
+#        [c6 c7 c8]   >    [0          0        1   ]
+
+
+
+#
+# Left screen only
+#
+# scaleX = 1080 / (1080+1080+2560)
+#
+#xinput set-prop "HUION PenTablet Pen" --type=float "Coordinate Transformation Matrix" 0.2288135 0 0 0 1 0 0 0 1
+alias tabletleft 'xinput set-prop "HUION PenTablet Pen" --type=float "Coordinate Transformation Matrix" 0.2288135 0 0 0 1 0 0 0 1'
+
+# Make it a square canvas
+# (1920 * 10/6.25) / (1080 + 1080 + 2560)
+# Active Area of the tablet = 10X6.25
+#
+alias tabletleftsq 'xinput set-prop "HUION PenTablet Pen" --type=float "Coordinate Transformation Matrix" 0.650847 0 0 0 1 0 0 0 1'
+
+
+#
+# Middle screen only
+#
+# scaleX  = 1080 / (1080+1080+2560)
+# offsetX = 1080 / (1080+1080+2560)
+#
+#xinput set-prop "HUION PenTablet Pen" --type=float "Coordinate Transformation Matrix" 0.2288135 0 0.2288135 0 1 0 0 0 1
+alias tabletmiddle 'xinput set-prop "HUION PenTablet Pen" --type=float "Coordinate Transformation Matrix" 0.2288135 0 0.2288135 0 1 0 0 0 1'
+
+# Make it a square canvas
+# 1920 / (1080 + 1080 + 2560)
+alias tabletmiddlesq 'xinput set-prop "HUION PenTablet Pen" --type=float "Coordinate Transformation Matrix" 0.650847 0 0.19 0 1 0 0 0 1'
+
+
+#
+# Right screen only
+#
+# scaleX  = 2560 / (1080+1080+2560)
+# offsetX = (1080 + 1080) / (1080 + 1080 + 2560)
+# scaleY  = 1440 / 1920
+#
+#xinput set-prop "HUION PenTablet Pen" --type=float "Coordinate Transformation Matrix" 0.2288135 0 0.2288135 0 1 0 0 0 1
+alias tabletright 'xinput set-prop "HUION PenTablet Pen" --type=float "Coordinate Transformation Matrix" 0.2288135 0 0.2288135 0 1 0 0 0 1'
+
+#
+# Left + Middle screen only
+#
+# scaleX  = (1080 + 1080) / (1080+1080+2560)
+#
+alias tablet2screens 'xinput set-prop "HUION PenTablet Pen" --type=float "Coordinate Transformation Matrix" 0.4576 0 0 0 1 0 0 0 1'
+
+alias tabletall      'xinput set-prop "HUION PenTablet Pen" --type=float "Coordinate Transformation Matrix" 1 0 0 0 1 0 0 0 1'
