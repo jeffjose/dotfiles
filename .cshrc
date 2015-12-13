@@ -44,9 +44,14 @@
     # Setup our precmd; this gets executed before every prompt
     alias precmd 'source ~/.precmd'
 
-    setenv GOPATH /home/jeffjose/scripts/go
-    setenv PATH ${GOPATH}/bin:/usr/lib/dart/bin:/home/jeffjose/.pub-cache/bin:/home/jeffjose/bin:/home/jeffjose/anaconda/bin:/home/jeffjose/.local/bin:${PATH}
+    setenv GOPATH               /home/jeffjose/scripts/go
+    setenv GOOGLECLOUDSDKPATH   /home/jeffjose/google-cloud-sdk
+
+    setenv PATH ${GOPATH}/bin:${GOOGLECLOUDSDKPATH}/bin:/usr/lib/dart/bin:/home/jeffjose/.pub-cache/bin:/home/jeffjose/bin:/home/jeffjose/anaconda/bin:/home/jeffjose/.local/bin:${PATH}
     setenv JAVA_HOME /usr/lib/jvm/java-8-oracle
+
+    setenv GOOGLECLOUDPYSDKPATH /home/jeffjose/google-cloud-python-sdk
+    setenv PYTHONPATH ${GOOGLECLOUDPYSDKPATH}
 
     complete sudo 'p/1/c/'
 
