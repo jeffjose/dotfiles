@@ -3,6 +3,8 @@
     # Source the aliases.sensitive
     source ~/.aliases.sensitive
 
+    source ~/.tabletaliases
+
     alias ls 'ls --color'
     #alias vim nvim
     alias vi vim
@@ -192,4 +194,6 @@
     alias signapk java -jar /home/jeffjose/scripts/apktool/signapk.jar /home/jeffjose/scripts//apktool/certificate.pem /home/jeffjose/scripts//apktool/key.pk8 
 
     alias removepdfpassword 'qpdf --password=\!:2 --decrypt \!:1 `basename \!:1 .pdf`.nopw.pdf'
+
+    alias updatecoursera 'cd /mnt/disk2/coursera; coursera-dl *'
 
