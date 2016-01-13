@@ -75,6 +75,7 @@
     alias eogn 'feh -D 5 --scale-down --auto-zoom --fullscreen'
 
     alias torrent 'qbittorrent \!* &'
+    alias tc torrentcheck
 
     alias music 'rhythmbox \!* &'
 
@@ -137,8 +138,8 @@
 # Palm detection
 # syndaemon -i 1 -K -d
 
-    alias update    'sudo apt-get update'
-    alias updateall 'sudo apt-get autoclean && sudo apt-get clean && sudo apt-get update && sudo apt-get upgrade && sudo apt-get autoremove'
+    alias update       'sudo apt-get update'
+    alias updateall     ~/scripts/updateall.sh
     alias ubuntuupdate 'sudo do-release-upgrade -d'
 
     alias acads 'cd ~/Downloads/acads'
@@ -168,10 +169,11 @@
     alias disk1 'cd /mnt/disk1'
     alias disk2 'cd /mnt/disk2'
 
-    alias d 'cd ~/Downloads'
-    alias s 'cd ~/scripts'
-    alias c 'cd /mnt/disk2/coursera'
-    alias a 'cd ~/Downloads/acads'
+    alias d    'cd ~/Downloads'
+    alias s    'cd ~/scripts'
+    alias c    'cd /mnt/disk2/coursera'
+    alias a    'cd ~/Downloads/acads'
+    alias tuts 'cd /mnt/disk1/tuts'
 
     alias getaudio 'youtube-dl --extract-audio --audio-format mp3 --audio-quality 0 \!*'
 
@@ -196,4 +198,11 @@
     alias removepdfpassword 'qpdf --password=\!:2 --decrypt \!:1 `basename \!:1 .pdf`.nopw.pdf'
 
     alias updatecoursera 'cd /mnt/disk2/coursera; coursera-dl *'
+
+    alias sum md5sum
+    alias easytag 'easytag .'
+
+    alias ndebug 'ping -c 3 google.com -W 1; echo "\n-----------------\n"; traceroute google.com'
+
+    alias j 'cd ~/scripts/jeffjose.github.io'
 
