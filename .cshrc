@@ -52,7 +52,7 @@
     setenv JAVA_HOME /usr/lib/jvm/java-8-oracle
 
     setenv GOOGLECLOUDPYSDKPATH /home/jeffjose/google-cloud-python-sdk
-    setenv PYTHONPATH ${GOOGLECLOUDPYSDKPATH}
+    setenv PYTHONPATH /home/jeffjose/.local/lib/python2.7/site-packages:${GOOGLECLOUDPYSDKPATH}
 
     complete sudo 'p/1/c/'
 
