@@ -47,8 +47,12 @@
     setenv GOPATH               /home/jeffjose/scripts/go
     setenv GOOGLECLOUDSDKPATH   /home/jeffjose/google-cloud-sdk
     setenv ANACONDAPATH         /home/jeffjose/anaconda2
+    setenv DARTPATH             /usr/lib/dart
 
-    setenv PATH ${ANACONDAPATH}/bin:${GOPATH}/bin:${GOOGLECLOUDSDKPATH}/bin:/usr/lib/dart/bin:/home/jeffjose/.pub-cache/bin:/home/jeffjose/bin:/home/jeffjose/anaconda/bin:/home/jeffjose/.local/bin:${PATH}
+    setenv ANDROID_HOME         /home/jeffjose/Android/Sdk
+    setenv ANDROID_NDK_HOME     /home/jeffjose/Android/Ndk
+
+    setenv PATH ${ANACONDAPATH}/bin:${GOPATH}/bin:${GOOGLECLOUDSDKPATH}/bin:${DARTPATH}/bin:${ANDROID_HOME}/tools:/home/jeffjose/.pub-cache/bin:/home/jeffjose/bin:/home/jeffjose/.local/bin:${PATH}
     setenv JAVA_HOME /usr/lib/jvm/java-8-oracle
 
     setenv GOOGLECLOUDPYSDKPATH /home/jeffjose/google-cloud-python-sdk
