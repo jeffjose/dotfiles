@@ -24,6 +24,8 @@
     bindkey -k up   history-search-backward
     bindkey -k down history-search-forward
 
+    bindkey -s "^x" "exit^M"
+
     set ignoreeof  # prevent accidental shell termination
 
 # History
