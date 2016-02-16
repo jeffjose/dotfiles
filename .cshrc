@@ -86,3 +86,12 @@
     CPU utilisation (percentage)            : %P\
     ")
 
+    if ($?STY) then
+        # Inside a screen session. Do nothing
+    else
+        # A blank terminal session.
+        # get or create a new session named 'mainsession'
+        screen -x -R -S main
+    endif
+
+
