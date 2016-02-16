@@ -118,7 +118,9 @@
 
     alias vol 'alsamixer -c 0'
 
-    alias play 'peerflix --vlc \!*'
+    alias play 'peerflix -a --vlc \!*'
+    alias p 'echo play \"`xclip -o`\"; echo play-remove \"`xclip -o`\"; play'
+    alias play-remove '~/scripts/remove_peerflix_files.py \!*'
 
     alias touchpad_off 'synclient TouchpadOff=1'
 
