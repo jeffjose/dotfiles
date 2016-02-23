@@ -22,4 +22,3 @@ if ($?STY) then
 else
     set prompt = "-(${white}%P${end} ${white}${HOST}${end} ${white}%/${end})-\n?${end} "
 endif
-#set prompt = "-(${cyan}%d %D %w, %B%P%b${end} ${host_color}${HOST}${end} ${green}%B%/%b${end})-\n#${end} "
