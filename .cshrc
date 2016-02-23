@@ -1,4 +1,6 @@
 
+if ( ! $?prompt ) exit
+
 # Auto correct turn'd on
 # Possible values = (cmd complete all)
     set correct = all
