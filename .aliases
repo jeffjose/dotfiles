@@ -192,6 +192,7 @@
     alias ansible-update-all-hosts 'ansible-playbook ~/ansible/base.yml --ask-sudo-pass'
 
     alias ar arandr /home/jeffjose/.screenlayout/3monitor.sh
+    alias xr /home/jeffjose/.screenlayout/3monitor.sh
 
     alias rsync rsync --progress
 
@@ -211,3 +212,5 @@
     alias nmap 'nmap -sP 192.168.0.1/24'
 
     alias xit exit
+
+    alias restartx 'sudo /sbin/init 3; sudo /sbin/init 5'
