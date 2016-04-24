@@ -112,6 +112,7 @@
     alias js2coffee js2coffee -i4
 
     alias gitg 'git gui'
+    alias gitk 'gitk --all'
 
     alias foxit 'foxit \!* &'
     alias fox foxit
@@ -214,3 +215,4 @@
     alias xit exit
 
     alias restartx 'sudo /sbin/init 3; sudo /sbin/init 5'
+    alias ping8 'ping 8.8.8.8'
