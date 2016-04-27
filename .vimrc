@@ -428,6 +428,7 @@ noremap <silent><leader>q*  <Esc>:execute 'vimgrep '.expand('<cword>').' '.expan
 
 " CoffeScript
     au BufWritePost *.coffee silent !coffee -bc %
+    au BufWritePost *.cjsx silent !cjsx -bc %
     "au BufWritePost *.coffee silent !coffee -bc | cwindow | redraw!
     au BufReadPost *.js set autoread
 
