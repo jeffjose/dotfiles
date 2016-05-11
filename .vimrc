@@ -422,6 +422,9 @@ map ]q :cnext<CR>
 " '\q*' : search for occurrences of word under cursor, and write to QuickFix
 noremap <silent><leader>q*  <Esc>:execute 'vimgrep '.expand('<cword>').' '.expand('%') <CR> :copen <CR> :cc
 
+" Remove trailing whitespace on save
+autocmd BufWritePre * :%s/\s\+$//e
+
 "
 " End of multi-buffer and multi-file text searching
 "
