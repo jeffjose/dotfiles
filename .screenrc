@@ -81,7 +81,7 @@
     caption always "%{= wk}%?%F%{= Mk}%? -%n- %t %= %t -%n- "
 
     # Dumb bar
-    caption always "%{= k} -%n- %h"
+    #caption always "%{= k} -%n- %h"
 
 
 # Vertical bar
