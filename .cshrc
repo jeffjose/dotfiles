@@ -98,5 +98,3 @@ if ( ! $?prompt ) exit
         # get or create a new session named 'mainsession'
         screen -x -R -S main
     endif
-
-

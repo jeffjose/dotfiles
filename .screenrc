@@ -1,0 +1,117 @@
+# Jeffrey.Jose@ddu-india.com
+#
+
+#TODO: Include a comment for the following line
+    termcapinfo xterm* ti@:te@
+
+# Alt-.
+    bindkey "^[." next # . for next window
+# Alt-,
+    bindkey "^[," prev # , for previous window
+
+# FINALLY! - After close to 5 years of pain, we can have some meaningful navigation
+    bindkey "^[k" focus up    #
+    bindkey "^[j" focus down  #
+    bindkey "^[h" focus left  #
+    bindkey "^[l" focus right #
+
+# Splits
+   bindkey "^[s" split
+   bindkey "^[v" split -v
+
+# Remove
+   bindkey "^[x" remove
+
+# Create a new screen
+    bindkey "^[n" screen
+
+# Maximize/Fit the region
+    bindkey "^[M" fit
+
+# Colon/Command mode
+    bindkey "^[:" colon
+    bindkey "^[;" colon
+
+# Resize regions
+    bindkey "^[[1;3D" resize -1 #  Left Arrow Key = reduce size
+    bindkey "^[[1;3C" resize +1 # Right Arrow Key = increase size
+
+    bindkey "^[[1;3A" resize +1 #    Up Arrow Key = increase size
+    bindkey "^[[1;3B" resize -1 #  Down Arrow Key = reduce size
+
+    bindkey "^[F" focusminsize max max # This is magic
+    #bindkey "^[f" focusminsize 0 0     # This undo's the magic. Right after this, do `resize N`
+    bindkey "^[-" focusminsize 0 0
+    bindkey "^[=" resize =
+
+    bindkey "^[+" resize N
+
+# Only
+    bindkey "^q" only
+
+
+# Layout
+    bindkey "^[N" layout new  # Creates a new layout. This gives you an empty layout
+    bindkey "^[<" layout prev # goes to the next layout
+    bindkey "^[>" layout next # goes to the prev layout
+
+# Copy mode
+    bindkey "^[p" copy
+    bindkey "^[P" paste
+
+# Number of scrollback lines
+    defscrollback 40960
+
+# WORK IN PROGRESS
+    startup_message off
+    shelltitle ''
+    shell -${SHELL}
+
+# The tab bar. Just one per window.
+    hardstatus alwayslastline "%{= my} %-Lw%{+b dG}%25> %n:%t %{= my}%+w %-= %{= yk} %m/%d %C"
+
+# Run programs in the background
+#    backtick 1 1 1 /home/jjose/scripts/screen_test
+
+# The presistant bar for all windows (including split ones)
+#    caption always "%{= yk}%h %= %1` %t -%n- "
+
+# without backtick version
+    caption always "%{= yk} -%n- %h %=  %t -%n- "
+
+# Messages
+    activity "Someone's tinkering in %t(%n)"
+
+# Colorize the "messages" and "text marking"
+#  gray on yellow
+    sorendition 00 yK
+
+# hardcopy - C-a h
+    hardcopydir /home/jjose/.screen-hardcopy
+
+# bufferFile
+    bufferfile /tmp/.screen_exchange
+
+# Paste stuff to clipboard from scrollback buffer
+#    bind b eval "writebuf" "exec sh -c '/home/jjose/bin/xsel -c -i'"
+
+# Multiuser
+    multiuser on
+
+# Power Detach Message
+    pow_detach_msg "Screen session of \$LOGNAME \$:cr: \$:nl:ended."
+
+# bind shift-<numbers> for window selections
+    bind )  select  10
+    bind !  select  11
+    bind @  select  12
+    bind \# select  13
+    bind \$ select  14
+    bind %  select  15
+    bind \^ select  16
+    bind &  select  17
+    bind *  select  18
+    bind (  select  19
+
+    bindkey "^[1" layout select 'default'
+    bindkey "^[2" layout select 'tp2'

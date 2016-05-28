@@ -1,0 +1,25 @@
+# Jeffrey.Jose@ddu-india.com
+#
+
+source "$HOME/.screenrc"
+
+
+## Transfer Pipeline
+#    layout new "tp2"
+#    screen -t ttp01  12 ssh xfersrv01.ddu-india.com
+#    split
+#    focus down
+#    screen -t ttp02  13 ssh xfersrv02.ddu-india.com
+#    split
+#    focus down
+#    screen -t dwa01  14 ssh -t expat.anim.dreamworks.com ssh xfersrv01.anim.dreamworks.com
+#    split
+#    focus down
+#    screen -t dwa02  15 ssh -t expat.anim.dreamworks.com ssh xfersrv02.anim.dreamworks.com
+
+# Automatically open tabs
+    layout new "default"
+    screen -t 
+    screen -t   
+    screen -t   
+    screen
