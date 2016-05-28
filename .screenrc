@@ -69,7 +69,7 @@
     #backtick 0 30 30 sh -c 'screen -ls | grep --color=no -o "$PPID[^[:space:]]*"'
 
 # The tab bar. Just one per window.
-    hardstatus alwayslastline "%{= Kw} %-Lw%{kG}%25> %n:%t %{= Kw}%+w %-= %{= KW} %l %{= Kw} %{= Bk} %D, %d %M %{= Kw} %{= Bk}%C:%s%A "
+    hardstatus alwayslastline "%{= kw} %-Lw%{KG}%25> %n:%t %{= kw}%+w %-= %{= KW} %l %{= kG} %{= Bk} %D, %d %M %{= kw} %{= Bk}%C:%s%A "
 
 
 # The presistant bar for all windows (including split ones)
@@ -78,7 +78,7 @@
 # without backtick version
 
     # Show a colored border on the active window
-    #caption always "%?%F%{.G.}%?%{= k} -%n-"
+    caption always "%{= wk}%?%F%{= Mk}%? -%n- %t %= %t -%n- "
 
     # Dumb bar
     caption always "%{= k} -%n- %h"
