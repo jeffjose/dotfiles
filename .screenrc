@@ -66,24 +66,29 @@
     shelltitle ''
     shell -${SHELL}
 
-# The tab bar. Just one per window.
-    hardstatus alwayslastline "%{= my} %-Lw%{+b dG}%25> %n:%t %{= my}%+w %-= %{= yk} %m/%d %C"
+    #backtick 0 30 30 sh -c 'screen -ls | grep --color=no -o "$PPID[^[:space:]]*"'
 
-# Run programs in the background
-#    backtick 1 1 1 /home/jjose/scripts/screen_test
+# The tab bar. Just one per window.
+    hardstatus alwayslastline "%{= Kw} %-Lw%{kG}%25> %n:%t %{= Kw}%+w %-= %{= KW} %l %{= Kw} %{= Bk} %D, %d %M %{= Kw} %{= Bk}%C:%s%A "
+
 
 # The presistant bar for all windows (including split ones)
 #    caption always "%{= yk}%h %= %1` %t -%n- "
 
 # without backtick version
-    caption always "%{= yk} -%n- %h %=  %t -%n- "
+
+    # Show a colored border on the active window
+    #caption always "%?%F%{.G.}%?%{= k} -%n-"
+
+    # Dumb bar
+    caption always "%{= k} -%n- %h"
+
+
+# Vertical bar
+    sorendition 00 wk
 
 # Messages
     activity "Someone's tinkering in %t(%n)"
-
-# Colorize the "messages" and "text marking"
-#  gray on yellow
-    sorendition 00 yK
 
 # hardcopy - C-a h
     hardcopydir /home/jjose/.screen-hardcopy
