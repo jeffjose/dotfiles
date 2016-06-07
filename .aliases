@@ -50,7 +50,7 @@
     alias fwc 'find . | wc'
 
     alias coursera 'cd /mnt/disk2/coursera'
-    
+
     # Wharton Canvas
     # Token: 25~0BSCo871KwDf3wDcVX5DiezXVoVavIPHMqeFeS1ValI3kWa2n6whwMAuwk4inTJG
     alias canvas-dl '/home/jeffjose/scripts/canvas-command-line/canvas_tools.py'
@@ -97,9 +97,9 @@
     #alias vpn_pdi 'cd ~/.juniper_networks/network_connect/; sudo ./ncsvc -h connect.pdi.com            -u jjose -r RSA -L 1 -f outfile.pdi.cert -p1234\!*'
     #alias vpn_ddu 'cd ~/.juniper_networks/network_connect/; sudo ./ncsvc -h connect.ddu.dreamworks.com -u jjose -r RSA -L 1 -f outfile.ddu.cert -p1234\!*'
 
-    alias vpn_gld 'cd ~/.juniper_networks/network_connect/; sudo ./ncsvc -h connect.dreamworks.com     -u jjose -r PingID -L 1 -f connect.dreamworks.com     -p kleyB00ard'
-    alias vpn_pdi 'cd ~/.juniper_networks/network_connect/; sudo ./ncsvc -h connect.pdi.com            -u jjose -r PingID -L 1 -f connect.pdi.com            -p kleyB00ard'
-    alias vpn_ddu 'cd ~/.juniper_networks/network_connect/; sudo ./ncsvc -h connect.ddu.dreamworks.com -u jjose -r PingID -L 1 -f connect.ddu.dreamworks.com -p kleyB00ard'
+    alias vpn_gld 'cd ~/.juniper_networks/network_connect/; sudo ./ncsvc -h connect.dreamworks.com     -u jjose -r PingID -L 1 -f connect.dreamworks.com     -p pass'
+    alias vpn_pdi 'cd ~/.juniper_networks/network_connect/; sudo ./ncsvc -h connect.pdi.com            -u jjose -r PingID -L 1 -f connect.pdi.com            -p pass'
+    alias vpn_ddu 'cd ~/.juniper_networks/network_connect/; sudo ./ncsvc -h connect.ddu.dreamworks.com -u jjose -r PingID -L 1 -f connect.ddu.dreamworks.com -p pass'
 
     alias vpn_dwa vpn_gld
     alias ddu_vpn vpn_ddu
@@ -119,9 +119,8 @@
 
     alias vol 'alsamixer -c 0'
 
-    alias play 'peerflix -a --vlc \!*'
+    #alias play 'peerflix -a --vlc \!*'
     alias p 'echo play \"`xclip -o`\"; echo play-remove \"`xclip -o`\"; play'
-    alias play-remove '~/scripts/remove_peerflix_files.py \!*'
 
     alias touchpad_off 'synclient TouchpadOff=1'
 
@@ -135,9 +134,9 @@
     # "f" for fullscreen
 
     alias imgur-download '/usr/bin/python3 /home/jeffjose/scripts/imgur-album-downloader/imguralbum.py'
-    
+
     alias skipper 'cd /run/user/1000/gvfs/smb-share:server=10.0.0.66,share=jeffjose'
-    
+
 # Palm detection
 # syndaemon -i 1 -K -d
 
@@ -197,7 +196,7 @@
 
     alias rsync rsync --progress
 
-    alias signapk java -jar /home/jeffjose/scripts/apktool/signapk.jar /home/jeffjose/scripts//apktool/certificate.pem /home/jeffjose/scripts//apktool/key.pk8 
+    alias signapk java -jar /home/jeffjose/scripts/apktool/signapk.jar /home/jeffjose/scripts//apktool/certificate.pem /home/jeffjose/scripts//apktool/key.pk8
 
     alias removepdfpassword 'qpdf --password=\!:2 --decrypt \!:1 `basename \!:1 .pdf`.nopw.pdf'
 
