@@ -1,0 +1,4 @@
+# Invoke IPython when pdb launches
+
+import IPython
+IPython.embed()
