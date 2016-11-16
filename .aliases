@@ -215,3 +215,6 @@
 
     alias restartx 'sudo /sbin/init 3; sudo /sbin/init 5'
     alias ping8 'ping 8.8.8.8'
+
+    alias youtubecast 'youtube-dl -o - \!* | castnow --quiet -'
+    alias playcast youtubecast
