@@ -11,14 +11,22 @@
     set prompt='[%n@%m %B%c%b]%# '
     set ellipsis
 
+set WIFI = `iwgetid -r`
+
 if (${HOST} == "spectre") then
     set host_color = "${magenta}"
 else
     set host_color = "${yellow}"
 endif
 
-if ($?STY) then
-    set prompt = "-(${cyan}%B%P%b${end} ${host_color}${HOST}${end} ${green}%B%/%b${end})-\n#${end} "
+if (${WIFI} == 'Barracuda') then
+    set wifi_color = "${magenta}"
 else
-    set prompt = "-(${white}%P${end} ${white}${HOST}${end} ${white}%/${end})-\n?${end} "
+    set wifi_color = "${yellow}"
+endif
+
+if ($?STY) then
+    set prompt = "-(${cyan}%B%P%b${end} ${host_color}${HOST}${end} ${wifi_color}@%B${WIFI}%b${end} ${green}%B%/%b${end})-\n#${end} "
+else
+    set prompt = "-(${white}%P${end} ${white}${HOST}${end} ${white}${WIFI}${end} ${white}%/${end})-\n?${end} "
 endif
