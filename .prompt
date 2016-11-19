@@ -21,12 +21,17 @@ endif
 
 if (${WIFI} == 'Barracuda') then
     set wifi_color = "${magenta}"
+    set wifi_str = "@${WIFI}"
+else if (${WIFI} == '') then
+    set wifi_color = "${red}"
+    set wifi_str = "offline"
 else
     set wifi_color = "${yellow}"
+    set wifi_str = "@${WIFI}"
 endif
 
 if ($?STY) then
-    set prompt = "-(${cyan}%B%P%b${end} ${host_color}${HOST}${end} ${wifi_color}@%B${WIFI}%b${end} ${green}%B%/%b${end})-\n#${end} "
+    set prompt = "-(${cyan}%B%P%b${end} ${host_color}${HOST}${end} ${wifi_color}${wifi_str}${end} ${green}%B%/%b${end})-\n#${end} "
 else
     set prompt = "-(${white}%P${end} ${white}${HOST}${end} ${white}${WIFI}${end} ${white}%/${end})-\n?${end} "
 endif
