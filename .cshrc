@@ -49,19 +49,17 @@ if ( ! $?prompt ) exit
     alias precmd 'source ~/.precmd'
 
     setenv GOPATH               /home/jeffjose/scripts/go
-    setenv GOOGLECLOUDSDKPATH   /home/jeffjose/google-cloud-sdk
-    setenv ANACONDAPATH         /home/jeffjose/anaconda2
+    setenv ANACONDAPATH         /home/jeffjose/anaconda3
     setenv DARTPATH             /usr/lib/dart
 
     setenv ANDROID_HOME         /home/jeffjose/Android/Sdk
     setenv ANDROID_NDK_HOME     /home/jeffjose/Android/Ndk
     setenv ANDROID_VER          23.0.1
 
-    setenv PATH ${ANACONDAPATH}/bin:${GOPATH}/bin:${GOOGLECLOUDSDKPATH}/bin:${DARTPATH}/bin:${ANDROID_HOME}/tools:${ANDROID_HOME}/build-tools/${ANDROID_VER}:/home/jeffjose/.pub-cache/bin:/home/jeffjose/bin:/home/jeffjose/.local/bin:${PATH}
+    setenv PATH ${ANACONDAPATH}/bin:${GOPATH}/bin:${DARTPATH}/bin:${ANDROID_HOME}/tools:${ANDROID_HOME}/build-tools/${ANDROID_VER}:/home/jeffjose/.pub-cache/bin:/home/jeffjose/bin:/home/jeffjose/.local/bin:${PATH}
     setenv JAVA_HOME /usr/lib/jvm/java-8-oracle
 
-    setenv GOOGLECLOUDPYSDKPATH /home/jeffjose/google-cloud-python-sdk
-    setenv PYTHONPATH /home/jeffjose/.local/lib/python2.7/site-packages:${GOOGLECLOUDPYSDKPATH}
+    setenv PYTHONPATH /home/jeffjose/.local/lib/python2.7/site-packages
 
     complete sudo 'p/1/c/'
 
