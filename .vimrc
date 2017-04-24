@@ -10,7 +10,7 @@ set autoindent
 "set nosmartindent
 
 " Automatically detect file types
-filetype plugin indent on 
+filetype plugin indent on
 filetype on
 
 " Enable syntax highlighting.
@@ -46,7 +46,7 @@ set incsearch
 
 " Highlight search items
 set hlsearch
-    
+
 " Ignore case when searching.
 set ignorecase
 
@@ -142,7 +142,7 @@ nmap <F2> 0i#<Esc>
 vmap <F2> :-1/^/s//#/<CR>
 
 " Uncomment me, wont you ?
-" F3 
+" F3
 imap <F3> <Esc>0x<Esc>
 nmap <F3> 0x<Esc>
 vmap <F3> :-1/^#/s///<CR>
@@ -151,7 +151,8 @@ vmap <F3> :-1/^#/s///<CR>
 " Paste Toggle
 map <F5> :set paste!<CR>
 
-iab pdb from PyQt4 import QtCore; QtCore.pyqtRemoveInputHook()<Right>; import pdb; pdb.set_trace()<Right><Esc>
+"iab pdb from PyQt4 import QtCore; QtCore.pyqtRemoveInputHook()<Right>; import pdb; pdb.set_trace()<Right><Esc>
+iab pdb import pdb; pdb.set_trace()<Right><Esc>
 iab stack import traceback; print traceback.print_stack()
 
 
@@ -201,7 +202,7 @@ map <silent><C-Right> <C-]>
 let g:miniBufExplMapWindowNavVim = 1
 let g:miniBufExplMapWindowNavArrows = 1
 let g:miniBufExplMapCTabSwitchBufs = 1
-let g:miniBufExplModSelTarget = 1 
+let g:miniBufExplModSelTarget = 1
 
 
 " Tabs
@@ -224,15 +225,15 @@ autocmd BufReadPost *
 \ endif
 
 
-" Experimental 
+" Experimental
 imap jk <Esc>
 imap JK <Esc>
 
 " Move around split windows quickly
 nmap <c-j> <c-w>j
-nmap <c-k> <c-w>k 
-nmap <c-h> <c-w>h 
-nmap <c-l> <c-w>l 
+nmap <c-k> <c-w>k
+nmap <c-h> <c-w>h
+nmap <c-l> <c-w>l
 
 " vim72 tabs
 "nmap <C-S-l> :tabnext<CR>
@@ -256,41 +257,41 @@ nmap gx yiw/def <C-R>"<CR>zz
 
 " prc_checkout
 function! PrcCheckout()
-    exe ':!pco %:p' 
+    exe ':!pco %:p'
     endfunction
 map _o :call PrcCheckout()<CR>
 
 " prc_checkin
 function! PrcCheckin()
-    exe ':!pci %:p' 
+    exe ':!pci %:p'
     endfunction
 map _i :call PrcCheckin()<CR>
 
 " prc_softCheckout
 function! PrcSoftCheckout()
-    exe ':!pco -s %:p' 
+    exe ':!pco -s %:p'
     endfunction
 map _s :call PrcSoftCheckout()<CR>
 
 " prc_release
 function! PrcRelease()
-    exe ':!prc_release %:p' 
+    exe ':!prc_release %:p'
     endfunction
 map _r :call PrcRelease()<CR>
 
 " prc_release
 function! PrcFill()
-    exe ':!prc_fill %:p' 
+    exe ':!prc_fill %:p'
     endfunction
 map _f :call PrcFill()<CR>
 
 " prc_open/pcp
 function! PrcOpen()
-    exe ':!prc_open %:p' 
+    exe ':!prc_open %:p'
     endfunction
 map _p :call PrcOpen()<CR>
 
-" For ADB Syntax, 
+" For ADB Syntax,
 "
 " adb Syntax
 " #1. include the following lines in .vim/ftdetect/adb.vim
@@ -305,7 +306,7 @@ map _p :call PrcOpen()<CR>
 " have this in your vimrc anymore:
 "if has ("autocmd")
 "    autocmd FileType python set complete+=k/work/td/pydiction iskeyword+=.,(
-"endif 
+"endif
 
 "let g:pydiction_location = '/work/td/pydiction'
 "let g:pydiction_menu_heigh = 20
@@ -364,7 +365,7 @@ function! CurDir()
 "    return getcwd()
 endfunction
 
-" Set autoread. 
+" Set autoread.
 " useful when you're using VIM instead of tail -f
 set autoread
 
@@ -394,7 +395,7 @@ function! QFixToggle(forced)
         execute "copen"
     endif
 endfunction
- 
+
 " Used to track the quickfix window.
 augroup QFixToggle
     autocmd!
@@ -403,22 +404,22 @@ augroup QFixToggle
 augroup END
 " '\g' : grep all open buffers
 :noremap <Leader>g <Esc>:GrepBuffer <CR>
- 
+
 " '\gg' : grep all open buffers for word under cursor
 :noremap <Leader>gg <Esc>:GrepBuffer <C-R><C-W><CR>
- 
+
 " '\G' : recursively grep through filesystem
 :noremap <Leader>G <Esc>:Rgrep<CR>
- 
+
 " '\qq' : toggle QuickFix window (errors and vimgrep results here)
 noremap <silent><leader>qq <Esc>:call QFixToggle(0)<CR>
- 
+
 " '[q' previous quickfix entry
 map [q :cprev<CR>
- 
+
 " ']q' next quickfix entry
 map ]q :cnext<CR>
- 
+
 " '\q*' : search for occurrences of word under cursor, and write to QuickFix
 noremap <silent><leader>q*  <Esc>:execute 'vimgrep '.expand('<cword>').' '.expand('%') <CR> :copen <CR> :cc
 
@@ -437,8 +438,8 @@ autocmd BufWritePre * :%s/\s\+$//e
 
 " LESS files
     au! BufRead,BufNewFile *.less set filetype=less
-    "au BufWritePost *.less :silent !lessc <afile> <afile>:p:r.css
-    
+    au BufWritePost *.less :silent !lessc <afile> <afile>:p:r.css
+
     " Less compile
     autocmd FileWritePost,BufWritePost *.less :call LessCSSCompress()
     function! LessCSSCompress()
