@@ -8,10 +8,10 @@
     set   white="%{\033[0;37m%}"
     set     end="%{\033[0m%}"    # This is needed at the end... :(
 
-    set prompt='[%n@%m %B%c%b]%# '
+    #set prompt='[%n@%m %B%c%b]%# '
     set ellipsis
 
-set WIFI = `iwgetid -r`
+set WIFI = `iwgetid -r | tr ' ' '.' | tr '[A-Z]' '[a-z]'`
 
 if (${HOST} == "spectre") then
     set host_color = "${magenta}"
@@ -19,10 +19,10 @@ else
     set host_color = "${yellow}"
 endif
 
-if (${WIFI} == 'Barracuda') then
+if ("${WIFI}" == 'barracuda') then
     set wifi_color = "${magenta}"
     set wifi_str = "@${WIFI}"
-else if (${WIFI} == '') then
+else if ("${WIFI}" == '') then
     set wifi_color = "${red}"
     set wifi_str = "offline"
 else
