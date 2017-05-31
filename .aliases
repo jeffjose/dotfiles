@@ -180,6 +180,7 @@
     alias b    'cd ~/Downloads/books'
     alias tuts 'cd /mnt/disk1/tuts'
     alias 2 'cd /mnt/disk2'
+    alias r 'cd /media/jeffjose/rico'
 
     alias getaudio 'youtube-dl --extract-audio --audio-format mp3 --audio-quality 0 \!*'
 
