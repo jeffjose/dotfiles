@@ -241,3 +241,6 @@
     alias df 'df --total -T'
 
     alias update-ubuntu 'updateall; install dist-upgrade; sudo do-release-upgrade -d'
+
+    alias rsync 'rsync --stats --progress'
+    alias rsync-cp 'rsync -avzh \!*'
