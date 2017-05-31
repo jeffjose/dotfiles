@@ -179,6 +179,7 @@
     alias a    'cd ~/Downloads/acads'
     alias b    'cd ~/Downloads/books'
     alias tuts 'cd /mnt/disk1/tuts'
+    alias 2 'cd /mnt/disk2'
 
     alias getaudio 'youtube-dl --extract-audio --audio-format mp3 --audio-quality 0 \!*'
 
@@ -223,3 +224,20 @@
     alias playcast youtubecast
 
     alias barracuda 'nmcli c up uuid b28a0282-4501-48f2-8fbf-aa2fd796a09f'
+
+    alias gparted 'sudo gparted'
+
+    alias v 'cd ~/scripts/vuejs-tornado-seed'
+
+    alias msum md5sum
+
+    alias cs 'cd ~/scripts/coursesmash/src'
+
+    alias yget 'youtube-dl'
+    alias y "'echo youtube-dl \'`xclip -o`\'; youtube-dl \'`xclip -o`\';'"
+
+    alias jj 'cd ~/scripts/jeffjose.github.io'
+
+    alias df 'df --total -T'
+
+    alias update-ubuntu 'updateall; install dist-upgrade; sudo do-release-upgrade -d'
