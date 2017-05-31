@@ -31,7 +31,7 @@ else
 endif
 
 
-set free_space = `df -h . | grep sda | awk '{print $5}'`
+set free_space = `df -h . | grep 'sd\w' | awk '{print $5}'`
 
 if ($?STY) then
     set prompt = "-(${cyan}%B%P%b${end} ${host_color}${HOST}${end} ${wifi_color}${wifi_str}${end} ${green}%B%/%b ${green}%B${free_space}${end})-\n#${end} "
