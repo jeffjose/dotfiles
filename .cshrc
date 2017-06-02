@@ -66,6 +66,9 @@ if ( ! $?prompt ) exit
 # After a 'Ctrl-Z', list all the jobs
     set listjobs
 
+    # Set Caps Lock to Ctrl
+    setxkbmap -option caps:ctrl_modifier
+
 # Synaptics
 # This has to be done because my touchpad kinda broke after update to 15.10
 #    # Speed up 2 finger scroll speed
