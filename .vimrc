@@ -44,9 +44,6 @@ set showcmd
 " Search as you type.
 set incsearch
 
-" Highlight search items
-set hlsearch
-
 " Ignore case when searching.
 set ignorecase
 
@@ -61,6 +58,12 @@ set gcr=a:blinkon0
 
 " Show editing mode
 colorscheme desert
+
+" Highlight search items (Put this after `colorscheme`)
+set hlsearch
+
+" Search words werent highlighting. Fixing that.
+hi Search ctermfg=0 ctermbg=3 guifg=Black guibg=Yellow
 
 " Show relative numbers (only in vim7.3+)
 " set relativenumber
@@ -474,6 +477,5 @@ Plugin 'VundleVim/Vundle.vim'
 Plugin 'godlygeek/tabular'
 Plugin 'plasticboy/vim-markdown'
 Plugin 'groenewege/vim-less'
-
 
 call pathogen#infect()
