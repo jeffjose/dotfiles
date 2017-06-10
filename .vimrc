@@ -26,6 +26,7 @@ set ts=4 sw=4 expandtab
 autocmd FileType html :setlocal sw=2 ts=2 sts=2 expandtab
 autocmd FileType coffee :setlocal sw=2 ts=2 sts=2 expandtab
 autocmd FileType js :setlocal sw=2 ts=2 sts=2 expandtab
+autocmd FileType vue :setlocal sw=2 ts=2 sts=2 expandtab
 
 "set shiftwidth=4
 "set tabstop=4
