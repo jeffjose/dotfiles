@@ -119,7 +119,7 @@
 
     alias vol 'alsamixer -c 0'
 
-    #alias play 'peerflix -a --vlc \!*'
+    alias play 'peerflix -a --vlc ""\!*""'
     #alias p 'echo play \"`xclip -o`\"; echo play-remove \"`xclip -o`\"; play'
     alias p 'echo play \"`xclip -o`\"; play \"`xclip -o`\";'
     alias cleantmp 'rm -rf /tmp/torrent-stream/*'
