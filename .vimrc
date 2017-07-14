@@ -77,8 +77,8 @@ set wildmode=list:longest,full
 " Show matching brackets
 set showmatch
 
-" Allow mouse clicks to change the cusor position
-"set mouse=a
+" Disable mouse
+set mouse=
 
 " Keep the temporary files in different folder
 "set directory=/tmp/.vim_swp
