@@ -66,6 +66,10 @@ set hlsearch
 " Search words werent highlighting. Fixing that.
 hi Search ctermfg=0 ctermbg=3 guifg=Black guibg=Yellow
 
+" Ctrl-N completion wasnt highlighting
+hi Pmenu ctermfg=0 ctermbg=3 guifg=Black guibg=White
+
+
 " Show relative numbers (only in vim7.3+)
 " set relativenumber
 
