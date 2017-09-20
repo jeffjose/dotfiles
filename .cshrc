@@ -67,6 +67,8 @@ if ( ! $?prompt ) exit
     set listjobs
 
     # Set Caps Lock to Ctrl
+    #
+    # if Caps Lock gets stuck in "on" position, run `setxkbmap -option` to undo the following line
     setxkbmap -option caps:ctrl_modifier
 
 # Synaptics
