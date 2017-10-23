@@ -40,7 +40,7 @@ echo -e 'Patching tcsh for ubuntu 16.10'
 echo -e '---------------------------------------------------------'
 echo -e ''
 # patched tcsh for ubuntu 16.10
-sudo gdebi -n ~/scripts/tcsh-bug-fix/t2/*deb
+sudo gdebi -n ~/dotfiles/tcsh_6.18.01-5_amd64.bugfix.deb
 
 echo -e ''
 echo -e '---------------------------------------------------------'
