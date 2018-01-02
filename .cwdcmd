@@ -1,0 +1,9 @@
+# cwdcmd
+
+  set output_file = '/tmp/cwdcmd_recent_dirs'
+
+  cat /tmp/cwdcmd_recent_dirs | sort | uniq > ${output_file}
+
+  pwd >> ${output_file}
+
+  tail -n 10 ${output_file} | sponge ${output_file}
