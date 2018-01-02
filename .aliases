@@ -153,15 +153,6 @@
     alias pdfgrep 'pdfgrep \!*'
     alias pack pdfgrep
 
-# Course Navigation
-    alias acads 'cd ~/Downloads/acads/s1'
-
-    alias mgmt  'acads; cd MGMT611/'
-    alias mktg  'acads; cd MKTG611/'
-    alias acct  'acads; cd ACCT613/'
-    alias mgec  'acads; cd MGEC611/'
-    alias stat  'acads; cd STAT613/'
-    alias mkt   mktg
 
     alias fixit '~/.screenlayout/3monitor.sh'
 
