@@ -13,10 +13,15 @@
 
 set WIFI = `iwgetid -r | tr ' ' '.' | tr '[A-Z]' '[a-z]' | sed 's/^@//g'`
 
-if (${HOST} == "spectre") then
+if (${HOST} == "jeffjose-glaptop.roam.corp.google.com") then
+    set host_name = "laptop"
+    set host_color = "${yellow}"
+else if (${HOST} == "jeffjose.mtv.corp.google.com") then
+    set host_name = "workstation"
     set host_color = "${magenta}"
 else
     set host_color = "${yellow}"
+    set host_name = "${HOST}"
 endif
 
 if ("${WIFI}" == 'barracuda') then
@@ -31,10 +36,77 @@ else
 endif
 
 
-set free_space = `df -h . | grep 'sd\w' | awk '{print $5}'`
+# Git
+#
+if (`bash -c 'git rev-parse --git-dir 2> /dev/null'` != "") then
+
+  set git_status = `~/dotfiles/gitstatus.sh`
+
+  set git_branch    = $git_status[1]
+
+  if ($git_status[2] == '_NO_REMOTE_TRACKING_') then
+    set git_remote = ''
+  else
+    set git_remote = "$git_status[2]"
+  endif
+
+  if ($git_status[4] == 0) then
+    set git_staged = ''
+  else
+    set git_staged="●${git_status[4]}"
+  endif
+
+  if ($git_status[5] == 0) then
+    set git_conflicts = ''
+  else
+    set git_conflicts = "$git_status[5]"
+  endif
+
+  if ($git_status[6] == 0) then
+    set git_changed = ''
+  else
+    set git_changed="✚${git_status[6]}"
+  endif
+
+  if ($git_status[7] == 0) then
+    set git_untracked = ''
+  else
+    set git_untracked="…${git_status[7]}"
+  endif
+
+  if ($git_status[8] == 0) then
+    set git_stashed = ''
+  else
+    set git_stashed = "$git_status[8]"
+  endif
+
+  if ("$git_status[9]" == 0) then
+    set git_clean = ''
+  else
+    set git_clean="✔"
+  endif
+
+
+  set git_str = " ${magenta}${git_branch}${git_remote}${end}:${red}${git_untracked}${end}${yellow}${git_changed}${end}${blue}${git_staged}${end}${green}${git_clean}${end}"
+
+else
+  set git_str = ''
+endif
+
+#echo "$git_branch"
+#echo "$git_remote"
+#echo "$git_staged"
+#echo "$git_conflicts"
+#echo "$git_changed"
+#echo "$git_untracked"
+#echo "$git_stashed"
+#echo "$git_clean"
+#echo ""
+#echo "$git_str"
+#
 
 if ($?STY) then
-    set prompt = "-(${cyan}%B%P%b${end} ${host_color}${HOST}${end} ${wifi_color}${wifi_str}${end} ${green}%B%/%b ${green}%B${free_space}${end})-\n#${end} "
+    set prompt = "-(${cyan}%B%P%b${end} ${host_color}${host_name}${end} ${green}%B%/%b${green}%B${end}${git_str})-\n#${end} "
 else
-    set prompt = "-(${white}%P${end} ${white}${HOST}${end} ${white}${WIFI}${end} ${white}%/${end})-\n?${end} "
+    set prompt = "-(${white}%P${end} ${white}${host_name}${end} ${white}%/${end})-\n?${end} "
 endif
