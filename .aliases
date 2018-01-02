@@ -237,6 +237,18 @@
 
     alias rsync 'rsync --stats --progress'
     alias rsync-cp 'rsync -avzh \!*'
+
+    alias notes 'cat ~/notes'
+
+    alias recent 'cat /tmp/cwdcmd_recent_dirs'
+
+    alias xd meld
+
+    alias diff colordiff
+
+
+
+
     # Google
 
     alias sync_scripts_from_workstation 'rsync -azP --delete workstation:///usr/local/google/home/jeffjose/scripts/ ~/scripts/'
