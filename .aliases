@@ -6,7 +6,7 @@
     source ~/.tabletaliases
 
     alias ls 'ls --color'
-    alias vim nvim
+    #alias vim nvim
     alias vi vim
     alias ll 'ls -lGh'
     alias l ll
@@ -66,7 +66,7 @@
     alias ack ack-grep -i
     alias acki ack-grep
 
-    alias fb 'thunar . &'
+    alias fb 'nautilus . &'
 
     alias dl 'nautilus ~/Downloads &'
 
@@ -180,7 +180,7 @@
 
     alias www 'cd ~/scripts/jeffjose.github.io'
 
-    alias screen 'screen -c ~/.screen/default'
+    alias screen 'scrn -c ~/.screen/default'
 
     alias ansible-update-all-hosts 'ansible-playbook ~/ansible/base.yml --ask-sudo-pass'
 

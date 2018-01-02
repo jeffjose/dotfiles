@@ -2,10 +2,22 @@
 
     alias sync_scripts_from_workstation 'rsync -azP --delete workstation:///usr/local/google/home/jeffjose/scripts/ ~/scripts/'
     alias sync_scripts_from_laptop 'rsync -azP --delete laptop:///home/jeffjose/scripts/ ~/scripts/'
+    alias sync_scripts_to_workstation 'rsync -azP --delete /home/jeffjose/scripts/ workstation:////usr/local/google/home/jeffjose/scripts/'
 
+    alias sync_dropbox_to_workstation 'rsync -azP --delete ~/dropbox/ workstation:///usr/local/google/home/jeffjose/dropbox/'
+    alias sync_dropbox_from_workstation 'rsync -azP --delete workstation:///usr/local/google/home/jeffjose/dropbox/ ~/dropbox/'
     alias sync_dropbox_from_laptop 'rsync -azP --delete laptop:///home/jeffjose/dropbox/ ~/dropbox/'
 
+    alias sync_downloads_from_workstation 'rsync -azP --delete workstation:///usr/local/google/home/jeffjose/Downloads/ ~/Downloads/'
+    alias sync_downloads_from_laptop 'rsync -azP --delete laptop:///home/jeffjose/Downloads/ ~/Downloads/'
+
+
+
     alias send_to_laptop 'rsync -azP --delete \!* laptop:///home/jeffjose/Downloads/'
+    alias get_from_workstation 'rsync -azP --delete workstation://\!* .'
+
+    #alias connect_to_workstation 'ssh -Xt workstation scrn -x -R -S main'
+    alias connect_to_workstation 'mosh workstation'
 
     alias b blaze
     alias bb   blaze build -c opt --forge --objfs

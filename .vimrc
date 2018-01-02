@@ -2,44 +2,9 @@
 " This must be first, because it changes other options as a side effect.
 set nocompatible
 
-set rtp+=~/.vim/bundle/Vundle.vim
-
-call vundle#begin()
-
-Plugin 'SirVer/ultisnips'
-Plugin 'honza/vim-snippets'
-
-"
-"
 " Use the 'google' package by default (see http://go/vim/packages).
-source /usr/share/vim/google/google.vim
-
-" Go Stuff
-Glug codefmt gofmt_executable="goimports"
-Glug codefmt-google
-autocmd FileType go AutoFormatBuffer gofmt
-Glug blazedeps auto_filetypes=`['go']`
-
-" autocomplete
-"Glug youcompleteme-google
-
-" snippets
-Glug ultisnips-google
-
-
-augroup autoformat
-  autocmd!
-  " Autoformat BUILD files on write.
-  autocmd FileType bzl AutoFormatBuffer buildifier
-  " Autoformat go files on write.
-  autocmd FileType go AutoFormatBuffer gofmt
-  " Autoformat proto files on write.
-  autocmd FileType proto AutoFormatBuffer clang-format
-  " Autoformat c and c++ files on write.
-  autocmd FileType c,cpp AutoFormatBuffer clang-format
-augroup END
-
-
+" This doesnt work in laptops
+"source ~/.vim/google.vim
 
 " Automatically indent when adding a curly bracket, etc.
 set autoindent
@@ -201,6 +166,8 @@ map <F5> :set paste!<CR>
 "iab pdb from PyQt4 import QtCore; QtCore.pyqtRemoveInputHook()<Right>; import pdb; pdb.set_trace()<Right><Esc>
 iab pdb import pdb; pdb.set_trace()<Right><Esc>
 iab stack import traceback; print traceback.print_stack()
+
+iab rr if err != nil {}<Return><Return><Up>
 
 
 " Wrap quotes around my word!
@@ -482,6 +449,7 @@ autocmd BufWritePre * :%s/\s\+$//e
     au BufWritePost *.cjsx silent !cjsx -bc %
     "au BufWritePost *.coffee silent !coffee -bc | cwindow | redraw!
     au BufReadPost *.js set autoread
+    au BufWritePost *.go silent !gofmt -w %
 
 " LESS files
     au! BufRead,BufNewFile *.less set filetype=less

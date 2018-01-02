@@ -91,7 +91,7 @@
     activity "Someone's tinkering in %t(%n)"
 
 # hardcopy - C-a h
-    hardcopydir /home/jjose/.screen-hardcopy
+    hardcopydir ~/.screen-hardcopy
 
 # bufferFile
     bufferfile /tmp/.screen_exchange
