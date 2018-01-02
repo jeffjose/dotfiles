@@ -53,3 +53,4 @@
 
     alias gq gqui
     alias fb 'nautilus . &'
+    alias screen 'scrn -c ~/.screen/default'

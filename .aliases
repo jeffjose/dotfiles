@@ -180,7 +180,7 @@
 
     alias www 'cd ~/scripts/jeffjose.github.io'
 
-    alias screen 'scrn -c ~/.screen/default'
+    alias screen 'screen -c ~/.screen/default'
 
     alias ansible-update-all-hosts 'ansible-playbook ~/ansible/base.yml --ask-sudo-pass'
 
