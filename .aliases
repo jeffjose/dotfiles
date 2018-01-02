@@ -49,8 +49,6 @@
 
     alias fwc 'find . | wc'
 
-    alias coursera 'cd /mnt/disk2/coursera'
-
     # Wharton Canvas
     # Token: 25~0BSCo871KwDf3wDcVX5DiezXVoVavIPHMqeFeS1ValI3kWa2n6whwMAuwk4inTJG
     alias canvas-dl '/home/jeffjose/scripts/canvas-command-line/canvas_tools.py'
