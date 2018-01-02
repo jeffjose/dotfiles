@@ -66,6 +66,7 @@
     alias desktop 'cd ~/Desktop'
 
     alias ack ack-grep -i
+    alias acki ack-grep
 
     alias fb 'thunar . &'
 
