@@ -52,3 +52,4 @@
     alias cs cs --experimental
 
     alias gq gqui
+    alias fb 'nautilus . &'
