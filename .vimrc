@@ -2,6 +2,45 @@
 " This must be first, because it changes other options as a side effect.
 set nocompatible
 
+set rtp+=~/.vim/bundle/Vundle.vim
+
+call vundle#begin()
+
+Plugin 'SirVer/ultisnips'
+Plugin 'honza/vim-snippets'
+
+"
+"
+" Use the 'google' package by default (see http://go/vim/packages).
+source /usr/share/vim/google/google.vim
+
+" Go Stuff
+Glug codefmt gofmt_executable="goimports"
+Glug codefmt-google
+autocmd FileType go AutoFormatBuffer gofmt
+Glug blazedeps auto_filetypes=`['go']`
+
+" autocomplete
+"Glug youcompleteme-google
+
+" snippets
+Glug ultisnips-google
+
+
+augroup autoformat
+  autocmd!
+  " Autoformat BUILD files on write.
+  autocmd FileType bzl AutoFormatBuffer buildifier
+  " Autoformat go files on write.
+  autocmd FileType go AutoFormatBuffer gofmt
+  " Autoformat proto files on write.
+  autocmd FileType proto AutoFormatBuffer clang-format
+  " Autoformat c and c++ files on write.
+  autocmd FileType c,cpp AutoFormatBuffer clang-format
+augroup END
+
+
+
 " Automatically indent when adding a curly bracket, etc.
 set autoindent
 "set cindent
@@ -21,7 +60,7 @@ syntax on
 " (http://www.python.org/dev/peps/pep-0008/)
 " I didn't find a good reason to not use it everywhere.
 " Studio uses the same convention
-set ts=4 sw=4 expandtab
+set ts=2 sw=2 expandtab
 
 autocmd FileType html :setlocal sw=2 ts=2 sts=2 expandtab
 autocmd FileType coffee :setlocal sw=2 ts=2 sts=2 expandtab
@@ -454,6 +493,14 @@ autocmd BufWritePre * :%s/\s\+$//e
       endif
     endfunction
 
+" Protocol Buffers
+augroup filetype
+    au! BufRead,BufNewFile *.proto setfiletype proto
+augroup end
+
+" BUILD Files
+    au BufWritePost BUILD silent !buildifier %
+
 nnoremap <expr> gb '`[' . strpart(getregtype(), 0, 1) . '`]'
 
 " Save registers here like so
@@ -466,12 +513,6 @@ let g:vim_markdown_folding_disabled=1
 
 "set t_Co=256
 
-
-" set the runtime path to include Vundle and initialize
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-" alternatively, pass a path where Vundle should install plugins
-"call vundle#begin('~/some/path/here')
 
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
