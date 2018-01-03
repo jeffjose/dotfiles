@@ -1,0 +1,35 @@
+// Place your key bindings in this file to overwrite the defaults
+[
+    {
+        "key": "alt+s",
+        "command": "workbench.action.splitEditor"
+    },
+    {
+        "key": "ctrl+\\",
+        "command": "-workbench.action.splitEditor"
+    },
+    {
+        "key": "tab",
+        "command": "workbench.action.nextEditorInGroup"
+    },
+    {
+        "key": "shift+tab",
+        "command": "workbench.action.previousEditorInGroup"
+    },
+    {
+        "key": "alt+j",
+        "command": "workbench.action.navigateEditorGroups"
+    },
+    {
+        "key": "alt+x",
+        "command": "workbench.action.closeEditorsInGroup"
+    },
+    {
+        "key": "ctrl+k w",
+        "command": "-workbench.action.closeEditorsInGroup"
+    },
+    {
+        "key": "ctrl+e",
+        "command": "workbench.files.action.focusFilesExplorer"
+    }
+]

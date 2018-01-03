@@ -38,6 +38,7 @@
   ln .vimrc                      $HOME/.vimrc
   ln .XResources                 $HOME/.XResources
   ln settings.json               $HOME/.config/Code/User/settings.json
+  ln keybindings.json            $HOME/.config/Code/User/keybindings.json
 
   ln updateall.sh $HOME/scripts/updateall.sh
 
