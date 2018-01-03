@@ -6,7 +6,7 @@
     source ~/.tabletaliases
 
     alias ls 'ls --color'
-    #alias vim nvim
+    alias vim nvim
     alias vi vim
     alias ll 'ls -lGh'
     alias l ll
@@ -63,8 +63,8 @@
     alias scripts 'cd ~/scripts'
     alias desktop 'cd ~/Desktop'
 
-    alias ack ack-grep -i
-    alias acki ack-grep
+    alias ack ack -i
+    alias acki ack
 
     alias fb 'nautilus . &'
 
