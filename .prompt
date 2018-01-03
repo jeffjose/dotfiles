@@ -11,7 +11,11 @@
     #set prompt='[%n@%m %B%c%b]%# '
     set ellipsis
 
-set WIFI = `iwgetid -r | tr ' ' '.' | tr '[A-Z]' '[a-z]' | sed 's/^@//g'`
+if(`where iwgetid` == "") then
+    set WIFI = ""
+else
+    set WIFI = `iwgetid -r | tr ' ' '.' | tr '[A-Z]' '[a-z]' | sed 's/^@//g'`
+endif
 
 if (${HOST} == "jeffjose-glaptop.roam.corp.google.com") then
     set host_name = "laptop"
