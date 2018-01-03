@@ -486,10 +486,16 @@ let g:vim_markdown_folding_disabled=1
 "set t_Co=256
 
 
+set rtp+=~/.vim/bundle/Vundle.vim
+
 " let Vundle manage Vundle, required
+call vundle#begin()
+
 Plugin 'VundleVim/Vundle.vim'
 Plugin 'godlygeek/tabular'
 Plugin 'plasticboy/vim-markdown'
 Plugin 'groenewege/vim-less'
+
+call vundle#end() " required
 
 call pathogen#infect()
