@@ -1,0 +1,52 @@
+{
+
+    "editor.renderLineHighlight": "none",
+    "editor.cursorBlinking": "solid",
+    "editor.autoClosingBrackets": false,
+    "vim.incsearch": true,
+    "vim.hlsearch": true,
+    "vim.insertModeKeyBindings": [
+        {
+            "before": ["j","k"],
+            "after": ["<Esc>"]
+        },
+    ],
+    "vim.insertModeKeyBindingsNonRecursive": [
+        {
+            "before": ["(",")"],
+            "after": ["(", ")", "<Left>"]
+        },
+        {
+            "before": ["[","]"],
+            "after": ["[", "]", "<Left>"]
+        },
+        {
+            "before": ["<",">"],
+            "after": ["<", ">", "<Left>"]
+        },
+        {
+            "before": ["{","}"],
+            "after": ["{", "}", "<Left>"]
+        },
+        {
+            "before": ["\"","\""],
+            "after": ["\"", "\"", "<Left>"]
+        },
+        {
+            "before": ["'","'"],
+            "after": ["'", "'", "<Left>"]
+        },
+    ],
+    "vim.otherModesKeyBindingsNonRecursive": [
+        {
+            "before": ["<Space>"],
+            "after": [],
+            "commands": [
+                {
+                    "command": ":nohl",
+                    "args": []
+                }
+            ]
+        }
+    ],
+}

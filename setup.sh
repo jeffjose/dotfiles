@@ -37,6 +37,7 @@
   ln .tabletaliases              $HOME/.tabletaliases
   ln .vimrc                      $HOME/.vimrc
   ln .XResources                 $HOME/.XResources
+  ln settings.json               $HOME/.config/Code/User/settings.json
 
   ln updateall.sh $HOME/scripts/updateall.sh
 
