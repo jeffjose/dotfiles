@@ -108,9 +108,8 @@ endif
 #echo ""
 #echo "$git_str"
 #
-
 if ($?STY) then
-    set prompt = "-(${cyan}%B%P%b${end} ${host_color}${host_name}${end} ${green}%B%/%b${green}%B${end}${git_str})-\n#${end} "
+    set prompt = "-(${cyan}%B%P%b${end} ${host_color}${host_name}${end} ${green}%B%/%b${green}${end}${git_str})-\n#${end} "
 else
     set prompt = "-(${white}%P${end} ${white}${host_name}${end} ${white}%/${end})-\n?${end} "
 endif
