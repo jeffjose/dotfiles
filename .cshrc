@@ -58,8 +58,8 @@ if ( ! $?prompt ) exit
     setenv DARTPATH             /usr/lib/dart
     setenv YARNPATH             $HOME/.yarn
 
-    setenv ANDROID_HOME         /home/jeffjose/Android/Sdk
-    setenv ANDROID_NDK_HOME     /home/jeffjose/Android/Ndk
+    setenv ANDROID_HOME         $HOME/Android/Sdk
+    setenv ANDROID_NDK_HOME     $HOME/Android/Ndk
     setenv ANDROID_VER          23.0.1
 
     #setenv GITMULTIPATH         /google/data/ro/users/mp/mpn/git-stuff
@@ -67,10 +67,12 @@ if ( ! $?prompt ) exit
     setenv PATH ${YARNPATH}/bin:${ANACONDAPATH}/bin:${GOPATH}/bin:${DARTPATH}/bin:${ANDROID_HOME}/tools:${ANDROID_HOME}/build-tools/${ANDROID_VER}:${HOME}/.pub-cache/bin:${HOME}/bin:${HOME}/.local/bin:${PATH}
     setenv JAVA_HOME /usr/lib/jvm/java-8-oracle
 
-    setenv PYTHONPATH /home/jeffjose/.local/lib/python2.7/site-packages:/usr/local/buildtools/current/sitecustomize
+    setenv PYTHONPATH $HOME/.local/lib/python2.7/site-packages:/usr/local/buildtools/current/sitecustomize
+
+    # cd completions should ignore blaze directories
+    complete cd 'p/1/d:^{blaze-bin,blaze-genfiles,blaze-google3,blaze-out,blaze-testlogs}/'
 
     complete sudo 'p/1/c/'
-
     complete kill 'p/*/`ps -eo pid`'
 
 # After a 'Ctrl-Z', list all the jobs
