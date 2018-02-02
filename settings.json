@@ -1,8 +1,8 @@
 {
-
     "editor.renderLineHighlight": "none",
     "editor.cursorBlinking": "solid",
     "editor.autoClosingBrackets": false,
+    "editor.fontSize": 12,
     "vim.incsearch": true,
     "vim.hlsearch": true,
     "vim.insertModeKeyBindings": [
@@ -49,4 +49,7 @@
             ]
         }
     ],
+    "extensions.ignoreRecommendations": false,
+    "workbench.startupEditor": "newUntitledFile",
+    "workbench.colorTheme": "Material Theme",
 }
