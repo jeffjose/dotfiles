@@ -119,8 +119,6 @@
     alias vol 'alsamixer -c 0'
 
     alias play 'peerflix -a --vlc ""\!*""'
-    #alias p 'echo play \"`xclip -o`\"; echo play-remove \"`xclip -o`\"; play'
-    alias p 'echo play \"`xclip -o`\"; play \"`xclip -o`\";'
     alias cleantmp 'rm -rf /tmp/torrent-stream/*'
 
     alias touchpad_off 'synclient TouchpadOff=1'
@@ -240,10 +238,11 @@
 
     alias diff colordiff
 
-
+    alias clean_newlines "vim -c '%s/\\r\\n/\r/g' -c ':w' -c ':q' \!*"
 
 
     # Google
     #
     source ~/.aliases.google.sh
+
 
