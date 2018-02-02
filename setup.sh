@@ -8,6 +8,8 @@
   mkdir -p $HOME/.config/nvim
   mkdir -p $HOME/.screen
 
+  touch /tmp/cwdcmd_recent_dirs
+
 # Ensure that the .aliases.sensitive.sh file exists
 #
 #
