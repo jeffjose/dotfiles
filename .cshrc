@@ -70,10 +70,10 @@ if ( ! $?prompt ) exit
     setenv PYTHONPATH $HOME/.local/lib/python2.7/site-packages:/usr/local/buildtools/current/sitecustomize
 
     # cd completions should ignore blaze directories
-    complete cd 'p/1/d:^{blaze-bin,blaze-genfiles,blaze-google3,blaze-out,blaze-testlogs}/'
+    complete cd 'p/1/d:^{blaze-bin,blaze-genfiles,blaze-google3,blaze-out,blaze-testlogs,READONLY}/'
 
     complete sudo 'p/1/c/'
-    complete kill 'p/*/`ps -eo pid`'
+    complete kill 'p/*/`ps -eo pid`/'
 
 # After a 'Ctrl-Z', list all the jobs
     set listjobs
