@@ -17,6 +17,7 @@ else
     set WIFI = `iwgetid -r | tr ' ' '.' | tr '[A-Z]' '[a-z]' | sed 's/^@//g'`
 endif
 
+
 if (${HOST} == "jeffjose-glaptop.roam.corp.google.com") then
     set host_name = "laptop"
     set host_color = "${yellow}"
@@ -37,6 +38,16 @@ else if ("${WIFI}" == '') then
 else
     set wifi_color = "${yellow}"
     set wifi_str = "@${WIFI}"
+endif
+
+# prodaccess status
+#
+if (-d /google/src/files) then
+  set prodaccess_status = true
+  set prompt_key = "#"
+else
+  set prodaccess_status = false
+  set prompt_key = "(run prodaccess) #"
 endif
 
 
@@ -109,7 +120,7 @@ endif
 #echo "$git_str"
 #
 if ($?STY) then
-    set prompt = "-(${cyan}%B%P%b${end} ${host_color}${host_name}${end} ${green}%B%/%b${green}${end}${git_str})-\n#${end} "
+    set prompt = "-(${cyan}%B%P%b${end} ${host_color}${host_name}${end} ${green}%B%/%b${green}${end}${git_str})-\n${prompt_key}${end} "
 else
     set prompt = "-(${white}%P${end} ${white}${host_name}${end} ${white}%/${end})-\n?${end} "
 endif

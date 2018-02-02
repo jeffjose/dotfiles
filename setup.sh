@@ -7,6 +7,7 @@
   mkdir -p $HOME/Downloads
   mkdir -p $HOME/.config/nvim
   mkdir -p $HOME/.screen
+  mkdir -p $HOME/.config/Code/User/
 
   touch /tmp/cwdcmd_recent_dirs
 

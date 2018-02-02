@@ -21,9 +21,16 @@
 
     alias b blaze
     alias bb   blaze build -c opt --forge --objfs
-    alias brun blaze run -c opt --forge --objfs
+    alias br blaze run -c opt --forge --objfs
+    alias blaze-run '/google/src/head/depot/google3/devtools/blaze/scripts/blaze-run.sh'
+    alias brun br
+    alias bmpm blaze mpm -c opt
+    alias mpm_setlive_latest mpm setliveversion --version=latest
+    alias mpmsetlive_latest mpm_setlive_latest
 
+    alias p placer
     alias fu fileutil
+    alias fl fileutil ls -lh -F -sharded
 
     alias oauth 'oauth2l header --sso $USER@google.com \!*'
 
@@ -59,10 +66,37 @@
 
     alias btargets 'source ~/bin/btargets'
 
-    alias getcdoc '/google/data/ro/projects/segindexer/tools/djfetch --output_format=human_full --url=\!*'
+    alias get_cdoc_humanreadable '/google/data/ro/projects/segindexer/tools/djfetch --output_format=human_full --url=\!*'
+    alias get_cdoc_compositedoc '/google/data/ro/projects/segindexer/tools/djfetch --output_format=compositedoc --url=\!*'
+    alias get_html_from_cdoc 'gq from \!* proto CompositeDoc format "%{doc.Content.Representation}"'
+    alias get_amphtml_from_cdoc 'gq from \!* proto CompositeDoc format "%{doc_attachments.[quality_dni.PcuParsedData].raw_data.html}"'
+    alias get_amphtmlheaders_from_cdoc 'gq from \!* proto CompositeDoc format "%{doc_attachments.[quality_dni.PcuParsedData].raw_data.http_header}"'
+
+    alias get_docjoin get_cdoc_humanreadable
 
     alias cs cs --experimental
+    alias cscpp 'cs lang:c++'
+    alias cspy 'cs lang:python'
+    alias csgo 'cs lang:go'
+    alias csproto 'cs lang:proto'
 
     alias gq gqui
+    alias gq_count 'gqui select "count(*)" from \!*'
+
     alias fb 'nautilus . &'
     alias screen 'scrn -c ~/.screen/default'
+
+    alias drun 'cat \!* | dremel'
+
+    #alias describe 'echo \\"define table testtable \!*; describe testtable;\\" | dremel'
+
+    alias export_to_cider 'git5 export'
+    alias sync_from_cider 'git5 export --merge; git5 export --force'
+
+    alias placer_remove_scratch 'placer abort `placer list_filesets \!*`'
+    alias cider '/google/src/head/depot/google3/experimental/cider_here/cider_here.sh'
+    alias bns_lookup 'lockserv resolveall'
+
+    alias android-studio '/opt/android-studio-with-blaze-stable/bin/studio.sh'
+
+    alias plxutil '/google/data/ro/teams/plx/plxutil'
