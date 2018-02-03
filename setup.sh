@@ -25,27 +25,27 @@
 # Link dotfiles
 #
 #
-  ln .aliases                    $HOME/.aliases
-  ln .aliases.bash               $HOME/.aliases.bash
-  ln .aliases.google.sh          $HOME/.aliases.google.sh
-  ln .colordiffrc                $HOME/.colordiffrc
-  ln .cshrc                      $HOME/.cshrc
-  ln .cwdcmd                     $HOME/.cwdcmd
-  ln .gitconfig                  $HOME/.gitconfig
-  ln .pdbrc                      $HOME/.pdbrc
-  ln .precmd                     $HOME/.precmd
-  ln .prompt                     $HOME/.prompt
-  ln .screen/default             $HOME/.screen/default
-  ln .screenrc                   $HOME/.screenrc
-  ln .tabletaliases              $HOME/.tabletaliases
-  ln .vimrc                      $HOME/.vimrc
-  ln .XResources                 $HOME/.XResources
-  ln settings.json               $HOME/.config/Code/User/settings.json
-  ln keybindings.json            $HOME/.config/Code/User/keybindings.json
+  rm $HOME/.aliases                             ; ln .aliases                    $HOME/.aliases
+  rm $HOME/.aliases.bash                        ; ln .aliases.bash               $HOME/.aliases.bash
+  rm $HOME/.aliases.google.sh                   ; ln .aliases.google.sh          $HOME/.aliases.google.sh
+  rm $HOME/.colordiffrc                         ; ln .colordiffrc                $HOME/.colordiffrc
+  rm $HOME/.cshrc                               ; ln .cshrc                      $HOME/.cshrc
+  rm $HOME/.cwdcmd                              ; ln .cwdcmd                     $HOME/.cwdcmd
+  rm $HOME/.gitconfig                           ; ln .gitconfig                  $HOME/.gitconfig
+  rm $HOME/.pdbrc                               ; ln .pdbrc                      $HOME/.pdbrc
+  rm $HOME/.precmd                              ; ln .precmd                     $HOME/.precmd
+  rm $HOME/.prompt                              ; ln .prompt                     $HOME/.prompt
+  rm $HOME/.screen/default                      ; ln .screen/default             $HOME/.screen/default
+  rm $HOME/.screenrc                            ; ln .screenrc                   $HOME/.screenrc
+  rm $HOME/.tabletaliases                       ; ln .tabletaliases              $HOME/.tabletaliases
+  rm $HOME/.vimrc                               ; ln .vimrc                      $HOME/.vimrc
+  rm $HOME/.XResources                          ; ln .XResources                 $HOME/.XResources
+  rm $HOME/.config/Code/User/settings.json      ; ln settings.json               $HOME/.config/Code/User/settings.json
+  rm $HOME/.config/Code/User/keybindings.json   ; ln keybindings.json            $HOME/.config/Code/User/keybindings.json
 
-  ln updateall.sh $HOME/scripts/updateall.sh
+  rm $HOME/scripts/updateall.sh  ; ln updateall.sh $HOME/scripts/updateall.sh
 
-  ln init.vim $HOME/.config/nvim/init.vim
+  rm $HOME/.config/nvim/init.vim  ; ln init.vim $HOME/.config/nvim/init.vim
 
 # Ignore
 #
