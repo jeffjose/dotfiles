@@ -24,6 +24,9 @@ if (${HOST} == "jeffjose-glaptop.roam.corp.google.com") then
 else if (${HOST} == "jeffjose.mtv.corp.google.com") then
     set host_name = "workstation"
     set host_color = "${magenta}"
+else if (${HOST} == "nomad") then
+    set host_name = ${HOST}
+    set host_color = "${magenta}"
 else
     set host_color = "${yellow}"
     set host_name = "${HOST}"
@@ -46,8 +49,14 @@ if (-d /google/src/files) then
   set prodaccess_status = true
   set prompt_key = "#"
 else
-  set prodaccess_status = false
-  set prompt_key = "(run prodaccess) #"
+  if (${HOST} == "jeffjose.mtv.corp.google.com") then
+    set prodaccess_status = false
+    set prompt_key = "(run prodaccess) #"
+  else
+    set prodaccess_status = true
+    set prompt_key = "#"
+  endif
+
 endif
 
 
