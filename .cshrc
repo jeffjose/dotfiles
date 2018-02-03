@@ -57,6 +57,7 @@ if ( ! $?prompt ) exit
     setenv ANACONDAPATH         $HOME/anaconda3
     setenv DARTPATH             /usr/lib/dart
     setenv YARNPATH             $HOME/.yarn
+    setenv FLUTTERPATH          $HOME/scripts/flutter/bin
 
     setenv ANDROID_HOME         $HOME/Android/Sdk
     setenv ANDROID_NDK_HOME     $HOME/Android/Ndk
@@ -64,7 +65,7 @@ if ( ! $?prompt ) exit
 
     #setenv GITMULTIPATH         /google/data/ro/users/mp/mpn/git-stuff
 
-    setenv PATH ${YARNPATH}/bin:${ANACONDAPATH}/bin:${GOPATH}/bin:${DARTPATH}/bin:${ANDROID_HOME}/tools:${ANDROID_HOME}/build-tools/${ANDROID_VER}:${HOME}/.pub-cache/bin:${HOME}/bin:${HOME}/.local/bin:${PATH}
+    setenv PATH ${FLUTTERPATH}:${YARNPATH}/bin:${ANACONDAPATH}/bin:${GOPATH}/bin:${DARTPATH}/bin:${ANDROID_HOME}/tools:${ANDROID_HOME}/build-tools/${ANDROID_VER}:${HOME}/.pub-cache/bin:${HOME}/bin:${HOME}/.local/bin:${PATH}
     setenv JAVA_HOME /usr/lib/jvm/java-8-oracle
 
     setenv PYTHONPATH $HOME/.local/lib/python2.7/site-packages:/usr/local/buildtools/current/sitecustomize
