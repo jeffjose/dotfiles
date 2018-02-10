@@ -240,9 +240,15 @@
 
     alias clean_newlines "vim -c '%s/\\r\\n/\r/g' -c ':w' -c ':q' \!*"
 
+    alias android-studio '/usr/local/android-studio/bin/studio.sh'
 
     # Google
     #
-    source ~/.aliases.google.sh
+    #
+    if (${HOST} =~ {"*corp.google.com"}) then
+      source ~/.aliases.google.sh
+    else
+      # nothing
+    endif
 
 
