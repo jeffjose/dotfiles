@@ -241,6 +241,7 @@
     alias clean_newlines "vim -c '%s/\\r\\n/\r/g' -c ':w' -c ':q' \!*"
 
     alias android-studio '/usr/local/android-studio/bin/studio.sh'
+    alias emulator       '$HOME/Android/Sdk/emulator/emulator'
 
     # Google
     #
