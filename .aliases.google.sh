@@ -28,6 +28,11 @@
     alias mpm_setlive_latest mpm setliveversion --version=latest
     alias mpmsetlive_latest mpm_setlive_latest
 
+    alias rb 'rabbit --verifiable build -c opt --symlink_prefix=/tmp/output/blaze-'
+    alias rmpm 'rabbit --verifiable mpm -c opt --symlink_prefix=/tmp/output/blaze-'
+
+
+
     alias p placer
     alias fu fileutil
     alias fl fileutil ls -lh -F -sharded
@@ -100,3 +105,16 @@
     alias android-studio '/opt/android-studio-with-blaze-stable/bin/studio.sh'
 
     alias plxutil '/google/data/ro/teams/plx/plxutil'
+
+    alias send_wnc_messages '/google/data/rw/teams/wnc/send_wnc_messages -prod_disable_deduping=false'
+
+    alias send_wnc_messages_s1_qa_dryrun   'send_wnc_messages --wnc_campaign_id=10039140 --mode="SITE_OWNERS" --csv_file=\!*'
+    alias send_wnc_messages_s1_qa_send     'send_wnc_messages --wnc_campaign_id=10039140 --mode="SITE_OWNERS" --send --csv_file=\!*'
+    alias send_wnc_messages_s1_prod_dryrun 'send_wnc_messages --wnc_campaign_id=10039140 --mode="SITE_OWNERS" --prod --csv_file=\!*'
+    alias send_wnc_messages_s1_prod_send   'send_wnc_messages --wnc_campaign_id=10039140 --mode="SITE_OWNERS" --prod --send --csv_file=\!*'
+
+
+    alias send_wnc_messages_s23_qa_dryrun   'send_wnc_messages --wnc_campaign_id=10041645 --mode="SITE_OWNERS" --csv_file=\!*'
+    alias send_wnc_messages_s23_qa_send     'send_wnc_messages --wnc_campaign_id=10041645 --mode="SITE_OWNERS" --send --csv_file=\!*'
+    alias send_wnc_messages_s23_prod_dryrun 'send_wnc_messages --wnc_campaign_id=10041645 --mode="SITE_OWNERS" --prod --csv_file=\!*'
+    alias send_wnc_messages_s23_prod_send   'send_wnc_messages --wnc_campaign_id=10041645 --mode="SITE_OWNERS" --prod --send --csv_file=\!*'
