@@ -27,7 +27,6 @@
 #
   rm $HOME/.aliases                             ; ln .aliases                    $HOME/.aliases
   rm $HOME/.aliases.bash                        ; ln .aliases.bash               $HOME/.aliases.bash
-  rm $HOME/.aliases.google.sh                   ; ln .aliases.google.sh          $HOME/.aliases.google.sh
   rm $HOME/.colordiffrc                         ; ln .colordiffrc                $HOME/.colordiffrc
   rm $HOME/.cshrc                               ; ln .cshrc                      $HOME/.cshrc
   rm $HOME/.cwdcmd                              ; ln .cwdcmd                     $HOME/.cwdcmd
