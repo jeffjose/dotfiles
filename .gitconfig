@@ -12,6 +12,7 @@
     br = branch
     bra = branch -a
     la = log --pretty=\"format:%ad %h (%an): %s\" --date=short
+    last = diff HEAD^ HEAD
     list = diff --name-status
     cam = commit -a -m
     cm = commit -m

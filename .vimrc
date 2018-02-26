@@ -268,6 +268,7 @@ noremap <silent> <Space> :silent noh<Bar>echo<CR>
 
 " Search for the function declaration : Python specific
 nmap gx yiw/def <C-R>"<CR>zz
+nmap gc yiw/class <C-R>"<CR>zz
 
 " prc_checkout
 function! PrcCheckout()
