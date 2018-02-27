@@ -1,6 +1,7 @@
 {
     "editor.renderLineHighlight": "none",
     "editor.cursorBlinking": "solid",
+    "editor.fontFamily": "'monospace', monospace, 'Droid Sans Fallback'",
     "editor.autoClosingBrackets": false,
     "editor.fontSize": 12,
     "vim.incsearch": true,
