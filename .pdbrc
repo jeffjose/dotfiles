@@ -1,9 +1,14 @@
 # Invoke IPython when pdb launches
 #
-import sys
+import sys, os
 
-sys.path.append('/home/jeffjose/anaconda3/lib/python3.6/site-packages')
-sys.path.append('/usr/lib/python2.7/dist-packages/')
+home = os.environ['HOME']
 
+sys.path.append('%s/anaconda2/lib/python2.7/site-packages' % home)
+#sys.path.append('/usr/lib/python2.7/dist-packages/')
+
+print sys.path
+print sys.exc_info()
+print sys.version_info
 import IPython
 IPython.embed()
