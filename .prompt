@@ -110,8 +110,13 @@ if (`bash -c 'git rev-parse --git-dir 2> /dev/null'` != "") then
     set git_clean="✔"
   endif
 
+  if ("$git_status[10]" != "-") then
+    set git5_cl = "$git_status[10]"
+  else
+    set git5_cl = '-'
+  endif
 
-  set git_str = " ${magenta}${git_branch}${git_remote}${end}:${red}${git_untracked}${end}${yellow}${git_changed}${end}${blue}${git_staged}${end}${green}${git_clean}${end}"
+  set git_str = " ${magenta}${git_branch}${git_remote}${end}:${red}${git_untracked}${end}${yellow}${git_changed}${end}${blue}${git_staged}${end}${yellow}${git_stashed}${end}${green}${git_clean}${end}:${blue}${git5_cl}${end}"
 
 else
   set git_str = ''
