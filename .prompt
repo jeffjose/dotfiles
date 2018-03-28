@@ -77,13 +77,13 @@ if (`bash -c 'git rev-parse --git-dir 2> /dev/null'` != "") then
   if ($git_status[4] == 0) then
     set git_staged = ''
   else
-    set git_staged="●${git_status[4]}"
+    set git_staged="+${git_status[4]}"
   endif
 
   if ($git_status[5] == 0) then
     set git_conflicts = ''
   else
-    set git_conflicts = "$git_status[5]"
+    set git_conflicts = "!!$git_status[5]"
   endif
 
   if ($git_status[6] == 0) then
@@ -95,13 +95,13 @@ if (`bash -c 'git rev-parse --git-dir 2> /dev/null'` != "") then
   if ($git_status[7] == 0) then
     set git_untracked = ''
   else
-    set git_untracked="…${git_status[7]}"
+    set git_untracked="+${git_status[7]}"
   endif
 
   if ($git_status[8] == 0) then
     set git_stashed = ''
   else
-    set git_stashed = "$git_status[8]"
+    set git_stashed = "+$git_status[8]"
   endif
 
   if ("$git_status[9]" == 0) then
@@ -110,24 +110,18 @@ if (`bash -c 'git rev-parse --git-dir 2> /dev/null'` != "") then
     set git_clean="✔"
   endif
 
+  if ("$git_status[10]" != "-") then
+    set git5_cl = "$git_status[10]"
+  else
+    set git5_cl = '-'
+  endif
 
-  set git_str = " ${magenta}${git_branch}${git_remote}${end}:${red}${git_untracked}${end}${yellow}${git_changed}${end}${blue}${git_staged}${end}${green}${git_clean}${end}"
+  set git_str = " ${magenta}${git_branch}${git_remote}${end}:${red}${git_untracked}${end}${yellow}${git_changed}${end}${blue}${git_staged}${end}${cyan}${git_stashed}${end}${green}${git_clean}${end}:${blue}${git5_cl}${end}"
 
 else
   set git_str = ''
 endif
 
-#echo "$git_branch"
-#echo "$git_remote"
-#echo "$git_staged"
-#echo "$git_conflicts"
-#echo "$git_changed"
-#echo "$git_untracked"
-#echo "$git_stashed"
-#echo "$git_clean"
-#echo ""
-#echo "$git_str"
-#
 if ($?STY) then
     set prompt = "-(${cyan}%B%P%b${end} ${host_color}${host_name}${end} ${green}%B%/%b${green}${end}${git_str})-\n${prompt_key}${end} "
 else

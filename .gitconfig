@@ -12,6 +12,7 @@
     br = branch
     bra = branch -a
     la = log --pretty=\"format:%ad %h (%an): %s\" --date=short
+    last = diff HEAD^ HEAD
     list = diff --name-status
     cam = commit -a -m
     cm = commit -m
@@ -19,6 +20,7 @@
     searchf = grep --name-only
     searchn = grep --files-without-match
     pull = pull -v
+    sdiff = stash show -p
 
 [color]
     diff = auto

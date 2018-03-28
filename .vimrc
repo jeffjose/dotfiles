@@ -74,6 +74,12 @@ hi Search ctermfg=0 ctermbg=3 guifg=Black guibg=Yellow
 hi Pmenu ctermfg=0 ctermbg=3 guifg=Black guibg=White
 
 
+highlight OverLength ctermbg=grey ctermfg=white guibg=#FFD9D9
+match OverLength /\%81v.\+/
+"highlight ColorColumn ctermbg=darkgreen
+"set colorcolumn=80
+
+
 " Show relative numbers (only in vim7.3+)
 " set relativenumber
 
@@ -268,6 +274,7 @@ noremap <silent> <Space> :silent noh<Bar>echo<CR>
 
 " Search for the function declaration : Python specific
 nmap gx yiw/def <C-R>"<CR>zz
+nmap gc yiw/class <C-R>"<CR>zz
 
 " prc_checkout
 function! PrcCheckout()

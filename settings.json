@@ -1,6 +1,7 @@
 {
     "editor.renderLineHighlight": "none",
     "editor.cursorBlinking": "solid",
+    "editor.fontFamily": "'monospace', monospace, 'Droid Sans Fallback'",
     "editor.autoClosingBrackets": false,
     "editor.fontSize": 12,
     "vim.incsearch": true,
@@ -52,4 +53,5 @@
     "extensions.ignoreRecommendations": false,
     "workbench.startupEditor": "newUntitledFile",
     "workbench.colorTheme": "Material Theme",
+    "workbench.iconTheme": "material-icon-theme",
 }

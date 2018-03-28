@@ -238,12 +238,16 @@
 
     alias diff colordiff
 
-    alias clean_newlines "vim -c '%s/\\r\\n/\r/g' -c ':w' -c ':q' \!*"
+    alias clean_newlines1 "vim -c '%s/\\n/\r/g' -c ':w' -c ':q' \!*"
+    alias clean_newlines2 "vim -c '%s/\\t/\ \ \ \ /g' -c ':w' -c ':q' \!*"
+    alias clean_newlines3 "vim -c '%s/\\r\\n/\r/g' -c ':w' -c ':q' \!*"
+    alias clean_newlines4 "vim -c '%s/\\n\\t/\r\ \ \ \ /g' -c ':w' -c ':q' \!*"
 
     alias android-studio '/usr/local/android-studio/bin/studio.sh'
     alias emulator       '$HOME/Android/Sdk/emulator/emulator'
 
     alias vpn_status 'curl --silent "https://www.privateinternetaccess.com/" | grep --color=never "You are protected by PIA" -o'
+    alias ogv2mp4 'ffmpeg -i \!* -r 30 \!*.mp4'
 
     # Google
     #

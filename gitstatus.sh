@@ -20,6 +20,7 @@ gitstatus=$( LC_ALL=C git status --untracked-files=${__GIT_PROMPT_SHOW_UNTRACKED
 # if the status is fatal, exit now
 [[ "$?" -ne 0 ]] && exit 0
 
+
 num_staged=0
 num_changed=0
 num_conflicts=0
@@ -111,7 +112,24 @@ if [[ -z "$upstream" ]] ; then
   upstream='^'
 fi
 
-printf "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n" \
+# jeffjose
+git5_root="$( git rev-parse --show-toplevel )/review/$branch/.git4_perforce_config/"
+
+if [ -d "$git5_root" ]; then
+
+  git5_cl=$(cat $git5_root/CL)
+  git5_description=$(cat $git5_root/DESCRIPTION)
+
+  IFS=":" read -ra git5_clientname_full <<< "$(cat $git5_root/CLIENT_NAME )"
+
+  git5_clientname="${git5_clientname_full[1]}"
+else
+  git5_cl="-"
+  git5_description="-"
+  git5_clientname="-"
+fi
+
+printf "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n" \
   "$branch" \
   "$remote" \
   "$upstream" \
@@ -120,6 +138,7 @@ printf "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n" \
   $num_changed \
   $num_untracked \
   $num_stashed \
-  $clean
-
+  $clean \
+  $git5_cl \
+  $git5_clientname
 exit
