@@ -1,5 +1,5 @@
 
-source "$HOME/.screenrc"
+source "~/.screenrc"
 
 # Automatically open tabs
     layout new "default"

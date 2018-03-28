@@ -1,0 +1,57 @@
+{
+    "editor.renderLineHighlight": "none",
+    "editor.cursorBlinking": "solid",
+    "editor.fontFamily": "'monospace', monospace, 'Droid Sans Fallback'",
+    "editor.autoClosingBrackets": false,
+    "editor.fontSize": 12,
+    "vim.incsearch": true,
+    "vim.hlsearch": true,
+    "vim.insertModeKeyBindings": [
+        {
+            "before": ["j","k"],
+            "after": ["<Esc>"]
+        },
+    ],
+    "vim.insertModeKeyBindingsNonRecursive": [
+        {
+            "before": ["(",")"],
+            "after": ["(", ")", "<Left>"]
+        },
+        {
+            "before": ["[","]"],
+            "after": ["[", "]", "<Left>"]
+        },
+        {
+            "before": ["<",">"],
+            "after": ["<", ">", "<Left>"]
+        },
+        {
+            "before": ["{","}"],
+            "after": ["{", "}", "<Left>"]
+        },
+        {
+            "before": ["\"","\""],
+            "after": ["\"", "\"", "<Left>"]
+        },
+        {
+            "before": ["'","'"],
+            "after": ["'", "'", "<Left>"]
+        },
+    ],
+    "vim.otherModesKeyBindingsNonRecursive": [
+        {
+            "before": ["<Space>"],
+            "after": [],
+            "commands": [
+                {
+                    "command": ":nohl",
+                    "args": []
+                }
+            ]
+        }
+    ],
+    "extensions.ignoreRecommendations": false,
+    "workbench.startupEditor": "newUntitledFile",
+    "workbench.colorTheme": "Material Theme",
+    "workbench.iconTheme": "material-icon-theme",
+}

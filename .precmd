@@ -3,5 +3,13 @@
     source ~/.aliases
     source ~/.prompt
 
+    # prodaccess status
+    #
+    if (-d /google/src/files) then
+    else
+      # Run fixit
+      fixit
+    endif
+
     # Save history after every command
     #history -S

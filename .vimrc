@@ -2,6 +2,10 @@
 " This must be first, because it changes other options as a side effect.
 set nocompatible
 
+" Use the 'google' package by default (see http://go/vim/packages).
+" This doesnt work in laptops
+"source ~/.vim/google.vim
+
 " Automatically indent when adding a curly bracket, etc.
 set autoindent
 "set cindent
@@ -21,7 +25,7 @@ syntax on
 " (http://www.python.org/dev/peps/pep-0008/)
 " I didn't find a good reason to not use it everywhere.
 " Studio uses the same convention
-set ts=4 sw=4 expandtab
+set ts=2 sw=2 expandtab
 
 autocmd FileType html :setlocal sw=2 ts=2 sts=2 expandtab
 autocmd FileType coffee :setlocal sw=2 ts=2 sts=2 expandtab
@@ -68,6 +72,12 @@ hi Search ctermfg=0 ctermbg=3 guifg=Black guibg=Yellow
 
 " Ctrl-N completion wasnt highlighting
 hi Pmenu ctermfg=0 ctermbg=3 guifg=Black guibg=White
+
+
+highlight OverLength ctermbg=grey ctermfg=white guibg=#FFD9D9
+match OverLength /\%81v.\+/
+"highlight ColorColumn ctermbg=darkgreen
+"set colorcolumn=80
 
 
 " Show relative numbers (only in vim7.3+)
@@ -162,6 +172,8 @@ map <F5> :set paste!<CR>
 "iab pdb from PyQt4 import QtCore; QtCore.pyqtRemoveInputHook()<Right>; import pdb; pdb.set_trace()<Right><Esc>
 iab pdb import pdb; pdb.set_trace()<Right><Esc>
 iab stack import traceback; print traceback.print_stack()
+
+iab rr if err != nil {}<Return><Return><Up>
 
 
 " Wrap quotes around my word!
@@ -262,6 +274,7 @@ noremap <silent> <Space> :silent noh<Bar>echo<CR>
 
 " Search for the function declaration : Python specific
 nmap gx yiw/def <C-R>"<CR>zz
+nmap gc yiw/class <C-R>"<CR>zz
 
 " prc_checkout
 function! PrcCheckout()
@@ -447,6 +460,7 @@ autocmd BufWritePre * :%s/\s\+$//e
     au BufWritePost *.cjsx silent !cjsx -bc %
     "au BufWritePost *.coffee silent !coffee -bc | cwindow | redraw!
     au BufReadPost *.js set autoread
+    au BufWritePost *.go silent !gofmt -w %
 
 " LESS files
     au! BufRead,BufNewFile *.less set filetype=less
@@ -462,6 +476,14 @@ autocmd BufWritePre * :%s/\s\+$//e
       endif
     endfunction
 
+" Protocol Buffers
+augroup filetype
+    au! BufRead,BufNewFile *.proto setfiletype proto
+augroup end
+
+" BUILD Files
+    au BufWritePost BUILD silent !buildifier %
+
 nnoremap <expr> gb '`[' . strpart(getregtype(), 0, 1) . '`]'
 
 " Save registers here like so
@@ -475,16 +497,16 @@ let g:vim_markdown_folding_disabled=1
 "set t_Co=256
 
 
-" set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-" alternatively, pass a path where Vundle should install plugins
-"call vundle#begin('~/some/path/here')
 
 " let Vundle manage Vundle, required
+call vundle#begin()
+
 Plugin 'VundleVim/Vundle.vim'
 Plugin 'godlygeek/tabular'
 Plugin 'plasticboy/vim-markdown'
 Plugin 'groenewege/vim-less'
+
+call vundle#end() " required
 
 call pathogen#infect()

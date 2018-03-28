@@ -1,4 +1,3 @@
-
 if ( ! $?prompt ) exit
 
 # Auto correct turn'd on
@@ -42,31 +41,47 @@ if ( ! $?prompt ) exit
     # EDITOR
     setenv EDITOR vim
 
+    # P4 Diff
+    setenv P4DIFF meld
+
     source ~/.aliases
     source ~/.prompt
 
     # Setup our precmd; this gets executed before every prompt
     alias precmd 'source ~/.precmd'
 
-    setenv GOPATH               /home/jeffjose/scripts/go
-    setenv ANACONDAPATH         /home/jeffjose/anaconda3
-    setenv DARTPATH             /usr/lib/dart
+    # cwdcmd gets executed after every cd
+    alias cwdcmd 'source ~/.cwdcmd'
 
-    setenv ANDROID_HOME         /home/jeffjose/Android/Sdk
-    setenv ANDROID_NDK_HOME     /home/jeffjose/Android/Ndk
+    setenv GOPATH               $HOME/scripts/go
+    setenv ANACONDAPATH         $HOME/anaconda3
+    setenv DARTPATH             /usr/lib/dart
+    setenv YARNPATH             $HOME/.yarn
+    setenv FLUTTERPATH          $HOME/scripts/flutter
+
+    setenv ANDROID_HOME         $HOME/Android/Sdk
+    setenv ANDROID_NDK_HOME     $HOME/Android/Ndk
     setenv ANDROID_VER          23.0.1
 
-    setenv PATH ${ANACONDAPATH}/bin:${GOPATH}/bin:${DARTPATH}/bin:${ANDROID_HOME}/tools:${ANDROID_HOME}/build-tools/${ANDROID_VER}:/home/jeffjose/.pub-cache/bin:/home/jeffjose/bin:/home/jeffjose/.local/bin:${PATH}
+    #setenv GITMULTIPATH         /google/data/ro/users/mp/mpn/git-stuff
+
+    setenv PATH ${FLUTTERPATH}/bin:${YARNPATH}/bin:${ANACONDAPATH}/bin:${GOPATH}/bin:${DARTPATH}/bin:${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools:${ANDROID_HOME}/build-tools/${ANDROID_VER}:${HOME}/.pub-cache/bin:${HOME}/bin:${HOME}/.local/bin:${PATH}
     setenv JAVA_HOME /usr/lib/jvm/java-8-oracle
 
-    setenv PYTHONPATH /home/jeffjose/.local/lib/python2.7/site-packages
+    setenv PYTHONPATH $HOME/.local/lib/python2.7/site-packages:/usr/local/buildtools/current/sitecustomize
+
+    # cd completions should ignore blaze directories
+    complete cd 'p/1/d:^{blaze-bin,blaze-genfiles,blaze-google3,blaze-out,blaze-testlogs,READONLY}/'
 
     complete sudo 'p/1/c/'
+    complete kill 'p/*/`ps -eo pid`/'
 
 # After a 'Ctrl-Z', list all the jobs
     set listjobs
 
     # Set Caps Lock to Ctrl
+    #
+    # if Caps Lock gets stuck in "on" position, run `setxkbmap -option` to undo the following line
     setxkbmap -option caps:ctrl_modifier
 
 # Synaptics
@@ -97,5 +112,5 @@ if ( ! $?prompt ) exit
     else
         # A blank terminal session.
         # get or create a new session named 'mainsession'
-        screen -x -R -S main
+        scrn -x -R -S main
     endif

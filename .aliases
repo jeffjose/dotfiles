@@ -1,7 +1,7 @@
 # Aliases
 
     # Source the aliases.sensitive
-    source ~/.aliases.sensitive
+    source ~/.aliases.sensitive.sh
 
     source ~/.tabletaliases
 
@@ -49,8 +49,6 @@
 
     alias fwc 'find . | wc'
 
-    alias coursera 'cd /mnt/disk2/coursera'
-
     # Wharton Canvas
     # Token: 25~0BSCo871KwDf3wDcVX5DiezXVoVavIPHMqeFeS1ValI3kWa2n6whwMAuwk4inTJG
     alias canvas-dl '/home/jeffjose/scripts/canvas-command-line/canvas_tools.py'
@@ -65,14 +63,15 @@
     alias scripts 'cd ~/scripts'
     alias desktop 'cd ~/Desktop'
 
-    alias ack ack-grep -i
+    alias ack ack -i
+    alias acki ack
 
-    alias fb 'thunar . &'
+    alias fb 'nautilus . &'
 
     alias dl 'nautilus ~/Downloads &'
 
-    alias eog  'feh -z -D 5 --scale-down --auto-zoom --fullscreen'
-    alias eogn 'feh -D 5 --scale-down --auto-zoom --fullscreen'
+    alias eog  'feh -D 5 --scale-down --auto-zoom --fullscreen'
+    alias eogz 'feh -z -D 5 --scale-down --auto-zoom --fullscreen'
 
     alias torrent 'qbittorrent \!* &'
     alias tc torrentcheck
@@ -152,17 +151,7 @@
     alias pdfgrep 'pdfgrep \!*'
     alias pack pdfgrep
 
-# Course Navigation
-    alias acads 'cd ~/Downloads/acads/s1'
 
-    alias mgmt  'acads; cd MGMT611/'
-    alias mktg  'acads; cd MKTG611/'
-    alias acct  'acads; cd ACCT613/'
-    alias mgec  'acads; cd MGEC611/'
-    alias stat  'acads; cd STAT613/'
-    alias mkt   mktg
-
-    alias fixit '~/.screenlayout/3monitor.sh'
 
     alias gdebi 'sudo gdebi'
 
@@ -177,7 +166,6 @@
     alias s    'cd ~/scripts'
     alias c    'cd /mnt/disk2/coursera'
     alias a    'cd ~/Downloads/acads'
-    alias b    'cd ~/Downloads/books'
     alias tuts 'cd /mnt/disk1/tuts'
     alias 2 'cd /mnt/disk2'
     alias r 'cd /media/jeffjose/rico'
@@ -192,7 +180,7 @@
 
     alias www 'cd ~/scripts/jeffjose.github.io'
 
-    alias screen 'screen -c ~/.screen/default'
+    alias screen 'scrn -c ~/.screen/default'
 
     alias ansible-update-all-hosts 'ansible-playbook ~/ansible/base.yml --ask-sudo-pass'
 
@@ -232,8 +220,6 @@
 
     alias msum md5sum
 
-    alias cs 'cd ~/scripts/coursesmash/src'
-
     alias yget 'youtube-dl'
     #alias y "'echo youtube-dl \'`xclip -o`\'; youtube-dl \'`xclip -o`\';'"
 
@@ -247,3 +233,31 @@
     alias rsync-cp 'rsync -avzh \!*'
 
     alias connect_to_raspberrypi 'ssh -Xt raspberrypi screen -X -R -S main'
+    alias notes 'cat ~/notes'
+
+    alias recent 'cat /tmp/cwdcmd_recent_dirs'
+
+    alias xd meld
+
+    alias diff colordiff
+
+    alias clean_newlines1 "vim -c '%s/\\n/\r/g' -c ':w' -c ':q' \!*"
+    alias clean_newlines2 "vim -c '%s/\\t/\ \ \ \ /g' -c ':w' -c ':q' \!*"
+    alias clean_newlines3 "vim -c '%s/\\r\\n/\r/g' -c ':w' -c ':q' \!*"
+    alias clean_newlines4 "vim -c '%s/\\n\\t/\r\ \ \ \ /g' -c ':w' -c ':q' \!*"
+
+    alias android-studio '/usr/local/android-studio/bin/studio.sh'
+    alias emulator       '$HOME/Android/Sdk/emulator/emulator'
+
+    alias ogv2mp4 'ffmpeg -i \!* -r 30 \!*.mp4'
+
+    # Google
+    #
+    #
+    if (${HOST} =~ {"*corp.google.com"}) then
+      source ~/.aliases.google.sh
+    else
+      # nothing
+    endif
+
+
