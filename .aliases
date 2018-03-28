@@ -243,6 +243,8 @@
     alias android-studio '/usr/local/android-studio/bin/studio.sh'
     alias emulator       '$HOME/Android/Sdk/emulator/emulator'
 
+    alias vpn_status 'curl --silent "https://www.privateinternetaccess.com/" | grep --color=never "You are protected by PIA" -o'
+
     # Google
     #
     #
