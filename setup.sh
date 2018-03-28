@@ -9,6 +9,7 @@
   mkdir -p $HOME/.screen
   mkdir -p $HOME/.config/Code/User/
   mkdir -p $HOME/.ipython/profile_default/
+  mkdir -p $HOME/.screenlayout
 
   touch /tmp/cwdcmd_recent_dirs
 
@@ -47,6 +48,7 @@
   rm $HOME/scripts/updateall.sh  ; ln updateall.sh $HOME/scripts/updateall.sh
 
   rm $HOME/.config/nvim/init.vim  ; ln init.vim $HOME/.config/nvim/init.vim
+  rm $HOME/.screenlayout/3monitor.shm  ; ln 3monitor.sh $HOME/.screenlayout/3monitor.sh
 
 # Ignore
 #
