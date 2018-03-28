@@ -121,7 +121,7 @@
 
     alias play 'peerflix -a --vlc ""\!*""'
     #alias p 'echo play \"`xclip -o`\"; echo play-remove \"`xclip -o`\"; play'
-    alias p 'echo play \"`xclip -o`\"; play \"`xclip -o`\";'
+    alias p 'echo play \"`xclip -o`\"; play'
     alias cleantmp 'rm -rf /tmp/torrent-stream/*'
 
     alias touchpad_off 'synclient TouchpadOff=1'
@@ -245,3 +245,5 @@
 
     alias rsync 'rsync --stats --progress'
     alias rsync-cp 'rsync -avzh \!*'
+
+    alias connect_to_raspberrypi 'ssh -Xt raspberrypi screen -X -R -S main'
