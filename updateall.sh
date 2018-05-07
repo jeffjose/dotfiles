@@ -30,6 +30,10 @@ echo -e '---------------------------------------------------------'
 echo -e 'Updating npm packages'
 echo -e '---------------------------------------------------------'
 echo -e ''
+# Update node itself
+sudo npm install n -g
+sudo n stable
+
 sudo npm update -g
 
 #npm outdated -g --depth=0 | cut -d " " -f 1 | grep -v pack | xargs -n 1 npm update -g
@@ -49,6 +53,9 @@ echo -e '---------------------------------------------------------'
 echo -e ''
 
 source activate root
+# Update conda itself
+conda update -n base conda --yes
+
 # Update conda
 conda update --all --yes
 

@@ -119,6 +119,8 @@
     alias vol 'alsamixer -c 0'
 
     alias play 'peerflix -a --vlc ""\!*""'
+    #alias p 'echo play \"`xclip -o`\"; echo play-remove \"`xclip -o`\"; play'
+    alias p 'echo play \"`xclip -o`\"; play'
     alias cleantmp 'rm -rf /tmp/torrent-stream/*'
 
     alias touchpad_off 'synclient TouchpadOff=1'
@@ -230,6 +232,7 @@
     alias rsync 'rsync --stats --progress'
     alias rsync-cp 'rsync -avzh \!*'
 
+    alias connect_to_raspberrypi 'ssh -Xt raspberrypi screen -X -R -S main'
     alias notes 'cat ~/notes'
 
     alias recent 'cat /tmp/cwdcmd_recent_dirs'
@@ -248,6 +251,7 @@
     alias android-studio '/usr/local/android-studio/bin/studio.sh'
     alias emulator       '$HOME/Android/Sdk/emulator/emulator'
 
+    alias vpn_status 'curl --silent "https://www.privateinternetaccess.com/" | grep --color=never "You are protected by PIA" -o'
     alias ogv2mp4 'ffmpeg -i \!* -r 30 \!*.mp4'
 
     # Google

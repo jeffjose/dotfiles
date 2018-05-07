@@ -450,6 +450,10 @@ autocmd BufWritePre * :%s/\s\+$//e
 "
 " End of multi-buffer and multi-file text searching
 "
+"
+" Go
+    au BufWritePost *.go silent !gofmt -w %
+    au BufReadPost *.go set autoread
 
 " CoffeScript
     au BufWritePost *.coffee silent !coffee -bc %
