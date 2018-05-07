@@ -76,9 +76,15 @@
 [branch]
 	autosetuprebase = always
 [merge]
-	tool = kdiff3
+	tool = meld
+[diff]
+	tool = meld
+[difftool]
+  prompt = false
+[difftool "meld"]
+  cmd = meld "$LOCAL" "$REMOTE"
 [guitool "mergetool"]
-	cmd = kdiff3
+	cmd = meld
 [http]
 	postBuffer = 100M
     sslVerify = false
