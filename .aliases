@@ -252,6 +252,9 @@
     alias vpn_status 'curl --silent "https://www.privateinternetaccess.com/" | grep --color=never "You are protected by PIA" -o'
     alias ogv2mp4 'ffmpeg -i \!* -r 30 \!*.mp4'
 
+    alias sync_scripts_from_spectre 'rsync -azP --delete spectre:///home/jeffjose/scripts/ ~/scripts/'
+    alias sync_scripts_to_spectre 'rsync -azP --delete ~/scripts/ spectre:///home/jeffjose/scripts/'
+
     # Google
     #
     #
