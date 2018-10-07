@@ -119,8 +119,6 @@
     alias vol 'alsamixer -c 0'
 
     alias play 'peerflix -a --vlc ""\!*""'
-    #alias p 'echo play \"`xclip -o`\"; echo play-remove \"`xclip -o`\"; play'
-    alias p 'echo play \"`xclip -o`\"; play'
     alias cleantmp 'rm -rf /tmp/torrent-stream/*'
 
     alias touchpad_off 'synclient TouchpadOff=1'
@@ -232,7 +230,6 @@
     alias rsync 'rsync --stats --progress'
     alias rsync-cp 'rsync -avzh \!*'
 
-    alias connect_to_raspberrypi 'ssh -Xt raspberrypi screen -X -R -S main'
     alias notes 'cat ~/notes'
 
     alias recent 'cat /tmp/cwdcmd_recent_dirs'
@@ -251,11 +248,11 @@
     alias android-studio '/usr/local/android-studio/bin/studio.sh'
     alias emulator       '$HOME/Android/Sdk/emulator/emulator'
 
-    alias vpn_status 'curl --silent "https://www.privateinternetaccess.com/" | grep --color=never "You are protected by PIA" -o'
     alias ogv2mp4 'ffmpeg -i \!* -r 30 \!*.mp4'
 
-    alias sync_scripts_from_spectre 'rsync -azP --delete spectre:///home/jeffjose/scripts/ ~/scripts/'
-    alias sync_scripts_to_spectre 'rsync -azP --delete ~/scripts/ spectre:///home/jeffjose/scripts/'
+    alias curlmobile 'curl -H "User-Agent: Mozilla/5.0 (Linux; Android 5.1.1; Nexus 6 Build/LYZ28E) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.75 Mobile Safari/537.36"'
+    alias curlgoogle "curl --user-agent 'Googlebot/2.1 (+http://www.google.com/bot.html)'"
+    alias curlall 'rm /tmp/curl*; curl \!* > /tmp/curl.normal.html; curlmobile \!* > /tmp/curl.mobile.html; curlgoogle \!* > /tmp/curl.google.html;'
 
     # Google
     #
