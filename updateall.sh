@@ -38,13 +38,13 @@ sudo npm update -g
 
 #npm outdated -g --depth=0 | cut -d " " -f 1 | grep -v pack | xargs -n 1 npm update -g
 
-echo -e ''
-echo -e '---------------------------------------------------------'
-echo -e 'Patching tcsh for ubuntu 16.10'
-echo -e '---------------------------------------------------------'
-echo -e ''
-# patched tcsh for ubuntu 16.10
-sudo gdebi -n ~/dotfiles/tcsh_6.18.01-5_amd64.bugfix.deb
+#echo -e ''
+#echo -e '---------------------------------------------------------'
+#echo -e 'Patching tcsh for ubuntu 16.10'
+#echo -e '---------------------------------------------------------'
+#echo -e ''
+## patched tcsh for ubuntu 16.10
+#sudo gdebi -n ~/dotfiles/tcsh_6.18.01-5_amd64.bugfix.deb
 
 echo -e ''
 echo -e '---------------------------------------------------------'
