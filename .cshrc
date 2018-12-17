@@ -60,6 +60,7 @@ if ( ! $?prompt ) exit
     setenv YARNPATH             $HOME/.yarn
     setenv FLUTTERPATH          $HOME/scripts/flutter
     setenv GOOGLEDARTPATH       /usr/lib/google-dartlang
+    setenv CARGOPATH            $HOME/.cargo
 
     setenv ANDROID_HOME         $HOME/Android/Sdk
     setenv ANDROID_NDK_HOME     $HOME/Android/Ndk
@@ -67,7 +68,7 @@ if ( ! $?prompt ) exit
 
     #setenv GITMULTIPATH         /google/data/ro/users/mp/mpn/git-stuff
 
-    setenv PATH ${FLUTTERPATH}/bin:${YARNPATH}/bin:${ANACONDAPATH}/bin:${GOPATH}/bin:${GOROOT}/bin:${DARTPATH}/bin:${GOOGLEDARTPATH}/bin:${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools:${ANDROID_HOME}/build-tools/${ANDROID_VER}:${HOME}/.pub-cache/bin:${HOME}/bin:${HOME}/.local/bin:${PATH}
+    setenv PATH ${CARGOPATH}/bin:${FLUTTERPATH}/bin:${YARNPATH}/bin:${ANACONDAPATH}/bin:${GOPATH}/bin:${GOROOT}/bin:${DARTPATH}/bin:${GOOGLEDARTPATH}/bin:${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools:${ANDROID_HOME}/build-tools/${ANDROID_VER}:${HOME}/.pub-cache/bin:${HOME}/bin:${HOME}/.local/bin:${PATH}
     setenv JAVA_HOME /usr/lib/jvm/java-8-oracle
 
     setenv PYTHONPATH $HOME/.local/lib/python2.7/site-packages:/usr/local/buildtools/current/sitecustomize
