@@ -254,6 +254,16 @@
     alias curlgoogle "curl --user-agent 'Googlebot/2.1 (+http://www.google.com/bot.html)'"
     alias curlall 'rm /tmp/curl*; curl \!* > /tmp/curl.normal.html; curlmobile \!* > /tmp/curl.mobile.html; curlgoogle \!* > /tmp/curl.google.html;'
 
+
+    # Add alias
+    # sudo ip address add 192.168.1.6/24 dev eno1
+    #
+    # Check
+    # ip address show eno1
+    #
+    # Del alias
+    # sudo ip address del 192.168.1.6/24 dev eno1
+
     # Google
     #
     #
