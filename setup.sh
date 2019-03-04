@@ -10,6 +10,7 @@
   mkdir -p $HOME/.config/Code/User/
   mkdir -p $HOME/.ipython/profile_default/
   mkdir -p $HOME/.screenlayout
+  mkdir -p $HOME/.jupyter/custom/
 
   touch /tmp/cwdcmd_recent_dirs
 
@@ -45,6 +46,7 @@
   rm $HOME/.config/Code/User/settings.json            ; ln settings.json               $HOME/.config/Code/User/settings.json
   rm $HOME/.config/Code/User/keybindings.json         ; ln keybindings.json            $HOME/.config/Code/User/keybindings.json
   rm $HOME/.ipython/profile_default/ipython_config.py ; ln ipython_config.py           $HOME/.ipython/profile_default/ipython_config.py
+  rm $HOME/.jupyter/custom/custom.js                  ; ln custom.js                   $HOME/.jupyter/custom/custom.js
 
   rm $HOME/scripts/updateall.sh  ; ln updateall.sh $HOME/scripts/updateall.sh
 
