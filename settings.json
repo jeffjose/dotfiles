@@ -54,4 +54,6 @@
     "workbench.startupEditor": "newUntitledFile",
     "workbench.colorTheme": "Material Theme Darker High Contrast",
     "workbench.iconTheme": "eq-material-theme-icons-darker",
+    "prettier.disableLanguages": [],
+    "editor.formatOnSave": true
 }
