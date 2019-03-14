@@ -462,6 +462,7 @@ autocmd BufWritePre * :%s/\s\+$//e
     au BufReadPost *.js set autoread
     au BufWritePost *.go silent !gofmt -w %
     au BufWritePost *.vue silent !prettier --write %
+    au BufWritePost *.js silent !prettier --write %
 
 " LESS files
     au! BufRead,BufNewFile *.less set filetype=less
