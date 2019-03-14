@@ -30,7 +30,8 @@
 #
 #
 
-  rm -rf ~/.vim/bundle/vim-vue;      git clone https://github.com/posva/vim-vue.git      ~/.vim/bundle/vim-vue
+  rm -rf ~/.vim/bundle/vim-vue;         git clone https://github.com/posva/vim-vue.git         ~/.vim/bundle/vim-vue
+  rm -rf ~/.vim/bundle/dart-vim-plugin; git clone https://github.com/dart-lang/dart-vim-plugin ~/.vim/bundle/dart-vim-plugin
 
 
 # Link dotfiles
