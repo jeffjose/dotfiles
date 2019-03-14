@@ -31,7 +31,6 @@
 #
 
   rm -rf ~/.vim/bundle/vim-vue;      git clone https://github.com/posva/vim-vue.git      ~/.vim/bundle/vim-vue
-  rm -rf ~/.vim/bundle/vim-prettier; git clone https://github.com/prettier/vim-prettier  ~/.vim/bundle/vim-prettier
 
 
 # Link dotfiles
