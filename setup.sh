@@ -33,6 +33,7 @@
   rm -rf ~/.vim/bundle/vim-vue;           git clone https://github.com/posva/vim-vue.git         ~/.vim/bundle/vim-vue
   rm -rf ~/.vim/bundle/dart-vim-plugin;   git clone https://github.com/dart-lang/dart-vim-plugin ~/.vim/bundle/dart-vim-plugin
   rm -rf ~/.vim/bundle/vim-coffee-script; git clone  https://github.com/kchmck/vim-coffee-script.git ~/.vim/bundle/vim-coffee-script
+  rm -rf ~/.vim/bundle/vim-pug;           git clone git://github.com/digitaltoad/vim-pug.git ~/.vim/bundle/vim-pug
 
 
 # Link dotfiles
