@@ -53,8 +53,7 @@ if ( ! $?prompt ) exit
     # cwdcmd gets executed after every cd
     alias cwdcmd 'source ~/.cwdcmd'
 
-    setenv GOROOT               $HOME/scripts/go
-    setenv GOPATH               $HOME/go
+    setenv GOPATH               /usr/lib/google-golang/
     setenv ANACONDAPATH         $HOME/anaconda3
     setenv DARTPATH             /usr/lib/dart
     setenv YARNPATH             $HOME/.yarn
@@ -68,7 +67,7 @@ if ( ! $?prompt ) exit
 
     #setenv GITMULTIPATH         /google/data/ro/users/mp/mpn/git-stuff
 
-    setenv PATH ${CARGOPATH}/bin:${FLUTTERPATH}/bin:${YARNPATH}/bin:${ANACONDAPATH}/bin:${GOPATH}/bin:${GOROOT}/bin:${DARTPATH}/bin:${GOOGLEDARTPATH}/bin:${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools:${ANDROID_HOME}/build-tools/${ANDROID_VER}:${HOME}/.pub-cache/bin:${HOME}/bin:${HOME}/.local/bin:${PATH}
+    setenv PATH ${CARGOPATH}/bin:${FLUTTERPATH}/bin:${YARNPATH}/bin:${ANACONDAPATH}/bin:${GOPATH}/bin:${DARTPATH}/bin:${GOOGLEDARTPATH}/bin:${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools:${ANDROID_HOME}/build-tools/${ANDROID_VER}:${HOME}/.pub-cache/bin:${HOME}/bin:${HOME}/.local/bin:${PATH}
     setenv JAVA_HOME /usr/lib/jvm/java-8-oracle
 
     setenv PYTHONPATH $HOME/.local/lib/python2.7/site-packages:/usr/local/buildtools/current/sitecustomize
