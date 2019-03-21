@@ -53,7 +53,7 @@ if ( ! $?prompt ) exit
     # cwdcmd gets executed after every cd
     alias cwdcmd 'source ~/.cwdcmd'
 
-    setenv GOPATH               /usr/lib/google-golang/
+    setenv GOPATH               $HOME/go
     setenv ANACONDAPATH         $HOME/anaconda3
     setenv DARTPATH             /usr/lib/dart
     setenv YARNPATH             $HOME/.yarn
