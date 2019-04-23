@@ -250,6 +250,10 @@
     alias android-studio '/usr/local/android-studio/bin/studio.sh'
     alias emulator       '$HOME/Android/Sdk/emulator/emulator'
 
+    alias aa '$HOME/scripts/puppy/puppy \!* amp-analytics'
+
+    alias puppy '~/scripts/puppy/puppy'
+
     alias ogv2mp4 'ffmpeg -i \!* -r 30 \!*.mp4'
 
     alias curlmobile 'curl -H "User-Agent: Mozilla/5.0 (Linux; Android 5.1.1; Nexus 6 Build/LYZ28E) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.75 Mobile Safari/537.36"'
