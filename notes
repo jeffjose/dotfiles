@@ -3,3 +3,6 @@ ip route add 192.168.11.0/24 via 192.168.1.1
 
 # Check
 ip route get 192.168.11.11
+
+# tcpdump
+tcpdump -i any -w 001.pcap
