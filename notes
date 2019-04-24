@@ -6,3 +6,6 @@ ip route get 192.168.11.11
 
 # tcpdump
 tcpdump -i any -w 001.pcap
+
+# nmap
+nmap -sP 192.168.0.1/24'
