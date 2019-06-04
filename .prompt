@@ -45,20 +45,18 @@ endif
 
 # prodaccess status
 #
-if (-d /google/src/files) then
-  set prodaccess_status = true
-  set prompt_key = "#"
-else
-  if (${HOST} == "jeffjose.mtv.corp.google.com") then
-    set prodaccess_status = false
-    set prompt_key = "(run prodaccess) #"
-  else
+if (${HOST} == "jeffjose.mtv.corp.google.com") then
+  if (-d /google/src/files) then
     set prodaccess_status = true
     set prompt_key = "#"
+  else
+    set prodaccess_status = false
+    set prompt_key = "(run prodaccess) #"
   endif
-
+else
+  set prodaccess_status = true
+  set prompt_key = "#"
 endif
-
 
 # Git
 #
