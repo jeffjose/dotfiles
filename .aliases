@@ -217,6 +217,7 @@
     alias gparted 'sudo gparted'
 
     alias v 'cd ~/scripts/vuejs-tornado-seed'
+    alias puppy '~/scripts/puppy/puppy'
 
     alias msum md5sum
 
@@ -258,6 +259,8 @@
     alias curlsxg "rm /tmp/curl.sxg; curl -H 'Accept: application/signed-exchange;v=b3' -H 'AMP-Cache-Transform: google;v="'"1"'"' > /tmp/curl.sxg"
 
     alias google-chrome-sxg 'google-chrome-unstable --ignore-certificate-errors-spki-list=`openssl x509 -noout -pubkey -in /usr/local/google/home/jeffjose/scripts/amp-sxg/keys/cert.pem | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | base64` &'
+
+    alias n 'cd ~/scripts/now'
 
 
 
