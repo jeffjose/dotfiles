@@ -3,9 +3,7 @@
     "editor.cursorBlinking": "solid",
     "editor.fontFamily": "'monospace', monospace, 'Droid Sans Fallback'",
     "editor.autoClosingBrackets": false,
-    "editor.fontSize": 12,
     "vim.incsearch": true,
-    "vim.hlsearch": true,
     "vim.insertModeKeyBindings": [
         {
             "before": ["j","k"],
@@ -55,5 +53,10 @@
     "workbench.colorTheme": "Material Theme Darker High Contrast",
     "workbench.iconTheme": "eq-material-theme-icons-darker",
     "prettier.disableLanguages": [],
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "vim.hlsearch": true,
+    "editor.fontSize": 12,
+    "[html]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
 }
