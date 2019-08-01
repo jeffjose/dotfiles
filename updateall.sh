@@ -17,34 +17,15 @@ sudo apt -y upgrade
 sudo apt -y autoremove
 
 
-#
-# Find all out of date packages
-#   npm outdated -g --depth=0
-# And update using
-#   npm update -g <name>
-#
-
-# Update npm packages
+# Update node packages
+# sudo /usr/local/bin/npm list -g --depth 0
+# sudo /usr/local/bin/npm uninstall -g xxx
 echo -e ''
 echo -e '---------------------------------------------------------'
-echo -e 'Updating npm packages'
+echo -e 'Updating node packages'
 echo -e '---------------------------------------------------------'
 echo -e ''
-# Update node itself
-sudo npm install n -g
-sudo n stable
-
-sudo npm update -g
-
-#npm outdated -g --depth=0 | cut -d " " -f 1 | grep -v pack | xargs -n 1 npm update -g
-
-#echo -e ''
-#echo -e '---------------------------------------------------------'
-#echo -e 'Patching tcsh for ubuntu 16.10'
-#echo -e '---------------------------------------------------------'
-#echo -e ''
-## patched tcsh for ubuntu 16.10
-#sudo gdebi -n ~/dotfiles/tcsh_6.18.01-5_amd64.bugfix.deb
+yarn global upgrade
 
 echo -e ''
 echo -e '---------------------------------------------------------'
