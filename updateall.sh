@@ -18,8 +18,6 @@ sudo apt -y autoremove
 
 
 # Update node packages
-# sudo /usr/local/bin/npm list -g --depth 0
-# sudo /usr/local/bin/npm uninstall -g xxx
 echo -e ''
 echo -e '---------------------------------------------------------'
 echo -e 'Updating node packages'
