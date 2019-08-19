@@ -264,6 +264,8 @@
 
     alias n 'cd ~/scripts/now'
 
+    alias tos '~/thinkorswim/thinkorswim'
+
     # Add alias
     # sudo ip address add 192.168.1.6/24 dev eno1
     #
