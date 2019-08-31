@@ -8,6 +8,7 @@
   mkdir -p $HOME/.config/nvim
   mkdir -p $HOME/.screen
   mkdir -p $HOME/.config/Code/User/
+  mkdir -p $HOME/.config/catt/
   mkdir -p $HOME/.ipython/profile_default/
   mkdir -p $HOME/.screenlayout
   mkdir -p $HOME/.jupyter/custom/
@@ -55,6 +56,7 @@
   rm $HOME/.XResources                                ; ln .XResources                 $HOME/.XResources
   rm $HOME/.config/Code/User/settings.json            ; ln settings.json               $HOME/.config/Code/User/settings.json
   rm $HOME/.config/Code/User/keybindings.json         ; ln keybindings.json            $HOME/.config/Code/User/keybindings.json
+  rm $HOME/.config/catt/catt.cfg                      ; ln catt.cfg                    $HOME/.config/catt/catt.cfg
   rm $HOME/.ipython/profile_default/ipython_config.py ; ln ipython_config.py           $HOME/.ipython/profile_default/ipython_config.py
   rm $HOME/.jupyter/custom/custom.js                  ; ln custom.js                   $HOME/.jupyter/custom/custom.js
 
