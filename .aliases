@@ -266,6 +266,8 @@
 
     alias tos '~/thinkorswim/thinkorswim'
 
+    alias castnow 'catt cast'
+
     # Add alias
     # sudo ip address add 192.168.1.6/24 dev eno1
     #
