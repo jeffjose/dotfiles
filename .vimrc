@@ -461,7 +461,6 @@ autocmd BufWritePre * :%s/\s\+$//e
     "au BufWritePost *.coffee silent !coffee -bc | cwindow | redraw!
 
     au BufReadPost *.js set autoread
-    au BufWritePost *.go silent !gofmt -w %
     "au BufWritePost *.html silent !prettier --no-semi --write %
     au BufWritePost *.json silent !prettier --write %
     au BufWritePost *.vue silent !prettier --write %

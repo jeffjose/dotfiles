@@ -66,6 +66,13 @@
   rm $HOME/.screenlayout/3monitor.sh  ; ln 3monitor.sh $HOME/.screenlayout/3monitor.sh
 
 
+  # Install binaries
+  pip install yapf
+  yarn global add prettier
+  yarn global add coffee-script
+  yarn global add less
+
+
 # Ignore
 #
 #ccsm.profile
