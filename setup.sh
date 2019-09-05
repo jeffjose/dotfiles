@@ -69,7 +69,7 @@
   # Install binaries
   pip install yapf
   yarn global add prettier
-  yarn global add coffee-script
+  yarn global add coffeescript
   yarn global add less
 
 
