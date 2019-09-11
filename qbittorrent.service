@@ -1,0 +1,15 @@
+[Unit]
+Description=Qbittorrent Daemon
+After=network.target
+
+[Service]
+User=jeffjose
+Restart=on-failure
+RestartSec=5
+Type=simple
+ExecStart=/usr/bin/qbittorrent-nox
+TimeoutStopSec=20
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
