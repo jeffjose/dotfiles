@@ -119,3 +119,6 @@
 
     bindkey "^[1" layout select 'default'
     bindkey "^[2" layout select 'tp2'
+
+# Open a new layout
+    layout new "default"

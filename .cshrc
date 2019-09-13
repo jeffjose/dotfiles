@@ -115,5 +115,5 @@ if ( ! $?prompt ) exit
     else
         # A blank terminal session.
         # get or create a new session named 'mainsession'
-        scrn -x -R -S main
+        scrn -x -R -S default
     endif

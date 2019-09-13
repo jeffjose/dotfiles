@@ -2,7 +2,6 @@
 source "~/.screenrc"
 
 # Automatically open tabs
-    layout new "default"
     screen -t
     screen -t
     screen -t
