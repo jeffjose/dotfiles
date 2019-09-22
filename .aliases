@@ -152,6 +152,7 @@
 
 
     alias gdebi 'sudo gdebi'
+    alias deb gdebi
 
     alias talks 'cd ~/talks'
 
@@ -269,6 +270,8 @@
     alias castnow 'catt cast'
 
     alias cat bat
+
+    alias fixgitconfig "sed -i 's#url = https://github.com/#url = git@github.com:#' .git/config; cat .git/config"
 
     # Add alias
     # sudo ip address add 192.168.1.6/24 dev eno1
