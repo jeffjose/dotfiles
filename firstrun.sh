@@ -9,3 +9,5 @@ echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/source
 sudo apt-get update && sudo apt-get install yarn
 
 sudo apt autoremove
+
+#ssh-keygen -t rsa -b 4096 -C "jeffjosejeff@gmail.com"
