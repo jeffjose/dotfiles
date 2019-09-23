@@ -273,6 +273,11 @@
 
     alias fixgitconfig "sed -i 's#url = https://github.com/#url = git@github.com:#' .git/config; cat .git/config"
 
+    alias jclone 'git clone https://github.com/jeffjose/\!*'
+
+    alias bootloader systemctl reboot --firmware-setup
+
+
     # Add alias
     # sudo ip address add 192.168.1.6/24 dev eno1
     #
