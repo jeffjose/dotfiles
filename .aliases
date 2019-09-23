@@ -275,7 +275,7 @@
 
     alias jclone 'git clone https://github.com/jeffjose/\!*'
 
-    alias bootloader systemctl reboot --firmware-setup
+    alias reboot-bootloader systemctl reboot --firmware-setup
 
 
     # Add alias
