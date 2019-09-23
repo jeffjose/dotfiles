@@ -9,7 +9,7 @@
   mkdir -p $HOME/.screen
   mkdir -p $HOME/.config/Code/User/
   mkdir -p $HOME/.config/catt/
-  mkdir -p $HOME/.config/xfce4/xfconf/xfce-perchannel-xml/
+  #mkdir -p $HOME/.config/xfce4/xfconf/xfce-perchannel-xml/
   mkdir -p $HOME/.ipython/profile_default/
   mkdir -p $HOME/.screenlayout
   mkdir -p $HOME/.jupyter/custom/
@@ -61,7 +61,7 @@
   rm $HOME/.ipython/profile_default/ipython_config.py ; ln ipython_config.py           $HOME/.ipython/profile_default/ipython_config.py
   rm $HOME/.jupyter/custom/custom.js                  ; ln custom.js                   $HOME/.jupyter/custom/custom.js
 
-  rm $HOME/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml ; ln xfce4-panel.xml $HOME/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
+  #rm $HOME/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml ; ln xfce4-panel.xml $HOME/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
   rm $HOME/scripts/updateall.sh  ; ln updateall.sh $HOME/scripts/updateall.sh
 
   rm $HOME/.config/nvim/init.vim  ; ln init.vim $HOME/.config/nvim/init.vim
