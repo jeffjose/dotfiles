@@ -40,7 +40,7 @@
     alias install 'sudo apt-get -y install \!*; rehash'
 
     # Remove a package
-    alias remove 'sudo apt-get purge \!*'
+    alias remove 'sudo apt-get -y purge \!*'
 
     # Remove a ppa and all associated packages.
     alias removeppa 'sudo ppa-purge \!*'
@@ -151,7 +151,7 @@
 
 
 
-    alias gdebi 'sudo gdebi'
+    alias gdebi 'sudo gdebi --non-interactive'
     alias deb gdebi
 
     alias talks 'cd ~/talks'
