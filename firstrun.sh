@@ -6,6 +6,9 @@
 # Packages
 sudo apt install -y git neovim curl moreutils tilix ack screen gitk ncdu htop qbittorrent tcsh gdebi ffmpeg vlc gedit
 
+# Needed for nodejs
+sudo apt install -y g++ build-essential
+
 mkdir -p ~/bin/
 ln /usr/bin/screen ~/bin/scrn -s
 
