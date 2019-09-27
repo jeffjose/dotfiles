@@ -18,7 +18,7 @@ echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/source
 sudo apt-get update && sudo apt-get -y install yarn
 
 # Yarn packages
-yarn global add t-get
+yarn global add t-get yarn-recursive
 
 sudo apt autoremove
 
