@@ -1,10 +1,10 @@
-#!/usr/bin/bash
+#!/bin/bash
 #
 # Jeffrey Jose
 #
 
 # Packages
-sudo apt install -y git neovim curl moreutils tilix ack screen gitk ncdu htop qbittorrent tcsh gdebi
+sudo apt install -y git neovim curl moreutils tilix ack screen gitk ncdu htop qbittorrent tcsh gdebi ffmpeg vlc
 
 mkdir -p ~/bin/
 ln /usr/bin/screen ~/bin/scrn -s
