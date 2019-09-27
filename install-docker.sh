@@ -14,4 +14,10 @@ sudo apt-get -y install docker-ce docker-ce-cli containerd.io
 
 sudo groupadd docker 2> /dev/null
 sudo usermod -aG docker $USER
-sudo newgrp docker
+
+# Run this manually
+#sudo newgrp docker
+echo "-----------------------"
+echo "Run this manually"
+echo "sudo newgrp docker"
+echo "-----------------------"
