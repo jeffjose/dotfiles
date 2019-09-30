@@ -4,7 +4,7 @@
 #
 
 # Packages
-sudo apt install -y git neovim curl moreutils tilix ack screen gitk ncdu htop qbittorrent tcsh gdebi ffmpeg vlc gedit
+sudo apt install -y git neovim curl moreutils tilix ack screen gitk ncdu htop qbittorrent tcsh gdebi ffmpeg vlc gedit shutter
 
 mkdir -p ~/bin/
 ln /usr/bin/screen ~/bin/scrn -s
