@@ -66,9 +66,9 @@
     alias ack ack -i
     alias acki ack
 
-    alias fb 'nautilus . &'
+    alias fb 'thunar . &'
 
-    alias dl 'nautilus ~/Downloads &'
+    alias dl 'thunar ~/Downloads &'
 
     alias eog  'feh -D 5 --scale-down --auto-zoom --fullscreen'
     alias eogz 'feh -z -D 5 --scale-down --auto-zoom --fullscreen'
