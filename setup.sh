@@ -1,4 +1,4 @@
-#!/usr/bin/tcsh -fb
+#!/bin/bash
 
 # Setting up some directories
 #
