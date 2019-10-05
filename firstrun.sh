@@ -9,12 +9,12 @@ sudo apt install -y git neovim curl moreutils tilix ack screen gitk ncdu htop qb
 # Shutter
 sudo add-apt-repository ppa:linuxuprising/shutter
 sudo apt-get update
-sudo apt install shutter
+sudo apt install -y shutter
 
 # Numix
 sudo add-apt-repository ppa:numix/ppa
 sudo apt-get update
-sudo apt-get install numix-gtk-theme numix-icon-theme-circle numix-icon-theme-square
+sudo apt-get install -y numix-gtk-theme numix-icon-theme-circle numix-icon-theme-square
 
 
 mkdir -p ~/bin/
