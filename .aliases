@@ -272,6 +272,9 @@
     alias cat bat
 
     alias fixgitconfig "sed -i 's#url = https://github.com/#url = git@github.com:#' .git/config; cat .git/config"
+    alias gitfixconfig fixgitconfig
+
+    alias copysshkey 'xclip -sel clip < ~/.ssh/id_rsa.pub'
 
     alias jclone 'git clone https://github.com/jeffjose/\!*'
 
