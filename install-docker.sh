@@ -19,5 +19,5 @@ sudo usermod -aG docker $USER
 #sudo newgrp docker
 echo "-----------------------"
 echo "Run this manually"
-echo "sudo newgrp docker"
+echo "newgrp docker"
 echo "-----------------------"
