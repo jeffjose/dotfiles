@@ -4,7 +4,7 @@
 #
 
 # Packages
-sudo apt install -y git neovim curl moreutils tilix ack screen gitk ncdu htop qbittorrent tcsh gdebi ffmpeg vlc gedit gparted tree feh
+sudo apt install -y git neovim curl moreutils tilix ack screen gitk ncdu htop qbittorrent tcsh gdebi ffmpeg vlc gedit gparted tree feh youtube-dl
 
 # Shutter
 sudo add-apt-repository ppa:linuxuprising/shutter
