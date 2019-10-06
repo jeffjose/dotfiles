@@ -28,8 +28,11 @@ sudo apt-get update && sudo apt-get -y install yarn
 # Yarn packages
 yarn global add t-get yarn-recursive
 
+# Patch ntp servers
+sudo patch /etc/ntp.conf ntp.patch
+
+# Remove packages
 sudo apt autoremove
 
 ssh-keygen -t rsa -b 4096 -C "jeffjosejeff@gmail.com"
 ssh-add ~/.ssh/id_rsa
-

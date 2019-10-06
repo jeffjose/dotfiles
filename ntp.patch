@@ -1,0 +1,17 @@
+--- /tmp/1.conf	2019-10-06 12:12:44.453508808 -0400
++++ /tmp/2.conf	2019-10-06 12:12:42.545502729 -0400
+@@ -18,10 +18,10 @@
+ # Use servers from the NTP Pool Project. Approved by Ubuntu Technical Board
+ # on 2011-02-08 (LP: #104525). See http://www.pool.ntp.org/join.html for
+ # more information.
+-pool 0.ubuntu.pool.ntp.org iburst
+-pool 1.ubuntu.pool.ntp.org iburst
+-pool 2.ubuntu.pool.ntp.org iburst
+-pool 3.ubuntu.pool.ntp.org iburst
++server 0.pool.ntp.org
++server 1.pool.ntp.org
++server 2.pool.ntp.org
++server 3.pool.ntp.org
+
+ # Use Ubuntu's ntp server as a fallback.
+ pool ntp.ubuntu.com
