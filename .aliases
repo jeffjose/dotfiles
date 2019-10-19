@@ -287,6 +287,8 @@
     alias pixel-connect bash -c '"sudo bluetoothctl <<< '\''connect 3C:28:6D:F4:EF:25'\''"'
     alias pixel-disconnect bt-device -d "3C:28:6D:F4:EF:25"
 
+    alias githubsshkey 'xclip -sel clip < ~/.ssh/id_rsa.pub; echo "Copied; Go to https://github.com/settings/keys"'
+
 
     # Add alias
     # sudo ip address add 192.168.1.6/24 dev eno1
