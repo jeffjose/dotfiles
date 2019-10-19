@@ -269,8 +269,6 @@
 
     alias castnow 'catt cast'
 
-    alias cat bat
-
     alias fixgitconfig "sed -i 's#url = https://github.com/#url = git@github.com:#' .git/config; cat .git/config"
     alias gitfixconfig fixgitconfig
 
