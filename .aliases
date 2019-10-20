@@ -272,6 +272,9 @@
     alias fixgitconfig "sed -i 's#url = https://github.com/#url = git@github.com:#' .git/config; cat .git/config"
     alias gitfixconfig fixgitconfig
 
+    alias git_setup_upstream 'git remote add upstream'
+    alias git_sync_upstream 'git fetch upstream; git checkout master; git merge upstream/master'
+
     alias copysshkey 'xclip -sel clip < ~/.ssh/id_rsa.pub'
 
     alias jclone 'git clone https://github.com/jeffjose/\!*'
