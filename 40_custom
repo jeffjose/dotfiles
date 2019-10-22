@@ -1,0 +1,17 @@
+#!/bin/sh
+exec tail -n +3 $0
+# This file provides an easy way to add custom menu entries.  Simply type the
+# menu entries you want to add after this comment.  Be careful not to change
+# the 'exec tail' line above.
+#
+# This file should end up in /etc/grub.d/40_custom
+
+# UUID comes from `blkid`
+#
+# Run `sudo update-grub` after you modify this file
+
+
+menuentry "Bootable USB (Sandisk 256GB)" {
+    search --no-floppy --set=root --fs-uuid 1D06-172E
+    configfile /boot/grub/grub.cfg
+}
