@@ -289,6 +289,9 @@
 
     alias githubsshkey 'xclip -sel clip < ~/.ssh/id_rsa.pub; echo "Copied; Go to https://github.com/settings/keys"'
 
+    alias scripts 'cat package.json | jq .scripts'
+    alias sc scripts
+
 
     # Add alias
     # sudo ip address add 192.168.1.6/24 dev eno1
