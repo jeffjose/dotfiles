@@ -60,9 +60,6 @@
     alias du 'du --total'
 
 # Navigation
-    alias scripts 'cd ~/scripts'
-    alias desktop 'cd ~/Desktop'
-
     alias ack ack -i
     alias acki ack
 
