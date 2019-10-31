@@ -287,6 +287,9 @@
     alias pixel-connect bash -c '"sudo bluetoothctl <<< '\''connect 3C:28:6D:F4:EF:25'\''"'
     alias pixel-disconnect bt-device -d "3C:28:6D:F4:EF:25"
 
+    alias headphone-connect "bt-device -c 04:5D:4B:E9:CA:CC"
+    alias headphone-disconnect "bt-device -d 04:5D:4B:E9:CA:CC"
+
     alias githubsshkey 'xclip -sel clip < ~/.ssh/id_rsa.pub; echo "Copied; Go to https://github.com/settings/keys"'
 
     alias scripts 'cat package.json | jq .scripts'
