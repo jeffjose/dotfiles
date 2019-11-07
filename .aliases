@@ -295,6 +295,7 @@
 
     alias scripts 'cat package.json | jq .scripts'
     alias sc scripts
+    alias vpn_status 'curl -sS https://www.privateinternetaccess.com/ | grep --color=never -o "You are protected"'
 
 
     # Add alias
