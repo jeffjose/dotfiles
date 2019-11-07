@@ -6,7 +6,7 @@
     source ~/.tabletaliases
 
     alias ls 'ls --color'
-    alias vim nvim
+    #alias vim nvim
     alias vi vim
     alias ll 'ls -lGh'
     alias l ll
@@ -270,8 +270,8 @@
     alias gitfixconfig fixgitconfig
 
     alias git_setup_upstream 'git remote add upstream'
-    alias git_sync_upstream 'git fetch upstream; git checkout master; git merge upstream/master'
-    alias git_fetch_upstream git_sync_upstream
+    alias git_sync_upstream_lose_changes 'git fetch upstream; git checkout master; git pull upstream master'
+    alias git_fetch_upstream_lose_changes git_sync_upstream_lose_changes
 
     alias copysshkey 'xclip -sel clip < ~/.ssh/id_rsa.pub'
 
