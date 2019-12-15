@@ -4,7 +4,7 @@
 #
 
 # Packages
-sudo apt install -y git neovim curl moreutils tilix ack screen gitk ncdu htop qbittorrent tcsh gdebi ffmpeg vlc gedit gparted tree feh youtube-dl ntp colordiff bluez-tools d-feet jq npx npm
+sudo apt install -y git neovim curl moreutils tilix ack screen gitk ncdu htop qbittorrent tcsh gdebi ffmpeg vlc gedit gparted tree feh youtube-dl ntp colordiff bluez-tools d-feet jq npm
 
 # Shutter
 sudo add-apt-repository ppa:linuxuprising/shutter
@@ -26,7 +26,7 @@ echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/source
 sudo apt-get update && sudo apt-get -y install yarn
 
 # Yarn packages
-yarn global add t-get yarn-recursive
+yarn global add t-get yarn-recursive npx
 
 # Patch ntp servers
 sudo patch /etc/ntp.conf ntp.patch
