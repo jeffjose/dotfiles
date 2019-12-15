@@ -70,7 +70,7 @@
 
   # Install binaries
   pip install yapf
-  yarn global add prettier coffeescript less
+  yarn global add t-get yarn-recursive npx prettier coffeescript less pug
 
 
 # Ignore
