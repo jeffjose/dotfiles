@@ -36,6 +36,8 @@
   rm -rf ~/.vim/bundle/dart-vim-plugin;   git clone https://github.com/dart-lang/dart-vim-plugin ~/.vim/bundle/dart-vim-plugin
   rm -rf ~/.vim/bundle/vim-coffee-script; git clone  https://github.com/kchmck/vim-coffee-script.git ~/.vim/bundle/vim-coffee-script
   rm -rf ~/.vim/bundle/vim-pug;           git clone git://github.com/digitaltoad/vim-pug.git ~/.vim/bundle/vim-pug
+  rm -rf ~/.vim/bundle/vim-svelte-plugin; git clone https://github.com/leafoftree/vim-svelte-plugin ~/.vim/bundle/vim-svelte-plugin
+
 
 
 # Link dotfiles
@@ -70,7 +72,7 @@
 
   # Install binaries
   pip install yapf
-  yarn global add t-get yarn-recursive npx prettier coffeescript less
+  yarn global add t-get yarn-recursive npx prettier coffeescript less prettier-plugin-svelte
 
 
 # Ignore
