@@ -6,7 +6,7 @@
     source ~/.tabletaliases
 
     alias ls 'ls --color'
-    #alias vim nvim
+    alias vim nvim
     alias vi vim
     alias ll 'ls -lGh'
     alias l ll

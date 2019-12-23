@@ -1,5 +1,8 @@
 if ( ! $?prompt ) exit
 
+   # Fixes vertical scrolling issues in vim
+   setenv TERM xterm-256color
+
 # Auto correct turn'd on
 # Possible values = (cmd complete all)
     set correct = all
