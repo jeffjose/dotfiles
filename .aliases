@@ -166,6 +166,7 @@
     alias 2 'cd /mnt/disk2'
     alias r 'cd /media/jeffjose/rico'
     alias p 'cd ~/scripts/personal-website'
+    alias f 'cd ~/scripts/personal-website/frontend'
     alias dot 'cd ~/dotfiles'
 
     alias getaudio 'youtube-dl --extract-audio --audio-format mp3 --audio-quality 0 \!*'
