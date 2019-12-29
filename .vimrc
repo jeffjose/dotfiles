@@ -466,6 +466,7 @@ autocmd BufWritePre * :%s/\s\+$//e
     au BufWritePost *.vue silent !prettier --write %
     "au BufWritePost *.svelte silent !prettier --write %
     au BufWritePost *.js silent !prettier --write %
+    au BufWritePost *.yaml silent !prettier --write %
     au BufWritePost *.py silent !yapf --in-place %
 
 " LESS files
