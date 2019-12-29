@@ -464,7 +464,7 @@ autocmd BufWritePre * :%s/\s\+$//e
     "au BufWritePost *.html silent !prettier --no-semi --write %
     au BufWritePost *.json silent !prettier --write %
     au BufWritePost *.vue silent !prettier --write %
-    au BufWritePost *.svelte silent !prettier --write %
+    "au BufWritePost *.svelte silent !prettier --write %
     au BufWritePost *.js silent !prettier --write %
     au BufWritePost *.py silent !yapf --in-place %
 
