@@ -72,7 +72,7 @@
 
   # Install binaries
   pip install yapf
-  yarn global add t-get yarn-recursive npx prettier coffeescript less prettier-plugin-svelte
+  yarn global add t-get yarn-recursive npx prettier coffeescript less prettier-plugin-svelte firebase firebase-tools
 
 
 # Ignore
