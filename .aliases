@@ -172,6 +172,7 @@
     alias p 'cd ~/scripts/personal-website'
     alias f 'cd ~/scripts/personal-website/frontend'
     alias dot 'cd ~/dotfiles'
+    alias sl 'cd ~/scripts/sleddit'
 
     alias getaudio 'youtube-dl --extract-audio --audio-format mp3 --audio-quality 0 \!*'
 
