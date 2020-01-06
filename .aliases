@@ -109,6 +109,10 @@
 
     alias gitg 'git gui'
     alias gitk 'gitk --all'
+    alias gs 'git status'
+    alias gc 'git commit -m'
+    alias ga 'git add'
+    alias gg 'gc'
 
     alias foxit 'foxit \!* &'
     alias fox foxit
