@@ -172,7 +172,7 @@
     alias p 'cd ~/scripts/personal-website'
     alias f 'cd ~/scripts/personal-website/frontend'
     alias dot 'cd ~/dotfiles'
-    alias sl 'cd ~/scripts/sleddit'
+    alias px 'cd ~/scripts/redditpx'
 
     alias updatedot 'dot; git pull; cd -'
 
