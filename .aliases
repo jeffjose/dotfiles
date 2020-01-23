@@ -305,7 +305,7 @@
     alias sc scripts
     alias vpn_status 'curl -sS https://www.privateinternetaccess.com/ | grep --color=never -o "You are protected"'
 
-    alias size 'curl -s -o /dev/null -w Download size: %{size_download}'
+    alias size "curl -s -o /dev/null -w 'Download size: %{size_download}\n'"
 
 
     # Add alias
