@@ -71,7 +71,7 @@
 
 
   # Install binaries
-  pip install yapf
+  pip install yapf speedtest-cli
 
   # Yarn packages
   ./yarn.sh
