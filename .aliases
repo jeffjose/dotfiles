@@ -25,6 +25,7 @@
     alias sipy3 ipython3
 
     alias so 'echo "Sourcing ~/.cshrc .."; source ~/.cshrc'
+    alias SO so
     alias grep grep -iE --color=always
 
     alias exe chmod a+x
@@ -306,6 +307,11 @@
     alias vpn_status 'curl -sS https://www.privateinternetaccess.com/ | grep --color=never -o "You are protected"'
 
     alias size "curl -s -o /dev/null -w 'Download size: %{size_download}\n'"
+
+    alias UNDOCAPS 'setxkbmap -option'
+    alias undocaps 'setxkbmap -option'
+
+    alias os 'cat /etc/*-release; cat /etc/*_version'
 
 
     # Add alias
