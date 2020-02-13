@@ -309,7 +309,9 @@
     alias size "curl -s -o /dev/null -w 'Download size: %{size_download}\n'"
 
     alias UNDOCAPS 'setxkbmap -option'
+    alias CAPS 'setxkbmap -option'
     alias undocaps 'setxkbmap -option'
+    alias caps 'setxkbmap -option'
 
     alias os 'cat /etc/*-release; cat /etc/*_version'
 
