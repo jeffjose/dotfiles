@@ -64,5 +64,6 @@
     "editor.defaultFormatter": "JamesBirtles.svelte-vscode"
   },
   "editor.tabSize": 2,
-  "editor.minimap.enabled": false
+  "editor.minimap.enabled": false,
+  "diffEditor.ignoreTrimWhitespace": true
 }
