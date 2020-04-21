@@ -57,7 +57,7 @@
   "python.formatting.provider": "yapf",
   "vim.commandLineModeKeyBindings": [],
   "editor.cursorStyle": "block",
-  "workbench.colorTheme": "Monokai Pro (Filter Spectrum)",
+  "workbench.colorTheme": "Material-Theme-jeffjose",
   "editor.formatOnType": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[svelte]": {
