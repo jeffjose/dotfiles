@@ -3,6 +3,10 @@
 # Jeffrey Jose | Jan 06, 2020
 #
 
+echo "-----------------"
+echo "Yarn"
+echo "-----------------"
+
 yarn global add t-get yarn-recursive npx coffeescript less firebase firebase-tools peerflix gulp-cli
 
 #  To create vscode theme from .tmtheme

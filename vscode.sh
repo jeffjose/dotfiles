@@ -1,3 +1,12 @@
+#!/bin/bash
+#
+# Jeffrey Jose | Apr 20, 2020
+#
+
+echo "-----------------"
+echo "VS code"
+echo "-----------------"
+
 # vim
 code --install-extension vscodevim.vim
 
