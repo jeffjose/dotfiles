@@ -1,0 +1,21 @@
+{
+    "name": "material-theme-jeffjose",
+    "displayName": "Material-Theme-jeffjose",
+    "description": "",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.44.0"
+    },
+    "categories": [
+        "Themes"
+    ],
+    "contributes": {
+        "themes": [
+            {
+                "label": "Material-Theme-jeffjose",
+                "uiTheme": "vs-dark",
+                "path": "./themes/Material-Theme-jeffjose-color-theme.json"
+            }
+        ]
+    }
+}
