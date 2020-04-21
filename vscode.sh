@@ -7,6 +7,15 @@ code --install-extension esbenp.prettier-vscode
 # .svelte
 code --install-extension JamesBirtles.svelte-vscode
 
+# .py
+code --install-extension ms-python.python
+
+# .service
+code --install-extension coolbear.systemd-unit-file
+
+# .csv
+code --install-extension mechatroner.rainbow-csv
+
 # tailwindcss: order class names
 code --install-extension heybourn.headwind
 
@@ -16,3 +25,4 @@ code --install-extension PKief.material-icon-theme
 
 # Format all files
 code --install-extension lacroixdavid1.vscode-format-context-menu
+

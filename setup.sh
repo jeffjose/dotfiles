@@ -70,6 +70,11 @@
   rm $HOME/.screenlayout/3monitor.sh  ; ln 3monitor.sh $HOME/.screenlayout/3monitor.sh
 
 
+  # VS Code
+  rm $HOME/.vscode/extensions/material-theme-jeffjose -r
+  mkdir -p $HOME/.vscode/extensions
+  cp -r material-theme-jeffjose $HOME/.vscode/extensions/material-theme-jeffjose
+
   # Install binaries
   pip install yapf speedtest-cli
 
