@@ -26,3 +26,5 @@ code --install-extension PKief.material-icon-theme
 # Format all files
 code --install-extension lacroixdavid1.vscode-format-context-menu
 
+# Docker
+code --install-extension ms-azuretools.vscode-docker
