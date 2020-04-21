@@ -66,7 +66,6 @@
   "editor.tabSize": 2,
   "editor.minimap.enabled": false,
   "diffEditor.ignoreTrimWhitespace": true,
-  "window.menuBarVisibility": "toggle",
   "explorer.openEditors.visible": 0,
   "workbench.editor.showTabs": false
 }
