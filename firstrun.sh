@@ -28,6 +28,9 @@ sudo apt-get update && sudo apt-get -y install yarn
 # Yarn packages
 ./yarn.sh
 
+# VS Code
+./vscode.sh
+
 # Patch ntp servers
 sudo patch /etc/ntp.conf ntp.patch
 

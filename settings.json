@@ -50,7 +50,7 @@
   ],
   "extensions.ignoreRecommendations": false,
   "workbench.startupEditor": "newUntitledFile",
-  "workbench.iconTheme": "Monokai Pro (Filter Spectrum) Icons",
+  "workbench.iconTheme": "material-icon-theme",
   "prettier.disableLanguages": [],
   "editor.formatOnSave": true,
   "vim.hlsearch": true,
