@@ -81,6 +81,9 @@
   # Yarn packages
   ./yarn.sh
 
+  # VS Code packages
+  ./vscode.sh
+
 
 # Ignore
 #
