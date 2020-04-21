@@ -82,14 +82,6 @@
     "when": "workbench.explorer.openEditorsView.active"
   },
   {
-    "key": "shift+alt+g",
-    "command": "workbench.view.scm"
-  },
-  {
-    "key": "ctrl+shift+g",
-    "command": "-workbench.view.scm"
-  },
-  {
     "key": "shift+alt+e",
     "command": "workbench.view.explorer"
   },
@@ -126,5 +118,23 @@
     "key": "alt+k",
     "command": "workbench.action.focusPreviousGroup",
     "when": "editorTextFocus"
+  },
+  {
+    "key": "alt+f",
+    "command": "editor.action.formatDocument",
+    "when": "editorHasDocumentFormattingProvider && editorHasDocumentFormattingProvider && editorTextFocus && !editorReadonly"
+  },
+  {
+    "key": "ctrl+shift+i",
+    "command": "-editor.action.formatDocument",
+    "when": "editorHasDocumentFormattingProvider && editorHasDocumentFormattingProvider && editorTextFocus && !editorReadonly"
+  },
+  {
+    "key": "alt+g",
+    "command": "workbench.view.scm"
+  },
+  {
+    "key": "ctrl+shift+g",
+    "command": "-workbench.view.scm"
   }
 ]
