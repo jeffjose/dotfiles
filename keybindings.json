@@ -10,11 +10,13 @@
     },
     {
         "key": "tab",
-        "command": "workbench.action.nextEditorInGroup"
+        "command": "workbench.action.nextEditorInGroup",
+        "when": "editorTextFocus && vim.mode != 'Insert'"
     },
     {
         "key": "shift+tab",
-        "command": "workbench.action.previousEditorInGroup"
+        "command": "workbench.action.previousEditorInGroup",
+        "when": "editorTextFocus && vim.mode != 'Insert'"
     },
     {
         "key": "alt+j",
