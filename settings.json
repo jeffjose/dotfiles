@@ -1,6 +1,6 @@
 {
   "editor.renderLineHighlight": "none",
-  "editor.cursorBlinking": "solid",
+  "editor.cursorBlinking": "blink",
   "editor.fontFamily": "'monospace', monospace, 'Droid Sans Fallback'",
   "editor.autoClosingBrackets": false,
   "vim.incsearch": true,
@@ -50,20 +50,18 @@
   ],
   "extensions.ignoreRecommendations": false,
   "workbench.startupEditor": "newUntitledFile",
-  "workbench.colorTheme": "Material Theme Darker High Contrast",
-  "workbench.iconTheme": "eq-material-theme-icons-darker",
+  "workbench.iconTheme": "Monokai Pro (Filter Spectrum) Icons",
   "prettier.disableLanguages": [],
   "editor.formatOnSave": true,
   "vim.hlsearch": true,
-  "editor.fontSize": 12,
-  "[html]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  "python.formatting.provider": "yapf",
+  "vim.commandLineModeKeyBindings": [],
+  "editor.cursorStyle": "block",
+  "workbench.colorTheme": "Monokai Pro (Filter Spectrum)",
+  "editor.formatOnType": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[svelte]": {
+    "editor.defaultFormatter": "JamesBirtles.svelte-vscode"
   },
-  "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "python.formatting.provider": "yapf"
+  "editor.tabSize": 2
 }
