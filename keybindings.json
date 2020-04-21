@@ -117,5 +117,15 @@
     "key": "alt+s",
     "command": "workbench.action.splitEditorDown",
     "when": "editorFocus"
+  },
+  {
+    "key": "alt+h",
+    "command": "workbench.action.navigateLeft",
+    "when": "editorFocus"
+  },
+  {
+    "key": "alt+l",
+    "command": "workbench.action.navigateRight",
+    "when": "editorFocus"
   }
 ]

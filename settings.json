@@ -65,5 +65,6 @@
   },
   "editor.tabSize": 2,
   "editor.minimap.enabled": false,
-  "diffEditor.ignoreTrimWhitespace": true
+  "diffEditor.ignoreTrimWhitespace": true,
+  "window.menuBarVisibility": "toggle"
 }
