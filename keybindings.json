@@ -76,5 +76,40 @@
     "key": "alt+k",
     "command": "workbench.action.focusActiveEditorGroup",
     "when": "terminalFocus"
+  },
+  {
+    "key": "alt+h",
+    "command": "workbench.files.action.focusOpenEditorsView"
+  },
+  {
+    "key": "alt+l",
+    "command": "workbench.action.focusActiveEditorGroup",
+    "when": "explorerViewletFocus"
+  },
+  {
+    "key": "alt+j",
+    "command": "outline.focus",
+    "when": "explorerViewletFocus"
+  },
+  {
+    "key": "ctrl+k e",
+    "command": "-workbench.files.action.focusOpenEditorsView",
+    "when": "workbench.explorer.openEditorsView.active"
+  },
+  {
+    "key": "shift+alt+g",
+    "command": "workbench.view.scm"
+  },
+  {
+    "key": "ctrl+shift+g",
+    "command": "-workbench.view.scm"
+  },
+  {
+    "key": "shift+alt+e",
+    "command": "workbench.view.explorer"
+  },
+  {
+    "key": "ctrl+shift+e",
+    "command": "-workbench.view.explorer"
   }
 ]
