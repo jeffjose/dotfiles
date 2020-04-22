@@ -12,8 +12,4 @@ yarn global add t-get yarn-recursive npx coffeescript less firebase firebase-too
 #  To create vscode theme from .tmtheme
 yarn global add yo generator-code
 
-yarn global add prettier
-yarn global add @prettier/plugin-php
-yarn global add @prettier/plugin-pug
-
-yarn global add prettier-plugin-svelte
+yarn global add prettier @prettier/plugin-php @prettier/plugin-pug prettier-plugin-svelte
