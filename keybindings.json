@@ -136,5 +136,40 @@
   {
     "key": "ctrl+shift+g",
     "command": "-workbench.view.scm"
+  },
+  {
+    "key": "shift+alt+f",
+    "command": "editor.action.formatSelection",
+    "when": "editorTextFocus && editorHasSelection"
+  },
+  {
+    "key": "ctrl+k ctrl+f",
+    "command": "-editor.action.formatSelection",
+    "when": "editorHasDocumentSelectionFormattingProvider && editorHasDocumentSelectionFormattingProvider && editorTextFocus && !editorReadonly"
+  },
+  {
+    "key": "alt+w",
+    "command": "editor.emmet.action.wrapIndividualLinesWithAbbreviation",
+    "when": "editorHasSelection"
+  },
+  {
+    "key": "ctrl+j",
+    "command": "editor.action.moveLinesDownAction",
+    "when": "editorTextFocus && !editorReadonly"
+  },
+  {
+    "key": "alt+down",
+    "command": "-editor.action.moveLinesDownAction",
+    "when": "editorTextFocus && !editorReadonly"
+  },
+  {
+    "key": "ctrl+k",
+    "command": "editor.action.moveLinesUpAction",
+    "when": "editorTextFocus && !editorReadonly"
+  },
+  {
+    "key": "alt+up",
+    "command": "-editor.action.moveLinesUpAction",
+    "when": "editorTextFocus && !editorReadonly"
   }
 ]
