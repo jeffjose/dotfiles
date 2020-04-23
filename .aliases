@@ -316,6 +316,9 @@
 
     alias os 'cat /etc/*-release; cat /etc/*_version'
 
+    # 192.168.2.1 is both Asus (Banana) and pfSense (Banana Unleashed)
+    alias iperfwifi 'iperf -c 192.168.2.1'
+
 
     # Add alias
     # sudo ip address add 192.168.1.6/24 dev eno1

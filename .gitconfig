@@ -21,6 +21,7 @@
     searchn = grep --files-without-match
     pull = pull -v
     sdiff = stash show -p
+    dif = diff
 
 [color]
     diff = auto
