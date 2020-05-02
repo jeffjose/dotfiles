@@ -3,6 +3,9 @@
 # Jeffrey Jose | Apr 20, 2020
 #
 
+# Get a list of installed extensions via
+# `code --list-extensions`
+
 echo "-----------------"
 echo "VS code"
 echo "-----------------"
@@ -37,3 +40,6 @@ code --install-extension lacroixdavid1.vscode-format-context-menu
 
 # Docker
 code --install-extension ms-azuretools.vscode-docker
+
+# Python
+code --install-extension ms-python.python

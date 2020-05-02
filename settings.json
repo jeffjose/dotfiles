@@ -63,9 +63,16 @@
   "[svelte]": {
     "editor.defaultFormatter": "JamesBirtles.svelte-vscode"
   },
+  "[python]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 4
+  },
   "editor.tabSize": 2,
   "editor.minimap.enabled": false,
   "diffEditor.ignoreTrimWhitespace": true,
   "explorer.openEditors.visible": 0,
-  "workbench.editor.showTabs": false
+  "workbench.editor.showTabs": false,
+  "explorer.confirmDelete": false,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "git.autofetch": true
 }
