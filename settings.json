@@ -2,7 +2,8 @@
   "editor.renderLineHighlight": "none",
   "editor.cursorBlinking": "blink",
   "editor.fontFamily": "'monospace', monospace, 'Droid Sans Fallback'",
-  "editor.autoClosingBrackets": false,
+  "editor.autoClosingBrackets": "never",
+  "editor.autoClosingQuotes": "never",
   "vim.incsearch": true,
   "vim.insertModeKeyBindings": [
     {
@@ -65,7 +66,7 @@
   },
   "[python]": {
     "editor.insertSpaces": true,
-    "editor.tabSize": 4
+    "editor.tabSize": 2
   },
   "editor.tabSize": 2,
   "editor.minimap.enabled": false,
