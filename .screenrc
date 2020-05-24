@@ -66,10 +66,10 @@
     shelltitle ''
     shell -${SHELL}
 
-    #backtick 0 30 30 sh -c 'screen -ls | grep --color=no -o "$PPID[^[:space:]]*"'
+    #backtick 0 30 30 sh -c 'iwgetid -r'
 
 # The tab bar. Just one per window.
-    hardstatus alwayslastline "%{= kw} %-Lw%{KG}%25> %n:%t %{= kw}%+w %-= %{= KW} %l %{= kG} %{= Bk} %D, %d %M %{= kw} %{= Bk}%C:%s%A "
+    hardstatus alwayslastline "%{= Bk} %H %{= kw} %-Lw%{KG}%25> %n:%t %{= kw}%+w %-= %{= KW} %l %{= kG} %{= Bk} %D, %d %M %{= kw} %{= Bk}%C:%s%A "
 
 
 # The presistant bar for all windows (including split ones)
