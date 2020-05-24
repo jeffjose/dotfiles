@@ -17,6 +17,8 @@
 
     alias md mkdir -p
 
+    alias ncdu ncdu --color dark
+
     alias vimrc vim ~/.vimrc
     alias aliases vim ~/.aliases
     alias del rm -rf
@@ -177,6 +179,7 @@
     alias dot 'cd ~/dotfiles'
     alias px 'cd ~/scripts/redditpx'
     alias dis 'cd ~/scripts/distributions'
+    alias plex 'cd /mnt/monolith/Plex'
 
     alias updatedot 'dot; git pull; cd -'
 
@@ -323,7 +326,13 @@
 
     alias wm 'sudo wavemon'
 
+    alias tshark_dhcp 'sudo tshark -y "udp.port == 68"'
 
+
+
+    # CLI replacements
+    alias inotify entr
+    alias man tldr --theme ocean
 
     # Add alias
     # sudo ip address add 192.168.1.6/24 dev eno1
