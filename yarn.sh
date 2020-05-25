@@ -13,3 +13,6 @@ yarn global add t-get yarn-recursive npx coffeescript less firebase firebase-too
 yarn global add yo generator-code
 
 yarn global add prettier @prettier/plugin-php @prettier/plugin-pug prettier-plugin-svelte
+
+# CLI Replacements
+yarn global add tldr

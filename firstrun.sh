@@ -6,6 +6,9 @@
 # Packages
 sudo apt install -y git neovim curl moreutils tilix ack screen gitk ncdu htop qbittorrent tcsh gdebi ffmpeg vlc gedit gparted tree feh youtube-dl ntp colordiff bluez-tools d-feet jq npm openssh-server git-gui wavemon
 
+# CLI Replacements
+sudo apt install -y aria2 entr
+
 # Shutter
 sudo add-apt-repository ppa:linuxuprising/shutter
 sudo apt-get update
