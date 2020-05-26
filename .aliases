@@ -291,6 +291,7 @@
     alias copysshkey 'xclip -sel clip < ~/.ssh/id_rsa.pub'
 
     alias jclone 'git clone https://github.com/jeffjose/\!*'
+    alias clone 'cd ~/scripts; git clone \!*'
 
     alias reboot-bootloader systemctl reboot --firmware-setup
 
