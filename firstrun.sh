@@ -19,6 +19,10 @@ sudo add-apt-repository ppa:numix/ppa
 sudo apt-get update
 sudo apt-get install -y numix-gtk-theme numix-icon-theme-circle numix-icon-theme-square
 
+# ppa-manager
+sudo add-apt-repository ppa:webupd8team/y-ppa-manager
+sudo apt-get update
+sudo apt install y-ppa-manager
 
 mkdir -p ~/bin/
 ln /usr/bin/screen ~/bin/scrn -s

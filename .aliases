@@ -329,8 +329,11 @@
     alias tshark_dhcp 'sudo tshark -y "udp.port == 68"'
     # pfsense (freebsd)
     # tcpdump -i igb.33 udp port 68
+    #
 
+    alias ppa-manager y-ppa-manager
 
+    alias fixkeys 'sudo apt-key adv --refresh-keys --keyserver keyserver.ubuntu.com'
 
     # CLI replacements
     alias inotify entr
