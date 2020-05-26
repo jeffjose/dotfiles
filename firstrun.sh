@@ -35,6 +35,9 @@ sudo apt-get update && sudo apt-get -y install yarn
 # Yarn packages
 ./yarn.sh
 
+# VIM
+./vim.sh
+
 # VS Code
 ./vscode.sh
 
