@@ -17,7 +17,7 @@ sudo apt install -y shutter
 # Numix
 sudo add-apt-repository ppa:numix/ppa
 sudo apt-get update
-sudo apt-get install -y numix-gtk-theme numix-icon-theme-circle numix-icon-theme-square
+sudo apt-get install -y numix-gtk-theme numix-icon-theme-circle
 
 # ppa-manager
 sudo add-apt-repository ppa:webupd8team/y-ppa-manager
