@@ -12,5 +12,5 @@
 	// 	],
 	// 	"description": "Log output to console"
 	// }
-	"debugger": {"prefix": "pdb", "body": ['import pdb; pdb.set_trace()$0'] }
+	"debugger": {"prefix": "pdb", "body": ["import pdb; pdb.set_trace()", "$0"] }
 }
