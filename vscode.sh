@@ -43,3 +43,6 @@ code --install-extension ms-azuretools.vscode-docker
 
 # Python
 code --install-extension ms-python.python
+
+# Firestore rules
+code --install-extension toba.vsfire
