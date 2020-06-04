@@ -46,3 +46,6 @@ code --install-extension ms-python.python
 
 # Firestore rules
 code --install-extension toba.vsfire
+
+# Firebase explorer
+code --install-extension jsayol.firebase-explorer
