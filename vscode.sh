@@ -43,3 +43,12 @@ code --install-extension ms-azuretools.vscode-docker
 
 # Python
 code --install-extension ms-python.python
+
+# Firestore syntax highlight rules
+code --install-extension toba.vsfire
+
+# Firebase explorer
+code --install-extension jsayol.firebase-explorer
+
+# TailwindCSS: CSS classname completion
+code --install-extension bradlc.vscode-tailwindcss

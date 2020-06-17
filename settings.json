@@ -55,7 +55,7 @@
   "prettier.disableLanguages": ["python"],
   "editor.formatOnSave": true,
   "vim.hlsearch": true,
-  "python.formatting.provider": "black",
+  "python.formatting.provider": "yapf",
   "vim.commandLineModeKeyBindings": [],
   "editor.cursorStyle": "block",
   "workbench.colorTheme": "Material-Theme-jeffjose",
@@ -77,5 +77,8 @@
   "workbench.editor.showTabs": false,
   "explorer.confirmDelete": false,
   "javascript.updateImportsOnFileMove.enabled": "always",
-  "git.autofetch": true
+  "git.autofetch": true,
+  "python.formatting.yapfArgs": [
+    "--style='{based_on_style: pep8, indent_width: 2}'"
+  ]
 }
