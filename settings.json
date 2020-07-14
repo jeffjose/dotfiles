@@ -61,9 +61,6 @@
   "workbench.colorTheme": "Material-Theme-jeffjose",
   "editor.formatOnType": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "[svelte]": {
-    "editor.defaultFormatter": "JamesBirtles.svelte-vscode"
-  },
   "[python]": {
     "editor.insertSpaces": true,
     "editor.tabSize": 2,

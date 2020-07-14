@@ -17,7 +17,7 @@ code --install-extension vscodevim.vim
 code --install-extension esbenp.prettier-vscode
 
 # .svelte
-code --install-extension JamesBirtles.svelte-vscode
+code --install-extension svelte.svelte-vscode
 
 # .py
 code --install-extension ms-python.python
