@@ -261,6 +261,8 @@
 
     alias android-studio '$HOME/Downloads/android-studio/bin/studio.sh'
 
+    alias emulator-list-all 'emulator -list-avds'
+
     alias aa '$HOME/scripts/puppy/puppy \!* amp-analytics'
 
     alias puppy '~/scripts/puppy/puppy'
@@ -342,6 +344,7 @@
     alias nmap-network nmap -sP 192.168.3.0/24
 
     # sudo mount 192.168.3.4:/nfs/Plex /mnt/monolith/Plex
+    alias mount-monolith 'sudo mount 192.168.3.4:/nfs/Plex /mnt/monolith/Plex'
 
     # Add alias
     # sudo ip address add 192.168.1.6/24 dev eno1
