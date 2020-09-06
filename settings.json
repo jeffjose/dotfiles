@@ -52,7 +52,7 @@
   "extensions.ignoreRecommendations": false,
   "workbench.startupEditor": "newUntitledFile",
   "workbench.iconTheme": "material-icon-theme",
-  "prettier.disableLanguages": ["python"],
+  "prettier.disableLanguages": ["python", "dart"],
   "editor.formatOnSave": true,
   "vim.hlsearch": true,
   "python.formatting.provider": "yapf",
@@ -77,5 +77,16 @@
   "git.autofetch": true,
   "python.formatting.yapfArgs": [
     "--style='{based_on_style: pep8, indent_width: 2}'"
-  ]
+  ],
+  "[dart]": {
+    "editor.defaultFormatter": "dart-code.dart-code",
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true,
+    "editor.rulers": [80],
+    "editor.selectionHighlight": false,
+    "editor.suggest.snippetsPreventQuickSuggestions": false,
+    "editor.suggestSelection": "first",
+    "editor.tabCompletion": "onlySnippets",
+    "editor.wordBasedSuggestions": false
+  }
 }
