@@ -68,12 +68,12 @@ if ( ! $?prompt ) exit
 
     setenv ANDROID_HOME         $HOME/Android/Sdk
     setenv ANDROID_NDK_HOME     $HOME/Android/Ndk
-    setenv ANDROID_VER          23.0.1
+    setenv ANDROID_VER          30.0.2
 
     #setenv GITMULTIPATH         /google/data/ro/users/mp/mpn/git-stuff
 
-    setenv PATH ${GOOGLECLOUDPATH}/bin:${CARGOPATH}/bin:${FLUTTERPATH}/bin:${YARNPATH}/bin:${MINICONDAPATH}/bin:${ANACONDAPATH}/bin:${GOPATH}/bin:${DARTPATH}/bin:${GOOGLEDARTPATH}/bin:${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools:${ANDROID_HOME}/build-tools/${ANDROID_VER}:${HOME}/.pub-cache/bin:${HOME}/bin:${HOME}/.local/bin:${PATH}
-    setenv JAVA_HOME /usr/lib/jvm/java-8-oracle
+    setenv PATH ${GOOGLECLOUDPATH}/bin:${CARGOPATH}/bin:${FLUTTERPATH}/bin:${YARNPATH}/bin:${MINICONDAPATH}/bin:${ANACONDAPATH}/bin:${GOPATH}/bin:${DARTPATH}/bin:${GOOGLEDARTPATH}/bin:${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/build-tools/${ANDROID_VER}:${HOME}/.pub-cache/bin:${HOME}/bin:${HOME}/.local/bin:${PATH}
+    #setenv JAVA_HOME /usr/lib/jvm/java-8-oracle
 
     setenv PYTHONPATH $HOME/.local/lib/python2.7/site-packages:/usr/local/buildtools/current/sitecustomize
 

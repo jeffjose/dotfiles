@@ -259,8 +259,7 @@
 
     alias clean_newlines 'clean_newlines1 \!*; clean_newlines2 \!*; clean_newlines3 \!*; clean_newlines4 \!*;'
 
-    alias android-studio '/usr/local/android-studio/bin/studio.sh'
-    alias emulator       '$HOME/Android/Sdk/emulator/emulator'
+    alias android-studio '$HOME/Downloads/android-studio/bin/studio.sh'
 
     alias aa '$HOME/scripts/puppy/puppy \!* amp-analytics'
 
