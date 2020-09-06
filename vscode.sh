@@ -11,44 +11,47 @@ echo "VS code"
 echo "-----------------"
 
 # vim
-code --install-extension vscodevim.vim
+code --force --install-extension vscodevim.vim
 
 # formatter: prettier
-code --install-extension esbenp.prettier-vscode
+code --force --install-extension esbenp.prettier-vscode
 
 # .svelte
-code --install-extension svelte.svelte-vscode
+code --force --install-extension svelte.svelte-vscode
 
 # .py
-code --install-extension ms-python.python
+code --force --install-extension ms-python.python
 
 # .service
-code --install-extension coolbear.systemd-unit-file
+code --force --install-extension coolbear.systemd-unit-file
 
 # .csv
-code --install-extension mechatroner.rainbow-csv
+code --force --install-extension mechatroner.rainbow-csv
 
 # tailwindcss: order class names
-code --install-extension heybourn.headwind
+code --force --install-extension heybourn.headwind
 
 # Themes
-code --install-extension monokai.theme-monokai-pro-vscode
-code --install-extension PKief.material-icon-theme
+code --force --install-extension monokai.theme-monokai-pro-vscode
+code --force --install-extension PKief.material-icon-theme
 
 # Format all files
-code --install-extension lacroixdavid1.vscode-format-context-menu
+code --force --install-extension lacroixdavid1.vscode-format-context-menu
 
 # Docker
-code --install-extension ms-azuretools.vscode-docker
+code --force --install-extension ms-azuretools.vscode-docker
 
 # Python
-code --install-extension ms-python.python
+code --force --install-extension ms-python.python
 
 # Firestore syntax highlight rules
-code --install-extension toba.vsfire
+code --force --install-extension toba.vsfire
 
 # Firebase explorer
-code --install-extension jsayol.firebase-explorer
+code --force --install-extension jsayol.firebase-explorer
 
 # TailwindCSS: CSS classname completion
-code --install-extension bradlc.vscode-tailwindcss
+code --force --install-extension bradlc.vscode-tailwindcss
+
+# Flutter
+code --force --install-extension Dart-Code.flutter
