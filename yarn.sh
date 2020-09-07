@@ -16,3 +16,6 @@ yarn global add prettier @prettier/plugin-php @prettier/plugin-pug prettier-plug
 
 # CLI Replacements
 yarn global add tldr
+
+# PostCSS
+yarn global add postcss-cli
