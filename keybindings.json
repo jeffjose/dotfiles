@@ -189,5 +189,15 @@
     "key": "ctrl+shift+f5",
     "command": "-workbench.action.debug.restart",
     "when": "inDebugMode"
+  },
+  {
+    "key": "shift+r",
+    "command": "flutter.hotReload",
+    "when": "dart-code:anyFlutterProjectLoaded && dart-code:service.reloadSources && inDebugMode"
+  },
+  {
+    "key": "ctrl+f5",
+    "command": "-flutter.hotReload",
+    "when": "dart-code:anyFlutterProjectLoaded && dart-code:service.reloadSources && inDebugMode"
   }
 ]
