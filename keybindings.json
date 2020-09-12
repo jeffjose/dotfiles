@@ -191,13 +191,20 @@
     "when": "inDebugMode"
   },
   {
-    "key": "shift+r",
-    "command": "flutter.hotReload",
-    "when": "dart-code:anyFlutterProjectLoaded && dart-code:service.reloadSources && inDebugMode"
+    "key": "ctrl+shift+t",
+    "command": "-workbench.action.reopenClosedEditor"
   },
   {
-    "key": "ctrl+f5",
-    "command": "-flutter.hotReload",
-    "when": "dart-code:anyFlutterProjectLoaded && dart-code:service.reloadSources && inDebugMode"
+    "key": "ctrl+shift+t",
+    "command": "workbench.action.terminal.toggleTerminal"
+  },
+  {
+    "key": "ctrl+`",
+    "command": "-workbench.action.terminal.toggleTerminal"
+  },
+  {
+    "key": "ctrl+shift+r",
+    "command": "-editor.action.refactor",
+    "when": "editorHasCodeActionsProvider && editorTextFocus && !editorReadonly"
   }
 ]
