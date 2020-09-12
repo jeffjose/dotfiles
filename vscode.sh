@@ -55,3 +55,18 @@ code --force --install-extension bradlc.vscode-tailwindcss
 
 # Flutter
 code --force --install-extension Dart-Code.flutter
+
+# Dart
+code --force --install-extension Dart-Code.dart-code
+
+# Bracket Pair Colorizer
+code --force --install-extension CoenraadS.bracket-pair-colorizer-2
+
+# PostCSS
+code --force --install-extension ricard.postcss
+
+# Error Lens: Show errors inline
+code --force --install-extension ms-vscode-remote.remote-ssh
+
+# Git Lens
+code --force --install-extension eamodio.gitlens
