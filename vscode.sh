@@ -70,3 +70,6 @@ code --force --install-extension ms-vscode-remote.remote-ssh
 
 # Git Lens
 code --force --install-extension eamodio.gitlens
+
+# Output tab colorizer
+code --force --install-extension IBM.output-colorizer
