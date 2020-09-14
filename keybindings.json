@@ -68,7 +68,7 @@
   },
   {
     "key": "alt+j",
-    "command": "workbench.panel.terminal.focus",
+    "command": "workbench.action.terminal.focus",
     "when": "editorFocus && activeEditorGroupLast"
   },
   {
