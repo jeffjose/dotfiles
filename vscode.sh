@@ -73,3 +73,6 @@ code --force --install-extension eamodio.gitlens
 
 # Output tab colorizer
 code --force --install-extension IBM.output-colorizer
+
+# Kotlin
+code --force --install-extension mathiasfrohlich.Kotlin

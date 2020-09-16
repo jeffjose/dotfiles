@@ -69,7 +69,7 @@
   },
   "editor.tabSize": 2,
   "editor.minimap.enabled": false,
-  "diffEditor.ignoreTrimWhitespace": true,
+  "diffEditor.ignoreTrimWhitespace": false,
   "explorer.openEditors.visible": 0,
   "workbench.editor.showTabs": false,
   "explorer.confirmDelete": false,
@@ -90,5 +90,10 @@
     "editor.wordBasedSuggestions": false
   },
   "dart.debugExternalLibraries": true,
-  "dart.debugSdkLibraries": false
+  "dart.debugSdkLibraries": false,
+  "gitlens.advanced.messages": {
+    "suppressCommitHasNoPreviousCommitWarning": true
+  },
+  "window.zoomLevel": 2,
+  "git.confirmSync": false
 }
