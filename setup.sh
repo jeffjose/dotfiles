@@ -21,9 +21,6 @@
 #
   touch $HOME/.aliases.sensitive.sh
 
-  # VIM Plugins
-  ./vim.sh
-
 
 # Link dotfiles
 #
@@ -69,6 +66,8 @@
   # VS Code packages
   ./vscode.sh
 
+  # VIM Plugins
+  ./vim.sh
 
 # Ignore
 #
