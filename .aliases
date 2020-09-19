@@ -261,7 +261,9 @@
 
     alias android-studio '$HOME/Downloads/android-studio/bin/studio.sh'
 
+
     alias emulator-list-all 'emulator -list-avds'
+    alias avd-clean 'rm -vrf ~/.android/avd/*.avd/userdata-qemu.img ~/.android/avd/*.avd/snapshots/'
 
     alias aa '$HOME/scripts/puppy/puppy \!* amp-analytics'
 
