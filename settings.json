@@ -94,6 +94,6 @@
   "gitlens.advanced.messages": {
     "suppressCommitHasNoPreviousCommitWarning": true
   },
-  "window.zoomLevel": 2,
+  "window.zoomLevel": 0,
   "git.confirmSync": false
 }
