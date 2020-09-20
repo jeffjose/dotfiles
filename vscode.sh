@@ -79,3 +79,7 @@ code --force --install-extension mathiasfrohlich.Kotlin
 
 # XML
 code --force --install-extension redhat.vscode-xml
+
+# Gradle
+code --force --install-extension co-siren.gradle-language
+
