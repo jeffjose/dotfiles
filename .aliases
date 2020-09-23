@@ -264,6 +264,7 @@
 
     alias emulator-list-all 'emulator -list-avds'
     alias avd-clean 'rm -vrf ~/.android/avd/*.avd/userdata-qemu.img ~/.android/avd/*.avd/snapshots/'
+    alias clean-avd avd-clean
 
     alias aa '$HOME/scripts/puppy/puppy \!* amp-analytics'
 
@@ -348,6 +349,8 @@
     # sudo mount 192.168.3.4:/nfs/Plex /mnt/monolith/Plex
     alias mount-monolith 'sudo mount 192.168.3.4:/nfs/Plex /mnt/monolith/Plex'
     alias mount-nomad 'sudo sshfs -o allow_other,default_permissons 192.168.3.20:/ /mnt/nomad/'
+
+    alias keytool-read-keystore 'keytool -list -v -keystore ~/.android/debug.keystore'
 
     # Add alias
     # sudo ip address add 192.168.1.6/24 dev eno1
