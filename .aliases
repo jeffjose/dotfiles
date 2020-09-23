@@ -3,7 +3,7 @@
     # Source the aliases.sensitive
     source ~/.aliases.sensitive.sh
 
-    source ~/.tabletaliases
+    #source ~/.tabletaliases
 
     alias ls 'ls --color'
     alias vim nvim
@@ -56,11 +56,9 @@
 
     # Wharton Canvas
     # Token: 25~0BSCo871KwDf3wDcVX5DiezXVoVavIPHMqeFeS1ValI3kWa2n6whwMAuwk4inTJG
-    alias canvas-dl '/home/jeffjose/scripts/canvas-command-line/canvas_tools.py'
+    #alias canvas-dl '/home/jeffjose/scripts/canvas-command-line/canvas_tools.py'
 
-
-
-    alias dc 'cd ~/Downloads/dcpp_share'
+    #alias dc 'cd ~/Downloads/dcpp_share'
 
     alias du 'du --total'
 
@@ -160,25 +158,25 @@
     alias gdebi 'sudo gdebi --non-interactive'
     alias deb gdebi
 
-    alias talks 'cd ~/talks'
+    #alias talks 'cd ~/talks'
 
-    alias uberwriter '/opt/extras.ubuntu.com/uberwriter/bin/uberwriter'
+    #alias uberwriter '/opt/extras.ubuntu.com/uberwriter/bin/uberwriter'
 
-    alias disk1 'cd /mnt/disk1'
-    alias disk2 'cd /mnt/disk2'
+    #alias disk1 'cd /mnt/disk1'
+    #alias disk2 'cd /mnt/disk2'
 
     alias d    'cd ~/Downloads'
     alias s    'cd ~/scripts'
-    alias c    'cd /mnt/disk2/coursera'
-    alias a    'cd ~/Downloads/acads'
-    alias tuts 'cd /mnt/disk1/tuts'
-    alias 2 'cd /mnt/disk2'
-    alias r 'cd /media/jeffjose/rico'
+    #alias c    'cd /mnt/disk2/coursera'
+    #alias a    'cd ~/Downloads/acads'
+    #alias tuts 'cd /mnt/disk1/tuts'
+    #alias 2 'cd /mnt/disk2'
+    #alias r 'cd /media/jeffjose/rico'
     alias p 'cd ~/scripts/personal-website'
     alias f 'cd ~/scripts/personal-website/frontend'
     alias dot 'cd ~/dotfiles'
     alias px 'cd ~/scripts/redditpx'
-    alias dis 'cd ~/scripts/distributions'
+    #alias dis 'cd ~/scripts/distributions'
     alias plex 'cd /mnt/monolith/Plex'
 
     alias updatedot 'dot; git pull; cd -'
@@ -186,19 +184,19 @@
     alias getaudio 'youtube-dl --extract-audio --audio-format mp3 --audio-quality 0 \!*'
 
     alias abs '~/scripts/abs'
-    alias expose '~/scripts/Expose/expose.sh'
+    #alias expose '~/scripts/Expose/expose.sh'
 
-    alias tweet '~/scripts/tweet'
-    alias sense '~/scripts/sense'
+    #alias tweet '~/scripts/tweet'
+    #alias sense '~/scripts/sense'
 
-    alias www 'cd ~/scripts/jeffjose.github.io'
+    #alias www 'cd ~/scripts/jeffjose.github.io'
 
     alias screen 'scrn -c ~/.screen/default'
 
     alias ansible-update-all-hosts 'ansible-playbook ~/ansible/base.yml --ask-sudo-pass'
 
-    alias ar arandr /home/jeffjose/.screenlayout/3monitor.sh
-    alias xr /home/jeffjose/.screenlayout/3monitor.sh
+    #alias ar arandr /home/jeffjose/.screenlayout/3monitor.sh
+    #alias xr /home/jeffjose/.screenlayout/3monitor.sh
 
     alias rsync rsync --progress
 
@@ -206,14 +204,14 @@
 
     alias removepdfpassword 'qpdf --password=\!:2 --decrypt \!:1 `basename \!:1 .pdf`.nopw.pdf'
 
-    alias updatecoursera 'cd /mnt/disk2/coursera; coursera-dl *'
+    #alias updatecoursera 'cd /mnt/disk2/coursera; coursera-dl *'
 
     alias sum md5sum
     alias easytag 'easytag .'
 
     alias ndebug 'ping -c 3 google.com -W 1; echo "\n-----------------\n"; traceroute google.com'
 
-    alias j 'cd ~/scripts/jeffjose.github.io'
+    #alias j 'cd ~/scripts/jeffjose.github.io'
 
     alias xit exit
 
@@ -227,15 +225,15 @@
 
     alias gparted 'sudo gparted'
 
-    alias v 'cd ~/scripts/vuejs-tornado-seed'
-    alias puppy '~/scripts/puppy/puppy'
+    #alias v 'cd ~/scripts/vuejs-tornado-seed'
+    #alias puppy '~/scripts/puppy/puppy'
 
     alias msum md5sum
 
     alias yget 'youtube-dl'
     #alias y "'echo youtube-dl \'`xclip -o`\'; youtube-dl \'`xclip -o`\';'"
 
-    alias jj 'cd ~/scripts/jeffjose.github.io'
+    #alias jj 'cd ~/scripts/jeffjose.github.io'
 
     alias df 'df --total -T'
 
@@ -252,15 +250,14 @@
 
     alias diff colordiff
 
-    alias clean_newlines1 "vim -c '%s/\\n/\r/g' -c ':w' -c ':q' \!*"
-    alias clean_newlines2 "vim -c '%s/\\t/\ \ \ \ /g' -c ':w' -c ':q' \!*"
-    alias clean_newlines3 "vim -c '%s/\\r\\n/\r/g' -c ':w' -c ':q' \!*"
-    alias clean_newlines4 "vim -c '%s/\\n\\t/\r\ \ \ \ /g' -c ':w' -c ':q' \!*"
+    #alias clean_newlines1 "vim -c '%s/\\n/\r/g' -c ':w' -c ':q' \!*"
+    #alias clean_newlines2 "vim -c '%s/\\t/\ \ \ \ /g' -c ':w' -c ':q' \!*"
+    #alias clean_newlines3 "vim -c '%s/\\r\\n/\r/g' -c ':w' -c ':q' \!*"
+    #alias clean_newlines4 "vim -c '%s/\\n\\t/\r\ \ \ \ /g' -c ':w' -c ':q' \!*"
 
-    alias clean_newlines 'clean_newlines1 \!*; clean_newlines2 \!*; clean_newlines3 \!*; clean_newlines4 \!*;'
+    #alias clean_newlines 'clean_newlines1 \!*; clean_newlines2 \!*; clean_newlines3 \!*; clean_newlines4 \!*;'
 
     alias android-studio '$HOME/Downloads/android-studio/bin/studio.sh'
-
 
     alias emulator-list-all 'emulator -list-avds'
     alias avd-clean 'rm -vrf ~/.android/avd/*.avd/userdata-qemu.img ~/.android/avd/*.avd/snapshots/'
@@ -342,7 +339,7 @@
 
     # CLI replacements
     alias inotify entr
-    alias man tldr --theme ocean
+    #alias man tldr --theme ocean
 
     alias nmap-network nmap -sP 192.168.3.0/24
 
