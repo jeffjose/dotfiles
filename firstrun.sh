@@ -57,3 +57,9 @@ sudo apt autoremove
 
 ssh-keygen -t rsa -b 4096 -C "jeffjosejeff@gmail.com"
 ssh-add ~/.ssh/id_rsa
+
+# Install gh (github CLI)
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+sudo apt-add-repository https://cli.github.com/packages
+sudo apt update
+sudo apt install -y gh
