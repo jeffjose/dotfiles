@@ -83,3 +83,8 @@ code --force --install-extension redhat.vscode-xml
 # Gradle
 code --force --install-extension co-siren.gradle-language
 
+# Dupe file in context menu
+code --force --install-extension gieson.dupe-file
+
+# ESLint
+code --force --install-extension dbaeumer.vscode-eslint
