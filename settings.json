@@ -41,6 +41,10 @@
     {
       "before": ["g", "x"],
       "commands": ["editor.action.revealDefinition"]
+    },
+    {
+      "before": ["g", "e"],
+      "commands": ["editor.action.marker.nextInFiles"]
     }
   ],
   "extensions.ignoreRecommendations": false,
