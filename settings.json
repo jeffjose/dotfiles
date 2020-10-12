@@ -41,6 +41,10 @@
     {
       "before": ["g", "x"],
       "commands": ["editor.action.revealDefinition"]
+    },
+    {
+      "before": ["g", "e"],
+      "commands": ["editor.action.marker.nextInFiles"]
     }
   ],
   "extensions.ignoreRecommendations": false,
@@ -49,17 +53,18 @@
   "prettier.disableLanguages": ["python", "dart"],
   "editor.formatOnSave": true,
   "vim.hlsearch": true,
-  "python.formatting.provider": "yapf",
   "vim.commandLineModeKeyBindings": [],
   "editor.cursorStyle": "block",
   "workbench.colorTheme": "Material-Theme-jeffjose",
   "editor.formatOnType": true,
+  "python.linting.pylintEnabled": true,
+  "python.linting.enabled": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[python]": {
     "editor.insertSpaces": true,
     "editor.tabSize": 2,
     "editor.formatOnType": true,
-    "editor.defaultFormatter": "black"
+    "editor.defaultFormatter": "ms-python.python"
   },
   "editor.tabSize": 2,
   "editor.minimap.enabled": false,
@@ -90,5 +95,6 @@
   },
   "window.zoomLevel": 0,
   "git.confirmSync": false,
-  "vim.smartcase": false
+  "vim.smartcase": false,
+  "python.formatting.provider": "black"
 }
