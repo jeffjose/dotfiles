@@ -40,3 +40,6 @@ conda update --all --yes
 
 # Cleanup conda
 conda clean --all --yes
+
+# Flutter
+flutter upgrade
