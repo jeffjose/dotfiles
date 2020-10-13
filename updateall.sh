@@ -40,15 +40,3 @@ conda update --all --yes
 
 # Cleanup conda
 conda clean --all --yes
-
-echo -e ''
-echo -e '---------------------------------------------------------'
-echo -e 'Updating python2 conda packages'
-echo -e '---------------------------------------------------------'
-echo -e ''
-source activate ipykernel_py2
-# Update conda
-conda update --all --yes
-
-# Cleanup conda
-conda clean --all --yes
