@@ -41,9 +41,6 @@ code --force --install-extension lacroixdavid1.vscode-format-context-menu
 # Docker
 code --force --install-extension ms-azuretools.vscode-docker
 
-# Python
-code --force --install-extension ms-python.python
-
 # Firestore syntax highlight rules
 code --force --install-extension toba.vsfire
 
@@ -80,11 +77,29 @@ code --force --install-extension mathiasfrohlich.Kotlin
 # XML
 code --force --install-extension redhat.vscode-xml
 
-# Gradle
-code --force --install-extension co-siren.gradle-language
-
 # Dupe file in context menu
 code --force --install-extension gieson.dupe-file
 
 # ESLint
 code --force --install-extension dbaeumer.vscode-eslint
+
+# Kotlin
+code --force --install-extension fwcd.kotlin
+
+# Gitgraph
+code --force --install-extension mhutchie.git-graph
+
+# More Python
+code --force --install-extension ms-python.vscode-pylance
+
+
+# Remote ssh
+code --force --install-extension ms-vscode-remote.remote-ssh-edit
+
+# Gradle
+code --force --install-extension naco-siren.gradle-language
+
+# Colors for your code windows
+code --force --install-extension stuart.unique-window-colors
+
+code --force --install-extension usernamehw.errorlens
