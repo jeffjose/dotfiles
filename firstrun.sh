@@ -4,7 +4,10 @@
 #
 
 # Packages
-sudo apt install -y git neovim curl moreutils tilix ack screen gitk ncdu htop qbittorrent tcsh gdebi ffmpeg vlc gedit gparted tree feh youtube-dl ntp colordiff bluez-tools d-feet jq npm openssh-server git-gui wavemon nfs-common nmap hardinfo mosh transmission golang
+sudo apt install -y git neovim curl moreutils tilix ack screen gitk ncdu htop tcsh gdebi ffmpeg vlc gedit gparted tree feh youtube-dl ntp colordiff bluez-tools d-feet jq npm openssh-server git-gui wavemon nfs-common nmap hardinfo mosh golang
+
+# Torrents
+sudo apt install -y qbittorrent transmission
 
 # CLI Replacements
 sudo apt install -y aria2 entr
@@ -28,9 +31,11 @@ mkdir -p ~/bin/
 ln /usr/bin/screen ~/bin/scrn -s
 
 # Install yarn
-curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-sudo apt-get update && sudo apt-get -y install yarn
+#curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+#echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+#sudo apt-get update && sudo apt-get -y install yarn
+curl -o- -L https://yarnpkg.com/install.sh | bash
+
 
 # Yarn packages
 ./yarn.sh
