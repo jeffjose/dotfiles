@@ -47,6 +47,8 @@ curl -o- -L https://yarnpkg.com/install.sh | bash
 ./vscode.sh
 
 # Cargo / Rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+
 ./cargo.sh
 
 # Fonts
