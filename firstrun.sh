@@ -4,7 +4,7 @@
 #
 
 # Packages
-sudo apt install -y git neovim curl moreutils tilix ack screen gitk ncdu htop tcsh gdebi ffmpeg vlc gedit gparted tree feh youtube-dl ntp colordiff bluez-tools d-feet jq npm openssh-server git-gui wavemon nfs-common nmap hardinfo mosh golang
+sudo apt install -y git neovim curl moreutils tilix ack screen gitk ncdu htop tcsh gdebi ffmpeg vlc gedit gparted tree feh youtube-dl ntp colordiff bluez-tools d-feet jq npm openssh-server git-gui wavemon nfs-common nmap hardinfo mosh golang clang-format
 
 # Torrents
 sudo apt install -y qbittorrent transmission
