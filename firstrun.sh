@@ -4,7 +4,8 @@
 #
 
 # Packages
-sudo apt install -y git neovim curl moreutils tilix ack screen gitk ncdu htop tcsh gdebi ffmpeg vlc gedit gparted tree feh youtube-dl ntp colordiff bluez-tools d-feet jq npm openssh-server git-gui wavemon nfs-common nmap hardinfo mosh golang clang-format
+sudo apt install -y git neovim curl moreutils tilix ack screen gitk ncdu htop tcsh gdebi ffmpeg vlc gedit gparted tree feh youtube-dl ntp colordiff bluez-tools d-feet jq npm openssh-server git-gui wavemon nfs-common nmap hardinfo mosh golang clang-format snapd
+
 
 # Torrents
 sudo apt install -y qbittorrent transmission
@@ -76,4 +77,3 @@ sudo apt autoremove
 
 ssh-keygen -t rsa -b 4096 -C "jeffjosejeff@gmail.com"
 ssh-add ~/.ssh/id_rsa
-
