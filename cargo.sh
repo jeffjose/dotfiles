@@ -8,7 +8,7 @@ echo "Cargo / Rust"
 echo "-----------------"
 
 # For gitstatus (prompt)
-cargo install timeago-cli --force
+cargo install timeago-cli
 
 # For bumping versions
-cargo install cargo-bump --force
+cargo install cargo-bump
