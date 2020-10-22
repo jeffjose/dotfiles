@@ -7,4 +7,4 @@ echo "-----------------"
 echo "Cargo / Rust"
 echo "-----------------"
 
-cargo install timeago-cli
+cargo install timeago-cli --force
