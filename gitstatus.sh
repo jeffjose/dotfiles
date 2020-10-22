@@ -113,21 +113,8 @@ if [[ -z "$upstream" ]] ; then
 fi
 
 # jeffjose
-git5_root="$( git rev-parse --show-toplevel )/review/$branch/.git4_perforce_config/"
-
-if [ -d "$git5_root" ]; then
-
-  git5_cl=$(cat $git5_root/CL)
-  git5_description=$(cat $git5_root/DESCRIPTION)
-
-  IFS=":" read -ra git5_clientname_full <<< "$(cat $git5_root/CLIENT_NAME )"
-
-  git5_clientname="${git5_clientname_full[1]}"
-else
-  git5_cl="-"
-  git5_description="-"
-  git5_clientname="-"
-fi
+timeago_dt="$(git log -1 --format=%cD)"
+timeago_str="$(timeago "$timeago_dt")"
 
 printf "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n" \
   "$branch" \
@@ -139,6 +126,5 @@ printf "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n" \
   $num_untracked \
   $num_stashed \
   $clean \
-  $git5_cl \
-  $git5_clientname
+  "$timeago_str"
 exit
