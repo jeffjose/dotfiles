@@ -345,6 +345,8 @@
 
     # sudo mount 192.168.3.4:/nfs/Plex /mnt/monolith/Plex
     alias mount-monolith 'sudo mount 192.168.3.4:/nfs/Plex /mnt/monolith/Plex'
+    alias unmount-monolith 'sudo umount -f -l /mnt/monolith/Plex'
+
     alias mount-nomad 'sudo sshfs -o allow_other,default_permissons 192.168.3.20:/ /mnt/nomad/'
 
     alias route-monolith 'ip route add 192.168.3.0/24 ev wlp4s0'
