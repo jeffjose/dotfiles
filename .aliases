@@ -349,7 +349,7 @@
 
     alias mount-nomad 'sudo sshfs -o allow_other,default_permissons 192.168.3.20:/ /mnt/nomad/'
 
-    alias route-monolith 'ip route add 192.168.3.0/24 dev wlp4s0'
+    alias route-monolith 'sudo ip route add 192.168.3.0/24 dev wlp4s0'
 
     alias keytool-read-keystore 'keytool -list -v -keystore ~/.android/debug.keystore'
 
