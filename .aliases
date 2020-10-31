@@ -231,6 +231,7 @@
     alias msum md5sum
 
     alias yget 'youtube-dl'
+    alias yget 'youtube-dlc'
     #alias y "'echo youtube-dl \'`xclip -o`\'; youtube-dl \'`xclip -o`\';'"
 
     #alias jj 'cd ~/scripts/jeffjose.github.io'
