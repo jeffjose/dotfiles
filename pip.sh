@@ -7,4 +7,4 @@ echo "-----------------"
 echo "Python Packages"
 echo "-----------------"
 
-pip install yapf speedtest-cli black
+pip install --upgrade yapf speedtest-cli black youtube-dlc
