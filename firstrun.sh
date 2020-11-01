@@ -75,5 +75,8 @@ sudo patch /etc/ntp.conf ntp.patch
 # Remove packages
 sudo apt autoremove
 
+# pip install
+./pip.sh
+
 ssh-keygen -t rsa -b 4096 -C "jeffjosejeff@gmail.com"
 ssh-add ~/.ssh/id_rsa

@@ -57,8 +57,8 @@
   mkdir -p $HOME/.vscode/extensions
   cp -r material-theme-jeffjose $HOME/.vscode/extensions/material-theme-jeffjose
 
-  # Install binaries
-  pip install yapf speedtest-cli black
+  # Install Python packages
+  ./pip.sh
 
   # Yarn packages
   ./yarn.sh
