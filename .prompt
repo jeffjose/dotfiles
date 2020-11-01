@@ -87,7 +87,7 @@ if (`bash -c 'git rev-parse --git-dir 2> /dev/null'` != "") then
   if ($git_status[6] == 0) then
     set git_changed = ''
   else
-    set git_changed="✚${git_status[6]}"
+    set git_changed="+${git_status[6]}"
   endif
 
   if ($git_status[7] == 0) then
