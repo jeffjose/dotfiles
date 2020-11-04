@@ -3,6 +3,11 @@
 # Setting up some directories
 #
 #
+
+echo "-----------------"
+echo "Setting up $HOME"
+echo "-----------------"
+
   mkdir -p $HOME/scripts
   mkdir -p $HOME/Downloads
   mkdir -p $HOME/.config/nvim
@@ -39,6 +44,7 @@
   rm $HOME/.tabletaliases                             ; ln .tabletaliases              $HOME/.tabletaliases
   rm $HOME/.vimrc                                     ; ln .vimrc                      $HOME/.vimrc
   rm $HOME/.XResources                                ; ln .XResources                 $HOME/.XResources
+  rm $HOME/.xmodmap                                   ; ln .xmodmap                    $HOME/.xmodmap
   rm $HOME/.config/Code/User/settings.json            ; ln settings.json               $HOME/.config/Code/User/settings.json
   rm $HOME/.config/Code/User/keybindings.json         ; ln keybindings.json            $HOME/.config/Code/User/keybindings.json
   rm $HOME/.config/catt/catt.cfg                      ; ln catt.cfg                    $HOME/.config/catt/catt.cfg
@@ -50,6 +56,7 @@
 
   rm $HOME/.config/nvim/init.vim  ; ln init.vim $HOME/.config/nvim/init.vim
   rm $HOME/.screenlayout/3monitor.sh  ; ln 3monitor.sh $HOME/.screenlayout/3monitor.sh
+
 
 
   # VS Code

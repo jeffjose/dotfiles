@@ -89,7 +89,8 @@ if ( ! $?prompt ) exit
     # Set Caps Lock to Ctrl
     #
     # if Caps Lock gets stuck in "on" position, run `setxkbmap -option` to undo the following line
-    setxkbmap -option caps:ctrl_modifier
+    #setxkbmap -option caps:ctrl_modifier
+    xmodmap ~/.xmodmap
 
 # Synaptics
 # This has to be done because my touchpad kinda broke after update to 15.10
