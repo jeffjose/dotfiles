@@ -102,4 +102,29 @@ code --force --install-extension naco-siren.gradle-language
 # Colors for your code windows
 code --force --install-extension stuart.unique-window-colors
 
+# Improved error
 code --force --install-extension usernamehw.errorlens
+
+# TOML support
+code --force --install-extension bungcip.better-toml
+
+# I3 config
+code --force --install-extension dcasella.i3
+
+# Remove final new lines
+code --force --install-extension DoCode.vscode-remove-final-newlines
+
+# JSONNET
+code --force --install-extension heptio.jsonnet
+
+# Rust
+code --force --install-extension matklad.rust-analyzer
+code --force --install-extension rust-lang.rust
+code --force --install-extension statiolake.vscode-rustfmt
+code --force --install-extension vadimcn.vscode-lldb
+
+# Remote containers
+code --force --install-extension ms-vscode-remote.remote-containers
+
+# Proto3
+code --force --install-extension zxh404.vscode-proto3
