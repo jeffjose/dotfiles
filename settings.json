@@ -79,9 +79,7 @@
   "[dart]": {
     "editor.formatOnSave": true,
     "editor.formatOnType": true,
-    "editor.rulers": [
-      80
-    ],
+    "editor.rulers": [80],
     "editor.selectionHighlight": false,
     "editor.suggest.snippetsPreventQuickSuggestions": false,
     "editor.suggestSelection": "first",
@@ -101,7 +99,7 @@
   "python.languageServer": "Pylance",
   "python.dataScience.askForKernelRestart": false,
   "[shellscript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": "foxundermoon.shell-format",
     "files.eol": "\n"
   },
   "[proto3]": {
