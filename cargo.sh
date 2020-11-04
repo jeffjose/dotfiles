@@ -7,8 +7,14 @@ echo "-----------------"
 echo "Cargo / Rust"
 echo "-----------------"
 
-# For gitstatus (prompt)
-cargo install timeago-cli
+CRATES=(
 
-# For bumping versions
-cargo install cargo-bump
+  # For gitstatus (prompt)
+  timeago-cli
+
+  # For bumping versions
+  cargo-bump
+
+)
+
+cargo install ${CRATES[*]}

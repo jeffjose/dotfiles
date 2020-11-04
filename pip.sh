@@ -7,4 +7,8 @@ echo "-----------------"
 echo "Python Packages"
 echo "-----------------"
 
-pip install --upgrade yapf speedtest-cli black youtube-dlc
+PACKAGES=(
+  yapf speedtest-cli black youtube-dlc
+)
+
+pip install --upgrade ${PACKAGES[*]}

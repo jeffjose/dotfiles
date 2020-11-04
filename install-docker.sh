@@ -13,7 +13,7 @@ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubun
 sudo apt-get update
 sudo apt-get -y install docker-ce docker-ce-cli containerd.io
 
-sudo groupadd docker 2> /dev/null
+sudo groupadd docker 2>/dev/null
 sudo usermod -aG docker $USER
 
 # Run this manually

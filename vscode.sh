@@ -10,121 +10,128 @@ echo "-----------------"
 echo "VS code"
 echo "-----------------"
 
-# vim
-code --force --install-extension vscodevim.vim
+EXTENSIONS=(
 
-# formatter: prettier
-code --force --install-extension esbenp.prettier-vscode
+  # vim
+  vscodevim.vim
 
-# .svelte
-code --force --install-extension svelte.svelte-vscode
+  # formatter: prettier
+  esbenp.prettier-vscode
 
-# .py
-code --force --install-extension ms-python.python
+  # .svelte
+  svelte.svelte-vscode
 
-# .service
-code --force --install-extension coolbear.systemd-unit-file
+  # .py
+  ms-python.python
 
-# .csv
-code --force --install-extension mechatroner.rainbow-csv
+  # .service
+  coolbear.systemd-unit-file
 
-# tailwindcss: order class names
-code --force --install-extension heybourn.headwind
+  # .csv
+  mechatroner.rainbow-csv
 
-# Themes
-code --force --install-extension monokai.theme-monokai-pro-vscode
-code --force --install-extension PKief.material-icon-theme
+  # tailwindcss: order class names
+  heybourn.headwind
 
-# Format all files
-code --force --install-extension lacroixdavid1.vscode-format-context-menu
+  # Themes
+  monokai.theme-monokai-pro-vscode
+  PKief.material-icon-theme
 
-# Docker
-code --force --install-extension ms-azuretools.vscode-docker
+  # Format all files
+  lacroixdavid1.vscode-format-context-menu
 
-# Firestore syntax highlight rules
-code --force --install-extension toba.vsfire
+  # Docker
+  ms-azuretools.vscode-docker
 
-# Firebase explorer
-code --force --install-extension jsayol.firebase-explorer
+  # Firestore syntax highlight rules
+  toba.vsfire
 
-# TailwindCSS: CSS classname completion
-code --force --install-extension bradlc.vscode-tailwindcss
+  # Firebase explorer
+  jsayol.firebase-explorer
 
-# Flutter
-code --force --install-extension Dart-Code.flutter
+  # TailwindCSS: CSS classname completion
+  bradlc.vscode-tailwindcss
 
-# Dart
-code --force --install-extension Dart-Code.dart-code
+  # Flutter
+  Dart-Code.flutter
 
-# Bracket Pair Colorizer
-code --force --install-extension CoenraadS.bracket-pair-colorizer-2
+  # Dart
+  Dart-Code.dart-code
 
-# PostCSS
-code --force --install-extension ricard.postcss
+  # Bracket Pair Colorizer
+  CoenraadS.bracket-pair-colorizer-2
 
-# Error Lens: Show errors inline
-code --force --install-extension ms-vscode-remote.remote-ssh
+  # PostCSS
+  ricard.postcss
 
-# Git Lens
-code --force --install-extension eamodio.gitlens
+  # Error Lens: Show errors inline
+  ms-vscode-remote.remote-ssh
 
-# Output tab colorizer
-code --force --install-extension IBM.output-colorizer
+  # Git Lens
+  eamodio.gitlens
 
-# Kotlin
-code --force --install-extension mathiasfrohlich.Kotlin
+  # Output tab colorizer
+  IBM.output-colorizer
 
-# XML
-code --force --install-extension redhat.vscode-xml
+  # Kotlin
+  mathiasfrohlich.Kotlin
 
-# Dupe file in context menu
-code --force --install-extension gieson.dupe-file
+  # XML
+  redhat.vscode-xml
 
-# ESLint
-code --force --install-extension dbaeumer.vscode-eslint
+  # Dupe file in context menu
+  gieson.dupe-file
 
-# Kotlin
-code --force --install-extension fwcd.kotlin
+  # ESLint
+  dbaeumer.vscode-eslint
 
-# Gitgraph
-code --force --install-extension mhutchie.git-graph
+  # Kotlin
+  fwcd.kotlin
 
-# More Python
-code --force --install-extension ms-python.vscode-pylance
+  # Gitgraph
+  mhutchie.git-graph
 
+  # More Python
+  ms-python.vscode-pylance
 
-# Remote ssh
-code --force --install-extension ms-vscode-remote.remote-ssh-edit
+  # Remote ssh
+  ms-vscode-remote.remote-ssh-edit
 
-# Gradle
-code --force --install-extension naco-siren.gradle-language
+  # Gradle
+  naco-siren.gradle-language
 
-# Colors for your code windows
-code --force --install-extension stuart.unique-window-colors
+  # Colors for your code windows
+  stuart.unique-window-colors
 
-# Improved error
-code --force --install-extension usernamehw.errorlens
+  # Improved error
+  usernamehw.errorlens
 
-# TOML support
-code --force --install-extension bungcip.better-toml
+  # TOML support
+  bungcip.better-toml
 
-# I3 config
-code --force --install-extension dcasella.i3
+  # I3 config
+  dcasella.i3
 
-# Remove final new lines
-code --force --install-extension DoCode.vscode-remove-final-newlines
+  # Remove final new lines
+  DoCode.vscode-remove-final-newlines
 
-# JSONNET
-code --force --install-extension heptio.jsonnet
+  # JSONNET
+  heptio.jsonnet
 
-# Rust
-code --force --install-extension matklad.rust-analyzer
-code --force --install-extension rust-lang.rust
-code --force --install-extension statiolake.vscode-rustfmt
-code --force --install-extension vadimcn.vscode-lldb
+  # Rust
+  matklad.rust-analyzer
+  rust-lang.rust
+  statiolake.vscode-rustfmt
+  vadimcn.vscode-lldb
 
-# Remote containers
-code --force --install-extension ms-vscode-remote.remote-containers
+  # Remote containers
+  ms-vscode-remote.remote-containers
 
-# Proto3
-code --force --install-extension zxh404.vscode-proto3
+  # Proto3
+  zxh404.vscode-proto3
+)
+
+# Install
+for extension in "${EXTENSIONS[@]}"; do
+  code --force --install-extension $extension
+done

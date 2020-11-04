@@ -6,7 +6,6 @@
 # Packages
 sudo apt install -y git neovim curl moreutils tilix ack screen gitk ncdu htop tcsh gdebi ffmpeg vlc gedit gparted tree feh youtube-dl ntp colordiff bluez-tools d-feet jq npm openssh-server git-gui wavemon nfs-common nmap hardinfo mosh golang clang-format snapd
 
-
 # Torrents
 sudo apt install -y qbittorrent transmission
 
@@ -36,7 +35,6 @@ ln /usr/bin/screen ~/bin/scrn -s
 #echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
 #sudo apt-get update && sudo apt-get -y install yarn
 curl -o- -L https://yarnpkg.com/install.sh | bash
-
 
 # Yarn packages
 ./yarn.sh

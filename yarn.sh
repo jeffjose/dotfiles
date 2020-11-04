@@ -7,15 +7,20 @@ echo "-----------------"
 echo "Yarn"
 echo "-----------------"
 
-yarn global add t-get yarn-recursive npx coffeescript less firebase firebase-tools peerflix gulp-cli
+PACKAGES=(
+  t-get yarn-recursive npx coffeescript less firebase firebase-tools peerflix gulp-cli
 
-#  To create vscode theme from .tmtheme
-yarn global add yo generator-code
+  #  To create vscode theme from .tmtheme
+  yo generator-code
+  prettier @prettier/plugin-php @prettier/plugin-pug prettier-plugin-svelte typescript
 
-yarn global add prettier @prettier/plugin-php @prettier/plugin-pug prettier-plugin-svelte typescript
+  # CLI Replacements
+  tldr
 
-# CLI Replacements
-yarn global add tldr
+  # PostCSS
+  postcss-cli
 
-# PostCSS
-yarn global add postcss-cli
+)
+
+# Run
+yarn global add ${PACKAGES[*]}
