@@ -117,7 +117,7 @@
     alias ga 'git add'
     alias gaa 'git add .'
     alias gd 'git diff'
-    alias gg 'gc'
+    alias gp 'git push'
 
     alias foxit 'foxit \!* &'
     alias fox foxit
