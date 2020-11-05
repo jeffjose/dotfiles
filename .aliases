@@ -146,7 +146,7 @@
 # syndaemon -i 1 -K -d
 
     alias update       'sudo apt-get update'
-    alias updateall     ~/scripts/updateall.sh
+    alias updateall     ~/dotfiles/updateall.sh
     alias ubuntuupdate 'sudo do-release-upgrade -d'
 
     alias acads 'cd ~/Downloads/acads'
