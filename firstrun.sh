@@ -42,9 +42,6 @@ curl -o- -L https://yarnpkg.com/install.sh | bash
 # VIM
 ./vim.sh
 
-# VS Code
-./vscode.sh
-
 # Cargo / Rust
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
@@ -78,3 +75,9 @@ sudo apt autoremove
 
 ssh-keygen -t rsa -b 4096 -C "jeffjosejeff@gmail.com"
 ssh-add ~/.ssh/id_rsa
+
+
+echo "Things manually to install"
+echo " 1. Chrome"
+echo " 2. VS Code"
+echo " 3. Android Studio"
