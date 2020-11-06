@@ -159,6 +159,7 @@
 
     alias gdebi 'sudo gdebi --non-interactive'
     alias deb gdebi
+    alias debi gdebi
 
     #alias talks 'cd ~/talks'
 
