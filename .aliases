@@ -359,6 +359,7 @@
     alias route-monolith 'sudo ip route add 192.168.3.0/24 dev wlp4s0'
 
     alias keytool-read-keystore 'keytool -list -v -keystore ~/.android/debug.keystore'
+    alias keytool-create-sha-fingerprint 'keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android'
 
     alias y yarn
 
