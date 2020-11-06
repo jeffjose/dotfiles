@@ -73,6 +73,11 @@ sudo apt autoremove
 # pip install
 ./pip.sh
 
+
+# Android
+sudo usermod -aG plugdev jeffjose
+sudo apt-get install android-sdk-platform-tools-common
+
 ssh-keygen -t rsa -b 4096 -C "jeffjosejeff@gmail.com"
 ssh-add ~/.ssh/id_rsa
 
