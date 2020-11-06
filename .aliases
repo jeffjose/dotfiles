@@ -44,6 +44,9 @@
     # Install a package
     alias install 'sudo apt-get -y install \!*; rehash'
 
+    alias install-all-drivers 'sudo ubuntu-drivers autoinstall'
+
+
     # Remove a package
     alias remove 'sudo apt-get -y purge \!*'
 
