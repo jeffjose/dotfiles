@@ -72,7 +72,7 @@ if ( ! $?prompt ) exit
 
     #setenv GITMULTIPATH         /google/data/ro/users/mp/mpn/git-stuff
 
-    setenv PATH ${GOOGLECLOUDPATH}/bin:${CARGOPATH}/bin:${FLUTTERPATH}/bin:${YARNPATH}/bin:${MINICONDAPATH}/bin:${ANACONDAPATH}/bin:${GOPATH}/bin:${DARTPATH}/bin:${GOOGLEDARTPATH}/bin:${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/build-tools/${ANDROID_VER}:${HOME}/.pub-cache/bin:${HOME}/bin:${HOME}/.local/bin:${PATH}
+    setenv PATH ${GOOGLECLOUDPATH}/bin:${CARGOPATH}/bin:${FLUTTERPATH}/bin:${YARNPATH}/bin:${MINICONDAPATH}/bin:${ANACONDAPATH}/bin:${GOPATH}/bin:${DARTPATH}/bin:${GOOGLEDARTPATH}/bin:${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/build-tools/${ANDROID_VER}:${HOME}/.pub-cache/bin:${HOME}/bin:${HOME}/.local/bin:${PATH}
     #setenv JAVA_HOME /usr/lib/jvm/java-8-oracle
 
     setenv PYTHONPATH $HOME/.local/lib/python2.7/site-packages:/usr/local/buildtools/current/sitecustomize
