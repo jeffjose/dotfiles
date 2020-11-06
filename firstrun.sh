@@ -81,3 +81,6 @@ echo "Things manually to install"
 echo " 1. Chrome"
 echo " 2. VS Code"
 echo " 3. Android Studio"
+echo "   a. JAVA correct alternative (sudo update-alternatives --config java). Select - /usr/lib/jvm/java-13-openjdk-amd64/bin/java"
+echo "   b. Accept all licenses 'yes | sdkmanager --licenses'"
+
