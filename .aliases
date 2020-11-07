@@ -269,6 +269,7 @@
     alias emulator-list-all 'emulator -list-avds'
     alias avd-clean 'rm -vrf ~/.android/avd/*.avd/userdata-qemu.img ~/.android/avd/*.avd/snapshots/'
     alias clean-avd avd-clean
+    alias emulator-clean-avd avd-clean
 
     alias aa '$HOME/scripts/puppy/puppy \!* amp-analytics'
 
