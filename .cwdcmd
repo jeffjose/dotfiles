@@ -1,4 +1,5 @@
 # cwdcmd
+#
 
   set output_file = '/tmp/cwdcmd_recent_dirs'
 

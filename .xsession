@@ -1,1 +1,2 @@
+setxkbmap -option
 xmodmap ~/.xmodmap
