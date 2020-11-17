@@ -91,6 +91,7 @@
     alias chrome 'google-chrome &'
 
     alias evince 'evince \!* &'
+    alias vlcw '\vlc --no-qt-video-autoresize \!* &'
     alias vlc 'vlc \!* &'
 
     alias starthub 'sudo iptables -A INPUT -m state --state NEW -p {tcp,udp} --dport {1234,9176} -j ACCEPT; sudo service iptables restart; sudo opendchub'
