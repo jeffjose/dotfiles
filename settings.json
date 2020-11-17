@@ -108,7 +108,7 @@
     "editor.defaultFormatter": "dart-code.dart-code"
   },
   "dart.debugExternalLibraries": true,
-  "dart.debugSdkLibraries": true,
+  "dart.debugSdkLibraries": false,
   "gitlens.advanced.messages": {
     "suppressCommitHasNoPreviousCommitWarning": true
   },
@@ -128,5 +128,7 @@
   "editor.fontFamily": "Fira Code, monospace",
   "editor.fontLigatures": true,
   "files.insertFinalNewline": true,
-  "files.trimFinalNewlines": true
+  "files.trimFinalNewlines": true,
+  "prettier.trailingComma": "none",
+  "dart.previewLsp": true
 }
