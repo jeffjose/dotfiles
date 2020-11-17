@@ -28,6 +28,9 @@
 
     alias so 'echo "Sourcing ~/.cshrc .."; source ~/.cshrc'
     alias SO so
+
+    alias x 'echo "Running ~/.xsession .."; ~/.xsession'
+
     alias grep grep -iE --color=always
 
     alias ip ip -c
@@ -359,8 +362,15 @@
 
     alias route-monolith 'sudo ip route add 192.168.3.0/24 dev wlp4s0'
 
-    alias keytool-read-keystore 'keytool -list -v -keystore ~/.android/debug.keystore'
-    alias keytool-create-sha-fingerprint 'keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android'
+    alias read-key-prod-debug 'keytool -list -v -keystore ~/.android/prod-debug.keystore -alias key -storepass android -keypass android'
+    alias read-key-prod-release 'echo "Run the command with right password.\n"; echo "Also see app/prod-key.properties\n"; echo keytool -list -v -keystore ~/.android/prod-release.keystore -alias key -storepass pass_var -keypass pass_var'
+
+    alias read-key-dev-debug 'keytool -list -v -keystore ~/.android/dev-debug.keystore -alias key -storepass android -keypass android'
+    alias read-key-dev-release 'echo "Run the command with right password.\n"; echo "Also see app/prod-key.properties\n"; echo keytool -list -v -keystore ~/.android/dev-release.keystore -alias key -storepass pass_var -keypass pass_var'
+
+    alias apk-cert 'apksigner verify --print-certs'
+
+    alias apk-pkg-name 'aapt dump badging \!* | grep --color=never -e "application-label:" -e "package: name"'
 
     alias y yarn
 
