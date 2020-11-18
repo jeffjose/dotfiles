@@ -3,6 +3,8 @@
 	email = jeffjosejeff@gmail.com
 [alias]
     ci = commit
+    commti = commit
+    ad = add
     st = status
     sb = show-branch
     co = checkout
