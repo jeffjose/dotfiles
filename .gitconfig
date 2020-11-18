@@ -6,6 +6,7 @@
     commti = commit
     ad = add
     st = status
+    psh = push
     sb = show-branch
     co = checkout
     one = log --pretty=oneline
