@@ -122,7 +122,7 @@ endif
 
 
 if (-f firebase.json) then
-  set _firebase_str = `~/dotfiles/firebaseprompt.sh`
+  set _firebase_str = `~/dotfiles/firebaseproject.sh`
 
   if ($_firebase_str == "beanbaby-prod") then
     set firebase_str = " ${red}${_firebase_str}${end}"
