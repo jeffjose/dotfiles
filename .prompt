@@ -120,8 +120,21 @@ else
   set git_str = ''
 endif
 
+
+if (-f firebase.json) then
+  set _firebase_str = `~/dotfiles/firebaseprompt.sh`
+
+  if ($_firebase_str == "beanbaby-prod") then
+    set firebase_str = " ${red}${_firebase_str}${end}"
+  else
+    set firebase_str = " ${magenta}${_firebase_str}${end}"
+  endif
+else
+  set firebase_str = ""
+endif
+
 if ($?STY) then
-    set prompt = "-(${cyan}%B%P%b${end} ${host_color}${host_name}${end} ${green}%B%/%b${green}${end}${git_str})-\n${prompt_key}${end} "
+    set prompt = "-(${cyan}%B%P%b${end} ${host_color}${host_name}${end} ${green}%B%/%b${green}${end}${git_str}${firebase_str})-\n${prompt_key}${end} "
 else
     set prompt = "-(${white}%P${end} ${white}${host_name}${end} ${white}%/${end})-\n?${end} "
 endif
