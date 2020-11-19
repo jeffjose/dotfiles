@@ -375,6 +375,8 @@
 
     alias y yarn
 
+    alias tsrun ts-node
+
     # Add alias
     # sudo ip address add 192.168.1.6/24 dev eno1
     #

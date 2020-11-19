@@ -12,7 +12,10 @@ PACKAGES=(
 
   #  To create vscode theme from .tmtheme
   yo generator-code
-  prettier @prettier/plugin-php @prettier/plugin-pug prettier-plugin-svelte typescript
+  prettier @prettier/plugin-php @prettier/plugin-pug prettier-plugin-svelte
+
+  # Typescript
+  typescript ts-node
 
   # CLI Replacements
   tldr
