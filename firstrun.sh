@@ -30,6 +30,10 @@ sudo apt install -y y-ppa-manager
 mkdir -p ~/bin/
 ln /usr/bin/screen ~/bin/scrn -s
 
+# Install Ruby
+sudo apt install -y ruby-full
+
+
 
 # Install brew
 #/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
