@@ -4,6 +4,7 @@
 [alias]
     ci = commit
     commti = commit
+    commt = commit
     ad = add
     st = status
     psh = push
