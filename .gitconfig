@@ -23,6 +23,7 @@
     search = grep --color -n
     searchf = grep --name-only
     searchn = grep --files-without-match
+    pul = pull
     pull = pull -v
     sdiff = stash show -p
     dif = diff
