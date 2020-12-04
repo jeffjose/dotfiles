@@ -8,6 +8,7 @@
     ad = add
     st = status
     psh = push
+    ush = push
     sb = show-branch
     co = checkout
     one = log --pretty=oneline
