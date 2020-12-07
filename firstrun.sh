@@ -33,6 +33,9 @@ ln /usr/bin/screen ~/bin/scrn -s
 # Install Ruby
 sudo apt install -y ruby-full
 
+# Neofetch
+sudo apt install -y neofetch
+
 
 
 # Install brew
