@@ -119,6 +119,7 @@
 
     alias gitg 'git gui'
     alias gitk 'gitk --all'
+    alias gitp 'git'
     alias gs 'git status'
     alias gc 'git commit -m'
     alias ga 'git add'

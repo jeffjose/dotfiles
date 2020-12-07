@@ -15,6 +15,10 @@ CRATES=(
   # For bumping versions
   cargo-bump
 
+
+  # git summary
+  onefetch
+
 )
 
 cargo install ${CRATES[*]}
