@@ -183,6 +183,7 @@
     #alias 2 'cd /mnt/disk2'
     #alias r 'cd /media/jeffjose/rico'
     alias p 'cd ~/scripts/personal-website'
+    alias b 'cd ~/scripts/baby'
     alias f 'cd ~/scripts/personal-website/frontend'
     alias dot 'cd ~/dotfiles'
     alias px 'cd ~/scripts/redditpx'
@@ -361,7 +362,8 @@
 
     alias mount-nomad 'sudo sshfs -o allow_other,default_permissons 192.168.3.20:/ /mnt/nomad/'
 
-    alias route-monolith 'sudo ip route add 192.168.3.0/24 dev wlp4s0'
+    #alias route-monolith 'sudo ip route add 192.168.3.0/24 dev wlp4s0'
+    alias route-monolith 'sudo ip route add 192.168.3.0/24 via 192.168.2.1'
 
     alias read-key-prod-debug 'keytool -list -v -keystore ~/.android/prod-debug.keystore -alias key -storepass android -keypass android'
     alias read-key-prod-release 'echo "Run the command with right password.\n"; echo "Also see app/prod-key.properties\n"; echo keytool -list -v -keystore ~/.android/prod-release.keystore -alias key -storepass pass_var -keypass pass_var'
