@@ -16,7 +16,7 @@
     changelog = "!f() { r=${1:-`git describe --tags --abbrev=0`..HEAD}; echo Changelog for $r; git log --reverse --no-merges --format='* %s' $r; }; f"
     br = branch
     bra = branch -a
-    la = log --pretty=\"format:%ad %h (%an): %s\" --date=short
+    la = log
     last = diff HEAD^ HEAD
     list = diff --name-status
     cam = commit -a -m
@@ -101,3 +101,7 @@
 [push]
 	default = simple
 	followTags = true
+
+[format]
+  pretty = %Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)%an%Creset %C(bold yellow)%GK%Creset
+  graph = true
