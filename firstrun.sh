@@ -27,6 +27,10 @@ sudo add-apt-repository ppa:webupd8team/y-ppa-manager
 sudo apt-get update
 sudo apt install -y y-ppa-manager
 
+# linuxbrew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+
 mkdir -p ~/bin/
 ln /usr/bin/screen ~/bin/scrn -s
 
