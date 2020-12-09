@@ -21,4 +21,6 @@ sudo usermod -aG docker $USER
 echo "-----------------------"
 echo "Run this manually"
 echo "newgrp docker"
+echo ""
+echo "You might have to log out / log in"
 echo "-----------------------"
