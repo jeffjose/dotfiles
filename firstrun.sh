@@ -40,12 +40,6 @@ sudo apt install -y ruby-full
 # Neofetch
 sudo apt install -y neofetch
 
-
-
-# Install brew
-#/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-
-
 # Install yarn
 #curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
 #echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
