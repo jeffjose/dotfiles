@@ -342,7 +342,7 @@
 
     alias wm 'sudo wavemon'
 
-    alias tshark_dhcp 'sudo tshark -y "udp.port == 68"'
+    alias tshark_dhcp 'sudo tshark -Y "udp.port == 68"'
     # pfsense (freebsd)
     # tcpdump -i igb.33 udp port 68
     #
