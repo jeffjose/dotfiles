@@ -347,6 +347,10 @@
     # tcpdump -i igb.33 udp port 68
     #
 
+    alias tshark_mdns 'sudo tshark -Y mdns and ip.addr == 224.0.0.0/24'
+    # pfsense (freebsd)
+    # tcpdump -i igb2 -X net 224.0.0.0/4 and host 192.168.3.79 -X
+
     alias ppa-manager y-ppa-manager
 
     alias fixkeys 'sudo apt-key adv --refresh-keys --keyserver keyserver.ubuntu.com'
