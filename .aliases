@@ -281,7 +281,34 @@
 
     alias puppy '~/scripts/puppy/puppy'
 
-    alias mkv2mp4 'ffmpeg -i \!* -f mp4 -vcodec h264 -acodec aac \!*.mp4'
+    if (-d /usr/lib/Shutter\ Encoder) then
+      alias ffmpeg '/usr/lib/Shutter\ Encoder/usr/bin/Library/ffmpeg'
+      alias ffplay '/usr/lib/Shutter\ Encoder/usr/bin/Library/ffprobe'
+      alias ffprobe '/usr/lib/Shutter\ Encoder/usr/bin/Library/ffplay'
+    endif
+
+    alias extract_frame_from_video 'ffmpeg -ss \!:2 -t \!:2 -i \!:1 -vframes 1 \!:1.png'
+
+    # Good quality, faster than 265
+    alias convert_to_1080p_h264 'ffmpeg -hwaccel none -i \!* -vcodec libx264 -filter:v scale=-1:1080 -c:a copy \!*.h264.1080p.mkv'
+
+    # Best quality, recommended to use. Might be slower than 264
+    alias convert_to_1080p_h265 'ffmpeg -hwaccel none -i \!* -vcodec libx265 -filter:v scale=-1:1080 -c:a copy \!*.h265.1080p.mkv'
+
+    alias convert_to_1080p_orig 'ffmpeg -i \!* -vf scale=-1:1080 -c:a copy \!*_1080p.mkv'
+
+    # Produces bad quality, so dont use
+    #alias convert_to_1080p_vp9 'ffmpeg -hwaccel none -i \!* -vcodec libvpx -speed 4 h264pix_fmt yuv420p -sws_flags bicubic -threads 0 -filter:v scale=-1:1080 -c:a copy \!*.vp9.1080p.mkv'
+
+    alias cut_video 'ffmpeg -i \!:1 -ss \!:2 -to \!:3 -c copy \!:1_cut.mkv'
+    
+    # The following were got from shutter-encoder. Produces poor quality, so dont use
+    #
+    #alias convert2av1 'ffmpeg -hwaccel none -i \!* -map v -c:a libopus -ar 48k -b:a 192k -map a:0 -vcodec libsvtav1 -rc vbr -b:v 5000k -pix_fmt yuv420p -sws_flags bicubic -threads 0 -y \!*.av1.mkv'
+    #alias convert2h264 'ffmpeg -hwaccel none -i \!* -map v -c:a aac -ar 48k -b:a 256k -map a:0 -c:v libx264 -profile:v high -level 5.1 -b:v 5000k -pix_fmt yuv420p -sws_flags bicubic -threads 0 -y \!*.h264.mp4'
+    #alias convert2h265 'ffmpeg -hwaccel none -i \!* -map v -c:a aac -ar 48k -b:a 256k -map a:0 -c:v libx265 -profile:v main -level 5.1 -b:v 5000k -pix_fmt yuv420p -tag:v hvc1 -sws_flags bicubic -threads 0 -y \!*.h265.mp4'
+    #alias convert2vp9 'ffmpeg -hwaccel none -i \!* -map v -c:a libopus -ar 48k -b:a 192k -map a:0 -vcodec libvpx-vp9 -speed 4 -b:v 5000k -pix_fmt yuv420p -sws_flags bicubic -threads 0 -y \!*.vp9.webm' 
+
 
     alias curlmobile 'curl -H "User-Agent: Mozilla/5.0 (Linux; Android 5.1.1; Nexus 6 Build/LYZ28E) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.75 Mobile Safari/537.36"'
     alias curlgoogle "curl --user-agent 'Googlebot/2.1 (+http://www.google.com/bot.html)'"
@@ -401,5 +428,3 @@
     else
       # nothing
     endif
-
-
