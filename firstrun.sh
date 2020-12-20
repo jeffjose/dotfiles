@@ -4,7 +4,7 @@
 #
 
 # Packages
-sudo apt install -y git neovim curl moreutils tilix ack screen gitk ncdu htop tcsh gdebi ffmpeg vlc gedit gparted tree feh youtube-dl ntp colordiff bluez-tools d-feet jq npm openssh-server git-gui wavemon nfs-common nmap hardinfo mosh golang clang-format snapd
+sudo apt install -y git neovim curl moreutils tilix ack screen gitk ncdu htop tcsh gdebi ffmpeg vlc gedit gparted tree feh youtube-dl ntp colordiff bluez-tools d-feet jq npm openssh-server git-gui wavemon nfs-common nmap hardinfo mosh golang clang-format snapd detox
 
 # Torrents
 sudo apt install -y qbittorrent transmission
@@ -29,7 +29,6 @@ sudo apt install -y y-ppa-manager
 
 # linuxbrew
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
 
 mkdir -p ~/bin/
 ln /usr/bin/screen ~/bin/scrn -s
@@ -86,7 +85,6 @@ sudo apt autoremove
 # pip install
 ./pip.sh
 
-
 # Android
 sudo usermod -aG plugdev jeffjose
 sudo apt-get install android-sdk-platform-tools-common
@@ -94,11 +92,9 @@ sudo apt-get install android-sdk-platform-tools-common
 ssh-keygen -t rsa -b 4096 -C "jeffjosejeff@gmail.com"
 ssh-add ~/.ssh/id_rsa
 
-
 echo "Things manually to install"
 echo " 1. Chrome"
 echo " 2. VS Code"
 echo " 3. Android Studio"
 echo "   a. JAVA correct alternative (sudo update-alternatives --config java). Select - /usr/lib/jvm/java-13-openjdk-amd64/bin/java"
 echo "   b. Accept all licenses 'yes | sdkmanager --licenses'"
-
