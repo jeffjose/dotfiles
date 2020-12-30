@@ -116,6 +116,9 @@ fi
 timeago_dt="$(git log -1 --format=%cD)"
 timeago_str="$(timeago "$timeago_dt")"
 
+# jeffjose | describe
+#describe_str="$(git describe --tags --always)"
+
 printf "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n" \
   "$branch" \
   "$remote" \
