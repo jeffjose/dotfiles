@@ -2,7 +2,7 @@
 	name  = Jeffrey Jose
 	email = jeffjosejeff@gmail.com
 [alias]
-    d = describe --tags
+    d = describe --tags --always
     ci = commit
     commti = commit
     commt = commit
