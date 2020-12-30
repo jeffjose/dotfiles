@@ -301,7 +301,7 @@
     #alias convert_to_1080p_vp9 'ffmpeg -hwaccel none -i \!* -vcodec libvpx -speed 4 h264pix_fmt yuv420p -sws_flags bicubic -threads 0 -filter:v scale=-1:1080 -c:a copy \!*.vp9.1080p.mkv'
 
     alias cut_video 'ffmpeg -i \!:1 -ss \!:2 -to \!:3 -c copy \!:1_cut.mkv'
-    
+
     # The following were got from shutter-encoder. Produces poor quality, so dont use
     #
     #alias convert2av1 'ffmpeg -hwaccel none -i \!* -map v -c:a libopus -ar 48k -b:a 192k -map a:0 -vcodec libsvtav1 -rc vbr -b:v 5000k -pix_fmt yuv420p -sws_flags bicubic -threads 0 -y \!*.av1.mkv'
@@ -387,6 +387,7 @@
     #alias man tldr --theme ocean
 
     alias nmap-network nmap -sP 192.168.3.0/24
+    alias nmap sudo nmap -v -T4 -A -O -Pn
 
     # sudo mount 192.168.3.4:/nfs/Plex /mnt/monolith/Plex
     alias mount-monolith 'sudo mount 192.168.3.4:/nfs/Plex /mnt/monolith/Plex'
