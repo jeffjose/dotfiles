@@ -11,4 +11,4 @@ PACKAGES=(
   yapf speedtest-cli black youtube-dlc
 )
 
-pip install --upgrade ${PACKAGES[*]}
+pip3 install --upgrade ${PACKAGES[*]}
