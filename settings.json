@@ -99,7 +99,9 @@
   "[dart]": {
     "editor.formatOnSave": true,
     "editor.formatOnType": true,
-    "editor.rulers": [80],
+    "editor.rulers": [
+      80
+    ],
     "editor.selectionHighlight": false,
     "editor.suggest.snippetsPreventQuickSuggestions": false,
     "editor.suggestSelection": "first",
@@ -108,7 +110,7 @@
     "editor.defaultFormatter": "dart-code.dart-code"
   },
   "dart.debugExternalLibraries": true,
-  "dart.debugSdkLibraries": false,
+  "dart.debugSdkLibraries": true,
   "gitlens.advanced.messages": {
     "suppressCommitHasNoPreviousCommitWarning": true
   },
@@ -135,5 +137,6 @@
     "vs-kubernetes.minikube-path.linux": "/home/jeffjose/.vs-kubernetes/tools/minikube/linux-amd64/minikube",
     "vs-kubernetes.draft-path.linux": "/home/jeffjose/.vs-kubernetes/tools/draft/linux-amd64/draft"
 },
-"jupyter.askForKernelRestart": false
+"jupyter.askForKernelRestart": false,
+"terminal.integrated.fontFamily": "Fira Code Medium, monospace"
 }
