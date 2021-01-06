@@ -58,7 +58,7 @@
 
     complete remove 'p/1/c/'
 
-    alias fwc 'find . | wc'
+    alias fwc 'echo "Directories"; find . -type d | wc; echo "Files"; find . -type f | wc'
 
     # Wharton Canvas
     # Token: 25~0BSCo871KwDf3wDcVX5DiezXVoVavIPHMqeFeS1ValI3kWa2n6whwMAuwk4inTJG
