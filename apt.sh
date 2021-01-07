@@ -65,7 +65,6 @@ PACKAGES=(
   runc
   podman # You might need to run `sudo systemctl start podman`
   buildah
-
 )
 
 printf -v JOINED '%s ' "${PACKAGES[@]}"

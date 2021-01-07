@@ -38,6 +38,9 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 # Fonts
 ./fonts.sh
 
+# Podman
+./podman.sh
+
 # Flutter
 sudo snap install flutter --classic
 
