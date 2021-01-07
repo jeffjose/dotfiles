@@ -1,0 +1,73 @@
+#!/bin/bash
+#
+# Jeffrey Jose | Jan 7, 2021
+#
+
+echo "-----------------"
+echo "Ubuntu packages"
+echo "-----------------"
+
+PACKAGES=(
+
+  # Git
+  git
+  gitk
+  git-gui
+
+  # Other
+  neovim
+  curl
+  tilix
+  ack
+  screen
+  ncdu
+  htop
+  tcsh
+  gdebi
+  ffmpeg
+  vlc
+  gedit
+  gparted
+  tree
+  feh
+  youtube-dl
+  ntp
+  colordiff
+  d-feet
+  jq
+  npm
+  openssh-server
+  wavemon
+  nfs-common
+  nmap
+  hardinfo
+  mosh
+  golang
+  clang-format
+  snapd
+  detox
+  evince
+  neofetch
+
+  # System
+  bluez-tools
+
+  # Torrents
+  #qbittorrent
+  transmission
+
+  # CLI Replacements
+  aria2
+  entr
+  moreutils
+
+)
+
+printf -v JOINED '%s ' "${PACKAGES[@]}"
+
+sudo apt-get install -y $JOINED
+
+## Install
+#for package in "${PACKAGES[@]}"; do
+#  sudo apt-get install -y $package
+#done
