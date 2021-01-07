@@ -65,7 +65,9 @@ PACKAGES=(
 
 printf -v JOINED '%s ' "${PACKAGES[@]}"
 
+sudo apt-get update
 sudo apt-get install -y $JOINED
+sudo apt-get autoremove
 
 ## Install
 #for package in "${PACKAGES[@]}"; do
