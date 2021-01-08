@@ -48,6 +48,7 @@ PACKAGES=(
   detox
   evince
   neofetch
+  meld
 
   # System
   bluez-tools
