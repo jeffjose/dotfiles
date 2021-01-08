@@ -42,3 +42,9 @@ conda clean --all --yes
 
 # Flutter
 flutter upgrade
+
+# Cargo/Rust
+cargo install-update -a
+
+# Go
+go get -u all

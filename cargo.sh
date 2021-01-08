@@ -19,6 +19,9 @@ CRATES=(
   # git summary
   onefetch
 
+  # update installed binaries
+  cargo-update
+
 )
 
 cargo install ${CRATES[*]}
