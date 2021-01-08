@@ -421,7 +421,8 @@
     alias decrypt-password 'openssl enc -aes-256-cbc -md sha256 -pbkdf2 -iter 10000 -salt -a -d -in \!:1 -out \!:2'
 
     # Generate random base64
-    alias random 'openssl rand -base64'
+    alias random 'openssl rand -base64 \!* | tee /dev/$tty | xclip'
+    alias r random
     alias rand random 6
     alias rand10 random 10
 
