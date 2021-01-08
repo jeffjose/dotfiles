@@ -9,6 +9,13 @@ echo "-----------------"
 
 PACKAGES=(
 
+  # Essentials
+  build-essential
+  curl
+  wget
+  sudo
+  tcsh
+
   # Git
   git
   gitk
