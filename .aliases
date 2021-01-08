@@ -412,6 +412,59 @@
 
     alias tsrun ts-node
 
+    # Also see https://www.freecodecamp.org/news/openssl-command-cheatsheet-b441be1e8c4a/
+    #
+    # Symmetric Encryption
+    #
+    # Encrypt and Decrypt using simple password.
+    alias encrypt-password 'openssl enc -aes-256-cbc -md sha256 -pbkdf2 -iter 10000 -salt -a -e -in \!:1 -out \!:2'
+    alias decrypt-password 'openssl enc -aes-256-cbc -md sha256 -pbkdf2 -iter 10000 -salt -a -d -in \!:1 -out \!:2'
+
+    # Generate random base64
+    alias random 'openssl rand -base64'
+    alias rand random 6
+    alias rand10 random 10
+
+    #
+    # Asymmetric Encryption
+    #
+    # Create private and public key pairs
+    alias privatekey-create 'openssl genpkey -algorithm rsa -out private.key -pkeyopt rsa_keygen_bits:2048'
+    alias publickey-create 'openssl rsa -pubout -in private.key -out public.key'
+
+    # Create a x509 cert from private key.
+    alias cert-create 'openssl req -new -x509 -sha256 -key private.key -out cert.pem -days 365'
+
+    # Get the sha256 of a cert (you see this in Chrome)
+    alias cert-sha256-fingerprint 'openssl x509 -sha256 -in \!:1 -noout -fingerprint | tee \!:1.sha256'
+
+    alias cert-view 'openssl x509 -in \!:1 -text -noout'
+    alias privatekey-view 'openssl rsa -text -noout -in \!:1'
+
+    alias cert-get-modulus 'openssl x509 -noout -modulus -in \!:1'
+    alias privatekey-get-modulus 'openssl rsa -noout -modulus -in \!:1'
+
+    # Get a certificate of a website (google.com)
+    alias cert-get-host 'echo "" | openssl s_client -host \!:1 -port 443 -showcerts | awk "/BEGIN CERT/ {p=1} ; p==1; /END CERT/ {p=0}" | tee \!:1.pem'
+
+    # Extract the publickey from a x509
+    alias cert-extract-publickey 'openssl x509 -pubkey -noout -in \!;1 | tee \!:1.public.key'
+
+    #alias encrypt-publickey 'openssl rsautl -encrypt -inkey public.key -pubin -in \!:1 -out \!:2'
+    #alias decrypt-privatekey 'openssl rsautl -decrypt -inkey private.key -in \!:1 -out \!:2'
+
+    # Encrypt using a x509 certificate
+    alias encrypt-cert 'openssl smime -encrypt -binary -aes-256-cbc -in \!:1 -out \!:2 -outform DER cert.pem'
+
+    # Decrypt using private key
+    alias decrypt-privatekey 'openssl smime -decrypt -binary -in \!:1 -out \!:2 -inform DER -inkey private.key'
+
+    # Create a digest using privatekey
+    alias digest-create-privatekey 'openssl dgst -sha512 -sign private.key -out \!:1.digest.sha512 \!:1'
+
+    # Verify the digest using the public key
+    alias digest-verify-publickey 'openssl dgst -sha512 -verify public.key -signature \!:1.digest.sha512 \!:1'
+
     # Add alias
     # sudo ip address add 192.168.1.6/24 dev eno1
     #
