@@ -1,0 +1,5 @@
+---
+- name: "Play 1"
+  hosts: localhost
+  roles:
+    - jeffjose
