@@ -24,4 +24,4 @@ CRATES=(
 
 )
 
-cargo install ${CRATES[*]}
+$HOME/.cargo/bin/cargo install ${CRATES[*]}

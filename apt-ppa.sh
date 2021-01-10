@@ -7,13 +7,13 @@ echo "-----------------"
 echo "Ubuntu packages with PPA"
 echo "-----------------"
 # Shutter
-sudo add-apt-repository ppa:linuxuprising/shutter
+sudo add-apt-repository -y ppa:linuxuprising/shutter
 
 # Numix
-sudo add-apt-repository ppa:numix/ppa
+sudo add-apt-repository -y ppa:numix/ppa
 
 # ppa-manager
-sudo add-apt-repository ppa:webupd8team/y-ppa-manager
+sudo add-apt-repository -y ppa:webupd8team/y-ppa-manager
 
 # Dart
 sudo sh -c 'wget -qO- https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -'
@@ -21,7 +21,7 @@ sudo sh -c 'wget -qO- https://storage.googleapis.com/download.dartlang.org/linux
 
 # Install gh (github CLI)
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
-sudo apt-add-repository https://cli.github.com/packages
+sudo apt-add-repository -y https://cli.github.com/packages
 
 sudo apt-get update
 

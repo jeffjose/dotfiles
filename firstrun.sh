@@ -10,13 +10,9 @@
 ./apt-ppa.sh
 
 # linuxbrew
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-mkdir -p ~/bin/
-ln /usr/bin/screen ~/bin/scrn -s
+yes | sh -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 # Install Ruby
-sudo apt install -y ruby-full
 
 # Install yarn
 curl -o- -L https://yarnpkg.com/install.sh | bash
@@ -29,7 +25,6 @@ curl -o- -L https://yarnpkg.com/install.sh | bash
 
 # Cargo / Rust
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-
 ./cargo.sh
 
 # Go packages
@@ -45,10 +40,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 sudo snap install flutter --classic
 
 # Patch ntp servers
-sudo patch /etc/ntp.conf ntp.patch
-
-# Remove packages
-sudo apt autoremove
+sudo patch -f /etc/ntp.conf ntp.patch
 
 # pip install
 ./pip.sh
@@ -57,12 +49,24 @@ sudo apt autoremove
 sudo usermod -aG plugdev jeffjose
 sudo apt-get install android-sdk-platform-tools-common
 
-ssh-keygen -t rsa -b 4096 -C "jeffjosejeff@gmail.com"
-ssh-add ~/.ssh/id_rsa
+# Remove packages
+sudo apt autoremove
 
-echo "Things manually to install"
-echo " 1. Chrome"
-echo " 2. VS Code"
-echo " 3. Android Studio"
+# SSH
+yes | ssh-keygen -t rsa -b 4096 -C "jeffjosejeff@gmail.com" -f $HOME/.ssh/id_rsa -q -N ""
+ssh-add $HOME/.ssh/id_rsa
+
+# Setup SHELL
+sudo chsh -s /bin/tcsh jeffjose
+
+
+# Setup things
+./setup.sh
+
+echo "Things manually to do"
+echo " 1. Install Chrome"
+echo " 2. Install VS Code"
+echo " 3. Install Android Studio"
 echo "   a. JAVA correct alternative (sudo update-alternatives --config java). Select - /usr/lib/jvm/java-13-openjdk-amd64/bin/java"
 echo "   b. Accept all licenses 'yes | sdkmanager --licenses'"
+echo " 4. Change shell"

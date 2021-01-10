@@ -8,6 +8,7 @@ echo "-----------------"
 echo "Setting up $HOME"
 echo "-----------------"
 
+mkdir -p $HOME/bin
 mkdir -p $HOME/scripts
 mkdir -p $HOME/Downloads
 mkdir -p $HOME/.config/nvim
@@ -25,6 +26,9 @@ touch /tmp/cwdcmd_recent_dirs
 #
 #
 touch $HOME/.aliases.sensitive.sh
+
+rm $HOME/bin/scrn
+ln /usr/bin/screen $HOME/bin/scrn -s
 
 # Link dotfiles
 #
@@ -89,9 +93,6 @@ cp -r material-theme-jeffjose $HOME/.vscode/extensions/material-theme-jeffjose
 
 # Yarn packages
 ./yarn.sh
-
-# VS Code packages
-./vscode.sh
 
 # VIM Plugins
 ./vim.sh

@@ -10,11 +10,18 @@ echo "-----------------"
 PACKAGES=(
 
   # Essentials
-  build-essential
   curl
   wget
   sudo
   tcsh
+  openssh-server
+
+  # Dev
+  golang
+  ruby-full
+  clang-format
+  build-essential
+  python3-pip
 
   # Git
   git
@@ -23,42 +30,38 @@ PACKAGES=(
 
   # Other
   neovim
-  curl
+  gedit
   tilix
   ack
   screen
   ncdu
   htop
-  tcsh
   gdebi
   ffmpeg
   vlc
-  gedit
   gparted
   tree
   feh
   youtube-dl
-  ntp
   colordiff
-  d-feet
   jq
   npm
-  openssh-server
   wavemon
-  nfs-common
   nmap
   hardinfo
   mosh
-  golang
-  clang-format
-  snapd
   detox
   evince
   neofetch
   meld
 
+
   # System
   bluez-tools
+  nfs-common
+  snapd
+  d-feet
+  ntp
 
   # Torrents
   #qbittorrent

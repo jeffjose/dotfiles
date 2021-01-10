@@ -26,4 +26,4 @@ PACKAGES=(
 )
 
 # Run
-yarn global add ${PACKAGES[*]}
+$HOME/.yarn/bin/yarn global add ${PACKAGES[*]}
