@@ -90,6 +90,12 @@ cp -r material-theme-jeffjose $HOME/.vscode/extensions/material-theme-jeffjose
 
 # Tilix
 dconf load /com/gexperts/Tilix/ < tilix.dconf
+#
+# query using
+#
+#   xfconf-query -c xfce4-keyboard-shortcuts -lv | grep tilix
+#
+xfconf-query -c xfce4-keyboard-shortcuts -p '/commands/custom/<Primary>space' -s 'tilix --quake' -n
 
 # Install Python packages
 ./pip.sh
