@@ -10,4 +10,4 @@ podman system migrate
 
 # `sudo apt install runc` for runc
 mkdir -p ~/.config/containers
-echo 'runtime = "/usr/bin/crun"' >>  ~/.config/containers/libpod.conf
+echo 'runtime = "/usr/bin/crun"' >>  ~/.config/containers/containers.conf
