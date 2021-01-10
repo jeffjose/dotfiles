@@ -62,6 +62,7 @@ PACKAGES=(
   snapd
   d-feet
   ntp
+  dconf-cli
 
   # Torrents
   #qbittorrent
@@ -76,6 +77,11 @@ PACKAGES=(
   runc
   podman # You might need to run `sudo systemctl start podman`
   buildah
+
+
+  # Fonts
+  fonts-firacode
+  fonts-inter
 )
 
 printf -v JOINED '%s ' "${PACKAGES[@]}"

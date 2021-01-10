@@ -59,7 +59,6 @@ ssh-add $HOME/.ssh/id_rsa
 # Setup SHELL
 sudo chsh -s /bin/tcsh jeffjose
 
-
 # Setup things
 ./setup.sh
 
