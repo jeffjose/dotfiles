@@ -63,6 +63,7 @@ PACKAGES=(
   d-feet
   ntp
   dconf-cli
+  tshark
 
   # Torrents
   #qbittorrent
