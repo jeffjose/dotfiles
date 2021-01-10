@@ -86,11 +86,13 @@ PACKAGES=(
 
 printf -v JOINED '%s ' "${PACKAGES[@]}"
 
-sudo apt-get update
-sudo apt-get install -y $JOINED
-sudo apt-get autoremove
+#sudo apt-get update
+#sudo apt-get install -y $JOINED
+#sudo apt-get autoremove
 
 ## Install
-#for package in "${PACKAGES[@]}"; do
-#  sudo apt-get install -y $package
-#done
+sudo apt-get update
+for package in "${PACKAGES[@]}"; do
+  sudo apt-get install -y $package
+done
+sudo apt-get autoremove
