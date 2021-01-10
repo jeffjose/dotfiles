@@ -6,14 +6,6 @@
 echo "-----------------"
 echo "Ubuntu packages with PPA"
 echo "-----------------"
-# Shutter
-sudo add-apt-repository -y ppa:linuxuprising/shutter
-
-# Numix
-sudo add-apt-repository -y ppa:numix/ppa
-
-# ppa-manager
-sudo add-apt-repository -y ppa:webupd8team/y-ppa-manager
 
 # Dart
 sudo sh -c 'wget -qO- https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -'
@@ -26,16 +18,6 @@ sudo apt-add-repository -y https://cli.github.com/packages
 sudo apt-get update
 
 PACKAGES=(
-  # Shutter
-  shutter
-
-  # Numix
-  numix-gtk-theme
-  numix-icon-theme-circle
-
-  # PPA Manager
-  y-ppa-manager
-
   # Dart
   dart
 

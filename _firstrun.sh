@@ -3,21 +3,24 @@
 # Jeffrey Jose
 #
 
-# Ubuntu packages
 if [ "$JEFFJOSE_MODE" == "SERVER" ]; then
+  # Ubuntu packages
   ./apt-server.sh
+
+  # Ubuntu packages with ppa
+  ./ppa-server.sh
+
 else
   ./apt-server.sh
   ./apt-gui.sh
-fi
 
-# Ubuntu packages with ppa
-./apt-ppa.sh
+  # Ubuntu packages with ppa
+  ./ppa-server.sh
+  ./ppa-gui.sh
+fi
 
 # linuxbrew
 yes | sh -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# Install Ruby
 
 # Install yarn
 curl -o- -L https://yarnpkg.com/install.sh | bash

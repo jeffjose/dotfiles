@@ -83,17 +83,19 @@ ln init.vim $HOME/.config/nvim/init.vim
 rm $HOME/.screenlayout/3monitor.sh
 ln 3monitor.sh $HOME/.screenlayout/3monitor.sh
 
-# VS Code
-rm $HOME/.vscode/extensions/material-theme-jeffjose -r
-mkdir -p $HOME/.vscode/extensions
-cp -r material-theme-jeffjose $HOME/.vscode/extensions/material-theme-jeffjose
+if [ "$JEFFJOSE_MODE" == "SERVER" ]; then
 
+  # VS Code
+  rm $HOME/.vscode/extensions/material-theme-jeffjose -r
+  mkdir -p $HOME/.vscode/extensions
+  cp -r material-theme-jeffjose $HOME/.vscode/extensions/material-theme-jeffjose
 
-# Tilix
-dconf load /com/gexperts/Tilix/ < tilix.dconf
+  # Tilix
+  dconf load /com/gexperts/Tilix/ < tilix.dconf
 
-# XFCE
-./xfce.sh
+  # XFCE
+  ./xfce.sh
+fi
 
 # Install Python packages
 ./pip.sh
@@ -103,10 +105,3 @@ dconf load /com/gexperts/Tilix/ < tilix.dconf
 
 # VIM Plugins
 ./vim.sh
-
-# Ignore
-#
-#ccsm.profile
-#ccsm.with.defaults.profile
-#gradle.properties
-#lxrandr-autostart.desktop
