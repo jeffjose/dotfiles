@@ -33,7 +33,6 @@ PACKAGES=(
   htop
   ffmpeg
   tree
-  feh
   youtube-dl
   colordiff
   jq

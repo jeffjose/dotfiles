@@ -21,6 +21,7 @@ PACKAGES=(
   meld
   vlc
   gparted
+  feh
 
   # Torrents
   #qbittorrent
