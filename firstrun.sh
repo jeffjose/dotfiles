@@ -64,8 +64,7 @@ sudo chsh -s /bin/tcsh jeffjose
 
 echo "Things manually to do"
 echo " 1. Install Chrome"
-echo " 2. Install VS Code"
+echo " 2. Install VS Code (https://code.visualstudio.com/docs/?dv=linux64_deb)"
 echo " 3. Install Android Studio"
 echo "   a. JAVA correct alternative (sudo update-alternatives --config java). Select - /usr/lib/jvm/java-13-openjdk-amd64/bin/java"
 echo "   b. Accept all licenses 'yes | sdkmanager --licenses'"
-echo " 4. Change shell"
