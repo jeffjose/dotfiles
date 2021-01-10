@@ -4,7 +4,12 @@
 #
 
 # Ubuntu packages
-./apt.sh
+if [ "$JEFFJOSE_MODE" == "SERVER" ]; then
+  ./apt-server.sh
+else
+  ./apt-server.sh
+  ./apt-gui.sh
+fi
 
 # Ubuntu packages with ppa
 ./apt-ppa.sh
