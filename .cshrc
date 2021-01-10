@@ -120,6 +120,8 @@ if ( ! $?prompt ) exit
 
     if ($?STY) then
         # Inside a screen session. Do nothing
+    else if ($?SSH_CLIENT) then
+        # Inside an ssh session. Do nothing
     else
         # A blank terminal session.
         # get or create a new session named 'mainsession'
