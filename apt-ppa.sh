@@ -45,5 +45,8 @@ PACKAGES=(
 
 # Install
 for package in "${PACKAGES[@]}"; do
+  echo "---------------------"
+  echo "  Installing $package"
+  echo "---------------------"
   sudo apt-get install -y $package
 done

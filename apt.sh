@@ -94,6 +94,9 @@ printf -v JOINED '%s ' "${PACKAGES[@]}"
 ## Install
 sudo apt-get update
 for package in "${PACKAGES[@]}"; do
+  echo "---------------------"
+  echo "  Installing $package"
+  echo "---------------------"
   sudo apt-get install -y $package
 done
 sudo apt-get autoremove
