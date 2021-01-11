@@ -11,11 +11,11 @@
     #set prompt='[%n@%m %B%c%b]%# '
     set ellipsis
 
-if(`where iwgetid` == "") then
-    set WIFI = ""
-else
-    set WIFI = `iwgetid -r | tr ' ' '.' | tr '[A-Z]' '[a-z]' | sed 's/^@//g'`
-endif
+#if(`where iwgetid` == "") then
+#    set WIFI = ""
+#else
+#    set WIFI = `iwgetid -r | tr ' ' '.' | tr '[A-Z]' '[a-z]' | sed 's/^@//g'`
+#endif
 
 
 if (${HOST} == "jeffjose-glaptop.roam.corp.google.com") then
@@ -32,16 +32,16 @@ else
     set host_name = "${HOST}"
 endif
 
-if ("${WIFI}" == 'barracuda') then
-    set wifi_color = "${magenta}"
-    set wifi_str = "@${WIFI}"
-else if ("${WIFI}" == '') then
-    set wifi_color = "${red}"
-    set wifi_str = "offline"
-else
-    set wifi_color = "${yellow}"
-    set wifi_str = "@${WIFI}"
-endif
+#if ("${WIFI}" == 'banana-unleashed') then
+#    set wifi_color = "${magenta}"
+#    set wifi_str = "@${WIFI}"
+#else if ("${WIFI}" == '') then
+#    set wifi_color = "${red}"
+#    set wifi_str = "offline"
+#else
+#    set wifi_color = "${yellow}"
+#    set wifi_str = "@${WIFI}"
+#endif
 
 # prodaccess status
 #
