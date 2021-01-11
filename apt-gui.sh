@@ -31,6 +31,7 @@ PACKAGES=(
   # Fonts
   fonts-firacode
   fonts-inter
+  fonts-noto-color-emoji
 )
 
 printf -v JOINED '%s ' "${PACKAGES[@]}"
