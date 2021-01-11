@@ -3,6 +3,12 @@
 # Jeffrey Jose
 #
 
+# Ubuntu packages
+./apt-base.sh
+
+# Ubuntu packages with ppa
+./ppa-base.sh
+
 if [ "$JEFFJOSE_MODE" == "SERVER" ]; then
   # Ubuntu packages
   ./apt-server.sh
@@ -10,12 +16,10 @@ if [ "$JEFFJOSE_MODE" == "SERVER" ]; then
   # Ubuntu packages with ppa
   ./ppa-server.sh
 
-else
-  ./apt-server.sh
+else if ["$JEFFJOSE_MODE" == "GUI" ]
   ./apt-gui.sh
 
   # Ubuntu packages with ppa
-  ./ppa-server.sh
   ./ppa-gui.sh
 fi
 
@@ -44,18 +48,20 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 # Podman
 ./podman.sh
 
-# Flutter
-sudo snap install flutter --classic
+if [ "$JEFFJOSE_MODE" == "GUI" ]; then
+  # Flutter
+  sudo snap install flutter --classic
+
+  # Android
+  sudo usermod -aG plugdev jeffjose
+  sudo apt-get install android-sdk-platform-tools-common
+fi
 
 # Patch ntp servers
 sudo patch -f /etc/ntp.conf ntp.patch
 
 # pip install
 ./pip.sh
-
-# Android
-sudo usermod -aG plugdev jeffjose
-sudo apt-get install android-sdk-platform-tools-common
 
 # Remove packages
 sudo apt autoremove

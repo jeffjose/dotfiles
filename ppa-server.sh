@@ -4,7 +4,7 @@
 #
 
 echo "-----------------"
-echo "Ubuntu packages with PPA"
+echo "Ubuntu server packages with PPA"
 echo "-----------------"
 
 # Dart

@@ -76,12 +76,8 @@ ln ipython_config.py $HOME/.ipython/profile_default/ipython_config.py
 rm $HOME/.jupyter/custom/custom.js
 ln custom.js $HOME/.jupyter/custom/custom.js
 
-#rm $HOME/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml ; ln xfce4-panel.xml $HOME/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
-
 rm $HOME/.config/nvim/init.vim
 ln init.vim $HOME/.config/nvim/init.vim
-rm $HOME/.screenlayout/3monitor.sh
-ln 3monitor.sh $HOME/.screenlayout/3monitor.sh
 
 if [ "$JEFFJOSE_MODE" == "SERVER" ]; then
 

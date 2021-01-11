@@ -4,7 +4,7 @@
 #
 
 echo "-----------------"
-echo "Ubuntu packages"
+echo "Ubuntu server packages"
 echo "-----------------"
 
 PACKAGES=(
