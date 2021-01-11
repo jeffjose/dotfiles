@@ -16,7 +16,7 @@ if [ "$JEFFJOSE_MODE" == "SERVER" ]; then
   # Ubuntu packages with ppa
   ./ppa-server.sh
 
-else if ["$JEFFJOSE_MODE" == "GUI" ]
+elif ["$JEFFJOSE_MODE" == "GUI" ]; then
 
   ./apt-gui.sh
 
