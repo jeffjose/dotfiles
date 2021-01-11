@@ -15,6 +15,7 @@ PACKAGES=(
   sudo
   tcsh
   openssh-server
+  traceroute
 
   # Dev
   golang
