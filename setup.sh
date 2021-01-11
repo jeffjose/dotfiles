@@ -87,7 +87,7 @@ if [ "$JEFFJOSE_MODE" == "SERVER" ]; then
   cp -r material-theme-jeffjose $HOME/.vscode/extensions/material-theme-jeffjose
 
   # Tilix
-  dconf load /com/gexperts/Tilix/ < tilix.dconf
+  dconf load /com/gexperts/Tilix/ <tilix.dconf
 
   # XFCE
   ./xfce.sh

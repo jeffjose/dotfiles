@@ -11,5 +11,5 @@ if [ "$XDG_CURRENT_DESKTOP" == "XFCE" ]; then
   #
   #   xfconf-query -c xfce4-keyboard-shortcuts -lv | grep tilix
   #
-  xfconf-query -c xfce4-keyboard-shortcuts -p '/commands/custom/<Primary>space' -s 'tilix --quake' -n;
+  xfconf-query -c xfce4-keyboard-shortcuts -p '/commands/custom/<Primary>space' -s 'tilix --quake' -n
 fi

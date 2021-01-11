@@ -9,6 +9,7 @@ echo "-----------------"
 
 PACKAGES=(
 
+  # Git
   gitk
   git-gui
 
