@@ -16,7 +16,7 @@ sudo add-apt-repository -y ppa:numix/ppa
 # ppa-manager
 sudo add-apt-repository -y ppa:webupd8team/y-ppa-manager
 
-sudo apt-get update
+sudo apt update
 
 PACKAGES=(
   # Shutter
@@ -35,5 +35,5 @@ for package in "${PACKAGES[@]}"; do
   echo "---------------------"
   echo "  Installing $package"
   echo "---------------------"
-  sudo apt-get install -y $package
+  sudo apt install -y $package
 done

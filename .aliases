@@ -45,13 +45,13 @@
     alias search 'apt-cache search'
 
     # Install a package
-    alias install 'sudo apt-get -y install \!*; rehash'
+    alias install 'sudo apt -y install \!*; rehash'
 
     alias install-all-drivers 'sudo ubuntu-drivers autoinstall'
 
 
     # Remove a package
-    alias remove 'sudo apt-get -y purge \!*'
+    alias remove 'sudo apt -y purge \!*'
 
     # Remove a ppa and all associated packages.
     alias removeppa 'sudo ppa-purge \!*'
@@ -153,7 +153,7 @@
 # Palm detection
 # syndaemon -i 1 -K -d
 
-    alias update       'sudo apt-get update'
+    alias update       'sudo apt update'
     alias updateall     ~/dotfiles/updateall.sh
     alias ubuntuupdate 'sudo do-release-upgrade -d'
 

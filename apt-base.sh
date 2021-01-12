@@ -13,16 +13,16 @@ PACKAGES=(
 
 printf -v JOINED '%s ' "${PACKAGES[@]}"
 
-#sudo apt-get update
-#sudo apt-get install -y $JOINED
-#sudo apt-get autoremove
+#sudo apt update
+#sudo apt install -y $JOINED
+#sudo apt autoremove
 
 ## Install
-sudo apt-get update
+sudo apt update
 for package in "${PACKAGES[@]}"; do
   echo "---------------------"
   echo "  Installing $package"
   echo "---------------------"
-  sudo apt-get install -y $package
+  sudo apt install -y $package
 done
-sudo apt-get autoremove
+sudo apt autoremove

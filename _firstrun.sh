@@ -56,7 +56,7 @@ if [ "$JEFFJOSE_MODE" == "GUI" ]; then
 
   # Android
   sudo usermod -aG plugdev jeffjose
-  sudo apt-get install android-sdk-platform-tools-common
+  sudo apt install android-sdk-platform-tools-common
 fi
 
 # Patch ntp servers

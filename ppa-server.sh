@@ -15,7 +15,7 @@ sudo sh -c 'wget -qO- https://storage.googleapis.com/download.dartlang.org/linux
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
 sudo apt-add-repository -y https://cli.github.com/packages
 
-sudo apt-get update
+sudo apt update
 
 PACKAGES=(
   # Dart
@@ -30,5 +30,5 @@ for package in "${PACKAGES[@]}"; do
   echo "---------------------"
   echo "  Installing $package"
   echo "---------------------"
-  sudo apt-get install -y $package
+  sudo apt install -y $package
 done

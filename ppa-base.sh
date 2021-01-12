@@ -7,7 +7,7 @@ echo "----------------------------"
 echo "Ubuntu base packages with PPA"
 echo "----------------------------"
 
-sudo apt-get update
+sudo apt update
 
 PACKAGES=(
 )
@@ -17,5 +17,5 @@ for package in "${PACKAGES[@]}"; do
   echo "---------------------"
   echo "  Installing $package"
   echo "---------------------"
-  sudo apt-get install -y $package
+  sudo apt install -y $package
 done
