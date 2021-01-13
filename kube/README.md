@@ -3,7 +3,7 @@
     - sudo su
     - passwd
   - Change ssh config
-    - vi /etc/ssh/sshd_config (AllowRootLogin yes)
+    - vi /etc/ssh/sshd_config (PermitRootLogin yes)
     - sudo service ssh restart
 
 - To install k3s server
