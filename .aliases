@@ -466,6 +466,8 @@
     # Verify the digest using the public key
     alias digest-verify-publickey 'openssl dgst -sha512 -verify public.key -signature \!:1.digest.sha512 \!:1'
 
+    alias h hostnamectl
+
     # Add alias
     # sudo ip address add 192.168.1.6/24 dev eno1
     #
