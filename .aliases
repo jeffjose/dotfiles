@@ -468,6 +468,8 @@
     alias h hostnamectl
     alias n networkctl
 
+    alias k 'sudo kubectl'
+
 
     # Add alias
     # sudo ip address add 192.168.1.6/24 dev eno1
