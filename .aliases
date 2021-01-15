@@ -33,7 +33,7 @@
 
     alias grep grep -iE --color=always
 
-    alias ip ip -c
+    alias ip ip -c --brief
 
     alias exe chmod a+x
 
@@ -317,7 +317,6 @@
 
     alias google-chrome-sxg 'google-chrome-unstable --ignore-certificate-errors-spki-list=`openssl x509 -noout -pubkey -in /usr/local/google/home/jeffjose/scripts/amp-sxg/keys/cert.pem | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | base64` &'
 
-    alias n 'cd ~/scripts/now'
 
     alias tos '~/thinkorswim/thinkorswim'
 
@@ -467,6 +466,8 @@
     alias digest-verify-publickey 'openssl dgst -sha512 -verify public.key -signature \!:1.digest.sha512 \!:1'
 
     alias h hostnamectl
+    alias n networkctl
+
 
     # Add alias
     # sudo ip address add 192.168.1.6/24 dev eno1
