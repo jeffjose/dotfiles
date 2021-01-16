@@ -468,7 +468,10 @@
     alias h hostnamectl
     alias n networkctl
 
-    alias k 'sudo kubectl'
+    alias k  'sudo kubectl'
+    alias kn 'sudo kubectl get node'
+    alias kp 'sudo kubectl get pod'
+    alias kc 'sudo kubectl create'
 
 
     # Add alias
