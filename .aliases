@@ -474,6 +474,7 @@
     alias kpod      'sudo kubectl get pod'
     alias kdeploy   'sudo kubectl get deployment'
     alias kservice  'sudo kubectl get service'
+    alias kps       'sudo kubectl get node,service,deployment,pod'
 
     alias kdel      'sudo kubectl delete'
     alias kdescribe 'sudo kubectl describe'
