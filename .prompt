@@ -19,18 +19,23 @@
 
 
 if (${HOST} == "jeffjose-glaptop.roam.corp.google.com") then
-    set host_name = "laptop"
+    set host_name = "glaptop"
     set host_color = "${yellow}"
 else if (${HOST} == "jeffjose.mtv.corp.google.com") then
-    set host_name = "workstation"
+    set host_name = "gworkstation"
     set host_color = "${magenta}"
 else if (${HOST} == "nomad") then
+    set host_name = ${HOST}
+    set host_color = "${magenta}"
+else if (${HOST} == "skyfall") then
     set host_name = ${HOST}
     set host_color = "${magenta}"
 else
     set host_color = "${yellow}"
     set host_name = "${HOST}"
 endif
+
+set ip_address = `\ip -o route get 8.8.8.8 | awk -F 'src | uid' '{print $2}'`
 
 #if ("${WIFI}" == 'banana-unleashed') then
 #    set wifi_color = "${magenta}"
@@ -136,7 +141,7 @@ else
 endif
 
 if ($?STY) then
-    set prompt = "-(${cyan}%B%P%b${end} ${host_color}${host_name}${end} ${green}%B%/%b${green}${end}${git_str}${firebase_str})-\n${prompt_key}${end} "
+    set prompt = "-(${cyan}%B%P%b${end} ${host_color}${host_name}·${ip_address}${end} ${green}%B%/%b${green}${end}${git_str}${firebase_str})-\n${prompt_key}${end} "
 else
-    set prompt = "-(${white}%P${end} ${white}${host_name}${end} ${white}%/${end})-\n?${end} "
+    set prompt = "-(${white}%P${end} ${white}${host_name}·${ip_address}${end} ${white}%/${end})-\n?${end} "
 endif
