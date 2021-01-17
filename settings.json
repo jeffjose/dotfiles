@@ -135,8 +135,9 @@
   "vs-kubernetes": {
     "vs-kubernetes.helm-path.linux": "/home/jeffjose/.vs-kubernetes/tools/helm/linux-amd64/helm",
     "vs-kubernetes.minikube-path.linux": "/home/jeffjose/.vs-kubernetes/tools/minikube/linux-amd64/minikube",
-    "vs-kubernetes.draft-path.linux": "/home/jeffjose/.vs-kubernetes/tools/draft/linux-amd64/draft"
-},
+    "vs-kubernetes.draft-path.linux": "/home/jeffjose/.vs-kubernetes/tools/draft/linux-amd64/draft",
+    "vs-kubernetes.kubectl-path.linux": "/home/jeffjose/.vs-kubernetes/tools/kubectl/kubectl"
+  },
 "jupyter.askForKernelRestart": false,
 "terminal.integrated.fontFamily": "Fira Code Medium, monospace"
 }
