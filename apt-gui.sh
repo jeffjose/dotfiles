@@ -14,7 +14,6 @@ PACKAGES=(
   git-gui
 
   # Other
-  neovim
   gedit
   tilix
   gdebi
@@ -35,7 +34,6 @@ PACKAGES=(
 )
 
 printf -v JOINED '%s ' "${PACKAGES[@]}"
-
 #sudo apt update
 #sudo apt install -y $JOINED
 #sudo apt autoremove

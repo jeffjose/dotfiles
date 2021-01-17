@@ -28,6 +28,7 @@ PACKAGES=(
   git
 
   # Other
+  neovim
   ack
   screen
   ncdu
