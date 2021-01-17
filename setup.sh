@@ -92,12 +92,3 @@ if [ "$JEFFJOSE_MODE" == "SERVER" ]; then
   # XFCE
   ./xfce.sh
 fi
-
-# Install Python packages
-./pip.sh
-
-# Yarn packages
-./yarn.sh
-
-# VIM Plugins
-./vim.sh
