@@ -1,1 +1,0 @@
-0,30 * * * * /home/jeffjose/miniconda3/bin/speedtest --csv >> /home/jeffjose/dotfiles/speedtest.csv
