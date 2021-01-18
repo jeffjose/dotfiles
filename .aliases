@@ -329,6 +329,8 @@
     alias fixgitconfig "sed -i 's#url = https://github.com/#url = git@github.com:#' .git/config; cat .git/config"
     alias gitfixconfig fixgitconfig
 
+    alias rootloginssh "sudo sed -i '"'/PermitRootLogin/d; $aPermitRootLogin yes'"' /etc/ssh/sshd_config"
+
     alias git_setup_upstream 'git remote add upstream'
     alias git_sync_upstream_lose_changes 'git fetch upstream; git checkout master; git pull upstream master'
     alias git_fetch_upstream_lose_changes git_sync_upstream_lose_changes
