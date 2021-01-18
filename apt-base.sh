@@ -16,6 +16,7 @@ PACKAGES=(
   tcsh
   openssh-server
   traceroute
+  build-essential
 
   # Git
   git
@@ -30,7 +31,7 @@ PACKAGES=(
   nmap
   hardinfo
   neofetch
-  neofetch
+  moreutils
 
 )
 

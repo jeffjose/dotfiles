@@ -28,8 +28,15 @@ runbase() {
   # Remove packages
   sudo apt autoremove
 
+  # VIM
+  ./vim.sh
+
+  # Cargo / Rust
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+  $HOME/.cargo/bin/cargo install timeago-cli
+
   # SSH
-  yes | ssh-keygen -t rsa -b 4096 -C "jeffjosejeff@gmail.com" -f $HOME/.ssh/id_rsa -q -N ""
+  false | ssh-keygen -t rsa -b 4096 -C "jeffjosejeff@gmail.com" -f $HOME/.ssh/id_rsa -q -N ""
   ssh-add $HOME/.ssh/id_rsa
 
   # Setup SHELL
@@ -48,11 +55,7 @@ _runcommonservergui() {
   # Yarn packages
   ./yarn.sh
 
-  # VIM
-  ./vim.sh
 
-  # Cargo / Rust
-  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
   ./cargo.sh
 
   # Go packages

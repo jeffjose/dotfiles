@@ -13,7 +13,6 @@ PACKAGES=(
   golang
   ruby-full
   clang-format
-  build-essential
   python3-pip
 
   # Other
