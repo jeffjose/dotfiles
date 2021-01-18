@@ -33,6 +33,7 @@ PACKAGES=(
   neofetch
   moreutils
   sshpass
+  golang
 
 )
 

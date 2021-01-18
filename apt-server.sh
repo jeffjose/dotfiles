@@ -10,7 +10,6 @@ echo "-----------------"
 PACKAGES=(
 
   # Dev
-  golang
   ruby-full
   clang-format
   python3-pip

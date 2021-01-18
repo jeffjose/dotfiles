@@ -35,6 +35,9 @@ runbase() {
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
   $HOME/.cargo/bin/cargo install timeago-cli
 
+  # watch cli replacement
+  go get github.com/antonmedv/watch
+
   # SSH
   false | ssh-keygen -t rsa -b 4096 -C "jeffjosejeff@gmail.com" -f $HOME/.ssh/id_rsa -q -N ""
   ssh-add $HOME/.ssh/id_rsa
@@ -54,7 +57,6 @@ _runcommonservergui() {
 
   # Yarn packages
   $HOME/dotfiles/yarn.sh
-
 
   $HOME/dotfiles/cargo.sh
 
