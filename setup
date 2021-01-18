@@ -4,9 +4,9 @@
 #
 #
 
-echo "-----------------"
-echo "Setting up $HOME"
-echo "-----------------"
+echo "--------------------------------"
+echo "Setting up dotfiles in $HOME"
+echo "--------------------------------"
 
 mkdir -p $HOME/bin
 mkdir -p $HOME/scripts

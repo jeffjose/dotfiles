@@ -156,7 +156,7 @@
     alias update       'sudo apt update'
 
     alias firstrun     ~/dotfiles/firstrun
-    alias resetup     ~/dotfiles/setup.sh
+    alias setup     ~/dotfiles/setup
     alias updateall     ~/dotfiles/updateall.sh
 
     alias ubuntuupdate 'sudo do-release-upgrade -d'
