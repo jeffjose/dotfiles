@@ -32,6 +32,7 @@ PACKAGES=(
   hardinfo
   neofetch
   moreutils
+  sshpass
 
 )
 
