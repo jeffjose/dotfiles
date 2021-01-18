@@ -17,6 +17,8 @@ runsetup() {
 
 runbase() {
 
+  ./setup_user jeffjose
+
   ./apt-base.sh
   ./ppa-base.sh
 

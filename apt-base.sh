@@ -30,6 +30,7 @@ PACKAGES=(
   nmap
   hardinfo
   neofetch
+  neofetch
 
 )
 

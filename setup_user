@@ -1,0 +1,27 @@
+#!/bin/bash
+#
+# Jeffrey Jose
+#
+# Jan 17, 2021
+
+usage() {
+  echo "Usage: setup_user USER PASSWORD"
+  exit 1
+}
+
+if [ "$1" ]; then
+  :
+else
+  usage
+  exit 1
+fi
+
+sudo apt install -y tcsh
+
+if [ "$2" ]; then
+  grep -q $1 /etc/passwd && echo "$1 exists." || sudo useradd -s /bin/tcsh -m $1 -p $(openssl passwd -1 $2)
+else
+  grep -q $1 /etc/passwd && echo "$1 exists." || (sudo useradd -s /bin/tcsh -m $1 && sudo passwd $1)
+fi
+
+sudo usermod -aG sudo $1
