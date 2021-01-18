@@ -26,8 +26,6 @@
     alias sipy  ipython
     alias sipy3 ipython3
 
-    alias so 'echo "Sourcing ~/.cshrc .."; source ~/.cshrc'
-    alias SO so
 
     alias x 'echo "Running ~/.xsession .."; ~/.xsession'
 
@@ -155,9 +153,11 @@
 
     alias update       'sudo apt update'
 
-    alias firstrun     ~/dotfiles/firstrun
-    alias setup     ~/dotfiles/setup
-    alias updateall     ~/dotfiles/updateall.sh
+    alias so 'echo "Sourcing ~/.cshrc .."; source ~/.cshrc'
+    alias SO so
+    alias firstrun  ~/dotfiles/firstrun
+    alias setup     '~/dotfiles/setup; so'
+    alias updateall ~/dotfiles/updateall.sh
 
     alias ubuntuupdate 'sudo do-release-upgrade -d'
 
