@@ -482,6 +482,8 @@
     alias kcreate   'sudo kubectl create'
     alias kapply    'sudo kubectl apply'
 
+    alias watch watch -n 1 '\!*'
+
     # Add alias
     # sudo ip address add 192.168.1.6/24 dev eno1
     #
