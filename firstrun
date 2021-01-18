@@ -84,12 +84,12 @@ runserver() {
 
 rungui() {
 
-  runbase
+  # do everything in server first
+  runserver
 
   ./apt-gui.sh
   ./ppa-gui.sh
 
-  _runcommonservergui
 
   # Flutter
   sudo snap install flutter --classic

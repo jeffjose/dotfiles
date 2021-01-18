@@ -24,6 +24,7 @@ PACKAGES=(
   wavemon
   mosh
   detox
+  lxc
 
   # System
   bluez-tools
