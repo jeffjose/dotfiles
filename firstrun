@@ -11,16 +11,16 @@ usage() {
 
 runsetup() {
 
-  ./setup
+  $HOME/dotfiles/setup
 
 }
 
 runbase() {
 
-  ./setup_user jeffjose
+  $HOME/dotfiles/setup_user jeffjose
 
-  ./apt-base.sh
-  ./ppa-base.sh
+  $HOME/dotfiles/apt-base.sh
+  $HOME/dotfiles/ppa-base.sh
 
   # Patch ntp servers
   sudo patch -f /etc/ntp.conf ntp.patch
@@ -29,7 +29,7 @@ runbase() {
   sudo apt autoremove
 
   # VIM
-  ./vim.sh
+  $HOME/dotfiles/vim.sh
 
   # Cargo / Rust
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
@@ -53,30 +53,30 @@ _runcommonservergui() {
   curl -o- -L https://yarnpkg.com/install.sh | bash
 
   # Yarn packages
-  ./yarn.sh
+  $HOME/dotfiles/yarn.sh
 
 
-  ./cargo.sh
+  $HOME/dotfiles/cargo.sh
 
   # Go packages
-  ./go.sh
+  $HOME/dotfiles/go.sh
 
   # Fonts
-  ./fonts.sh
+  $HOME/dotfiles/fonts.sh
 
   # Podman
-  ./podman.sh
+  $HOME/dotfiles/podman.sh
 
   # pip install
-  ./pip.sh
+  $HOME/dotfiles/pip.sh
 }
 
 runserver() {
 
   runbase
 
-  ./apt-server.sh
-  ./ppa-server.sh
+  $HOME/dotfiles/apt-server.sh
+  $HOME/dotfiles/ppa-server.sh
 
   _runcommonservergui
 
@@ -87,8 +87,8 @@ rungui() {
   # do everything in server first
   runserver
 
-  ./apt-gui.sh
-  ./ppa-gui.sh
+  $HOME/dotfiles/apt-gui.sh
+  $HOME/dotfiles/ppa-gui.sh
 
 
   # Flutter
