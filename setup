@@ -34,61 +34,47 @@ ln /usr/bin/screen $HOME/bin/scrn -s
 #
 #
 rm $HOME/.aliases
-ln .aliases $HOME/.aliases
+ln $HOME/dotfiles/.aliases $HOME/.aliases
 rm $HOME/.aliases.bash
-ln .aliases.bash $HOME/.aliases.bash
+ln $HOME/dotfiles/.aliases.bash $HOME/.aliases.bash
 rm $HOME/.colordiffrc
-ln .colordiffrc $HOME/.colordiffrc
+ln $HOME/dotfiles/.colordiffrc $HOME/.colordiffrc
 rm $HOME/.cshrc
-ln .cshrc $HOME/.cshrc
+ln $HOME/dotfiles/.cshrc $HOME/.cshrc
 rm $HOME/.cwdcmd
-ln .cwdcmd $HOME/.cwdcmd
+ln $HOME/dotfiles/.cwdcmd $HOME/.cwdcmd
 rm $HOME/.gitconfig
-ln .gitconfig $HOME/.gitconfig
+ln $HOME/dotfiles/.gitconfig $HOME/.gitconfig
 rm $HOME/.pdbrc
-ln .pdbrc $HOME/.pdbrc
+ln $HOME/dotfiles/.pdbrc $HOME/.pdbrc
 rm $HOME/.precmd
-ln .precmd $HOME/.precmd
+ln $HOME/dotfiles/.precmd $HOME/.precmd
 rm $HOME/.prompt
-ln .prompt $HOME/.prompt
+ln $HOME/dotfiles/.prompt $HOME/.prompt
 rm $HOME/.screen/default
-ln .screen/default $HOME/.screen/default
+ln $HOME/dotfiles/.screen/default $HOME/.screen/default
 rm $HOME/.screenrc
-ln .screenrc $HOME/.screenrc
+ln $HOME/dotfiles/.screenrc $HOME/.screenrc
 rm $HOME/.tabletaliases
-ln .tabletaliases $HOME/.tabletaliases
+ln $HOME/dotfiles/.tabletaliases $HOME/.tabletaliases
 rm $HOME/.vimrc
-ln .vimrc $HOME/.vimrc
+ln $HOME/dotfiles/.vimrc $HOME/.vimrc
 rm $HOME/.XResources
-ln .XResources $HOME/.XResources
+ln $HOME/dotfiles/.XResources $HOME/.XResources
 rm $HOME/.xmodmap
-ln .xmodmap $HOME/.xmodmap
+ln $HOME/dotfiles/.xmodmap $HOME/.xmodmap
 rm $HOME/.xsession
-ln .xsession $HOME/.xsession
+ln $HOME/dotfiles/.xsession $HOME/.xsession
 rm $HOME/.config/Code/User/settings.json
-ln settings.json $HOME/.config/Code/User/settings.json
+ln $HOME/dotfiles/settings.json $HOME/.config/Code/User/settings.json
 rm $HOME/.config/Code/User/keybindings.json
-ln keybindings.json $HOME/.config/Code/User/keybindings.json
+ln $HOME/dotfiles/keybindings.json $HOME/.config/Code/User/keybindings.json
 #rm $HOME/.config/catt/catt.cfg
-#ln catt.cfg $HOME/.config/catt/catt.cfg
+#ln $HOME/dotfiles/catt.cfg $HOME/.config/catt/catt.cfg
 rm $HOME/.ipython/profile_default/ipython_config.py
-ln ipython_config.py $HOME/.ipython/profile_default/ipython_config.py
+ln $HOME/dotfiles/ipython_config.py $HOME/.ipython/profile_default/ipython_config.py
 rm $HOME/.jupyter/custom/custom.js
-ln custom.js $HOME/.jupyter/custom/custom.js
+ln $HOME/dotfiles/custom.js $HOME/.jupyter/custom/custom.js
 
 rm $HOME/.config/nvim/init.vim
-ln init.vim $HOME/.config/nvim/init.vim
-
-if [ "$JEFFJOSE_MODE" == "SERVER" ]; then
-
-  # VS Code
-  rm $HOME/.vscode/extensions/material-theme-jeffjose -r
-  mkdir -p $HOME/.vscode/extensions
-  cp -r material-theme-jeffjose $HOME/.vscode/extensions/material-theme-jeffjose
-
-  # Tilix
-  dconf load /com/gexperts/Tilix/ <tilix.dconf
-
-  # XFCE
-  ./xfce.sh
-fi
+ln $HOME/dotfiles/init.vim $HOME/.config/nvim/init.vim

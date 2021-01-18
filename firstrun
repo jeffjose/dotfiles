@@ -80,6 +80,7 @@ runserver() {
 
   _runcommonservergui
 
+
 }
 
 rungui() {
@@ -97,6 +98,17 @@ rungui() {
   # Android
   sudo usermod -aG plugdev jeffjose
   sudo apt install android-sdk-platform-tools-common
+
+  # VS Code
+  rm $HOME/.vscode/extensions/material-theme-jeffjose -r
+  mkdir -p $HOME/.vscode/extensions
+  cp -r $HOME/dotfiles/material-theme-jeffjose $HOME/.vscode/extensions/material-theme-jeffjose
+
+  # Tilix
+  dconf load /com/gexperts/Tilix/ <tilix.dconf
+
+  # XFCE
+  $HOME/dotfiles/xfce.sh
 
 }
 
