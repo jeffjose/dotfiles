@@ -154,7 +154,11 @@
 # syndaemon -i 1 -K -d
 
     alias update       'sudo apt update'
+
+    alias firstrun     ~/dotfiles/firstrun
+    alias resetup     ~/dotfiles/setup.sh
     alias updateall     ~/dotfiles/updateall.sh
+
     alias ubuntuupdate 'sudo do-release-upgrade -d'
 
     alias acads 'cd ~/Downloads/acads'
