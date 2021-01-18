@@ -9,6 +9,28 @@ echo "-----------------"
 
 PACKAGES=(
 
+  # Essentials
+  curl
+  wget
+  sudo
+  tcsh
+  openssh-server
+  traceroute
+
+  # Git
+  git
+
+  # Other
+  ack
+  screen
+  ncdu
+  htop
+  neovim
+  tree
+  nmap
+  hardinfo
+  neofetch
+
 )
 
 printf -v JOINED '%s ' "${PACKAGES[@]}"

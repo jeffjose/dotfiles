@@ -1,0 +1,131 @@
+#!/bin/bash
+#
+# Jeffrey Jose
+#
+# Jan 17, 2021
+
+usage() {
+  echo "Usage: firstrun [base|server|gui]"
+  exit 1
+}
+
+runsetup() {
+
+  ./setup.sh
+
+}
+
+runbase() {
+
+  ./apt-base.sh
+  ./ppa-base.sh
+
+  # Patch ntp servers
+  sudo patch -f /etc/ntp.conf ntp.patch
+
+  # Remove packages
+  sudo apt autoremove
+
+  # SSH
+  yes | ssh-keygen -t rsa -b 4096 -C "jeffjosejeff@gmail.com" -f $HOME/.ssh/id_rsa -q -N ""
+  ssh-add $HOME/.ssh/id_rsa
+
+  # Setup SHELL
+  sudo chsh -s /bin/tcsh jeffjose
+
+}
+
+_runcommonservergui() {
+
+  # linuxbrew
+  yes | sh -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+  # Install yarn
+  curl -o- -L https://yarnpkg.com/install.sh | bash
+
+  # Yarn packages
+  ./yarn.sh
+
+  # VIM
+  ./vim.sh
+
+  # Cargo / Rust
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+  ./cargo.sh
+
+  # Go packages
+  ./go.sh
+
+  # Fonts
+  ./fonts.sh
+
+  # Podman
+  ./podman.sh
+
+  # pip install
+  ./pip.sh
+}
+
+runserver() {
+
+  runbase
+
+  ./apt-server.sh
+  ./ppa-server.sh
+
+  _runcommonservergui
+
+}
+
+rungui() {
+
+  runbase
+
+  ./apt-gui.sh
+  ./ppa-gui.sh
+
+  _runcommonservergui
+
+  # Flutter
+  sudo snap install flutter --classic
+
+  # Android
+  sudo usermod -aG plugdev jeffjose
+  sudo apt install android-sdk-platform-tools-common
+
+}
+
+case "$1" in
+base)
+  echo -e ""
+  echo -e "Base setup .."
+  echo -e ""
+  runbase
+  runsetup
+  ;;
+server)
+  echo -e ""
+  echo -e "Server setup .."
+  echo -e ""
+  runserver
+  runsetup
+  ;;
+gui)
+  echo -e ""
+  echo -e "GUI setup.."
+  echo -e ""
+
+  rungui
+  runsetup
+
+  echo "Things manually to do"
+  echo " 1. Install Chrome"
+  echo " 2. Install VS Code (https://code.visualstudio.com/docs/?dv=linux64_deb)"
+  echo " 3. Install Android Studio"
+  echo "   a. JAVA correct alternative (sudo update-alternatives --config java). Select - /usr/lib/jvm/java-13-openjdk-amd64/bin/java"
+  echo "   b. Accept all licenses 'yes | sdkmanager --licenses'"
+  ;;
+*)
+  usage
+  ;;
+esac

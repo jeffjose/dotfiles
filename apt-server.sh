@@ -9,14 +9,6 @@ echo "-----------------"
 
 PACKAGES=(
 
-  # Essentials
-  curl
-  wget
-  sudo
-  tcsh
-  openssh-server
-  traceroute
-
   # Dev
   golang
   ruby-full
@@ -24,27 +16,15 @@ PACKAGES=(
   build-essential
   python3-pip
 
-  # Git
-  git
-
   # Other
-  neovim
-  ack
-  screen
-  ncdu
-  htop
   ffmpeg
-  tree
   youtube-dl
   colordiff
   jq
   npm
   wavemon
-  nmap
-  hardinfo
   mosh
   detox
-  neofetch
 
   # System
   bluez-tools
@@ -58,7 +38,6 @@ PACKAGES=(
   # CLI Replacements
   aria2
   entr
-  moreutils
 
   # Containers
   runc
