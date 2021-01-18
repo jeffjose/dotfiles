@@ -11,7 +11,7 @@ usage() {
 
 runsetup() {
 
-  ./setup.sh
+  ./setup
 
 }
 
