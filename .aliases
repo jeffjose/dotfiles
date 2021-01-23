@@ -482,7 +482,7 @@
     alias kservice  'sudo kubectl get service'
     alias kps       'sudo kubectl get node,service,deployment,pod'
     alias kall      'sudo kubectl get all'
-    alias ktop      'sudo $HOME/go/bin/watch "kubectl get node,service,deployment,pod" --all-namespaces'
+    alias ktop      'sudo $HOME/go/bin/watch "kubectl get node,ingress,service,deployment,pod" --all-namespaces'
 
     alias kdel      'sudo kubectl delete'
     alias kdescribe 'sudo kubectl describe'
