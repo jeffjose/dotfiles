@@ -142,7 +142,7 @@ gui)
   echo " 2. Install VS Code (https://code.visualstudio.com/docs/?dv=linux64_deb)"
   echo " 3. Install Android Studio"
   echo "   a. JAVA correct alternative (sudo update-alternatives --config java). Select - /usr/lib/jvm/java-13-openjdk-amd64/bin/java"
-  echo "   b. Accept all licenses 'yes | sdkmanager --licenses'"
+  echo "   b. Use java8, change JAVA_HOME and accept accept all licenses 'yes | sdkmanager --licenses'"
   ;;
 *)
   usage
