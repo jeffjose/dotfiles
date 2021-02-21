@@ -33,17 +33,18 @@ PACKAGES=(
   fonts-noto-color-emoji
 )
 
-printf -v JOINED '%s ' "${PACKAGES[@]}"
-#sudo apt update
-#sudo apt install -y $JOINED
-#sudo apt autoremove
+install() {
+  for i in $@; do
+    if [ -z "$(apt-cache show $i 2>/dev/null)" ]; then
+      echo " > Package $i not available on repo."
+    else
+      echo " > Add package $i to the install list"
+      packages="$packages $i"
+    fi
+  done
+  sudo apt update
+  sudo apt install -y $packages
+  sudo apt autoremove
+}
 
-## Install
-sudo apt update
-for package in "${PACKAGES[@]}"; do
-  echo "---------------------"
-  echo "  Installing $package"
-  echo "---------------------"
-  sudo apt install -y $package
-done
-sudo apt autoremove
+install "${PACKAGES[@]}"
