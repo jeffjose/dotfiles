@@ -1,6 +1,5 @@
 #!/bin/bash
 
-sudo apt install podman
 sudo touch /etc/sub{u,g}id
 start_uid=$(cut -sd ":" -f "2,3" </etc/subuid | tr ":" "+" | bc | sort -n | tail -n 1)
 start_gid=$(cut -sd ":" -f "2,3" </etc/subgid | tr ":" "+" | bc | sort -n | tail -n 1)
