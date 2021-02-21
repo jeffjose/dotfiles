@@ -24,6 +24,9 @@ CRATES=(
   # rargs (https://github.com/lotabout/rargs)
   rargs
 
+  # find replacement
+  find-files
+
 )
 
-$HOME/.cargo/bin/cargo install ${CRATES[*]}
+$HOME/.cargo/bin/cargo install ${CRATES[*]} --force
