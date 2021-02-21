@@ -391,7 +391,7 @@
     alias inotify entr
     #alias man tldr --theme ocean
 
-    alias nmap-network nmap -sP 192.168.3.0/24
+    alias nmap-network nmap -sS 192.168.3.0/24
     alias nmap sudo nmap -v -T4 -A -O -Pn
 
     # sudo mount 192.168.3.4:/nfs/Plex /mnt/monolith/Plex
