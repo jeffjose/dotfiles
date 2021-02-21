@@ -21,6 +21,9 @@ CRATES=(
   # update installed binaries
   cargo-update
 
+  # rargs (https://github.com/lotabout/rargs)
+  rargs
+
 )
 
 $HOME/.cargo/bin/cargo install ${CRATES[*]}
