@@ -16,8 +16,6 @@ sudo add-apt-repository -y ppa:numix/ppa
 # ppa-manager
 sudo add-apt-repository -y ppa:webupd8team/y-ppa-manager
 
-sudo apt update
-
 PACKAGES=(
   # Shutter
   shutter
@@ -30,10 +28,18 @@ PACKAGES=(
   y-ppa-manager
 )
 
-# Install
-for package in "${PACKAGES[@]}"; do
-  echo "---------------------"
-  echo "  Installing $package"
-  echo "---------------------"
-  sudo apt install -y $package
-done
+install() {
+  for i in $@; do
+    if [ -z "$(apt-cache show $i 2>/dev/null)" ]; then
+      echo " > Package $i not available on repo."
+    else
+      echo " > Add package $i to the install list"
+      packages="$packages $i"
+    fi
+  done
+  sudo apt update
+  sudo apt install -y $packages
+  sudo apt autoremove
+}
+
+install "${PACKAGES[@]}"
