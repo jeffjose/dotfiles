@@ -29,4 +29,8 @@ CRATES=(
 
 )
 
-$HOME/.cargo/bin/cargo install ${CRATES[*]} --force
+# Install. This command doesnt update installed packages
+$HOME/.cargo/bin/cargo install ${CRATES[*]}
+
+# Update installed packages
+$HOME/.cargo/bin/cargo install-update -a
