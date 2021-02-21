@@ -12,6 +12,7 @@ mkdir -p $HOME/bin
 mkdir -p $HOME/scripts
 mkdir -p $HOME/Downloads
 mkdir -p $HOME/.config/nvim
+mkdir -p $HOME/.config/espanso
 mkdir -p $HOME/.screen
 mkdir -p $HOME/.config/Code/User/
 #mkdir -p $HOME/.config/catt/
