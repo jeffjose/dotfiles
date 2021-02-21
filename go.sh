@@ -2,7 +2,19 @@
 #
 # Jeffrey Jose | Nov 10, 2020
 
-go get -u github.com/tomnomnom/gron
+echo "-----------------"
+echo "Go"
+echo "-----------------"
 
-go get github.com/antonmedv/watch
+PACKAGES=(
 
+  # Work with JSON
+  github.com/tomnomnom/gron
+
+  # watch replacement
+  github.com/antonmedv/watch
+)
+
+echo "Installing ${PACKAGES[@]}"
+
+go get -v -u ${PACKAGES[*]}
