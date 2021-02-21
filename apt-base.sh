@@ -34,7 +34,7 @@ PACKAGES=(
   moreutils
   sshpass
   golang
-
+  liblinux-lvm-perl
 )
 
 printf -v JOINED '%s ' "${PACKAGES[@]}"
