@@ -97,6 +97,10 @@ rungui() {
   # Flutter
   sudo snap install flutter --classic
 
+  # Espanso
+  sudo snap install espanso --classic
+  $HOME/dotfiles/espanso.sh
+
   # Android
   sudo usermod -aG plugdev jeffjose
   sudo apt install android-sdk-platform-tools-common

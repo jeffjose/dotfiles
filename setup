@@ -78,3 +78,6 @@ ln $HOME/dotfiles/custom.js $HOME/.jupyter/custom/custom.js
 
 rm $HOME/.config/nvim/init.vim
 ln $HOME/dotfiles/init.vim $HOME/.config/nvim/init.vim
+
+rm $HOME/.config/espanso/default.yml
+ln $HOME/dotfiles/default.yml $HOME/.config/espanso/default.yml
