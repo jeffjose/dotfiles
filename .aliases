@@ -493,6 +493,8 @@
     alias service 'sudo service'
     alias systemctl 'sudo systemctl'
 
+    alias myip 'curl ifconfig.me'
+
     # Add alias
     # sudo ip address add 192.168.1.6/24 dev eno1
     #
