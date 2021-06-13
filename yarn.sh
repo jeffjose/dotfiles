@@ -23,6 +23,9 @@ PACKAGES=(
   # PostCSS
   postcss-cli
 
+  # astro
+  astro
+
 )
 
 # Run
