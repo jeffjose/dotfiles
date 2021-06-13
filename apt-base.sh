@@ -35,6 +35,10 @@ PACKAGES=(
   sshpass
   golang
   liblinux-lvm-perl
+  python-is-python3
+
+  # To make `cargo install cargo-update` work
+  libssl-dev
 )
 
 install() {
