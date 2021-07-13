@@ -14,6 +14,7 @@ PACKAGES=(
   git-gui
 
   # Other
+  gpick
   gedit
   tilix
   gdebi
