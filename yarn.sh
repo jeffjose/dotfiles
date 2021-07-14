@@ -26,6 +26,9 @@ PACKAGES=(
   # astro
   astro
 
+  # scss
+  sass
+
 )
 
 # Run
