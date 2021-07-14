@@ -24,4 +24,4 @@ view:
 view:
     name: "dnsbl"
     view-first: yes
-    include: /var/unbound/pfb_dnsbl.*conf
+include: /var/unbound/pfb_dnsbl.*conf
