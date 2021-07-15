@@ -335,7 +335,8 @@
     alias git_sync_upstream_lose_changes 'git fetch upstream; git checkout master; git pull upstream master'
     alias git_fetch_upstream_lose_changes git_sync_upstream_lose_changes
 
-    alias copysshkey 'xclip -sel clip < ~/.ssh/id_rsa.pub'
+    alias copytext 'xclip -sel clip < \!*'
+    alias copysshkey 'copytext ~/.ssh/id_rsa.pub'
 
     alias jclone 'git clone https://github.com/jeffjose/\!*'
     alias clone 'cd ~/scripts; git clone \!*'
