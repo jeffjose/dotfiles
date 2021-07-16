@@ -12,11 +12,10 @@
 #   Add jeffjose to `sudo'ers`. First make sure, jeffjose is in `wheel` group
 #   $ visudo # Uncomment the `%wheel ALL=(ALL) ALL` line
 
-su
-pkg update
-pkg install -y sudo
-
-echo "Run visudo"
-exit
+echo "If you cant become sudo, make sure you run "
+echo " 1. su"
+echo " 2. pkg update"
+echo " 3. pkg install -y sudo"
+echo " 4. Enable sudo for wheel group in visudo"
 
 sudo pkg install -y git rust
