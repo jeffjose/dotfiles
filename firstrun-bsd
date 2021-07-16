@@ -1,0 +1,15 @@
+#!/bin/tcsh
+#
+# Jeffrey Jose | 15 Jul, 2021
+
+# Run as root (su). If you cant, make sure jeffjose is in `wheel` group
+#   Fix that by `pw usermod jeffjose -G wheel`
+
+#
+#   $ pkg update
+#   $ pkg install -y sudo
+#
+#   Add jeffjose to `sudo'ers`. First make sure, jeffjose is in `wheel` group
+#   $ visudo # Uncomment the `%wheel ALL=(ALL) ALL` line
+
+pkg install -y git rust
