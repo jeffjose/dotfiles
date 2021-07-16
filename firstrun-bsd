@@ -12,4 +12,11 @@
 #   Add jeffjose to `sudo'ers`. First make sure, jeffjose is in `wheel` group
 #   $ visudo # Uncomment the `%wheel ALL=(ALL) ALL` line
 
-pkg install -y git rust
+su
+pkg update
+pkg install -y sudo
+
+echo "Run visudo"
+exit
+
+sudo pkg install -y git rust
