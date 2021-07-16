@@ -20,7 +20,10 @@ echo " 4. Enable sudo for wheel group in visudo"
 
 sudo pkg install -y git rust bash screen neovim vim moreutils
 
+# Hacks
 sudo ln -s /usr/local/bin/bash /bin/bash
+
+echo "(jeffjose) no-op" > /usr/local/bin/ip; chmod a+rwx /usr/local/bin/ip
 
 cargo install timeago-cli
 
