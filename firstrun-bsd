@@ -18,4 +18,10 @@ echo " 2. pkg update"
 echo " 3. pkg install -y sudo"
 echo " 4. Enable sudo for wheel group in visudo"
 
-sudo pkg install -y git rust
+sudo pkg install -y git rust bash screen neovim vim moreutils
+
+sudo ln -s /usr/local/bin/bash /bin/bash
+
+cargo install timeago-cli
+
+./vim.sh
