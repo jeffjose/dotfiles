@@ -36,3 +36,6 @@
 
 - `chmod 777 /dev/dri/card0`
   - This is so that rootless podman can access it
+
+- Disable avahi because of port 5353/udp
+  - `sudo systemctl disable --now avahi-daemon.socket && sudo systemctl disable --now avahi-daemon.service`
