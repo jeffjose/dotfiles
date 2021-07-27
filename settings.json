@@ -139,5 +139,10 @@
     "vs-kubernetes.kubectl-path.linux": "/home/jeffjose/.vs-kubernetes/tools/kubectl/kubectl"
   },
 "jupyter.askForKernelRestart": false,
-"terminal.integrated.fontFamily": "Fira Code Medium, monospace"
+"terminal.integrated.fontFamily": "Fira Code Medium, monospace",
+"redhat.telemetry.enabled": false,
+"files.associations": {
+  "*.inc": "php"
+},
+"security.workspace.trust.untrustedFiles": "newWindow"
 }
