@@ -359,6 +359,11 @@
 
     alias scripts 'cat package.json | jq .scripts'
     alias sc scripts
+
+    alias deps 'cat package.json | jq "{deps: .dependencies, dev: .devDependencies}"'
+
+    alias jc 'jq .'
+
     alias vpn_status 'curl -sS https://www.privateinternetaccess.com/ | grep --color=never -o "You are protected"'
 
     alias size "curl -s -o /dev/null -w 'Download size: %{size_download}\n'"
