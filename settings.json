@@ -49,12 +49,11 @@
   "extensions.ignoreRecommendations": false,
   "workbench.startupEditor": "newUntitledFile",
   "workbench.iconTheme": "material-icon-theme",
-  "prettier.disableLanguages": ["python", "dart"],
   "editor.formatOnSave": true,
   "vim.hlsearch": true,
   "vim.commandLineModeKeyBindings": [],
   "editor.cursorStyle": "block",
-  "workbench.colorTheme": "Material-Theme-jeffjose",
+  "workbench.colorTheme": "Dracula",
   "editor.formatOnType": true,
   "python.linting.pylintEnabled": true,
   "python.linting.enabled": true,
@@ -64,6 +63,10 @@
     "editor.tabSize": 4,
     "editor.formatOnType": true,
     "editor.defaultFormatter": "ms-python.python"
+  },
+  "[svelte]": {
+    "editor.formatOnType": true,
+    "editor.defaultFormatter": "svelte.svelte-vscode"
   },
   "editor.tabSize": 2,
   "editor.minimap.enabled": false,
@@ -99,9 +102,7 @@
   "[dart]": {
     "editor.formatOnSave": true,
     "editor.formatOnType": true,
-    "editor.rulers": [
-      80
-    ],
+    "editor.rulers": [80],
     "editor.selectionHighlight": false,
     "editor.suggest.snippetsPreventQuickSuggestions": false,
     "editor.suggestSelection": "first",
@@ -118,7 +119,7 @@
   "git.confirmSync": false,
   "vim.smartcase": false,
   "python.formatting.provider": "black",
-"python.languageServer": "Pylance",
+  "python.languageServer": "Pylance",
   "[shellscript]": {
     "editor.defaultFormatter": "foxundermoon.shell-format",
     "files.eol": "\n"
@@ -138,11 +139,11 @@
     "vs-kubernetes.draft-path.linux": "/home/jeffjose/.vs-kubernetes/tools/draft/linux-amd64/draft",
     "vs-kubernetes.kubectl-path.linux": "/home/jeffjose/.vs-kubernetes/tools/kubectl/kubectl"
   },
-"jupyter.askForKernelRestart": false,
-"terminal.integrated.fontFamily": "Fira Code Medium, monospace",
-"redhat.telemetry.enabled": false,
-"files.associations": {
-  "*.inc": "php"
-},
-"security.workspace.trust.untrustedFiles": "newWindow"
+  "jupyter.askForKernelRestart": false,
+  "terminal.integrated.fontFamily": "Fira Code Medium, monospace",
+  "redhat.telemetry.enabled": false,
+  "files.associations": {
+    "*.inc": "php"
+  },
+  "security.workspace.trust.untrustedFiles": "newWindow"
 }
