@@ -6,6 +6,7 @@
     ci = commit
     commti = commit
     commt = commit
+    ocmmit = commit
     ad = add
     st = status
     psh = push
