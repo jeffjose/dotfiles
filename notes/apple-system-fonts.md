@@ -13,11 +13,9 @@ $ pip install fonttools
 # Convert fonts to ttx files
 $ ttx *otf
 
-# Rename font files
-$ vidir
-
 # Rename fonts
 $ sed -i 's/FONT_NAME/-apple-system/g' *ttx
+
 
 ```
 
@@ -26,6 +24,9 @@ $ sed -i 's/FONT_NAME/-apple-system/g' *ttx
 ```bash
 # Convert to otf and copy to fonts folder
 $ ttx -d ~/.local/share/fonts *ttx
+
+# Rename font files
+$ vidir
 
 # rebuild cache
 $ fc-cache -f -v
