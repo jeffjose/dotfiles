@@ -33,6 +33,9 @@ PACKAGES=(
   # scss
   sass
 
+  # degit
+  degit
+
 )
 
 # Run
