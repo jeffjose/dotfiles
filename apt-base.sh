@@ -16,6 +16,7 @@ PACKAGES=(
   tcsh
   openssh-server
   traceroute
+  mtr-tiny
   build-essential
 
   # Git

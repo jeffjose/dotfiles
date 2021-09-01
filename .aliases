@@ -227,6 +227,8 @@
 
     alias ndebug 'ping -c 3 google.com -W 1; echo "\n-----------------\n"; traceroute google.com'
 
+    alias traceroute mtr
+
     #alias j 'cd ~/scripts/jeffjose.github.io'
 
     alias xit exit
