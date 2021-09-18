@@ -433,6 +433,9 @@
     alias encrypt-password 'openssl enc -aes-256-cbc -md sha256 -pbkdf2 -iter 10000 -salt -a -e -in \!:1 -out \!:2'
     alias decrypt-password 'openssl enc -aes-256-cbc -md sha256 -pbkdf2 -iter 10000 -salt -a -d -in \!:1 -out \!:2'
 
+    alias encrypt 'tar --create --file - --gzip -- \!:1 | openssl enc -aes-256-cbc -md sha256 -pbkdf2 -iter 10000 -salt -a -e -out \!:1.enc'
+    alias decrypt 'openssl enc -aes-256-cbc -md sha256 -pbkdf2 -iter 10000 -salt -a -d -in \!:1 | tar -v --extract --gzip --file -'
+
     # Generate random base64
     alias random 'openssl rand -base64 \!* | tee /dev/$tty | xclip'
     alias r random
