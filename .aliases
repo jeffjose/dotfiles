@@ -23,8 +23,7 @@
     alias aliases vim ~/.aliases
     alias del rm -rf
 
-    alias sipy  ipython
-    alias sipy3 ipython3
+    alias sipy  ipython3
 
 
     alias x 'echo "Running ~/.xsession .."; ~/.xsession'

@@ -32,6 +32,8 @@ PACKAGES=(
   fonts-firacode
   fonts-inter
   fonts-noto-color-emoji
+
+  ipython3
 )
 
 install() {
