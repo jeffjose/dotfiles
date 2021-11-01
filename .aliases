@@ -48,7 +48,7 @@
 
 
     # Remove a package
-    alias remove 'sudo apt -y purge \!*'
+    alias remove 'sudo apt -y purge \!*; sudo apt -y autoremove --purge \!*'
 
     # Remove a ppa and all associated packages.
     alias removeppa 'sudo ppa-purge \!*'
