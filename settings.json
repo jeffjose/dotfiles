@@ -53,7 +53,7 @@
   "vim.hlsearch": true,
   "vim.commandLineModeKeyBindings": [],
   "editor.cursorStyle": "block",
-  "workbench.colorTheme": "Dracula",
+  "workbench.colorTheme": "Material-Theme-jeffjose",
   "editor.formatOnType": true,
   "python.linting.pylintEnabled": true,
   "python.linting.enabled": true,
@@ -145,5 +145,7 @@
   "files.associations": {
     "*.inc": "php"
   },
-  "security.workspace.trust.untrustedFiles": "newWindow"
+  "security.workspace.trust.untrustedFiles": "newWindow",
+  "git-graph.commitDetailsView.location": "Docked to Bottom",
+  "explorer.confirmDragAndDrop": false
 }
