@@ -507,6 +507,8 @@
 
     alias dig 'dig +noall +identify +answer +short'
 
+    alias sshfix 'ssh-keygen -f ~/.ssh/known_hosts -R \!*; ssh \!*'
+
     # While the executable comes from /home/jeffjose, the .wine/ is /root/.wine/
     alias mp3tag 'sudo wine ~/.wine/drive_c/Program\ Files\ \(x86\)/Mp3tag/Mp3tag.exe'
 
