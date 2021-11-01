@@ -67,8 +67,6 @@ rm $HOME/.xmodmap
 ln $HOME/dotfiles/.xmodmap $HOME/.xmodmap
 rm $HOME/.xsession
 ln $HOME/dotfiles/.xsession $HOME/.xsession
-rm $HOME/.config/Code/User/settings.json
-ln $HOME/dotfiles/settings.json $HOME/.config/Code/User/settings.json
 rm $HOME/.config/Code/User/keybindings.json
 ln $HOME/dotfiles/keybindings.json $HOME/.config/Code/User/keybindings.json
 #rm $HOME/.config/catt/catt.cfg
