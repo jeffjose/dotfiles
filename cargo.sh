@@ -15,6 +15,12 @@ CRATES=(
   # For bumping versions
   cargo-bump
 
+  # For editing Cargo.toml files
+  cargo-edit
+
+  # For doing background .rs file source check
+  bacon
+
   # git summary
   onefetch
 
