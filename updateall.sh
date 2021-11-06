@@ -27,7 +27,8 @@ yarn global upgrade all
 # Flutter
 flutter upgrade
 
-# Cargo/Rust
+# Rust
+rustup update stable
 cargo install-update -a
 
 # Go
