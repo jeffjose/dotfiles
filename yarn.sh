@@ -14,10 +14,6 @@ PACKAGES=(
 
   t-get yarn-recursive npx coffeescript less firebase firebase-tools peerflix gulp-cli
 
-  #  To create vscode theme from .tmtheme
-  yo generator-code
-  prettier @prettier/plugin-php @prettier/plugin-pug prettier-plugin-svelte
-
   # Typescript
   typescript ts-node
 
