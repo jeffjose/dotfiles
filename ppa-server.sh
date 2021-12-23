@@ -15,12 +15,18 @@ sudo sh -c 'wget -qO- https://storage.googleapis.com/download.dartlang.org/linux
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
 sudo apt-add-repository -y https://cli.github.com/packages
 
+# Install neovim
+sudo add-apt-repository ppa:neovim-ppa/stable
+
 PACKAGES=(
   # Dart
   dart
 
   # Github CLI
   gh
+
+  # Neovim
+  neovim
 )
 
 install() {

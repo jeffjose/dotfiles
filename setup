@@ -13,6 +13,7 @@ mkdir -p $HOME/scripts
 mkdir -p $HOME/Downloads
 mkdir -p $HOME/.screen
 mkdir -p $HOME/.config/nvim
+mkdir -p $HOME/.local/share/nvim/backup
 mkdir -p $HOME/.config/espanso
 mkdir -p $HOME/.config/containers
 mkdir -p $HOME/.config/Code/User/
@@ -59,8 +60,10 @@ rm $HOME/.screenrc
 ln $HOME/dotfiles/.screenrc $HOME/.screenrc
 rm $HOME/.tabletaliases
 ln $HOME/dotfiles/.tabletaliases $HOME/.tabletaliases
+
 rm $HOME/.vimrc
-ln $HOME/dotfiles/.vimrc $HOME/.vimrc
+ln $HOME/dotfiles/nvim/init.vim $HOME/.vimrc 
+
 rm $HOME/.XResources
 ln $HOME/dotfiles/.XResources $HOME/.XResources
 rm $HOME/.xmodmap
@@ -77,7 +80,10 @@ rm $HOME/.jupyter/custom/custom.js
 ln $HOME/dotfiles/custom.js $HOME/.jupyter/custom/custom.js
 
 rm $HOME/.config/nvim/init.vim
-ln $HOME/dotfiles/init.vim $HOME/.config/nvim/init.vim
+ln $HOME/dotfiles/nvim/init.vim $HOME/.config/nvim/init.vim
+
+rm $HOME/.config/nvim/plugins.vim
+ln $HOME/dotfiles/nvim/plugins.vim $HOME/.config/nvim/plugins.vim
 
 rm $HOME/.config/espanso/default.yml
 ln $HOME/dotfiles/default.yml $HOME/.config/espanso/default.yml
