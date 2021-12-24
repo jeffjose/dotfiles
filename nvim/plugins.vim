@@ -25,7 +25,12 @@ Plug 'itchyny/lightline.vim'
 " Make yanked portion apparent
 Plug 'machakann/vim-highlightedyank'
 
+" For rust-analyzer
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
+Plug 'autozimu/LanguageClient-neovim', {  'branch': 'next',  'do': 'bash install.sh' }
+
+Plug 'dense-analysis/ale'
 
 
 call plug#end()
@@ -83,4 +88,11 @@ let g:lightline = {
 function! MyLineinfo()
   return line('.') . '/' . line('$')
 endfunction
+
+
+"""""""""""""""
+" Langauge server
+let g:LanguageClient_serverCommands = { 'rust': ['rust-analyzer'] }
+
+let g:ale_linters = {'rust': ['analyzer']}
 
