@@ -4,7 +4,17 @@
 #
 # NodeJS
 
-curl -sL https://deb.nodesource.com/setup_current.x | sudo -E bash -
-sudo apt install -y nodejs
+sudo rm -rf /etc/apt/sources.list.d/nodesource.list
 
-sudo apt install -y g++ build-essential
+sudo apt --fix-broken install
+sudo apt autoremove
+sudo apt update
+sudo apt remove -y nodejs
+sudo apt remove -y nodejs-doc
+
+# Using Ubuntu
+curl -fsSL https://deb.nodesource.com/setup_17.x | sudo -E bash -
+
+sudo apt install -y g++ build-essential libnode72
+
+sudo apt-get install -y nodejs
