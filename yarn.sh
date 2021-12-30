@@ -32,6 +32,10 @@ PACKAGES=(
   # degit
   degit
 
+
+  #jest
+  jest
+
 )
 
 # Run
