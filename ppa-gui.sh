@@ -10,9 +10,6 @@ echo "----------------------------"
 # Shutter
 sudo add-apt-repository -y ppa:linuxuprising/shutter
 
-# Numix
-sudo add-apt-repository -y ppa:numix/ppa
-
 # ppa-manager
 sudo add-apt-repository -y ppa:webupd8team/y-ppa-manager
 
