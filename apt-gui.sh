@@ -17,7 +17,7 @@ PACKAGES=(
   gpick
   gedit
   tilix
-  gdebi
+  gdebi-core
   evince
   meld
   vlc
