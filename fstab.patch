@@ -1,0 +1,13 @@
+--- /tmp/fstab	2021-12-30 18:36:09.210035920 -0800
++++ /etc/fstab	2021-12-30 18:34:51.942894154 -0800
+@@ -11,3 +11,10 @@
+ UUID=C95E-A03A  /boot/efi       vfat    umask=0077      0       1
+ # swap was on /dev/nvme0n1p3 during installation
+ UUID=bfb52337-59e7-4b43-9c9e-d56a5c45534d none            swap    sw              0       0
++
++# monolith nfs mounts
++192.168.3.4:/nfs/Plex /mnt/monolith/Plex nfs defaults 0 0
++192.168.3.4:/nfs/deluge /mnt/monolith/deluge nfs defaults 0 0
++192.168.3.4:/nfs/duckdns /mnt/monolith/duckdns nfs defaults 0 0
++192.168.3.4:/nfs/jdownloader /mnt/monolith/jdownloader nfs defaults 0 0
++
