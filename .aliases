@@ -44,6 +44,12 @@
     # Install a package
     alias install 'sudo apt -y install \!*; rehash'
 
+    # Reverse dependencies (who uses ..)
+    alias who 'apt-cache rdepends --installed \!* '
+
+    # Dependencies
+    alias dep 'apt-cache depends --installed \!* '
+
     alias install-all-drivers 'sudo ubuntu-drivers autoinstall'
 
 
