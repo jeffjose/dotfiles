@@ -20,6 +20,7 @@ PACKAGES=(
   gdebi-core
   evince
   meld
+  flameshot
   vlc
   gparted
   feh
@@ -34,6 +35,8 @@ PACKAGES=(
   fonts-noto-color-emoji
 
   ipython3
+
+
 )
 
 install() {
