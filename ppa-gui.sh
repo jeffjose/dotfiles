@@ -7,15 +7,10 @@ echo "----------------------------"
 echo "Ubuntu GUI packages with PPA"
 echo "----------------------------"
 
-# Shutter
-sudo add-apt-repository -y ppa:linuxuprising/shutter
-
 # ppa-manager
 sudo add-apt-repository -y ppa:webupd8team/y-ppa-manager
 
 PACKAGES=(
-  # Shutter
-  shutter
 
   # Numix
   numix-gtk-theme
