@@ -32,6 +32,15 @@ Plug 'autozimu/LanguageClient-neovim', {  'branch': 'next',  'do': 'bash install
 
 Plug 'dense-analysis/ale'
 
+" VIM rooter
+Plug 'airblade/vim-rooter'
+
+
+" SCRATCH PAD
+" Nerdtree
+"Plug 'scrooloose/nerdtree'
+
+
 
 call plug#end()
 
