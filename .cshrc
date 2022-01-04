@@ -108,8 +108,6 @@ if ( ! $?prompt ) exit
 #    # 3 finger = Middle
 #    synclient TapButton3=2
 
-# Set capslock to ctrl
-source ~/.xsession
 
 # Various usage statistics set with the time command.
 # Do "man tcsh" to find about more data that can be shown here.
