@@ -187,6 +187,7 @@
 
     alias d    'cd ~/Downloads'
     alias s    'cd ~/scripts'
+    alias n    'cd ~/notes'
     #alias c    'cd /mnt/disk2/coursera'
     #alias a    'cd ~/Downloads/acads'
     #alias tuts 'cd /mnt/disk1/tuts'
@@ -266,7 +267,7 @@
     alias rsync 'rsync --stats --progress'
     alias rsync-cp 'rsync -avzh \!*'
 
-    alias notes 'cat ~/notes'
+    alias notes 'cd ~/notes'
 
     alias recent 'cat /tmp/cwdcmd_recent_dirs'
 
@@ -486,9 +487,6 @@
 
     # Verify the digest using the public key
     alias digest-verify-publickey 'openssl dgst -sha512 -verify public.key -signature \!:1.digest.sha512 \!:1'
-
-    alias h hostnamectl
-    alias n networkctl
 
     alias k         'sudo kubectl'
     alias kube      'sudo kubectl'
