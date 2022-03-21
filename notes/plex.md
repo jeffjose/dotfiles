@@ -2,7 +2,7 @@
 
 ## host
 - /etc/default/grub
-  GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on video=efifb:0ff pcie_acs_override=downstream"
+  GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on video=efifb:off pcie_acs_override=downstream"
 
 - /etc/modules
   vfio
