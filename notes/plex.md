@@ -1,6 +1,6 @@
 # plex on podman with hardware virt
 
-## host
+## proxmox host (hostname: flatbread)
 - /etc/default/grub
   GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on video=efifb:off pcie_acs_override=downstream"
 
@@ -25,7 +25,7 @@
  - machine - i440fx
  - pcidevice - 00:02,x-vga=1
 
-# guest
+# guest (hostname: funnel)
  - `lspci -nnn | grep vga`
     00:10.0 VGA compatible controller [0300]: Intel Corporation Iris Plus Graphics 655 [8086:3ea5] (rev 01)
 
