@@ -2,7 +2,7 @@
 
 ## proxmox host (hostname: flatbread)
 - /etc/default/grub
-  GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on video=efifb:off pcie_acs_override=downstream"
+  GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on video=vesafb:off video=efifb:off pcie_acs_override=downstream"
 
 - /etc/modules
   vfio
@@ -22,8 +22,8 @@
  - memory = 29G
  - cpu - 8 vcpu
  - bios - seabios
- - machine - i440fx
- - pcidevice - 00:02,x-vga=1
+ - machine - q35
+ - pcidevice - 0000:00:02.0,pcie=1,x-vga=1 (when enabled, VNC wont work. So enable it after ubuntu has been setup)
 
 # guest (hostname: funnel)
  - `lspci -nnn | grep vga`
