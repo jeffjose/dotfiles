@@ -18,6 +18,8 @@ PACKAGES=(
   traceroute
   mtr-tiny
   build-essential
+  unrar
+  duf
 
   # Git
   git
