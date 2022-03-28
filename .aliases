@@ -215,8 +215,6 @@
 
     alias screen 'scrn -c ~/.screen/default'
 
-    alias ansible-update-all-hosts 'ansible-playbook ~/ansible/base.yml --ask-sudo-pass'
-
     #alias ar arandr /home/jeffjose/.screenlayout/3monitor.sh
     #alias xr /home/jeffjose/.screenlayout/3monitor.sh
 
