@@ -1,0 +1,38 @@
+- name: Update packages
+  apt:
+    update_cache: yes
+    upgrade: yes
+
+- name: Install essential packages
+  package:
+    name:
+      - curl
+      - wget
+      - sudo
+      - tcsh
+      - openssh-server
+      - traceroute
+      - mtr-tiny
+      - build-essential
+      - unrar
+      - duf
+      # Git
+      - git
+      # Other
+      - ack
+      - screen
+      - ncdu
+      - htop
+      - neovim
+      - tree
+      - nmap
+      - hardinfo
+      - neofetch
+      - moreutils
+      - sshpass
+      - golang
+      - liblinux-lvm-perl
+      - python-is-python3
+      # To make `cargo install cargo-update` work
+      - libssl-dev
+    state: latest
