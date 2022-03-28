@@ -1,0 +1,35 @@
+- name: Update packages
+  apt:
+    update_cache: yes
+    upgrade: yes
+
+- name: Install gui packages
+  package:
+    name:
+      # Git
+      - gitk
+      - git-gui
+
+      # Other
+      - gpick
+      - gedit
+      - tilix
+      - gdebi-core
+      - evince
+      - meld
+      - flameshot
+      - vlc
+      - gparted
+      - feh
+
+      # Torrents
+      -  #qbittorrent
+      - transmission
+
+      # Fonts
+      - fonts-firacode
+      - fonts-inter
+      - fonts-noto-color-emoji
+
+      - ipython3
+    state: latest

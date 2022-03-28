@@ -16,9 +16,7 @@
       - build-essential
       - unrar
       - duf
-      # Git
       - git
-      # Other
       - ack
       - screen
       - ncdu
@@ -33,6 +31,7 @@
       - golang
       - liblinux-lvm-perl
       - python-is-python3
+
       # To make `cargo install cargo-update` work
       - libssl-dev
     state: latest
