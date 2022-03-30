@@ -1,5 +1,5 @@
 [server]
-ansible-test ansible_host=ansible-test ansible_user=jeffjose ansible_connection=ssh ansible_ssh_private_key_file=/home/jeffjose/.ssh/id_rsa.pub
+192.168.3.122 ansible_host=ansible-test ansible_user=jeffjose ansible_connection=ssh ansible_ssh_private_key_file=/home/jeffjose/.ssh/id_rsa.pub
 
 [workstation]
-localhost ansible_host=localhost ansible_user=jeffjose ansible_connection=ssh ansible_ssh_private_key_file=/home/jeffjose/.ssh/id_rsa.pub
+192.168.3.184 ansible_host=localhost ansible_user=jeffjose ansible_connection=ssh ansible_ssh_private_key_file=/home/jeffjose/.ssh/id_rsa.pub
