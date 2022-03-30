@@ -1,0 +1,22 @@
+---
+- name: Essential
+  hosts: all
+  become: yes
+
+  tasks:
+    - import_tasks: tasks/essential.yml
+
+- name: Server
+  hosts: server
+  become: yes
+
+  tasks:
+    - import_tasks: tasks/server.yml
+
+- name: Workstation
+  hosts: workstation
+  become: yes
+
+  tasks:
+    - import_tasks: tasks/server.yml
+    - import_tasks: tasks/workstation.yml
