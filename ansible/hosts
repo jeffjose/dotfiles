@@ -1,5 +1,5 @@
 [server]
-192.168.3.122 ansible_host=ansible-test ansible_user=jeffjose ansible_connection=ssh ansible_ssh_private_key_file=/home/jeffjose/.ssh/id_rsa.pub
+ansible-test ansible_host=192.168.3.122 ansible_user=jeffjose ansible_connection=ssh ansible_ssh_private_key_file=/home/jeffjose/.ssh/id_rsa.pub
 
 [workstation]
-192.168.3.184 ansible_host=localhost ansible_user=jeffjose ansible_connection=ssh ansible_ssh_private_key_file=/home/jeffjose/.ssh/id_rsa.pub
+spectre ansible_host=192.168.3.184 ansible_user=jeffjose ansible_connection=ssh ansible_ssh_private_key_file=/home/jeffjose/.ssh/id_rsa.pub
