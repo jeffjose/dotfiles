@@ -4,7 +4,8 @@
     upgrade: yes
 
 - name: Install essential packages
-  package:
+  apt:
+    autoremove: yes
     name:
       - curl
       - wget

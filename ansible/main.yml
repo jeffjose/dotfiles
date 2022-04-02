@@ -5,6 +5,8 @@
 
   tasks:
     - import_tasks: tasks/essential.yml
+    - import_tasks: tasks/setup_user.yml
+    - import_tasks: tasks/vim.yml
 
 - name: Server
   hosts: server
