@@ -20,6 +20,7 @@ PACKAGES=(
   build-essential
   unrar
   duf
+  dtrx
 
   # Git
   git
