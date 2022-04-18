@@ -215,7 +215,8 @@ EOF
 
 " have a fixed column for the diagnostics to appear in
 " this removes the jitter when warnings/errors flow in
-set signcolumn=yes
+"set signcolumn=yes
+set signcolumn=no
 
 " And clear the signcolumn bg color
 highlight clear signcolumn
