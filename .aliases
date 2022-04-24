@@ -344,6 +344,7 @@
     alias copytext 'xclip -sel clip < \!*'
     alias copysshkey 'copytext ~/.ssh/id_rsa.pub'
 
+
     alias jclone 'git clone https://github.com/jeffjose/\!*'
     alias clone 'cd ~/scripts; git clone \!*'
 
@@ -398,6 +399,8 @@
     alias ppa-manager y-ppa-manager
 
     alias fixkeys 'sudo apt-key adv --refresh-keys --keyserver keyserver.ubuntu.com'
+
+    alias fixsshkey 'ssh-keygen -f ~/.ssh/known_hosts -R \!*'
 
     # CLI replacements
     alias inotify entr
