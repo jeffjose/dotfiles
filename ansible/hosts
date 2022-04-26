@@ -1,6 +1,6 @@
 [server]
-ansible-test ansible_user=jeffjose
-matterhorn ansible_user=jeffjose
+192.168.3.63 ansible_user=jeffjose
+#matterhorn ansible_user=jeffjose
 
 [workstation]
-skyfall ansible_user=jeffjose ansible_connection=local
+#skyfall ansible_user=jeffjose ansible_connection=local

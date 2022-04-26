@@ -4,7 +4,7 @@
 - name: Change shell to tcsh & add to sudo'ers
   user:
     name: "{{ansible_user}}"
-    password: "{{ansible_user_password}}"
+    password: "{{ansible_user_password | password_hash}}"
     shell: /bin/tcsh
     state: present
     group: sudo
