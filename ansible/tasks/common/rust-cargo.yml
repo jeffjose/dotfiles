@@ -14,26 +14,30 @@
     - rust
     - cargo
 
-- name: "RUST/CARGO: Install packages"
+- name: "foo"
   community.general.cargo:
-    name: "{{item}}"
-  loop:
-    # For gitstatus (prompt)
-    - timeago-cli
-    # For bumping versions
-    - cargo-bump
-    # For editing Cargo.toml files
-    - cargo-edit
-    # For doing background .rs file source check
-    - bacon
-    # git summary
-    - onefetch
-    # update installed binaries
-    - cargo-update
-    # rargs (https://github.com/lotabout/rargs)
-    - rargs
-    # find replacement
-    - find-files
-  tags:
-    - rust
-    - cargo
+    name: timeago-cli
+
+      #- name: "RUST/CARGO: Install packages"
+      #  community.general.cargo:
+      #    name: "{{item}}"
+      #  loop:
+      #    # For gitstatus (prompt)
+      #    - timeago-cli
+      #    # For bumping versions
+      #    - cargo-bump
+      #    # For editing Cargo.toml files
+      #    - cargo-edit
+      #    # For doing background .rs file source check
+      #    - bacon
+      #    # git summary
+      #    - onefetch
+      #    # update installed binaries
+      #    - cargo-update
+      #    # rargs (https://github.com/lotabout/rargs)
+      #    - rargs
+      #    # find replacement
+      #    - find-files
+      #  tags:
+      #    - rust
+      #    - cargo
