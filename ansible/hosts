@@ -2,5 +2,5 @@
 ansible-test ansible_user=jeffjose
 #matterhorn ansible_user=jeffjose
 
-[workstation]
+[desktop]
 #skyfall ansible_user=jeffjose ansible_connection=local

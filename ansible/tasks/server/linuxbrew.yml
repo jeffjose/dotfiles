@@ -1,0 +1,17 @@
+- name: "LINUXBREW: Download linuxbrew Installer"
+  get_url:
+    url: "https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
+    dest: "/tmp/sh.linuxbrew-install.sh"
+    mode: '0755'
+    force: 'yes'
+  tags:
+    - linuxbrew
+    - brew
+
+- name: "LINUXBREW: Install linuxbrew"
+  shell: /tmp/sh.linuxbrew-install.sh
+  become: yes
+  tags:
+    - linuxbrew
+    - brew
+
