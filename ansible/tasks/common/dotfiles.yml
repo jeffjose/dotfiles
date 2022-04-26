@@ -4,4 +4,3 @@
     dest: "{{ansible_user_dir}}/dotfiles"
   tags:
     - dot
-

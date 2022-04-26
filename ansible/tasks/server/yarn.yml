@@ -2,8 +2,8 @@
   get_url:
     url: "https://yarnpkg.com/install.sh"
     dest: "/tmp/sh.yarnpkg-install.sh"
-    mode: '0755'
-    force: 'yes'
+    mode: "0755"
+    force: "yes"
   tags:
     - yarn
 
