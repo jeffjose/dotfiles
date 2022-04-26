@@ -1,5 +1,5 @@
 [server]
-192.168.3.63 ansible_user=jeffjose
+ansible-test ansible_user=jeffjose
 #matterhorn ansible_user=jeffjose
 
 [workstation]

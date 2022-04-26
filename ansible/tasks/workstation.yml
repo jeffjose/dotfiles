@@ -1,9 +1,11 @@
-- name: Update packages
+- name: "WORKSTATION: Update packages"
+  become: yes
   apt:
     update_cache: yes
-    upgrade: yes
+    upgrade: "yes"
 
-- name: Install gui packages
+- name: "WORKSTATION: Install gui packages"
+  become: yes
   package:
     name:
       # Git

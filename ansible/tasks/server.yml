@@ -1,9 +1,11 @@
-- name: Update packages
+- name: "SERVER: Update packages"
+  become: yes
   apt:
     update_cache: yes
-    upgrade: yes
+    upgrade: "yes"
 
-- name: Install server packages
+- name: "SERVER: Install packages"
+  become: yes
   package:
     name:
       # Dev
