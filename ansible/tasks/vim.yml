@@ -1,3 +1,9 @@
+- name: "VIM: Ensure neovim is present"
+  become: yes
+  apt:
+    name:
+      - neovim
+
 - name: "VIM: Create target directory"
   file:
     path: "{{ansible_user_dir}}/.local/share/nvim/site/autoload/"
@@ -8,3 +14,7 @@
   get_url:
     url: https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
     dest: "{{ansible_user_dir}}/.local/share/nvim/site/autoload/plug.vim"
+
+- name: "VIM: Install plugins"
+  command:
+    cmd: "nvim -es -u {{ansible_user_dir}}/.config/nvim/init.vim +PlugInstall +qa"

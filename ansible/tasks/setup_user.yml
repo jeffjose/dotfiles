@@ -8,6 +8,5 @@
     name: "{{ansible_user}}"
     password: "{{ansible_user_password | password_hash}}"
     shell: /bin/tcsh
-    state: present
     groups: sudo
     append: yes

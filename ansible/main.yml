@@ -1,20 +1,19 @@
 ---
-- name: Essential
+- name: ESSENTIAL
   hosts: all
   tasks:
     - import_tasks: tasks/essential.yml
     - import_tasks: tasks/setup_user.yml
     - import_tasks: tasks/vim.yml
-
   vars_files:
     - group_vars/all/secret.yml
 
-- name: Server
+- name: SERVER
   hosts: server
   tasks:
     - import_tasks: tasks/server.yml
 
-- name: Workstation
+- name: WORKSTATION
   hosts: workstation
   tasks:
     - import_tasks: tasks/server.yml
