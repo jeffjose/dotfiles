@@ -1,13 +1,10 @@
-- name: "ESSENTIAL: Clone jeffjose/dotfiles"
-  git:
-    repo: "https://github.com/jeffjose/dotfiles"
-    dest: "{{ansible_user_dir}}/dotfiles"
-
 - name: "ESSENTIAL: Update packages"
   become: yes
   apt:
     update_cache: yes
     upgrade: "yes"
+  tags:
+    - apt
 
 - name: "ESSENTIAL: Install packages"
   become: yes
@@ -43,3 +40,5 @@
       # To make `cargo install cargo-update` work
       - libssl-dev
     state: latest
+  tags:
+    - apt

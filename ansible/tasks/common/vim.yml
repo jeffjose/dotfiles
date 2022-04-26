@@ -2,17 +2,24 @@
   set_fact:
     nvim_config_dir: "{{ansible_user_dir}}/.config/nvim"
     nvim_autoload_dir: "{{ansible_user_dir}}/.local/share/nvim/site/autoload"
+  tags:
+    - vim
 
 - name: "VIM: Ensure neovim is present"
   become: yes
   apt:
     name:
       - neovim
+  tags:
+    - apt
+    - vim
 
 - name: "VIM: Ensure .config directory exists"
   file:
     path: "{{nvim_config_dir}}"
     state: directory
+  tags:
+    - vim
 
 - name: "VIM: Setup {init,plugins}.vim"
   file:
@@ -28,19 +35,33 @@
         src: "{{ansible_user_dir}}/dotfiles/nvim/plugins.vim",
         dest: "{{nvim_config_dir}}/plugins.vim"
       }
+  tags:
+    - vim
 
 - name: "VIM: Create vim-plug target directory"
   file:
     path: "{{nvim_autoload_dir}}"
     state: directory
     mode: "0755"
+  tags:
+    - vim
 
 - name: "VIM: Install vim-plug"
   get_url:
     url: https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
     dest: "{{nvim_autoload_dir}}/plug.vim"
+  tags:
+    - vim
 
 #- name: "VIM: Install plugins"
 #  command:
 #    cmd: "nvim -es -u {{ansible_user_dir}}/.config/nvim/init.vim +PlugInstall +qa"
+#  tags:
+#    - vim
 #
+#
+#- name: "VIM: rust-analyzer"
+#  command:
+#    cmd: "curl -L https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/rust-analyzer-x86_64-unknown-linux-gnu.gz | gunzip -c - > ~/.local/bin/rust-analyzer"
+#  tags:
+#    - vim

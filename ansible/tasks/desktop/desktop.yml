@@ -1,10 +1,12 @@
-- name: "WORKSTATION: Update packages"
+- name: "DESKTOP: Update packages"
   become: yes
   apt:
     update_cache: yes
     upgrade: "yes"
+  tags:
+    - apt
 
-- name: "WORKSTATION: Install gui packages"
+- name: "DESKTOP: Install gui packages"
   become: yes
   package:
     name:
@@ -35,3 +37,5 @@
 
       - ipython3
     state: latest
+  tags:
+    - apt

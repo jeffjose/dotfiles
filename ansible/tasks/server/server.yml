@@ -3,6 +3,8 @@
   apt:
     update_cache: yes
     upgrade: "yes"
+  tags:
+    - apt
 
 - name: "SERVER: Install packages"
   become: yes
@@ -44,3 +46,5 @@
       - skopeo
 
     state: latest
+  tags:
+    - apt

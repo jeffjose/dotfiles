@@ -1,0 +1,13 @@
+- name: "RUST/CARGO: Download Rust Installer"
+  get_url:
+    url: "https://sh.rustup.rs"
+    dest: "/tmp/sh.rustup.rs"
+    mode: '0755'
+    force: 'yes'
+  tags:
+    - rust
+
+- name: "RUST/CARGO: Install rust/cargo"
+  shell: /tmp/sh.rustup.rs -y
+  tags:
+    - rust
