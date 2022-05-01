@@ -1,0 +1,18 @@
+[
+  {
+    "eventTrigger": "ON_ARCHIVE_EXTRACTED",
+    "eventTriggerSettings": {},
+    "id": 1651438565380,
+    "name": "Move completed downloads (archive)",
+    "script": "var downloadFolder = archive.getDownloadLinks()[0].getPackage().getDownloadFolder();\n\ngetPath(downloadFolder).moveTo('/data/completed/')\n\n/*\narchive.getExtractedFilePaths().forEach(function(item) {\n\n    getPath(item).moveTo('/data/completed/' + archiveName)\n\n\n})\n*/\n\n/*\narchive.getDownloadLinks().forEach(function(link) {\n\n    getPath(link.downloadPath).moveTo('/data/completed/' + archiveName + '/original')\n})\n\nif (link.finished) {\n    var isArchive = link.getArchive() != null;\n\n    var packageName = package.getName();\n\n    if (!isArchive) {\n\n        getPath(link.downloadPath).moveTo(\"/data/completed/\" + packageName);\n\n    }\n\n}\n*/",
+    "enabled": true
+  },
+  {
+    "eventTrigger": "ON_DOWNLOAD_CONTROLLER_STOPPED",
+    "eventTriggerSettings": {},
+    "id": 1651437479442,
+    "name": "Move completed downloads (non-archive)",
+    "script": "if (link.finished) {\n    var isArchive = link.getArchive() != null;\n\n    if (!isArchive) {\n\n        getPath(package.getDownloadFolder()).moveTo(\"/data/completed/\");\n\n    }\n\n}",
+    "enabled": true
+  }
+]
