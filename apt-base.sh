@@ -40,6 +40,7 @@ PACKAGES=(
   golang
   liblinux-lvm-perl
   python-is-python3
+  fd-find
 
   # To make `cargo install cargo-update` work
   libssl-dev

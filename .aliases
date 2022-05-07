@@ -15,6 +15,8 @@
     alias pkill pkill -f
     alias kill9 kill -9
 
+    alias find 'fdfind'
+
     alias md mkdir -p
 
     alias ncdu ncdu --color dark
@@ -61,7 +63,7 @@
 
     complete remove 'p/1/c/'
 
-    alias fwc 'echo "Directories"; find . -type d | wc; echo "Files"; find . -type f | wc'
+    alias fwc 'echo "Directories"; find . -t d | wc; echo "Files"; find . -t f | wc'
 
     # Wharton Canvas
     # Token: 25~0BSCo871KwDf3wDcVX5DiezXVoVavIPHMqeFeS1ValI3kWa2n6whwMAuwk4inTJG
