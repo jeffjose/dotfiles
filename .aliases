@@ -159,6 +159,7 @@
 # syndaemon -i 1 -K -d
 
     alias update       'sudo apt update'
+    alias upgrade       'sudo apt upgrade'
 
     alias so 'echo "Sourcing ~/.cshrc .."; source ~/.cshrc'
     alias SO so
