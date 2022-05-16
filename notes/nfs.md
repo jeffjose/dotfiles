@@ -15,3 +15,22 @@ $ exportfs -r
 ```
 $ mount ip_address:/nfs/folder P:
 ```
+
+3. NFS server
+
+```
+sudo apt install nfs-kernel-server
+
+# Noone is owner
+sudo chown nobody:nogroup /mnt/storage
+
+# Everyone can modify
+sudo chmod 777 /mnt/storage
+```
+
+Edit /etc/exports
+
+```
+/mnt/storage/dir1 *(rw,sync,no_root_squash,no_subtree_check)
+/mnt/storage/dir2 *(rw,sync,no_root_squash,no_subtree_check)
+```

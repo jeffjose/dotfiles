@@ -202,9 +202,9 @@
     alias dot 'cd ~/dotfiles'
     alias px 'cd ~/scripts/redditpx'
     #alias dis 'cd ~/scripts/distributions'
-    alias plex 'cd /mnt/monolith/Plex'
-    alias jd 'cd /mnt/monolith/jdownloader/data'
-    alias dd 'cd /mnt/monolith/deluge/data/incomplete'
+    alias plex 'cd /mnt/matterhorn/Plex'
+    alias jd 'cd /mnt/matterhorn/jdownloader/data'
+    alias dd 'cd /mnt/matterhorn/deluge/data/incomplete'
 
     alias updatedot 'dot; git pull; cd -'
 

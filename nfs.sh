@@ -6,9 +6,9 @@
 
 # $ sudo mount -av
 
-sudo mkdir -p /mnt/monolith/Plex
-sudo mkdir -p /mnt/monolith/deluge
-sudo mkdir -p /mnt/monolith/jdownloader
+sudo mkdir -p /mnt/matterhorn/Plex
+sudo mkdir -p /mnt/matterhorn/deluge
+sudo mkdir -p /mnt/matterhorn/jdownloader
 
-sudo patch -b -u /etc/fstab -i fstab.patch
+#sudo patch -b -u /etc/fstab -i fstab.patch
 
