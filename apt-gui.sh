@@ -17,7 +17,6 @@ PACKAGES=(
   gpick
   gedit
   tilix
-  gdebi-core
   evince
   meld
   flameshot
