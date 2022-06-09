@@ -122,8 +122,8 @@
     alias highaid 'ssh jjose@highaid.ddu-india.com'
     alias js2coffee js2coffee -i4
 
-    alias gitg 'git gui'
-    alias gitk 'gitk --all'
+    alias gitg 'git gui &'
+    alias gitk 'gitk --all &'
     alias gitp 'git'
     alias gs 'git status'
     alias gc 'git commit -m'
@@ -159,7 +159,6 @@
 # syndaemon -i 1 -K -d
 
     alias update       'sudo apt update'
-    alias upgrade       'sudo apt upgrade'
 
     alias so 'echo "Sourcing ~/.cshrc .."; source ~/.cshrc'
     alias SO so
@@ -177,9 +176,8 @@
 
 
 
-    alias gdebi 'sudo gdebi --non-interactive'
-    alias deb gdebi
-    alias debi gdebi
+    alias gdebi 'sudo dpkg -i'
+    alias deb 'sudo dpkg -i'
 
     #alias talks 'cd ~/talks'
 
