@@ -2,5 +2,6 @@
   git:
     repo: "https://github.com/jeffjose/dotfiles"
     dest: "{{ansible_user_dir}}/dotfiles"
+    force: yes
   tags:
     - dot

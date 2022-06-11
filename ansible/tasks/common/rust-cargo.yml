@@ -31,10 +31,6 @@
     - rust
     - cargo
 
-      #- name: "foo"
-      #  community.general.cargo:
-      #    name: timeago-cli
-      #
       #- name: "RUST/CARGO: Install packages"
       #  community.general.cargo:
       #    name: "{{item}}"

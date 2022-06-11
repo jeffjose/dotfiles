@@ -1,23 +1,8 @@
-- name: "YARN: Download yarn Installer"
-  get_url:
-    url: "https://yarnpkg.com/install.sh"
-    dest: "/tmp/sh.yarnpkg-install.sh"
-    mode: "0755"
-    force: "yes"
-  tags:
-    - yarn
-
-- name: "YARN: Install yarn"
-  shell: /tmp/sh.yarnpkg-install.sh
-  tags:
-    - yarn
-
-- name: "YARN: Install packages"
-  community.general.yarn:
-    name: "{{item}}"
-    global: yes
-    loop:
-      - npm@latest
+- name: "YARN Setup variables"
+  set_fact:
+    yarn_bin_dir: "{{ansible_user_dir}}/.yarn/bin"
+    packages:
+      - npm
       - t-get
       - yarn-recursive
       - npx
@@ -49,3 +34,24 @@
 
       #jest
       - jest
+  tags:
+    - yarn
+
+- name: "YARN: Download yarn Installer"
+  get_url:
+    url: "https://yarnpkg.com/install.sh"
+    dest: "/tmp/sh.yarnpkg-install.sh"
+    mode: "0755"
+    force: "yes"
+  tags:
+    - yarn
+
+- name: "YARN: Install yarn"
+  shell: /tmp/sh.yarnpkg-install.sh
+  tags:
+    - yarn
+
+- name: "YARN: Install packages"
+  shell: "{{yarn_bin_dir}}/yarn global add {{packages | join(' ')}}"
+  tags:
+    - yarn

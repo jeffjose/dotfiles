@@ -20,7 +20,6 @@
       - youtube-dl
       - colordiff
       - jq
-      - npm
       - wavemon
       - mosh
       - detox

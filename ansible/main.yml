@@ -13,9 +13,15 @@
 
 - name: SERVER
   hosts: server
+  vars:
+    nodejs_version: "18.x#"
+    #linuxbrew_use_installer: true
+  roles:
+    - { role: geerlingguy.nodejs, become: yes }
+    #- { role: markosamuli.linuxbrew }
   tasks:
     - import_tasks: tasks/server/server-packages.yml
-    - import_tasks: tasks/server/linuxbrew.yml
+      #- import_tasks: tasks/server/linuxbrew.yml
     - import_tasks: tasks/server/yarn.yml
 
 - name: DESKTOP

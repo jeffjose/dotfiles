@@ -9,8 +9,8 @@
     - brew
 
 - name: "LINUXBREW: Install linuxbrew"
-  shell: /tmp/sh.linuxbrew-install.sh
-  become: yes
+  command: "sh -c 'yes | /tmp/sh.linuxbrew-install.sh'"
   tags:
     - linuxbrew
     - brew
+    - test
