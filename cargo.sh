@@ -33,6 +33,9 @@ CRATES=(
   # find replacement
   find-files
 
+  # cut replacement
+  tuc --features regex
+
 )
 
 # Install. This command doesnt update installed packages

@@ -16,6 +16,7 @@
     alias kill9 kill -9
 
     alias find 'fdfind'
+    alias cut 'tuc'
 
     alias md mkdir -p
 
