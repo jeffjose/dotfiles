@@ -205,6 +205,7 @@
     alias plex 'cd /mnt/matterhorn/Plex'
     alias jd 'cd /mnt/matterhorn/jdownloader/data'
     alias dd 'cd /mnt/matterhorn/deluge/data/incomplete'
+    alias f1 'cd ~/scripts/formula1'
 
     alias updatedot 'dot; git pull; cd -'
 
