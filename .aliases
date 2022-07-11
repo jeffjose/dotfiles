@@ -12,8 +12,8 @@
     alias l ll
     alias lll ll
     alias pgrep pgrep -fl
-    alias pkill pkill -f
     alias kill9 kill -9
+    alias pkill "pgrep \!* | cut -d ' ' -f1 | xargs kill -9"
 
     alias find 'fdfind'
 
