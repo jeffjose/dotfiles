@@ -62,7 +62,7 @@ rm $HOME/.tabletaliases
 ln $HOME/dotfiles/.tabletaliases $HOME/.tabletaliases
 
 rm $HOME/.vimrc
-ln $HOME/dotfiles/nvim/init.vim $HOME/.vimrc 
+ln $HOME/dotfiles/nvim/init.vim $HOME/.vimrc
 
 rm $HOME/.XResources
 ln $HOME/dotfiles/.XResources $HOME/.XResources
@@ -90,3 +90,7 @@ ln $HOME/dotfiles/default.yml $HOME/.config/espanso/default.yml
 
 rm $HOME/.config/containers/containers.conf
 ln $HOME/dotfiles/containers.conf $HOME/.config/containers/containers.conf
+
+
+rm $HOME/.jq
+ln $HOME/dotfiles/.jq $HOME/.jq
