@@ -2,17 +2,17 @@
 	name  = Jeffrey Jose
 	email = jeffjosejeff@gmail.com
 [alias]
-    d = describe --tags --always
-    ci = commit
     commti = commit
     commt = commit
     ocmmit = commit
     ad = add
-    st = status
     psh = push
     ush = push
+    st = status
     sb = show-branch
     co = checkout
+    d = describe --tags --always
+    ci = commit
     one = log --pretty=oneline
     cached = diff --cached
     changelog = "!f() { r=${1:-`git describe --tags --abbrev=0`..HEAD}; echo Changelog for $r; git log --reverse --no-merges --format='* %s' $r; }; f"
