@@ -36,6 +36,10 @@ PACKAGES=(
   #jest
   jest
 
+  # compression size from stdin
+  brotli-size-cli
+  gzip-size-cli
+
 )
 
 # Run

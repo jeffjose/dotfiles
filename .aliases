@@ -378,6 +378,7 @@
     alias vpn_status 'curl -sS https://www.privateinternetaccess.com/ | grep --color=never -o "You are protected"'
 
     alias size "curl -s -o /dev/null -w 'Download size: %{size_download}\n'"
+    alias size "curl -s \!* > /tmp/file; echo 'gzip - '; gzip-size /tmp/file --include-original; echo '\nbrotli -'; brotli-size /tmp/file"
 
     alias UNDOCAPS 'setxkbmap -option'
     alias CAPS 'setxkbmap -option'
