@@ -1,14 +1,16 @@
 # Invoke IPython when pdb launches
 #
 import sys, os
+import asyncio
+asyncio.set_event_loop(asyncio.new_event_loop())
 
-home = os.environ['HOME']
-
-sys.path.append('%s/anaconda2/lib/python2.7/site-packages' % home)
-#sys.path.append('/usr/lib/python2.7/dist-packages/')
-
-print sys.path
-print sys.exc_info()
-print sys.version_info
+#home = os.environ['HOME']
+#
+#sys.path.append('%s/anaconda2/lib/python2.7/site-packages' % home)
+##sys.path.append('/usr/lib/python2.7/dist-packages/')
+#
+#print sys.path
+#print sys.exc_info()
+#print sys.version_info
 import IPython
 IPython.embed()

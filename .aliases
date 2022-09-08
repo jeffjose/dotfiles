@@ -25,7 +25,7 @@
     alias aliases vim ~/.aliases
     alias del rm -rf
 
-    alias sipy  ipython3
+    alias sipy  poetry run ipython
 
 
     alias x 'echo "Running ~/.xsession .."; ~/.xsession'
@@ -522,6 +522,7 @@
     alias sshfix 'ssh-keygen -f ~/.ssh/known_hosts -R \!*; ssh \!*'
 
     alias download_code 'wget -O code.deb "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"'
+    alias update_code 'download_code; gdebi code.deb'
 
     # While the executable comes from /home/jeffjose, the .wine/ is /root/.wine/
     alias mp3tag 'sudo wine ~/.wine/drive_c/Program\ Files\ \(x86\)/Mp3tag/Mp3tag.exe'
