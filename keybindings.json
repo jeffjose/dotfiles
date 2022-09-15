@@ -249,5 +249,13 @@
     "key": "shift+f8",
     "command": "-editor.action.marker.prevInFiles",
     "when": "editorFocus"
+  },
+  {
+    "key": "ctrl+shift+j",
+    "command": "editor.emmet.action.decrementNumberByOne"
+  },
+  {
+    "key": "ctrl+shift+k",
+    "command": "editor.emmet.action.incrementNumberByOne"
   }
 ]
