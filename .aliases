@@ -204,6 +204,7 @@
     alias jd 'cd /mnt/matterhorn/jdownloader/data'
     alias dd 'cd /mnt/matterhorn/deluge/data/incomplete'
     alias f1 'cd ~/scripts/formula1'
+    alias f1d 'cd ~/scripts/formula1-deploy'
 
     alias updatedot 'dot; git pull; cd -'
 
