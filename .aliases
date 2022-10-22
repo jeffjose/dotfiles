@@ -510,7 +510,7 @@
     alias kcreate   'sudo kubectl create'
     alias kapply    'sudo kubectl apply'
 
-    alias kapp      'sudo kapp --config /etc/rancher/k3s/k3s.yaml'
+    alias kapp      'sudo kapp --kubeconfig /etc/rancher/k3s/k3s.yaml'
 
     alias fmt 'npx -y prettier --write'
 
