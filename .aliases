@@ -529,7 +529,7 @@
     alias update_code 'download_code; gdebi /tmp/code.deb'
 
     # While the executable comes from /home/jeffjose, the .wine/ is /root/.wine/
-    alias mp3tag 'sudo wine ~/.wine/drive_c/Program\ Files\ \(x86\)/Mp3tag/Mp3tag.exe'
+    alias mp3tag 'sudo wine ~/.wine/drive_c/Program\ Files/Mp3tag/Mp3tag.exe'
 
     # Add alias
     # sudo ip address add 192.168.1.6/24 dev eno1
