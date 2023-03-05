@@ -27,6 +27,8 @@
 
     alias sipy  poetry run ipython
 
+    alias ffmpeg ffmpeg -hide_banner
+    alias ffprobe ffprobe -hide_banner
 
     alias x 'echo "Running ~/.xsession .."; ~/.xsession'
 
@@ -527,6 +529,9 @@
 
     alias download_code 'wget -O /tmp/code.deb "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"'
     alias update_code 'download_code; gdebi /tmp/code.deb'
+
+    alias download_chrome 'wget -O /tmp/chrome.deb "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"'
+    alias update_chrome 'download_chrome; gdebi /tmp/chrome.deb'
 
     # While the executable comes from /home/jeffjose, the .wine/ is /root/.wine/
     alias mp3tag 'sudo wine ~/.wine/drive_c/Program\ Files/Mp3tag/Mp3tag.exe'
