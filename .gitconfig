@@ -31,6 +31,7 @@
     sdiff = stash show -p
     dif = diff
     stashall = stash --include-untracked
+    empty = commit --allow-empty
 
 [color]
     diff = auto
