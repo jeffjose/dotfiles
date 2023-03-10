@@ -13,6 +13,8 @@ PACKAGES=(
 
   # watch replacement
   github.com/antonmedv/watch
+
+  github.com/ericchiang/pup
 )
 
 echo "Installing ${PACKAGES[@]}"
