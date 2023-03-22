@@ -13,7 +13,7 @@
     co = checkout
     d = describe --tags --always
     ci = commit
-    one = log --pretty=oneline
+    one = log -n 1
     cached = diff --cached
     changelog = "!f() { r=${1:-`git describe --tags --abbrev=0`..HEAD}; echo Changelog for $r; git log --reverse --no-merges --format='* %s' $r; }; f"
     br = branch
@@ -32,6 +32,7 @@
     dif = diff
     stashall = stash --include-untracked
     empty = commit --allow-empty
+    sha = log -n 1 --pretty="%h"
 
 [color]
     diff = auto
