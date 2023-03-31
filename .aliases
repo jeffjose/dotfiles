@@ -206,7 +206,7 @@
     alias jd 'cd /mnt/matterhorn/jdownloader/data'
     alias dd 'cd /mnt/matterhorn/deluge/data/incomplete'
     alias f1 'cd ~/scripts/formula1'
-    alias f1d 'cd ~/scripts/formula1-deploy'
+    alias k8s 'cd ~/scripts/k8s'
 
     alias updatedot 'dot; git pull; cd -'
 
@@ -259,8 +259,7 @@
 
     alias msum md5sum
 
-    alias yget 'youtube-dl'
-    alias ygetc 'youtube-dlc'
+    alias yget 'yt-dlp'
     #alias y "'echo youtube-dl \'`xclip -o`\'; youtube-dl \'`xclip -o`\';'"
 
     #alias jj 'cd ~/scripts/jeffjose.github.io'
