@@ -513,6 +513,7 @@
 
     alias kapp      'sudo kapp --kubeconfig /etc/rancher/k3s/k3s.yaml'
     alias k9s       'sudo k9s --kubeconfig /etc/rancher/k3s/k3s.yaml'
+    alias klog      'sudo kubectl logs -f'
 
     alias fmt 'npx -y prettier --write'
 
