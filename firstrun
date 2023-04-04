@@ -142,8 +142,9 @@ gui)
   runsetup
 
   echo "Things manually to do"
-  echo " 1. Install Chrome"
-  echo " 2. Install VS Code (https://code.visualstudio.com/docs/?dv=linux64_deb)"
+  echo " 1. Install Chrome (`update_chrome`)"
+  echo " 2. Install VS Code (`update_code`)"
+  echo " 3. Install Neovim (`update_vim`)"
   echo " 3. Install Android Studio"
   echo "   a. JAVA correct alternative (sudo update-alternatives --config java). Select - /usr/lib/jvm/java-13-openjdk-amd64/bin/java"
   echo "   b. Use java8, change JAVA_HOME and accept accept all licenses 'yes | sdkmanager --licenses'"

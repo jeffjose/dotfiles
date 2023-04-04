@@ -30,7 +30,7 @@ PACKAGES=(
   screen
   ncdu
   htop
-  neovim
+  #neovim
   tree
   nmap
   hardinfo
