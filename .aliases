@@ -534,7 +534,7 @@
     alias update_chrome 'download_chrome; gdebi /tmp/chrome.deb'
 
     alias download_vim 'wget -O /tmp/nvim.deb "https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.deb"'
-    alias update_vim 'download_vim; gdebi /tmp/vim.deb'
+    alias update_vim 'download_vim; gdebi /tmp/nvim.deb'
 
 
     alias install_deb 'wget -O /tmp/install-package.deb "\!*"; gdebi /tmp/install-package.deb'
