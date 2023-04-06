@@ -515,6 +515,8 @@
     alias k9s       'sudo k9s --kubeconfig /etc/rancher/k3s/k3s.yaml'
     alias klog      'sudo kubectl logs -f'
 
+    alias kssecretfile 'sudo kubectl create secret generic \!:1 -registry-access --from-file=\!:2 --dry-run=client -o yaml | sudo ~jeffjose/bin/kubeseal --scope cluster-wide --controller-namespace argocd --controller-name sealed-secrets --format yaml --kubeconfig /etc/rancher/k3s/k3s.yaml | tee sealed-\!:2.yaml'
+
     alias fmt 'npx -y prettier --write'
 
 
