@@ -14,6 +14,7 @@
     alias pgrep pgrep -fl
     alias kill9 kill -9
     alias pkill "pgrep \!* | cut -d ' ' -f1 | xargs kill -9"
+    alias sudopkill "pgrep \!* | cut -d ' ' -f1 | xargs sudo kill -9"
 
     alias find 'fdfind'
 
@@ -538,8 +539,8 @@
     alias download_chrome 'wget -O /tmp/chrome.deb "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"'
     alias update_chrome 'download_chrome; gdebi /tmp/chrome.deb'
 
-    alias download_vim 'wget -O /tmp/nvim.deb "https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.deb"'
-    alias update_vim 'download_vim; gdebi /tmp/nvim.deb'
+    alias download_vim 'wget -O /tmp/nvim "https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage"'
+    alias update_vim 'download_vim; sudo mv /tmp/nvim /usr/bin/nvim; sudo chmod a+rwx /usr/bin/nvim'
 
 
     alias install_deb 'wget -O /tmp/install-package.deb "\!*"; gdebi /tmp/install-package.deb'
