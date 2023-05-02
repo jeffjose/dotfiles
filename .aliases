@@ -519,7 +519,7 @@
     alias kssecretfile 'sudo kubectl create secret generic \!:2 --from-file=\!:1 --dry-run=client -o yaml | sudo ~jeffjose/bin/kubeseal --scope cluster-wide --controller-namespace argocd --controller-name sealed-secrets --format yaml --kubeconfig /etc/rancher/k3s/k3s.yaml | tee sealed-\!:2.yaml'
 
     alias kbash     'sudo kubectl run test -it --rm --image \!* -- bash'
-    alias ksh     'sudo kubectl run test -it --rm --image \!* -- sh'
+    alias ksh       'sudo kubectl run test -it --rm --image \!* -- sh'
 
     alias fmt 'npx -y prettier --write'
 
@@ -556,6 +556,8 @@
     #
     # Del alias
     # sudo ip address del 192.168.1.6/24 dev eno1
+    #
+    alias v 'git commit -m "version update"; git push'
 
     # Google
     #
