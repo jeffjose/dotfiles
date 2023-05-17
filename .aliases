@@ -557,7 +557,7 @@
     # Del alias
     # sudo ip address del 192.168.1.6/24 dev eno1
     #
-    alias v 'git commit -m "version update"; git push'
+    alias v 'git commit -m "version update" -n; git push'
 
     # Google
     #
