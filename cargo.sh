@@ -36,6 +36,9 @@ CRATES=(
   # cut replacement
   tuc --features regex
 
+  # timezone update
+  tzupdate
+
 )
 
 # Install. This command doesnt update installed packages
