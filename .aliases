@@ -541,7 +541,8 @@
     alias update_chrome 'download_chrome; gdebi /tmp/chrome.deb'
 
     alias download_vim 'wget -O /tmp/nvim "https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage"'
-    alias update_vim 'download_vim; sudo mv /tmp/nvim /usr/bin/nvim; sudo chmod a+rwx /usr/bin/nvim'
+    alias get_vim_version '/usr/bin/nvim --version | grep "NVIM v" --color=never'
+    alias update_vim 'download_vim; get_vim_version; sudo mv /tmp/nvim /usr/bin/nvim; sudo chmod a+rwx /usr/bin/nvim; get_vim_version'
 
 
     alias install_deb 'wget -O /tmp/install-package.deb "\!*"; gdebi /tmp/install-package.deb'
