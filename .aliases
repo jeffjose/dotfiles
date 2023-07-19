@@ -563,6 +563,11 @@
     #
     alias v 'git commit -m "version update" -n; git push'
 
+    alias wgup 'sudo wg-quick up'
+    alias wgdown 'sudo wg-quick up'
+
+    alias wg 'sudo wg'
+
     # Google
     #
     #
