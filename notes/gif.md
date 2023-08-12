@@ -1,7 +1,13 @@
 ## How to make gifs
 
 
+0. Reencode / add keyframes
+```
+ffmpeg -i input.mkv -keyint_min 24 -g 24 output.mkv
+```
+
 1. Cut the video (lossless-cut)
+
 - https://github.com/mifi/lossless-cut
 
 2. Convert to 30fps
