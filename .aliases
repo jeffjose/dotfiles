@@ -169,6 +169,7 @@
     alias firstrun  ~/dotfiles/firstrun
     alias setup     '~/dotfiles/setup; so'
     alias updateall ~/dotfiles/updateall.sh
+    alias gift ~/dotfiles/gift.sh
 
     alias ubuntuupdate 'sudo do-release-upgrade -d'
 
@@ -561,7 +562,7 @@
     # Del alias
     # sudo ip address del 192.168.1.6/24 dev eno1
     #
-    alias v 'git commit -m "version update" -n; git push'
+    alias v 'git commit -m "Version update" -n; git pull && git push'
 
     alias wgup 'sudo wg-quick up'
     alias wgdown 'sudo wg-quick up'
