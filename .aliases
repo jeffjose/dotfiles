@@ -331,6 +331,7 @@
 
     alias curlmobile 'curl -H "User-Agent: Mozilla/5.0 (Linux; Android 5.1.1; Nexus 6 Build/LYZ28E) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.75 Mobile Safari/537.36"'
     alias curlgoogle "curl --user-agent 'Googlebot/2.1 (+http://www.google.com/bot.html)'"
+    alias curldiscord "curl --user-agent 'Mozilla/5.0 (compatible; Discordbot/2.0; +https://discord.com)'"
     alias curlall 'rm /tmp/curl*; curl \!* > /tmp/curl.normal.html; curlmobile \!* > /tmp/curl.mobile.html; curlgoogle \!* > /tmp/curl.google.html;'
     alias curlsxg "rm /tmp/curl.sxg; curl -H 'Accept: application/signed-exchange;v=b3' -H 'AMP-Cache-Transform: google;v="'"1"'"' > /tmp/curl.sxg"
 
