@@ -25,11 +25,21 @@ echo -e ''
 yarn global upgrade all
 
 # Flutter
-flutter upgrade
+flutter upgrade --force
 
 # Rust
 rustup update stable
-cargo install-update -a
+cargo install cargo-update && cargo install-update -a
 
 # Go
 go get -u all
+
+# Update apps
+echo -e ''
+echo -e '---------------------------------------------------------'
+echo -e 'Updating vim, code & chrome'
+echo -e '---------------------------------------------------------'
+echo -e ''
+update_vim
+update_code
+update_chrome
