@@ -58,6 +58,7 @@ if ( ! $?prompt ) exit
 
     setenv GOOGLECLOUDPATH      $HOME/google-cloud-sdk
     setenv GOPATH               $HOME/go
+    setenv BUNPATH               $HOME/.bun/
     setenv MINICONDAPATH        $HOME/miniconda3
     setenv ANACONDAPATH         $HOME/anaconda3
     setenv DARTPATH             /usr/lib/dart
@@ -76,7 +77,7 @@ if ( ! $?prompt ) exit
 
     setenv BREWPATH /home/linuxbrew/.linuxbrew
 
-    setenv PATH ${GOOGLECLOUDPATH}/bin:${CARGOPATH}/bin:${KREWPATH}/bin:${BREWPATH}/bin:${YARNPATH}/bin:${MINICONDAPATH}/bin:${ANACONDAPATH}/bin:${GOPATH}/bin:${DARTPATH}/bin:${GOOGLEDARTPATH}/bin:${JAVA_HOME}/bin:${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/build-tools/${ANDROID_VER}:${HOME}/.pub-cache/bin:${HOME}/bin:${HOME}/.local/bin:/usr/sbin:${PATH}
+    setenv PATH ${GOOGLECLOUDPATH}/bin:${CARGOPATH}/bin:${KREWPATH}/bin:${BREWPATH}/bin:${YARNPATH}/bin:${MINICONDAPATH}/bin:${ANACONDAPATH}/bin:${GOPATH}/bin:${BUNPATH}/bin:${DARTPATH}/bin:${GOOGLEDARTPATH}/bin:${JAVA_HOME}/bin:${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/build-tools/${ANDROID_VER}:${HOME}/.pub-cache/bin:${HOME}/bin:${HOME}/.local/bin:/usr/sbin:${PATH}
 
     setenv PYTHONPATH $HOME/.local/lib/python2.7/site-packages:/usr/local/buildtools/current/sitecustomize
 
