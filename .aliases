@@ -570,7 +570,7 @@
 
     alias wg 'sudo wg'
 
-    alias mediainfo 'mediainfo --Output=file://$HOME/dotfiles/mediainfo.tmpl'
+    alias mediainfo 'mediainfo --Output=file://$HOME/dotfiles/mediainfo.tmpl \!* | sed "s@ GiB@G@"'
 
     # Google
     #
