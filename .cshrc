@@ -66,6 +66,8 @@ if ( ! $?prompt ) exit
     setenv GOOGLEDARTPATH       /usr/lib/google-dartlang
     setenv CARGOPATH            $HOME/.cargo
     setenv KREWPATH            $HOME/.krew
+    setenv PYENVPATH            $HOME/.pyenv
+    setenv PYENVSHIMSPATH            $HOME/.pyenv/shims/
 
     setenv ANDROID_HOME         $HOME/Android/Sdk
     setenv ANDROID_NDK_HOME     $HOME/Android/Ndk
@@ -77,9 +79,11 @@ if ( ! $?prompt ) exit
 
     setenv BREWPATH /home/linuxbrew/.linuxbrew
 
-    setenv PATH ${GOOGLECLOUDPATH}/bin:${CARGOPATH}/bin:${KREWPATH}/bin:${BREWPATH}/bin:${YARNPATH}/bin:${MINICONDAPATH}/bin:${ANACONDAPATH}/bin:${GOPATH}/bin:${BUNPATH}/bin:${DARTPATH}/bin:${GOOGLEDARTPATH}/bin:${JAVA_HOME}/bin:${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/build-tools/${ANDROID_VER}:${HOME}/.pub-cache/bin:${HOME}/bin:${HOME}/.local/bin:/usr/sbin:${PATH}
+    setenv PATH ${GOOGLECLOUDPATH}/bin:${CARGOPATH}/bin:${KREWPATH}/bin:${PYENVPATH}/bin:${PYENVSHIMSPATH}:${BREWPATH}/bin:${YARNPATH}/bin:${MINICONDAPATH}/bin:${ANACONDAPATH}/bin:${GOPATH}/bin:${BUNPATH}/bin:${DARTPATH}/bin:${GOOGLEDARTPATH}/bin:${JAVA_HOME}/bin:${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/build-tools/${ANDROID_VER}:${HOME}/.pub-cache/bin:${HOME}/bin:${HOME}/.local/bin:/usr/sbin:${PATH}
 
-    setenv PYTHONPATH $HOME/.local/lib/python2.7/site-packages:/usr/local/buildtools/current/sitecustomize
+    #setenv PYTHONPATH $HOME/.local/lib/python2.7/site-packages:/usr/local/buildtools/current/sitecustomize
+
+    setenv PIPENV_PYTHON $HOME/.pyenv/shims/python
 
     # cd completions should ignore blaze directories
     complete cd 'p/1/d:^{blaze-bin,blaze-genfiles,blaze-google3,blaze-out,blaze-testlogs,READONLY}/'
