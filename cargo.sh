@@ -39,6 +39,9 @@ CRATES=(
   # timezone update
   tzupdate
 
+  # Binary install
+  cargo-binstall
+
 )
 
 # Install. This command doesnt update installed packages
