@@ -45,7 +45,13 @@ CRATES=(
   # name generator
   names
 
-)
+  # Cargo make (alt to yarn run / npm run)
+  cargo-make
+
+  # cache stats
+  cargo-cache
+
+
 
 # Install. This command doesnt update installed packages
 $HOME/.cargo/bin/cargo install ${CRATES[*]}

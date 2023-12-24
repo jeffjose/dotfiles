@@ -48,13 +48,6 @@ if ( ! $?prompt ) exit
     setenv P4DIFF meld
 
     source ~/.aliases
-    #source ~/.prompt
-
-    # Setup our precmd; this gets executed before every prompt
-    #alias precmd 'source ~/.precmd'
-
-    # cwdcmd gets executed after every cd
-    #alias cwdcmd 'source ~/.cwdcmd'
 
     setenv GOOGLECLOUDPATH      $HOME/google-cloud-sdk
     setenv GOPATH               $HOME/go
@@ -135,4 +128,12 @@ if ( ! $?prompt ) exit
         scrn -x -R -S default
     endif
 
-eval `starship init tcsh`
+#eval `starship init tcsh`
+
+source ~/.prompt
+
+# Setup our precmd; this gets executed before every prompt
+alias precmd 'source ~/.precmd'
+
+# cwdcmd gets executed after every cd
+alias cwdcmd 'source ~/.cwdcmd'
