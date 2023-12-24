@@ -42,6 +42,9 @@ CRATES=(
   # Binary install
   cargo-binstall
 
+  # name generator
+  names
+
 )
 
 # Install. This command doesnt update installed packages
