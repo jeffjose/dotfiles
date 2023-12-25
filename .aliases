@@ -26,7 +26,7 @@
     alias aliases vim ~/.aliases
     alias del rm -rf
 
-    alias sipy  poetry run ipython
+    alias sipy  poetry run ipython3
 
     alias ffmpeg ffmpeg -hide_banner
     alias ffprobe ffprobe -hide_banner
@@ -571,6 +571,7 @@
     alias wgdown 'sudo wg-quick up'
 
     alias wg 'sudo wg'
+    alias m makers
 
     alias mediainfo 'mediainfo --Output=file://$HOME/dotfiles/mediainfo.tmpl \!* | sed "s@ GiB@G@"'
 
