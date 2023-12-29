@@ -78,8 +78,8 @@
     alias du 'du --total'
 
 # Navigation
-    alias ack ack -i
-    alias acki ack
+    #alias ack ack -i
+    alias ack rg -i
 
     alias fb 'thunar . &'
 
@@ -458,6 +458,7 @@
     # Generate random base64
     alias random 'openssl rand -base64 \!* | tee /dev/$tty | xclip'
     alias r random 6
+    alias r 'pwgen \!* -n 10'
     alias rand10 random 10
 
     #

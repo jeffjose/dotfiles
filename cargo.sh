@@ -51,7 +51,9 @@ CRATES=(
   # cache stats
   cargo-cache
 
-
+  # ripgrep (replacement for ack)
+  ripgrep
+)
 
 # Install. This command doesnt update installed packages
 $HOME/.cargo/bin/cargo install ${CRATES[*]}
