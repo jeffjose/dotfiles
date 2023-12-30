@@ -45,7 +45,7 @@ ln $HOME/dotfiles/.colordiffrc $HOME/.colordiffrc
 rm $HOME/.cshrc
 ln $HOME/dotfiles/.cshrc $HOME/.cshrc
 rm $HOME/.tcshrc
-ln $HOME/dotfiles/.tcshrc $HOME/.tcshrc
+#ln $HOME/dotfiles/.tcshrc $HOME/.tcshrc
 rm $HOME/.cwdcmd
 ln $HOME/dotfiles/.cwdcmd $HOME/.cwdcmd
 rm $HOME/.gitconfig
