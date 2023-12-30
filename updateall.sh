@@ -25,7 +25,7 @@ echo -e ''
 yarn global upgrade all
 
 # Flutter
-flutter upgrade --force
+#flutter upgrade --force
 
 # Rust
 rustup update stable
