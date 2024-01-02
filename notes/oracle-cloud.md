@@ -7,10 +7,22 @@
     - 80 for traffic
 
 
+# Install
+```
+sudo systemctl enable firewalld
+sudo systemctl start firewalld
+```
+
 # Export 80/tcp and 80/udp
 ```
 sudo firewall-cmd  --permanent --zone=public --add-port=80/tcp
 sudo firewall-cmd  --permanent --zone=public --add-port=80/udp
+
+sudo firewall-cmd  --permanent --zone=public --add-port=9221/tcp
+sudo firewall-cmd  --permanent --zone=public --add-port=9221/udp
+
+sudo firewall-cmd  --permanent --zone=public --add-port=6379/tcp
+sudo firewall-cmd  --permanent --zone=public --add-port=6379/udp
 ```
 
 # Reload
