@@ -9,3 +9,8 @@
 - NAT > Outboun
  - WAN, source=192.168.3.0/24, srcport=51823:51830, dest=*, destport=*, NAT=WAN, NATport=*, STATIC=yes
  - NETMAKER, src=any,srcport=*, destination=200.200.0.0/24, destport=*, NO NAT
+
+
+# Important
+- Make sure the wg port on clients is 51823+.
+- It is OK for oracle to have 51821 (or 51820, 51822)
