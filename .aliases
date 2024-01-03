@@ -524,7 +524,8 @@
     alias kssecretfile 'sudo kubectl create secret generic \!:2 --from-file=\!:1 --dry-run=client -o yaml | sudo ~jeffjose/bin/kubeseal --scope cluster-wide --controller-namespace argocd --controller-name sealed-secrets --format yaml --kubeconfig /etc/rancher/k3s/k3s.yaml | tee sealed-\!:2.yaml'
 
     alias kbash     'sudo kubectl run test -it --rm --image \!* -- bash'
-    alias kbash-utils     'sudo kubectl run test -it --rm --image jonlabelle/network-tools -- bash'
+    alias kutils     'sudo kubectl run utils -it --rm --image jonlabelle/network-tools -- bash'
+    alias kdnsutils     'sudo kubectl run dnsutils -it --rm --image registry.k8s.io/e2e-test-images/jessie-dnsutils:latest -- bash'
     alias ksh     'sudo kubectl run test -it --rm --image \!* -- sh'
 
     alias fmt 'npx -y prettier --write'
