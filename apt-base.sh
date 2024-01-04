@@ -41,6 +41,7 @@ PACKAGES=(
   liblinux-lvm-perl
   python-is-python3
   fd-find
+  pwgen
 
   # To make `cargo install cargo-update` work
   libssl-dev
