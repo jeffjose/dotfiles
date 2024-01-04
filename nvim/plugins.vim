@@ -48,9 +48,6 @@ Plug 'hrsh7th/cmp-buffer'
 
 " See hrsh7th's other plugins for more completion sources!
 
-" To enable more of the features of rust-analyzer, such as inlay hints and more!
-Plug 'simrat39/rust-tools.nvim'
-
 " Snippet engine
 Plug 'hrsh7th/vim-vsnip'
 
