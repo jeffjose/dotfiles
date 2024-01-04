@@ -7,6 +7,8 @@ echo "-----------------"
 echo "Cargo / Rust"
 echo "-----------------"
 
+rustup update stable
+
 CRATES=(
 
   # find replacement
