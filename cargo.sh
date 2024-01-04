@@ -9,6 +9,9 @@ echo "-----------------"
 
 CRATES=(
 
+  # find replacement
+  fd-find
+
   # For gitstatus (prompt)
   timeago-cli
 
