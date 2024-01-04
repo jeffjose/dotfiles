@@ -44,6 +44,9 @@ PACKAGES=(
 
   # To make `cargo install cargo-update` work
   libssl-dev
+
+  # for cargo/rust
+  cmake
 )
 
 install() {
