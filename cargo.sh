@@ -33,8 +33,6 @@ CRATES=(
   # find replacement
   find-files
 
-  # cut replacement
-  tuc --features regex
 
   # timezone update
   tzupdate
@@ -57,6 +55,8 @@ CRATES=(
 
 # Install. This command doesnt update installed packages
 $HOME/.cargo/bin/cargo install ${CRATES[*]}
+
+$HOME/.cargo/bin/cargo install  tuc --features regex
 
 # Update installed packages
 $HOME/.cargo/bin/cargo install-update -a
