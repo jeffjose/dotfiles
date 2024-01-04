@@ -527,6 +527,7 @@
     alias kutils     'sudo kubectl run utils -it --rm --image jonlabelle/network-tools -- bash'
     alias kdnsutils     'sudo kubectl run dnsutils -it --rm --image gcr.io/kubernetes-e2e-test-images/dnsutils:1.3 -- sh'
     alias ksh     'sudo kubectl run test -it --rm --image \!* -- sh'
+    alias knodes "sudo kubectl get pods -A -o json | jq -r '.items | .[].spec.nodeName' | grep -v null | sort | uniq -c | sort -nr"
 
     alias fmt 'npx -y prettier --write'
 
