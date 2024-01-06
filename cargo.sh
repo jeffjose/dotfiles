@@ -56,6 +56,9 @@ CRATES=(
 
   # ripgrep (replacement for ack)
   ripgrep
+
+  # xh is alternative to httpie / curl
+  xh
 )
 
 # Install. This command doesnt update installed packages
