@@ -68,3 +68,6 @@ $HOME/.cargo/bin/cargo install  tuc --features regex
 
 # Update installed packages
 $HOME/.cargo/bin/cargo install-update -a
+
+# update toolchain to latest
+rustup stable

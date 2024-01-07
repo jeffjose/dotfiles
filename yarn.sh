@@ -40,7 +40,13 @@ PACKAGES=(
   brotli-size-cli
   gzip-size-cli
 
+  # Manage nodejs version
+  n
+
 )
 
 # Run
 $HOME/.yarn/bin/yarn global add ${PACKAGES[*]}
+
+# Update node to latest
+sudo $HOME/.yarn/bin/n latest
