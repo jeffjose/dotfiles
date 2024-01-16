@@ -7,6 +7,10 @@ echo "-----------------"
 echo "Yarn"
 echo "-----------------"
 
+
+# Update node to latest
+sudo $HOME/.yarn/bin/n latest
+
 PACKAGES=(
 
   # npm
@@ -47,6 +51,3 @@ PACKAGES=(
 
 # Run
 $HOME/.yarn/bin/yarn global add ${PACKAGES[*]}
-
-# Update node to latest
-sudo $HOME/.yarn/bin/n latest
