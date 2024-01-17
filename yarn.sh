@@ -49,6 +49,8 @@ PACKAGES=(
 
   vercel
 
+  n
+
 )
 
 # Run
