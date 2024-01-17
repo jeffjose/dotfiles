@@ -44,7 +44,7 @@ rm $HOME/.colordiffrc
 ln $HOME/dotfiles/.colordiffrc $HOME/.colordiffrc
 rm $HOME/.cshrc
 ln $HOME/dotfiles/.cshrc $HOME/.cshrc
-rm $HOME/.tcshrc
+rm $HOME/.tcshrc -f
 #ln $HOME/dotfiles/.tcshrc $HOME/.tcshrc
 rm $HOME/.cwdcmd
 ln $HOME/dotfiles/.cwdcmd $HOME/.cwdcmd

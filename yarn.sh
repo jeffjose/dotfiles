@@ -47,6 +47,8 @@ PACKAGES=(
   # Manage nodejs version
   n
 
+  vercel
+
 )
 
 # Run
