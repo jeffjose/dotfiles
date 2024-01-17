@@ -193,7 +193,7 @@
 
     alias d    'cd ~/Downloads'
     alias s    'cd ~/scripts'
-    alias n    'cd ~/notes'
+    #alias n    'cd ~/notes'
     #alias c    'cd /mnt/disk2/coursera'
     #alias a    'cd ~/Downloads/acads'
     #alias tuts 'cd /mnt/disk1/tuts'
