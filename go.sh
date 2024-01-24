@@ -9,14 +9,14 @@ echo "-----------------"
 PACKAGES=(
 
   # Work with JSON
-  github.com/tomnomnom/gron
+  github.com/tomnomnom/gron@latest
 
   # watch replacement
-  github.com/antonmedv/watch
+  github.com/antonmedv/watch@latest
 
-  github.com/ericchiang/pup
+  github.com/ericchiang/pup@latest
 )
 
 echo "Installing ${PACKAGES[@]}"
 
-go get -v -u ${PACKAGES[*]}
+go install -v ${PACKAGES[*]}
