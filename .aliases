@@ -578,6 +578,9 @@
 
     alias mediainfo 'mediainfo --Output=file://$HOME/dotfiles/mediainfo.tmpl \!* | sed "s@ GiB@G@"'
 
+    alias pikpakcli '$HOME/scripts/pikpakcli/pikpakcli --config $HOME/scripts/pikpakcli/config.yml'
+    alias sync_pikpak 'pikpakcli download -P \!* -g -c 3'
+
     # Google
     #
     #
