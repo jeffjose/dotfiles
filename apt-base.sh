@@ -47,6 +47,9 @@ PACKAGES=(
 
   # for cargo/rust
   cmake
+
+  # Shell command outputs as json
+  jc
 )
 
 install() {
