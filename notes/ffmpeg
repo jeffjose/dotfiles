@@ -1,3 +1,12 @@
 # Remove 0, 2, 3, 4 audio tracks, except index 1
-
+#
 ffmpeg -i original.mkv -map 0 -map -0:a:0? -map -0:a:2? -map -0:a:3? -map -0:a:4? -c copy fixed.mkv
+
+# Remove all audio tracks exxcept the one named "mal"
+#
+ffmpeg -i original.mkv -map 0:V -map 0:s -map 0:d? -map 0:t -map 0:a:m:language:mal -c copy new.mkv
+
+
+# Remove all audio tracks except index 1
+#
+ffmpeg -i original.mkv -map 0:V -map 0:s -map 0:d? -map 0:t? -map 0:a:1 -c copy new.mkv
