@@ -1,0 +1,3 @@
+# Remove 0, 2, 3, 4 audio tracks, except index 1
+
+ffmpeg -i original.mkv -map 0 -map -0:a:0? -map -0:a:2? -map -0:a:3? -map -0:a:4? -c copy fixed.mkv
