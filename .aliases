@@ -192,6 +192,7 @@
     #alias disk2 'cd /mnt/disk2'
 
     alias d    'cd ~/Downloads'
+    alias dx    'cd ~/Downloads/dropbox'
     alias s    'cd ~/scripts'
     #alias n    'cd ~/notes'
     #alias c    'cd /mnt/disk2/coursera'
@@ -379,6 +380,8 @@
     alias sc scripts
 
     alias deps 'cat package.json | jq "{deps: .dependencies, dev: .devDependencies}"'
+
+    alias jc 'jq .'
 
     alias vpn_status 'curl -sS https://www.privateinternetaccess.com/ | grep --color=never -o "You are protected"'
 
