@@ -210,6 +210,7 @@
     alias jd 'cd /mnt/matterhorn/jdownloader/data'
     alias dd 'cd /mnt/matterhorn/deluge/data/incomplete'
     alias f1 'cd ~/scripts/formula1'
+    alias m 'cd ~/scripts/moneypile'
     alias g 'cd ~/scripts/goodreads-api/'
     alias k8s 'cd ~/scripts/k8s'
 
@@ -575,7 +576,6 @@
     alias wgdown 'sudo wg-quick up'
 
     alias wg 'sudo wg'
-    alias m makers
 
     alias mediainfo 'mediainfo --Output=file://$HOME/dotfiles/mediainfo.tmpl \!* | sed "s@ GiB@G@"'
 
