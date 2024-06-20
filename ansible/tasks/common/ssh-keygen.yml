@@ -1,5 +1,0 @@
-- name: "SSH: Create id_rsa key"
-  openssh_keypair:
-    path: "{{ansible_user_dir}}/.ssh/id_rsa"
-  tags:
-    - ssh

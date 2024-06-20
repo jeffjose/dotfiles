@@ -1,6 +1,0 @@
-[server]
-ansible-test ansible_user=jeffjose
-#matterhorn ansible_user=jeffjose
-
-[desktop]
-#skyfall ansible_user=jeffjose ansible_connection=local
