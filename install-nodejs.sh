@@ -13,7 +13,7 @@ sudo apt remove -y nodejs
 sudo apt remove -y nodejs-doc
 
 # Using Ubuntu
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
 
 sudo apt install -y g++ build-essential libnode72
 
