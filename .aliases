@@ -33,6 +33,7 @@
 
     alias x 'echo "Running ~/.xsession .."; ~/.xsession'
     alias xk 'pkill xscreensaver'
+    alias tk 'pkill tilix'
 
     alias grep grep -iE --color=always
 
