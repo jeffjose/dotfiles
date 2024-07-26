@@ -32,7 +32,7 @@
     alias ffprobe ffprobe -hide_banner
 
     alias x 'echo "Running ~/.xsession .."; ~/.xsession'
-    alias xk 'pkill xscreensaver'
+    alias xk 'pkill xfce4-screen'
     alias tk 'pkill tilix'
 
     alias grep grep -iE --color=always
