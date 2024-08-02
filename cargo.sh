@@ -59,6 +59,9 @@ CRATES=(
 
   # xh is alternative to httpie / curl
   xh
+
+  # gifski for gif
+  gifski
 )
 
 # Install. This command doesnt update installed packages
