@@ -27,19 +27,17 @@ yarn global upgrade all
 # Flutter
 #flutter upgrade --force
 
-# Rust
-rustup update stable
-cargo install cargo-update && cargo install-update -a
-
-# Go
-go get -u all
+# Go (doesnt work)
+# go get -u all
 
 # Update apps
 echo -e ''
 echo -e '---------------------------------------------------------'
-echo -e 'Updating vim, code & chrome'
+echo -e 'Updating rust, vim, code & chrome'
 echo -e '---------------------------------------------------------'
 echo -e ''
-update_vim
-update_code
-update_chrome
+
+$HOME/dotfiles/update_rust.sh
+$HOME/dotfiles/update_vim.sh
+$HOME/dotfiles/update_code.sh
+$HOME/dotfiles/update_chrome.sh

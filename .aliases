@@ -170,6 +170,9 @@
     alias firstrun  ~/dotfiles/firstrun
     alias setup     '~/dotfiles/setup; so'
     alias updateall ~/dotfiles/updateall.sh
+
+    alias updateall-quick ~/dotfiles/updateall-quick.sh
+
     alias gift ~/dotfiles/gift.sh
 
     alias ubuntuupdate 'sudo do-release-upgrade -d'
@@ -544,15 +547,11 @@
 
     alias sshfix 'ssh-keygen -f ~/.ssh/known_hosts -R \!*; ssh \!*'
 
-    alias download_code 'wget -O /tmp/code.deb "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"'
-    alias update_code 'download_code; gdebi /tmp/code.deb'
 
-    alias download_chrome 'wget -O /tmp/chrome.deb "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"'
-    alias update_chrome 'download_chrome; gdebi /tmp/chrome.deb'
-
-    alias download_vim 'wget -O /tmp/nvim "https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage"'
-    alias get_vim_version '/usr/bin/nvim --version | grep "NVIM v" --color=never'
-    alias update_vim 'download_vim; get_vim_version; sudo mv /tmp/nvim /usr/bin/nvim; sudo chmod a+rwx /usr/bin/nvim; get_vim_version'
+    alias update_rust '~/dotfiles/update_rust.sh'
+    alias update_vim '~/dotfiles/update_vim.sh'
+    alias update_chrome '~/dotfiles/update_chrome.sh'
+    alias update_code '~/dotfiles/update_code.sh'
 
 
     alias install_deb 'wget -O /tmp/install-package.deb "\!*"; gdebi /tmp/install-package.deb'
