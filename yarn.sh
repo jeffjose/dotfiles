@@ -7,8 +7,8 @@ echo "-----------------"
 echo "Yarn"
 echo "-----------------"
 
-
 # Update node to latest
+$HOME/.yarn/bin/yarn global add n
 sudo $HOME/.yarn/bin/n latest
 
 PACKAGES=(
@@ -36,7 +36,6 @@ PACKAGES=(
   # degit
   degit
 
-
   #jest
   jest
 
@@ -50,6 +49,8 @@ PACKAGES=(
   vercel
 
   n
+
+  pnpm
 
 )
 
