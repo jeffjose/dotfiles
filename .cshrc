@@ -70,7 +70,7 @@ if ( ! $?prompt ) exit
 
     #setenv GITMULTIPATH         /google/data/ro/users/mp/mpn/git-stuff
 
-    setenv JAVA_HOME /usr/lib/jvm/java-13-openjdk-amd64/
+    setenv JAVA_HOME /usr/lib/jvm/java-18-openjdk-amd64/
 
     setenv BREWPATH /home/linuxbrew/.linuxbrew
 
