@@ -13,9 +13,6 @@ sudo $HOME/.yarn/bin/n latest
 
 PACKAGES=(
 
-  # npm
-  npm@latest
-
   t-get yarn-recursive npx coffeescript less firebase firebase-tools peerflix gulp-cli
 
   # Typescript
