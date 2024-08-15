@@ -24,7 +24,9 @@ CRATES=(
   cargo-edit
 
   # For doing background .rs file source check
-  bacon
+  # #
+  # Commenting out to save resources
+  #bacon
 
   # git summary
   onefetch
