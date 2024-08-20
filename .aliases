@@ -297,6 +297,7 @@
     #alias clean_newlines 'clean_newlines1 \!*; clean_newlines2 \!*; clean_newlines3 \!*; clean_newlines4 \!*;'
 
     alias android-studio '$HOME/Downloads/android-studio/bin/studio.sh'
+    alias studio '/opt/android-studio-with-blaze-stable/bin/studio.sh'
 
     alias emulator-list-all 'emulator -list-avds'
     alias avd-clean 'rm -vrf ~/.android/avd/*.avd/userdata-qemu.img ~/.android/avd/*.avd/snapshots/'
