@@ -66,6 +66,7 @@ if ( ! $?prompt ) exit
 
     setenv ANDROID_HOME         $HOME/Android/Sdk
     setenv ANDROID_NDK_HOME     $HOME/Android/Ndk
+    setenv ANDROID_SDK_ROOT     $HOME/Android/Sdk
     setenv ANDROID_VER          30.0.2
 
     #setenv GITMULTIPATH         /google/data/ro/users/mp/mpn/git-stuff
