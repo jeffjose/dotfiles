@@ -64,6 +64,9 @@ CRATES=(
 
   # gifski for gif
   gifski
+
+  # rustic
+  rustic-rs
 )
 
 # Install. This command doesnt update installed packages
