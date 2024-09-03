@@ -65,7 +65,7 @@ CRATES=(
   # gifski for gif
   gifski
 
-  # rustic
+  # rustic (rust version of restic backup)
   rustic-rs
 )
 
