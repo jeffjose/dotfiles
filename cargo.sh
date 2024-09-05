@@ -67,6 +67,9 @@ CRATES=(
 
   # rustic (rust version of restic backup)
   rustic-rs
+
+  # hyperfine (benchmarking)
+  hyperfine
 )
 
 # Install. This command doesnt update installed packages
