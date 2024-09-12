@@ -15,6 +15,9 @@ PACKAGES=(
   github.com/antonmedv/watch@latest
 
   github.com/ericchiang/pup@latest
+
+  # json diff
+  github.com/josephburnett/jd@latest
 )
 
 echo "Installing ${PACKAGES[@]}"
