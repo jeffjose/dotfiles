@@ -20,6 +20,9 @@ PACKAGES=(
   github.com/josephburnett/jd@latest
 )
 
-echo "Installing ${PACKAGES[@]}"
-
-go install -v ${PACKAGES[*]}
+for package in ${PACKAGES[@]}
+do
+  echo "Installing $package"
+  go install -v $package
+  echo ""
+done
