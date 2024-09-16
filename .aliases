@@ -211,7 +211,6 @@
     alias px 'cd ~/scripts/redditpx'
     #alias dis 'cd ~/scripts/distributions'
     alias plex 'cd /mnt/matterhorn/Plex'
-    alias jd 'cd /mnt/matterhorn/jdownloader/data'
     alias dd 'cd /mnt/matterhorn/deluge/data/incomplete'
     alias f1 'cd ~/scripts/formula1'
     alias m 'cd ~/scripts/moneypile'
