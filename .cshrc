@@ -81,6 +81,8 @@ if ( ! $?prompt ) exit
 
     setenv PIPENV_PYTHON $HOME/.pyenv/shims/python
 
+    setenv LD_LIBRARY_PATH /lib:/usr/lib:/usr/local/lib
+
     # cd completions should ignore blaze directories
     complete cd 'p/1/d:^{blaze-bin,blaze-genfiles,blaze-google3,blaze-out,blaze-testlogs,READONLY}/'
 
