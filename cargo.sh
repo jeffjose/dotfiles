@@ -70,6 +70,9 @@ CRATES=(
 
   # hyperfine (benchmarking)
   hyperfine
+
+  # git-absorb
+  git-absorb
 )
 
 # Install. This command doesnt update installed packages
