@@ -10,7 +10,9 @@ echo "Installing VS Code ..."
 echo -n "Before: "
 code --version | head -n 1
 
-wget -qO /tmp/code.deb "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
+wget -qO /tmp/code.deb \
+  --header="user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36" \
+  "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
 
 sudo dpkg -Ei /tmp/code.deb
 
