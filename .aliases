@@ -278,7 +278,7 @@
     alias update-ubuntu 'updateall; install dist-upgrade; sudo do-release-upgrade -d'
 
     alias rsync 'rsync --stats --progress'
-    alias rsync-cp 'rsync -avzh \!*'
+    alias rsync-cp 'rsync --exclude "*.partial" -avzh \!*'
 
     alias notes 'cd ~/notes'
 
