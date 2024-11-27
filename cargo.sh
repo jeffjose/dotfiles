@@ -73,6 +73,10 @@ CRATES=(
 
   # git-absorb
   git-absorb
+
+
+  # lla - alternative to ls with plugin support
+  lla
 )
 
 # Install. This command doesnt update installed packages
