@@ -1,153 +1,208 @@
-# Jeffrey Jose
+#!/bin/bash
 #
-# Jan 17, 2021
+# Jeffrey Jose | Jan 17, 2021
+#
 
+# Constants
+DOTFILES_DIR="$HOME/dotfiles"
+DEFAULT_USER="jeffjose"
+DEFAULT_EMAIL="jeffjosejeff@gmail.com"
+SSH_KEY_PATH="$HOME/.ssh/id_rsa"
+
+# Track task status
+declare -a failed_tasks=()
+declare -a warning_tasks=()
+declare -i total_tasks=0
+
+# Function to run a task and track its success/failure
+run_task() {
+  local task_name="$1"
+  shift
+  ((total_tasks++))
+  echo -e "\n📦 $task_name..."
+  if "$@" 2>/tmp/task_error; then
+    echo "✅ $task_name completed successfully"
+    return 0
+  else
+    local exit_code=$?
+    if [ $exit_code -eq 1 ]; then
+      echo "⚠️  $task_name completed with warnings"
+      warning_tasks+=("$task_name ($(cat /tmp/task_error))")
+    else
+      echo "❌ $task_name failed"
+      failed_tasks+=("$task_name ($(cat /tmp/task_error))")
+    fi
+    return $exit_code
+  fi
+}
+
+# Print usage information
 usage() {
   echo "Usage: firstrun [base|server|gui]"
+  echo "  base   - Basic system setup"
+  echo "  server - Server setup (includes base)"
+  echo "  gui    - GUI setup (includes server)"
   exit 1
 }
 
-runsetup() {
-
-  $HOME/dotfiles/setup
-
+# Run common setup tasks
+run_setup() {
+  echo -e "\n🔄 Running Common Setup"
+  echo "-----------------------------------"
+  run_task "Running setup script" "$DOTFILES_DIR/setup"
 }
 
-runbase() {
+# Base setup tasks
+run_base() {
+  echo -e "\n🔄 Running Base Setup"
+  echo "-----------------------------------"
 
-  $HOME/dotfiles/setup_user jeffjose
+  run_task "Setting up user" "$DOTFILES_DIR/setup_user" "$DEFAULT_USER"
+  run_task "Installing base packages" "$DOTFILES_DIR/apt-base.sh"
+  run_task "Setting up base PPAs" "$DOTFILES_DIR/ppa-base.sh"
+  run_task "Patching NTP config" sudo patch -f /etc/ntp.conf ntp.patch
+  run_task "Cleaning packages" sudo apt autoremove
+  run_task "Setting up Vim" "$DOTFILES_DIR/vim.sh"
 
-  $HOME/dotfiles/apt-base.sh
-  $HOME/dotfiles/ppa-base.sh
-
-  # Patch ntp servers
-  sudo patch -f /etc/ntp.conf ntp.patch
-
-  # Remove packages
-  sudo apt autoremove
-
-  # VIM
-  $HOME/dotfiles/vim.sh
-
-  # Cargo / Rust
+  # Install Rust and cargo packages
+  echo -e "\n📦 Installing Rust..."
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-  $HOME/.cargo/bin/cargo install timeago-cli
+  run_task "Installing timeago-cli" "$HOME/.cargo/bin/cargo" install timeago-cli
 
-  # watch cli replacement
-  go get github.com/antonmedv/watch
+  # Install Go packages
+  run_task "Installing watch CLI" go get github.com/antonmedv/watch
 
-  # SSH
-  false | ssh-keygen -t rsa -b 4096 -C "jeffjosejeff@gmail.com" -f $HOME/.ssh/id_rsa -q -N ""
-  ssh-add $HOME/.ssh/id_rsa
+  # Setup SSH
+  echo -e "\n📦 Setting up SSH..."
+  if [ ! -f "$SSH_KEY_PATH" ]; then
+    run_task "Generating SSH key" ssh-keygen -t rsa -b 4096 -C "$DEFAULT_EMAIL" -f "$SSH_KEY_PATH" -q -N ""
+  fi
+  run_task "Adding SSH key" ssh-add "$SSH_KEY_PATH"
 
-  # Setup SHELL
-  sudo chsh -s /bin/tcsh jeffjose
-
+  # Set default shell
+  run_task "Setting default shell" sudo chsh -s /bin/tcsh "$DEFAULT_USER"
 }
 
-_runcommonservergui() {
+# Common server and GUI tasks
+run_common_server_gui() {
+  echo -e "\n🔄 Running Common Server/GUI Setup"
+  echo "-----------------------------------"
 
-  # linuxbrew
+  # Install Linuxbrew
+  echo -e "\n📦 Installing Linuxbrew..."
   yes | sh -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-  # Install yarn
+  # Install Yarn
+  echo -e "\n📦 Installing Yarn..."
   curl -o- -L https://yarnpkg.com/install.sh | bash
+  run_task "Setting up Yarn packages" "$DOTFILES_DIR/yarn.sh"
 
-  # Yarn packages
-  $HOME/dotfiles/yarn.sh
-
-  $HOME/dotfiles/cargo.sh
-
-  # Go packages
-  $HOME/dotfiles/go.sh
-
-  # Fonts
-  $HOME/dotfiles/fonts.sh
-
-  # Podman
-  $HOME/dotfiles/podman.sh
-
-  # pip install
-  $HOME/dotfiles/pip.sh
+  # Install various packages
+  run_task "Setting up Cargo packages" "$DOTFILES_DIR/cargo.sh"
+  run_task "Setting up Go packages" "$DOTFILES_DIR/go.sh"
+  run_task "Setting up fonts" "$DOTFILES_DIR/fonts.sh"
+  run_task "Setting up Podman" "$DOTFILES_DIR/podman.sh"
+  run_task "Setting up pip packages" "$DOTFILES_DIR/pip.sh"
 }
 
-runserver() {
+# Server setup tasks
+run_server() {
+  echo -e "\n🔄 Running Server Setup"
+  echo "-----------------------------------"
 
-  runbase
-
-  $HOME/dotfiles/apt-server.sh
-  $HOME/dotfiles/ppa-server.sh
-
-  _runcommonservergui
-
-
+  run_base
+  run_task "Installing server packages" "$DOTFILES_DIR/apt-server.sh"
+  run_task "Setting up server PPAs" "$DOTFILES_DIR/ppa-server.sh"
+  run_common_server_gui
 }
 
-rungui() {
+# GUI setup tasks
+run_gui() {
+  echo -e "\n🔄 Running GUI Setup"
+  echo "-----------------------------------"
 
-  # do everything in server first
-  runserver
+  run_server
 
-  $HOME/dotfiles/apt-gui.sh
-  $HOME/dotfiles/ppa-gui.sh
+  run_task "Installing GUI packages" "$DOTFILES_DIR/apt-gui.sh"
+  run_task "Setting up GUI PPAs" "$DOTFILES_DIR/ppa-gui.sh"
 
+  # Install and setup Espanso
+  run_task "Installing Espanso" sudo snap install espanso --classic
+  run_task "Setting up Espanso" "$DOTFILES_DIR/espanso.sh"
 
-  # Flutter
-  #sudo snap install flutter --classic
+  # Android setup
+  run_task "Setting up Android" sudo usermod -aG plugdev "$DEFAULT_USER"
+  run_task "Installing Android tools" sudo apt install android-sdk-platform-tools-common
 
-  # Espanso
-  sudo snap install espanso --classic
-  $HOME/dotfiles/espanso.sh
+  # VS Code theme setup
+  echo -e "\n📦 Setting up VS Code theme..."
+  rm -rf "$HOME/.vscode/extensions/material-theme-jeffjose"
+  mkdir -p "$HOME/.vscode/extensions"
+  run_task "Installing VS Code theme" cp -r "$DOTFILES_DIR/material-theme-jeffjose" "$HOME/.vscode/extensions/material-theme-jeffjose"
 
-  # Android
-  sudo usermod -aG plugdev jeffjose
-  sudo apt install android-sdk-platform-tools-common
+  # Terminal setup
+  run_task "Setting up Tilix" dconf load /com/gexperts/Tilix/ <tilix.dconf
+  run_task "Setting up XFCE" "$DOTFILES_DIR/xfce.sh"
 
-  # VS Code
-  rm $HOME/.vscode/extensions/material-theme-jeffjose -r
-  mkdir -p $HOME/.vscode/extensions
-  cp -r $HOME/dotfiles/material-theme-jeffjose $HOME/.vscode/extensions/material-theme-jeffjose
-
-  # Tilix
-  dconf load /com/gexperts/Tilix/ <tilix.dconf
-
-  # XFCE
-  $HOME/dotfiles/xfce.sh
-
+  # Print manual steps
+  echo -e "\n📋 Manual Steps Required:"
+  echo "1. Install Chrome (run 'update_chrome')"
+  echo "2. Install VS Code (run 'update_code')"
+  echo "3. Install Neovim (run 'update_vim')"
+  echo "4. Install Android Studio:"
+  echo "   a. Set correct Java alternative:"
+  echo "      sudo update-alternatives --config java"
+  echo "      Select: /usr/lib/jvm/java-13-openjdk-amd64/bin/java"
+  echo "   b. Use Java 8, set JAVA_HOME and accept licenses:"
+  echo "      yes | sdkmanager --licenses"
 }
 
+# Main script execution
 case "$1" in
 base)
-  echo -e ""
-  echo -e "Base setup .."
-  echo -e ""
-  runbase
-  runsetup
+  echo "🚀 Starting Base Setup"
+  echo "-----------------------------------"
+  run_base || true
+  run_setup || true
   ;;
 server)
-  echo -e ""
-  echo -e "Server setup .."
-  echo -e ""
-  runserver
-  runsetup
+  echo "🚀 Starting Server Setup"
+  echo "-----------------------------------"
+  run_server || true
+  run_setup || true
   ;;
 gui)
-  echo -e ""
-  echo -e "GUI setup.."
-  echo -e ""
-
-  rungui
-  runsetup
-
-  echo "Things manually to do"
-  echo " 1. Install Chrome (`update_chrome`)"
-  echo " 2. Install VS Code (`update_code`)"
-  echo " 3. Install Neovim (`update_vim`)"
-  echo " 3. Install Android Studio"
-  echo "   a. JAVA correct alternative (sudo update-alternatives --config java). Select - /usr/lib/jvm/java-13-openjdk-amd64/bin/java"
-  echo "   b. Use java8, change JAVA_HOME and accept accept all licenses 'yes | sdkmanager --licenses'"
+  echo "🚀 Starting GUI Setup"
+  echo "-----------------------------------"
+  run_gui || true
+  run_setup || true
   ;;
 *)
   usage
   ;;
 esac
+
+# Print summary
+echo -e "\n-----------------------------------"
+echo "📋 Setup Summary:"
+echo "Total tasks: $total_tasks"
+echo "Successful: $((total_tasks - ${#warning_tasks[@]} - ${#failed_tasks[@]}))"
+
+if [ ${#warning_tasks[@]} -gt 0 ]; then
+  echo -e "\n⚠️  Tasks with warnings (${#warning_tasks[@]}):"
+  printf '%s\n' "${warning_tasks[@]}"
+fi
+
+if [ ${#failed_tasks[@]} -gt 0 ]; then
+  echo -e "\n❌ Failed tasks (${#failed_tasks[@]}):"
+  printf '%s\n' "${failed_tasks[@]}"
+fi
+
+if [ ${#failed_tasks[@]} -eq 0 ] && [ ${#warning_tasks[@]} -eq 0 ]; then
+  echo -e "\n✨ All tasks completed successfully!"
+else
+  echo -e "\n🔄 Setup completed with some issues"
+fi
+
+# Always exit with success
+exit 0
