@@ -1,98 +1,118 @@
 #!/bin/bash
-
-# Setting up some directories
 #
 #
+set -e # Exit on error
 
-echo "--------------------------------"
-echo "Setting up dotfiles in $HOME"
-echo "--------------------------------"
+# Constants
+DOTFILES_DIR="$HOME/dotfiles"
+BACKUP_SUFFIX=".bak.$(date +%Y%m%d_%H%M%S)"
 
-mkdir -p $HOME/bin
-mkdir -p $HOME/scripts
-mkdir -p $HOME/Downloads
-mkdir -p $HOME/.screen
-mkdir -p $HOME/.config/nvim
-mkdir -p $HOME/.local/share/nvim/backup
-mkdir -p $HOME/.config/espanso
-mkdir -p $HOME/.config/containers
-mkdir -p $HOME/.config/Code/User/
-#mkdir -p $HOME/.config/catt/
-#mkdir -p $HOME/.config/xfce4/xfconf/xfce-perchannel-xml/
-mkdir -p $HOME/.ipython/profile_default/
-mkdir -p $HOME/.screenlayout
-mkdir -p $HOME/.jupyter/custom/
+# Directories to create
+DIRECTORIES=(
+  "$HOME/bin"
+  "$HOME/scripts"
+  "$HOME/Downloads"
+  "$HOME/.screen"
+  "$HOME/.config/nvim"
+  "$HOME/.local/share/nvim/backup"
+  "$HOME/.config/espanso"
+  "$HOME/.config/containers"
+  "$HOME/.config/Code/User"
+  "$HOME/.ipython/profile_default"
+  "$HOME/.screenlayout"
+  "$HOME/.jupyter/custom"
+)
 
-touch /tmp/cwdcmd_recent_dirs
+# Files to symlink (source:target)
+declare -A SYMLINKS=(
+  ["$DOTFILES_DIR/.aliases"]="$HOME/.aliases"
+  ["$DOTFILES_DIR/.aliases.bash"]="$HOME/.aliases.bash"
+  ["$DOTFILES_DIR/.colordiffrc"]="$HOME/.colordiffrc"
+  ["$DOTFILES_DIR/.cshrc"]="$HOME/.cshrc"
+  ["$DOTFILES_DIR/.cwdcmd"]="$HOME/.cwdcmd"
+  ["$DOTFILES_DIR/.gitconfig"]="$HOME/.gitconfig"
+  ["$DOTFILES_DIR/.pdbrc"]="$HOME/.pdbrc"
+  ["$DOTFILES_DIR/.precmd"]="$HOME/.precmd"
+  ["$DOTFILES_DIR/.prompt"]="$HOME/.prompt"
+  ["$DOTFILES_DIR/.screen/default"]="$HOME/.screen/default"
+  ["$DOTFILES_DIR/.screenrc"]="$HOME/.screenrc"
+  ["$DOTFILES_DIR/.tabletaliases"]="$HOME/.tabletaliases"
+  ["$DOTFILES_DIR/nvim/init.vim"]="$HOME/.vimrc"
+  ["$DOTFILES_DIR/nvim/init.vim"]="$HOME/.config/nvim/init.vim"
+  ["$DOTFILES_DIR/nvim/plugins.vim"]="$HOME/.config/nvim/plugins.vim"
+  ["$DOTFILES_DIR/.XResources"]="$HOME/.XResources"
+  ["$DOTFILES_DIR/.xmodmap"]="$HOME/.xmodmap"
+  ["$DOTFILES_DIR/.xsession"]="$HOME/.xsession"
+  ["$DOTFILES_DIR/keybindings.json"]="$HOME/.config/Code/User/keybindings.json"
+  ["$DOTFILES_DIR/ipython_config.py"]="$HOME/.ipython/profile_default/ipython_config.py"
+  ["$DOTFILES_DIR/custom.js"]="$HOME/.jupyter/custom/custom.js"
+  ["$DOTFILES_DIR/default.yml"]="$HOME/.config/espanso/default.yml"
+  ["$DOTFILES_DIR/containers.conf"]="$HOME/.config/containers/containers.conf"
+  ["$DOTFILES_DIR/.jq"]="$HOME/.jq"
+)
 
-# Ensure that the .aliases.sensitive.sh file exists
-#
-#
-touch $HOME/.aliases.sensitive.sh
+# Track failures
+declare -a failed_tasks=()
 
-rm $HOME/bin/scrn
-ln /usr/bin/screen $HOME/bin/scrn -s
+# Function to run a task and track its success/failure
+run_task() {
+  local task_name="$1"
+  shift
+  echo -e "\n📦 $task_name..."
+  if "$@"; then
+    echo "✅ $task_name completed successfully"
+    return 0
+  else
+    echo "❌ $task_name failed"
+    failed_tasks+=("$task_name")
+    return 1
+  fi
+}
 
-# Link dotfiles
-#
-#
-rm $HOME/.aliases
-ln $HOME/dotfiles/.aliases $HOME/.aliases
-rm $HOME/.aliases.bash
-ln $HOME/dotfiles/.aliases.bash $HOME/.aliases.bash
-rm $HOME/.colordiffrc
-ln $HOME/dotfiles/.colordiffrc $HOME/.colordiffrc
-rm $HOME/.cshrc
-ln $HOME/dotfiles/.cshrc $HOME/.cshrc
-rm $HOME/.tcshrc -f
-#ln $HOME/dotfiles/.tcshrc $HOME/.tcshrc
-rm $HOME/.cwdcmd
-ln $HOME/dotfiles/.cwdcmd $HOME/.cwdcmd
-rm $HOME/.gitconfig
-ln $HOME/dotfiles/.gitconfig $HOME/.gitconfig
-rm $HOME/.pdbrc
-ln $HOME/dotfiles/.pdbrc $HOME/.pdbrc
-rm $HOME/.precmd
-ln $HOME/dotfiles/.precmd $HOME/.precmd
-rm $HOME/.prompt
-ln $HOME/dotfiles/.prompt $HOME/.prompt
-rm $HOME/.screen/default
-ln $HOME/dotfiles/.screen/default $HOME/.screen/default
-rm $HOME/.screenrc
-ln $HOME/dotfiles/.screenrc $HOME/.screenrc
-rm $HOME/.tabletaliases
-ln $HOME/dotfiles/.tabletaliases $HOME/.tabletaliases
+echo "🚀 Setting up dotfiles in $HOME"
+echo "-----------------------------------"
 
-rm $HOME/.vimrc
-ln $HOME/dotfiles/nvim/init.vim $HOME/.vimrc
+# Create directories
+echo -e "\n🔄 Creating Directories"
+echo "-----------------------------------"
+for dir in "${DIRECTORIES[@]}"; do
+  run_task "Creating $dir" mkdir -p "$dir"
+done
 
-rm $HOME/.XResources
-ln $HOME/dotfiles/.XResources $HOME/.XResources
-rm $HOME/.xmodmap
-ln $HOME/dotfiles/.xmodmap $HOME/.xmodmap
-rm $HOME/.xsession
-ln $HOME/dotfiles/.xsession $HOME/.xsession
-rm $HOME/.config/Code/User/keybindings.json
-ln $HOME/dotfiles/keybindings.json $HOME/.config/Code/User/keybindings.json
-#rm $HOME/.config/catt/catt.cfg
-#ln $HOME/dotfiles/catt.cfg $HOME/.config/catt/catt.cfg
-rm $HOME/.ipython/profile_default/ipython_config.py
-ln $HOME/dotfiles/ipython_config.py $HOME/.ipython/profile_default/ipython_config.py
-rm $HOME/.jupyter/custom/custom.js
-ln $HOME/dotfiles/custom.js $HOME/.jupyter/custom/custom.js
+# Create empty files
+echo -e "\n🔄 Creating Empty Files"
+echo "-----------------------------------"
+run_task "Creating cwdcmd_recent_dirs" touch /tmp/cwdcmd_recent_dirs
+run_task "Creating .aliases.sensitive.sh" touch "$HOME/.aliases.sensitive.sh"
 
-rm $HOME/.config/nvim/init.vim
-ln $HOME/dotfiles/nvim/init.vim $HOME/.config/nvim/init.vim
+# Setup screen symlink
+echo -e "\n🔄 Setting up Screen"
+echo "-----------------------------------"
+run_task "Linking screen" ln -sf /usr/bin/screen "$HOME/bin/scrn"
 
-rm $HOME/.config/nvim/plugins.vim
-ln $HOME/dotfiles/nvim/plugins.vim $HOME/.config/nvim/plugins.vim
+# Create symlinks
+echo -e "\n🔄 Creating Symlinks"
+echo "-----------------------------------"
+for src in "${!SYMLINKS[@]}"; do
+  target="${SYMLINKS[$src]}"
+  if [ -e "$target" ] && [ ! -L "$target" ]; then
+    run_task "Backing up $target" mv "$target" "$target$BACKUP_SUFFIX"
+  fi
+  run_task "Linking $src" ln -sf "$src" "$target"
+done
 
-rm $HOME/.config/espanso/default.yml
-ln $HOME/dotfiles/default.yml $HOME/.config/espanso/default.yml
+echo -e "\n-----------------------------------"
+echo "📋 Setup Summary:"
+echo "Status:"
+echo "  - Directories created ✓"
+echo "  - Empty files created ✓"
+echo "  - Screen setup ✓"
+echo "  - Symlinks created ✓"
 
-rm $HOME/.config/containers/containers.conf
-ln $HOME/dotfiles/containers.conf $HOME/.config/containers/containers.conf
-
-
-rm $HOME/.jq
-ln $HOME/dotfiles/.jq $HOME/.jq
+if [ ${#failed_tasks[@]} -gt 0 ]; then
+  echo -e "\n❌ Failed tasks:"
+  printf '%s\n' "${failed_tasks[@]}"
+  exit 1
+else
+  echo -e "\n✨ Setup completed successfully!"
+fi
