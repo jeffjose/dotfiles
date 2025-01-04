@@ -1,28 +1,30 @@
 #!/bin/bash
 #
-# Jeffrey Jose | Nov 10, 2020
+# go.sh - Go package installer and updater
+# Author: Jeffrey Jose
+# Created: Nov 10, 2020
+#
 
-echo "-----------------"
-echo "Go"
-echo "-----------------"
+echo "🐹 -----------------"
+echo "🐹 Go"
+echo "🐹 -----------------"
 
-PACKAGES=(
+# Define packages to install
+# Each package has a brief description of its purpose
+declare -a PACKAGES=(
+  # JSON utilities
+  "github.com/tomnomnom/gron@latest"   # Make JSON greppable
+  "github.com/josephburnett/jd@latest" # JSON diff tool
 
-  # Work with JSON
-  github.com/tomnomnom/gron@latest
-
-  # watch replacement
-  github.com/antonmedv/watch@latest
-
-  github.com/ericchiang/pup@latest
-
-  # json diff
-  github.com/josephburnett/jd@latest
+  # CLI utilities
+  "github.com/antonmedv/watch@latest" # Modern watch replacement
+  "github.com/ericchiang/pup@latest"  # HTML parser for the command line
 )
 
-for package in ${PACKAGES[@]}
-do
-  echo "Installing $package"
+# Install packages
+for package in ${PACKAGES[@]}; do
+  echo "📦 Installing ${package}..."
   go install -v $package
-  echo ""
 done
+
+echo "✨ All done! Go packages have been installed!"

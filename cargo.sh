@@ -1,91 +1,64 @@
 #!/bin/bash
 #
-# Jeffrey Jose | Oct 21, 2020
+# cargo.sh - Rust/Cargo package installer and updater
+# Author: Jeffrey Jose
+# Created: Oct 21, 2020
 #
 
-echo "-----------------"
-echo "Cargo / Rust"
-echo "-----------------"
+echo "🦀 -----------------"
+echo "🦀 Cargo / Rust"
+echo "🦀 -----------------"
 
+# Update Rust toolchain first
+echo "🔄 Updating Rust toolchain..."
 rustup update stable
 
-CRATES=(
+# Define packages to install
+# Each package has a brief description of its purpose
+declare -a CRATES=(
+  # File finding utilities
+  "fd-find"    # Modern find replacement
+  "find-files" # Another find alternative
 
-  # find replacement
-  fd-find
+  # Git utilities
+  "timeago-cli" # For gitstatus (prompt)
+  "onefetch"    # Git repository summary
+  "git-absorb"  # Automatically absorb staged changes into your current branch
 
-  # For gitstatus (prompt)
-  timeago-cli
+  # Cargo utilities
+  "cargo-bump"     # For bumping versions
+  "cargo-edit"     # For editing Cargo.toml files
+  "cargo-update"   # Update installed binaries
+  "cargo-make"     # Task runner (alternative to yarn/npm run)
+  "cargo-cache"    # Cache statistics
+  "cargo-binstall" # Binary installer
 
-  # For bumping versions
-  cargo-bump
-
-  # For editing Cargo.toml files
-  cargo-edit
-
-  # For doing background .rs file source check
-  # #
-  # Commenting out to save resources
-  #bacon
-
-  # git summary
-  onefetch
-
-  # update installed binaries
-  cargo-update
-
-  # rargs (https://github.com/lotabout/rargs)
-  rargs
-
-  # find replacement
-  find-files
-
-
-  # timezone update
-  tzupdate
-
-  # Binary install
-  cargo-binstall
-
-  # name generator
-  names
-
-  # Cargo make (alt to yarn run / npm run)
-  cargo-make
-
-  # cache stats
-  cargo-cache
-
-  # ripgrep (replacement for ack)
-  ripgrep
-
-  # xh is alternative to httpie / curl
-  xh
-
-  # gifski for gif
-  gifski
-
-  # rustic (rust version of restic backup)
-  rustic-rs
-
-  # hyperfine (benchmarking)
-  hyperfine
-
-  # git-absorb
-  git-absorb
-
-
-  # lla - alternative to ls with plugin support
-  lla
+  # CLI utilities
+  "rargs"     # Command-line argument parsing
+  "names"     # Name generator
+  "tzupdate"  # Timezone updater
+  "ripgrep"   # Fast search tool (grep replacement)
+  "xh"        # Modern HTTP client
+  "gifski"    # GIF encoder
+  "hyperfine" # Command-line benchmarking
+  "lla"       # ls alternative with plugin support
+  "rustic-rs" # Backup tool (Rust version of restic)
 )
 
-# Install. This command doesnt update installed packages
+# Install packages (doesn't update existing ones)
+echo "📦 Installing Cargo packages..."
 $HOME/.cargo/bin/cargo install ${CRATES[*]}
 
-$HOME/.cargo/bin/cargo install  tuc --features regex
+# Install tuc with regex features separately
+echo "📦 Installing tuc with regex features..."
+$HOME/.cargo/bin/cargo install tuc --features regex
 
-# Update installed packages
+# Update all installed packages
+echo "⬆️  Updating all installed packages..."
 $HOME/.cargo/bin/cargo install-update -a
 
-# update toolchain to latest
+# Final toolchain update
+echo "🔄 Final toolchain update..."
 rustup update stable
+
+echo "✨ All done! Your Rust environment is up to date!"
