@@ -14,6 +14,10 @@ UPDATE_SCRIPTS=(
   #"update_rust.sh"  # Currently disabled
 )
 
+# Color codes
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
 # Version check functions
 get_vim_version() {
   nvim --version | grep "NVIM v" --color=never || echo "not installed"
@@ -90,7 +94,11 @@ for script in "${UPDATE_SCRIPTS[@]}"; do
   app_name=${app_name%.sh}   # Remove '.sh' suffix
   echo "- ${app_name^}:"     # Capitalize first letter
   echo "  Before: ${before_versions[$script]}"
-  echo "  After:  ${after_versions[$script]}"
+  if [ "${before_versions[$script]}" != "${after_versions[$script]}" ]; then
+    echo -e "  After:  ${GREEN}${after_versions[$script]}${NC}"
+  else
+    echo "  After:  ${after_versions[$script]}"
+  fi
 done
 
 if [ ${#failed_updates[@]} -gt 0 ]; then
