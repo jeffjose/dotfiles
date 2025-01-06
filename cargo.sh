@@ -13,6 +13,11 @@ echo "🦀 -----------------"
 echo "🔄 Updating Rust toolchain..."
 rustup update stable
 
+# Define GitHub repositories to install
+declare -a GITHUB_REPOS=(
+  "https://github.com/jeffjose/mediainfo" # CLI tool for media file information
+)
+
 # Define packages to install
 # Each package has a brief description of its purpose
 declare -a CRATES=(
@@ -44,6 +49,13 @@ declare -a CRATES=(
   "lla"       # ls alternative with plugin support
   "rustic-rs" # Backup tool (Rust version of restic)
 )
+
+# Install GitHub repositories
+echo "📦 Installing packages from GitHub..."
+for repo in "${GITHUB_REPOS[@]}"; do
+  echo "Installing from $repo..."
+  $HOME/.cargo/bin/cargo install --git "$repo"
+done
 
 # Install packages (doesn't update existing ones)
 echo "📦 Installing Cargo packages..."
