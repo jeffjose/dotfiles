@@ -364,6 +364,7 @@
 
 
     alias jclone 'git clone https://github.com/jeffjose/\!*'
+    alias jadd 'git remote add origin https://github.com/jeffjose/\!*.git; git branch -M main; fixgitconfig; git push -u origin main'
     alias clone 'cd ~/scripts; git clone \!*'
 
     alias reboot-bootloader systemctl reboot --firmware-setup
