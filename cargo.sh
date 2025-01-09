@@ -54,16 +54,16 @@ declare -a CRATES=(
 echo "📦 Installing packages from GitHub..."
 for repo in "${GITHUB_REPOS[@]}"; do
   echo "Installing from $repo..."
-  $HOME/.cargo/bin/cargo install --git "$repo"
+  $HOME/.cargo/bin/cargo install --quiet --git "$repo"
 done
 
 # Install packages (doesn't update existing ones)
 echo "📦 Installing Cargo packages..."
-$HOME/.cargo/bin/cargo install ${CRATES[*]}
+$HOME/.cargo/bin/cargo install --quiet ${CRATES[*]}
 
 # Install tuc with regex features separately
 echo "📦 Installing tuc with regex features..."
-$HOME/.cargo/bin/cargo install tuc --features regex
+$HOME/.cargo/bin/cargo install --quiet tuc --features regex
 
 # Update all installed packages
 echo "⬆️  Updating all installed packages..."
