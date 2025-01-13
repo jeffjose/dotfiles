@@ -63,10 +63,10 @@ for ((i = 0; i < ${#GITHUB_REPOS[@]}; i += 2)); do
 
   if [ -n "$latest_tag" ]; then
     echo "Installing $package from $repo at tag $latest_tag..."
-    $HOME/.cargo/bin/cargo install --quiet --git "$repo" --tag "$latest_tag" "$package"
+    $HOME/.cargo/bin/cargo install --git "$repo" --tag "$latest_tag" "$package"
   else
     echo "Installing $package from $repo (no tags found)..."
-    $HOME/.cargo/bin/cargo install --quiet --git "$repo" "$package"
+    $HOME/.cargo/bin/cargo install --git "$repo" "$package"
   fi
 done
 
@@ -74,12 +74,12 @@ done
 echo "📦 Installing Cargo packages..."
 for crate in "${CRATES[@]}"; do
   echo "Installing $crate..."
-  $HOME/.cargo/bin/cargo install --quiet "$crate"
+  $HOME/.cargo/bin/cargo install "$crate"
 done
 
 # Install tuc with regex features separately
 echo "📦 Installing tuc with regex features..."
-$HOME/.cargo/bin/cargo install --quiet tuc --features regex
+$HOME/.cargo/bin/cargo install tuc --features regex
 
 # Update all installed packages
 echo "⬆️  Updating all installed packages..."
