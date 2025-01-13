@@ -57,8 +57,17 @@ echo "📦 Installing packages from GitHub..."
 for ((i = 0; i < ${#GITHUB_REPOS[@]}; i += 2)); do
   repo="${GITHUB_REPOS[i]}"
   package="${GITHUB_REPOS[i + 1]}"
-  echo "Installing $package from $repo..."
-  $HOME/.cargo/bin/cargo install --quiet --git "$repo" "$package"
+
+  # Get the latest tag, if it exists
+  latest_tag=$(git ls-remote --tags --refs "$repo" | grep -v '\^{}' | sort -t '/' -k 3 -V | tail -n1 | awk -F/ '{print $3}')
+
+  if [ -n "$latest_tag" ]; then
+    echo "Installing $package from $repo at tag $latest_tag..."
+    $HOME/.cargo/bin/cargo install --quiet --git "$repo" --tag "$latest_tag" "$package"
+  else
+    echo "Installing $package from $repo (no tags found)..."
+    $HOME/.cargo/bin/cargo install --quiet --git "$repo" "$package"
+  fi
 done
 
 # Install packages (doesn't update existing ones)
