@@ -59,7 +59,10 @@ done
 
 # Install packages (doesn't update existing ones)
 echo "📦 Installing Cargo packages..."
-$HOME/.cargo/bin/cargo install --quiet ${CRATES[*]}
+for crate in "${CRATES[@]}"; do
+  echo "Installing $crate..."
+  $HOME/.cargo/bin/cargo install --quiet "$crate"
+done
 
 # Install tuc with regex features separately
 echo "📦 Installing tuc with regex features..."
