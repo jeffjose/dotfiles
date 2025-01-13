@@ -14,8 +14,10 @@ echo "🔄 Updating Rust toolchain..."
 rustup update stable
 
 # Define GitHub repositories to install
+# Format: ("repo_url" "package_name" "repo_url" "package_name" ...)
 declare -a GITHUB_REPOS=(
-  "https://github.com/jeffjose/mediainfo" # CLI tool for media file information
+  "https://github.com/jeffjose/mediainfo" "mediainfo" # CLI tool for media file information
+  "https://github.com/astral-sh/uv" "uv"              # The new python package manager
 )
 
 # Define packages to install
@@ -52,9 +54,11 @@ declare -a CRATES=(
 
 # Install GitHub repositories
 echo "📦 Installing packages from GitHub..."
-for repo in "${GITHUB_REPOS[@]}"; do
-  echo "Installing from $repo..."
-  $HOME/.cargo/bin/cargo install --quiet --git "$repo"
+for ((i = 0; i < ${#GITHUB_REPOS[@]}; i += 2)); do
+  repo="${GITHUB_REPOS[i]}"
+  package="${GITHUB_REPOS[i + 1]}"
+  echo "Installing $package from $repo..."
+  $HOME/.cargo/bin/cargo install --quiet --git "$repo" "$package"
 done
 
 # Install packages (doesn't update existing ones)
