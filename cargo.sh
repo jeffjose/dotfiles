@@ -17,7 +17,7 @@ rustup update stable
 # Format: ("repo_url" "package_name" "repo_url" "package_name" ...)
 declare -a GITHUB_REPOS=(
   "https://github.com/jeffjose/mediainfo" "mediainfo" # CLI tool for media file information
-  "https://github.com/astral-sh/uv" "uv"              # The new python package manager
+  #"https://github.com/astral-sh/uv" "uv"              # The new python package manager
 )
 
 # Define packages to install
