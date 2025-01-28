@@ -50,33 +50,25 @@ if ( ! $?prompt ) exit
     source ~/.aliases
 
     setenv GRADLEPATH           /opt/gradle
-    setenv GOOGLECLOUDPATH      $HOME/google-cloud-sdk
     setenv GOPATH               $HOME/go
     setenv BUNPATH               $HOME/.bun/
-    setenv MINICONDAPATH        $HOME/miniconda3
-    setenv ANACONDAPATH         $HOME/anaconda3
     setenv DARTPATH             /usr/lib/dart
-    setenv YARNPATH             $HOME/.yarn
     setenv GOOGLEDARTPATH       /usr/lib/google-dartlang
     setenv CARGOPATH            $HOME/.cargo
-    setenv KREWPATH             $HOME/.krew
     setenv PYENVPATH            $HOME/.pyenv
-    setenv RYEPATH              $HOME/.rye/shims
-    setenv PYENVSHIMSPATH       $HOME/.pyenv/shims/
-    setenv NVMPATH              $HOME/.nvm/current/bin # 1. Install nvm and install node versions using it. 2. Open `bash` and set NVM_SYMLINK_CURRENT=true and load nvm.sh, which would create the `current` directory
+
+    setenv MISEPATH             $HOME/.local/share/mise/shims
 
     setenv ANDROID_HOME         $HOME/Android/Sdk
     setenv ANDROID_NDK_HOME     $HOME/Android/Ndk
     setenv ANDROID_SDK_ROOT     $HOME/Android/Sdk
     setenv ANDROID_VER          30.0.2
 
-    #setenv GITMULTIPATH         /google/data/ro/users/mp/mpn/git-stuff
-
     setenv JAVA_HOME /usr/lib/jvm/java-23-openjdk-amd64/
 
     setenv BREWPATH /home/linuxbrew/.linuxbrew
 
-    setenv PATH ${GRADLEPATH}/bin:${NVMPATH}:${GOOGLECLOUDPATH}/bin:${CARGOPATH}/bin:${KREWPATH}/bin:${RYEPATH}:${PYENVPATH}/bin:${PYENVSHIMSPATH}:${BREWPATH}/bin:${YARNPATH}/bin:${MINICONDAPATH}/bin:${ANACONDAPATH}/bin:${GOPATH}/bin:${BUNPATH}/bin:${DARTPATH}/bin:${GOOGLEDARTPATH}/bin:${JAVA_HOME}/bin:${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/build-tools/${ANDROID_VER}:${HOME}/.pub-cache/bin:${HOME}/bin:${HOME}/.local/bin:/usr/sbin:${PATH}
+    setenv PATH ${GRADLEPATH}/bin:${MISEPATH}:${CARGOPATH}/bin:${PYENVPATH}/bin:${BREWPATH}/bin:${GOPATH}/bin:${BUNPATH}/bin:${DARTPATH}/bin:${GOOGLEDARTPATH}/bin:${JAVA_HOME}/bin:${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/build-tools/${ANDROID_VER}:${HOME}/.pub-cache/bin:${HOME}/bin:${HOME}/.local/bin:/usr/sbin:${PATH}
 
     #setenv PYTHONPATH $HOME/.local/lib/python2.7/site-packages:/usr/local/buildtools/current/sitecustomize
 
