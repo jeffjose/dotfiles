@@ -48,8 +48,5 @@ rust = "latest"
 # GitHub repositories
 "cargo:https://github.com/jeffjose/mediainfo" = "latest"
 
-# Neovim
-"aqua:neovim/neovim" = "latest"
-
 [settings]
 experimental = true
