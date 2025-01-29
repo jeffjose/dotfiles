@@ -169,6 +169,7 @@
     alias so 'echo "Sourcing ~/.cshrc .."; source ~/.cshrc'
     alias SO so
     alias firstrun  ~/dotfiles/firstrun
+    alias uq ~/dotfiles/updateall-quick.sh
     alias setup     '~/dotfiles/setup; so'
     alias updateall ~/dotfiles/updateall.sh
 
