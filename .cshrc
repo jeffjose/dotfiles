@@ -64,11 +64,9 @@ if ( ! $?prompt ) exit
     setenv ANDROID_SDK_ROOT     $HOME/Android/Sdk
     setenv ANDROID_VER          30.0.2
 
-    setenv JAVA_HOME /usr/lib/jvm/java-23-openjdk-amd64/
-
     setenv BREWPATH /home/linuxbrew/.linuxbrew
 
-    setenv PATH ${GRADLEPATH}/bin:${MISEPATH}:${CARGOPATH}/bin:${PYENVPATH}/bin:${BREWPATH}/bin:${GOPATH}/bin:${BUNPATH}/bin:${DARTPATH}/bin:${GOOGLEDARTPATH}/bin:${JAVA_HOME}/bin:${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/build-tools/${ANDROID_VER}:${HOME}/.pub-cache/bin:${HOME}/bin:${HOME}/.local/bin:/usr/sbin:${PATH}
+    setenv PATH ${GRADLEPATH}/bin:${MISEPATH}:${CARGOPATH}/bin:${PYENVPATH}/bin:${BREWPATH}/bin:${GOPATH}/bin:${BUNPATH}/bin:${DARTPATH}/bin:${GOOGLEDARTPATH}/bin:${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/build-tools/${ANDROID_VER}:${HOME}/.pub-cache/bin:${HOME}/bin:${HOME}/.local/bin:/usr/sbin:${PATH}
 
     #setenv PYTHONPATH $HOME/.local/lib/python2.7/site-packages:/usr/local/buildtools/current/sitecustomize
 
