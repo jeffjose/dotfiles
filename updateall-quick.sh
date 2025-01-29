@@ -11,6 +11,7 @@ UPDATE_SCRIPTS=(
   "update_code.sh"
   "update_chrome.sh"
   "update_cursor.sh"
+  "update_mise.sh"
   #"update_rust.sh"  # Currently disabled
 )
 
@@ -40,6 +41,10 @@ get_cursor_version() {
   fi
 }
 
+get_mise_version() {
+  mise --version || echo "not installed"
+}
+
 # Ensure script is run with sudo privileges
 if ! sudo true; then
   echo "Error: This script requires sudo privileges"
@@ -60,6 +65,7 @@ before_versions["update_vim.sh"]=$(get_vim_version)
 before_versions["update_code.sh"]=$(get_vscode_version)
 before_versions["update_chrome.sh"]=$(get_chrome_version)
 before_versions["update_cursor.sh"]=$(get_cursor_version)
+before_versions["update_mise.sh"]=$(get_mise_version)
 
 # Run each update script
 for script in "${UPDATE_SCRIPTS[@]}"; do
@@ -82,6 +88,7 @@ after_versions["update_vim.sh"]=$(get_vim_version)
 after_versions["update_code.sh"]=$(get_vscode_version)
 after_versions["update_chrome.sh"]=$(get_chrome_version)
 after_versions["update_cursor.sh"]=$(get_cursor_version)
+after_versions["update_mise.sh"]=$(get_mise_version)
 
 echo -e "\n-----------------------------------"
 echo "📋 Update Summary:"
