@@ -21,6 +21,7 @@ DIRECTORIES=(
   "$HOME/.ipython/profile_default"
   "$HOME/.screenlayout"
   "$HOME/.jupyter/custom"
+  "$HOME/.config/mise"
 )
 
 # Files to symlink (source:target)
@@ -49,6 +50,7 @@ declare -A SYMLINKS=(
   ["$DOTFILES_DIR/default.yml"]="$HOME/.config/espanso/default.yml"
   ["$DOTFILES_DIR/containers.conf"]="$HOME/.config/containers/containers.conf"
   ["$DOTFILES_DIR/.jq"]="$HOME/.jq"
+  ["$DOTFILES_DIR/config.toml"]="$HOME/.config/mise/config.toml"
 )
 
 # Track failures
