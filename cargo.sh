@@ -13,74 +13,9 @@ echo "🦀 -----------------"
 echo "🔄 Updating Rust toolchain..."
 rustup update stable
 
-# Define GitHub repositories to install
-# Format: ("repo_url" "package_name" "repo_url" "package_name" ...)
-declare -a GITHUB_REPOS=(
-  "https://github.com/jeffjose/mediainfo" "mediainfo" # CLI tool for media file information
-  #"https://github.com/astral-sh/uv" "uv"              # The new python package manager
-)
-
-# Define packages to install
-# Each package has a brief description of its purpose
-declare -a CRATES=(
-  # File finding utilities
-  "fd-find"    # Modern find replacement
-  "find-files" # Another find alternative
-
-  # Git utilities
-  "timeago-cli" # For gitstatus (prompt)
-  "onefetch"    # Git repository summary
-  "git-absorb"  # Automatically absorb staged changes into your current branch
-
-  # Cargo utilities
-  "cargo-bump"     # For bumping versions
-  "cargo-edit"     # For editing Cargo.toml files
-  "cargo-update"   # Update installed binaries
-  "cargo-make"     # Task runner (alternative to yarn/npm run)
-  "cargo-cache"    # Cache statistics
-  "cargo-binstall" # Binary installer
-
-  # CLI utilities
-  "rargs"     # Command-line argument parsing
-  "names"     # Name generator
-  "tzupdate"  # Timezone updater
-  "ripgrep"   # Fast search tool (grep replacement)
-  "xh"        # Modern HTTP client
-  "gifski"    # GIF encoder
-  "hyperfine" # Command-line benchmarking
-  "lla"       # ls alternative with plugin support
-  "rustic-rs" # Backup tool (Rust version of restic)
-  "mise"      # Polyglot version manager
-)
-
-# Install GitHub repositories
-echo "📦 Installing packages from GitHub..."
-for ((i = 0; i < ${#GITHUB_REPOS[@]}; i += 2)); do
-  repo="${GITHUB_REPOS[i]}"
-  package="${GITHUB_REPOS[i + 1]}"
-
-  # Get the latest tag, if it exists
-  latest_tag=$(git ls-remote --tags --refs "$repo" | grep -v '\^{}' | sort -t '/' -k 3 -V | tail -n1 | awk -F/ '{print $3}')
-
-  if [ -n "$latest_tag" ]; then
-    echo "Installing $package from $repo at tag $latest_tag..."
-    $HOME/.cargo/bin/cargo install --git "$repo" --tag "$latest_tag" "$package"
-  else
-    echo "Installing $package from $repo (no tags found)..."
-    $HOME/.cargo/bin/cargo install --git "$repo" "$package"
-  fi
-done
-
-# Install packages (doesn't update existing ones)
-echo "📦 Installing Cargo packages..."
-for crate in "${CRATES[@]}"; do
-  echo "Installing $crate..."
-  $HOME/.cargo/bin/cargo install "$crate"
-done
-
-# Install tuc with regex features separately
-echo "📦 Installing tuc with regex features..."
-$HOME/.cargo/bin/cargo install tuc --features regex
+# Install these two packages separately since it needs special handling
+echo "📦 Installing mise, timeago..."
+$HOME/.cargo/bin/cargo install mise timeago-cli
 
 # Update all installed packages
 echo "⬆️  Updating all installed packages..."

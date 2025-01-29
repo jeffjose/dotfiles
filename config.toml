@@ -5,3 +5,48 @@ node = "latest"
 pnpm = "latest"
 python = "latest"
 yarn = "latest"
+rust = "latest"
+
+# JSON utilities
+"go:github.com/tomnomnom/gron" = "latest"
+"go:github.com/josephburnett/jd" = "latest"
+
+# CLI utilities
+"go:github.com/antonmedv/watch" = "latest"
+"go:github.com/ericchiang/pup" = "latest"
+
+# File finding utilities
+"cargo:fd-find" = "latest"
+"cargo:find-files" = "latest"
+
+# Git utilities
+"cargo:timeago-cli" = "latest"
+"cargo:onefetch" = "latest"
+"cargo:git-absorb" = "latest"
+
+# Cargo utilities
+"cargo:cargo-bump" = "latest"
+"cargo:cargo-edit" = "latest"
+"cargo:cargo-update" = "latest"
+"cargo:cargo-make" = "latest"
+"cargo:cargo-cache" = "latest"
+"cargo:cargo-binstall" = "latest"
+
+# CLI utilities
+"cargo:rargs" = "latest"
+"cargo:names" = "latest"
+"cargo:tzupdate" = "latest"
+"cargo:ripgrep" = "latest"
+"cargo:xh" = "latest"
+"cargo:gifski" = "latest"
+"cargo:hyperfine" = "latest"
+"cargo:lla" = "latest"
+"cargo:rustic-rs" = "latest"
+"cargo:mise" = "latest"
+"cargo:tuc" = "latest"
+
+# GitHub repositories
+"cargo:https://github.com/jeffjose/mediainfo" = "latest"
+
+[settings]
+experimental = true
