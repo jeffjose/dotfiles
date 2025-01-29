@@ -7,7 +7,6 @@ set -e # Exit on error
 # Constants
 SCRIPTS_DIR="$HOME/dotfiles"
 UPDATE_SCRIPTS=(
-  "update_vim.sh"
   "update_code.sh"
   "update_chrome.sh"
   "update_cursor.sh"
@@ -20,10 +19,6 @@ GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
 # Version check functions
-get_vim_version() {
-  nvim --version | grep "NVIM v" --color=never || echo "not installed"
-}
-
 get_vscode_version() {
   code --version | head -n1 || echo "not installed"
 }
@@ -61,7 +56,6 @@ declare -a failed_updates=()
 
 # Get initial versions
 echo "📊 Checking current versions..."
-before_versions["update_vim.sh"]=$(get_vim_version)
 before_versions["update_code.sh"]=$(get_vscode_version)
 before_versions["update_chrome.sh"]=$(get_chrome_version)
 before_versions["update_cursor.sh"]=$(get_cursor_version)
@@ -84,7 +78,6 @@ for script in "${UPDATE_SCRIPTS[@]}"; do
 done
 
 # Get final versions
-after_versions["update_vim.sh"]=$(get_vim_version)
 after_versions["update_code.sh"]=$(get_vscode_version)
 after_versions["update_chrome.sh"]=$(get_chrome_version)
 after_versions["update_cursor.sh"]=$(get_cursor_version)
