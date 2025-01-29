@@ -25,3 +25,20 @@ view:
     name: "dnsbl"
     view-first: yes
 include: /var/unbound/pfb_dnsbl.*conf
+
+
+
+server:
+    access-control-view: 192.168.2.0/24 bypass
+    access-control-view: 192.168.3.0/24 bypass
+    access-control-view: 10.0.0.0/24 bypass
+    access-control-view: 192.168.22.0/24 dnsbl
+    access-control-view: 10.0.22.0/24 dnsbl
+    private-domain: "plex.direct"
+view:
+    name: "bypass"
+    view-first: yes
+view:
+    name: "dnsbl"
+    view-first: yes
+include: /var/unbound/pfb_dnsbl.*conf
