@@ -50,6 +50,7 @@ declare -a CRATES=(
   "hyperfine" # Command-line benchmarking
   "lla"       # ls alternative with plugin support
   "rustic-rs" # Backup tool (Rust version of restic)
+  "mise"      # Polyglot version manager
 )
 
 # Install GitHub repositories
