@@ -5,6 +5,16 @@
 # Created: Oct 21, 2020
 #
 
+# Check if Rust is installed
+if ! command -v rustc &>/dev/null; then
+  echo "🔧 Rust not found. Installing Rust..."
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+  # Source the cargo environment
+  source "$HOME/.cargo/env"
+else
+  echo "✓ Rust is already installed"
+fi
+
 echo "🦀 -----------------"
 echo "🦀 Cargo / Rust"
 echo "🦀 -----------------"
