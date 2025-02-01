@@ -25,7 +25,7 @@ rustup update stable
 
 # Install these two packages separately since it needs special handling
 echo "📦 Installing mise, timeago..."
-$HOME/.cargo/bin/cargo install mise timeago-cli
+$HOME/.cargo/bin/cargo install mise timeago-cli tzupdate
 
 # Update all installed packages
 echo "⬆️  Updating all installed packages..."
