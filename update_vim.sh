@@ -7,7 +7,7 @@ set -e # Exit on error
 # Constants
 NVIM_URL="https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage"
 NVIM_PATH="/usr/bin/nvim"
-TEMP_PATH="/tmp/nvim"
+TEMP_PATH="$HOME/Downloads/nvim"
 
 # Ensure script is run with sudo privileges
 if ! sudo true; then

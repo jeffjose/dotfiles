@@ -7,9 +7,9 @@ set -e # Exit on error
 # Constants
 DOWNLOAD_URL="https://downloader.cursor.sh/linux/appImage/x64"
 CURSOR_PATH="$HOME/bin/cursor"
-TEMP_PATH="/tmp/cursor"
+TEMP_PATH="$HOME/Downloads/cursor"
 USER_AGENT="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
-ETAG_FILE="/tmp/cursor.etag"
+ETAG_FILE="$HOME/Downloads/cursor.etag"
 
 # Ensure script is run with sudo privileges
 if ! sudo true; then

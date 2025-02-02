@@ -6,9 +6,9 @@ set -e # Exit on error
 
 # Constants
 CODE_URL="https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
-TEMP_PATH="/tmp/code.deb"
+TEMP_PATH="$HOME/Downloads/code.deb"
 USER_AGENT="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
-ETAG_FILE="/tmp/code.etag"
+ETAG_FILE="$HOME/Downloads/code.etag"
 
 # Ensure script is run with sudo privileges
 if ! sudo true; then

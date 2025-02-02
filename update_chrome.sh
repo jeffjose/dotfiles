@@ -6,9 +6,9 @@ set -e # Exit on error
 
 # Constants
 CHROME_URL="https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
-TEMP_PATH="/tmp/chrome.deb"
+TEMP_PATH="$HOME/Downloads/chrome.deb"
 USER_AGENT="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
-ETAG_FILE="/tmp/chrome.etag"
+ETAG_FILE="$HOME/Downloads/chrome.etag"
 
 # Ensure script is run with sudo privileges
 if ! sudo true; then
