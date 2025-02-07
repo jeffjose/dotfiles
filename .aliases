@@ -585,6 +585,8 @@
     alias pikpakcli '$HOME/scripts/pikpakcli/pikpakcli --config $HOME/scripts/pikpakcli/config.yml'
     alias sync_pikpak 'pikpakcli download -P \!* -g -c 3'
 
+    alias httptrace 'httptap -- curl -s -o /dev/null -L \!*'
+
     # Google
     #
     #
