@@ -14,6 +14,7 @@ rust = "latest"
 # CLI utilities
 "go:github.com/antonmedv/watch" = "latest"
 "go:github.com/ericchiang/pup" = "latest"
+"go:github.com/monasticacademy/httptap" = "latest"
 
 # File finding utilities
 "cargo:fd-find" = "latest"
