@@ -19,92 +19,126 @@ GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
 # Version check functions
-get_vscode_version() {
-  code --version | head -n1 || echo "not installed"
-}
+declare -A VERSION_COMMANDS=(
+  ["update_code.sh"]="code --version | head -n1"
+  ["update_chrome.sh"]="google-chrome --version"
+  ["update_cursor.sh"]="md5sum \$HOME/bin/cursor | cut -d' ' -f1"
+  ["update_mise.sh"]="mise --version"
+)
 
-get_chrome_version() {
-  google-chrome --version || echo "not installed"
-}
+# Get version for a specific application
+get_version() {
+  local script="$1"
+  local command="${VERSION_COMMANDS[$script]}"
+  
+  if [[ -z "$command" ]]; then
+    echo "Version check not configured"
+    return 1
+  fi
 
-get_cursor_version() {
-  local cursor_path="$HOME/bin/cursor"
-  if [ -f "$cursor_path" ]; then
-    md5sum "$cursor_path" | cut -d' ' -f1
-  else
+  # For cursor, check if binary exists first
+  if [[ "$script" == "update_cursor.sh" && ! -f "$HOME/bin/cursor" ]]; then
     echo "not installed"
+    return 0
+  fi
+
+  eval "$command" 2>/dev/null || echo "not installed"
+}
+
+# Check sudo privileges
+check_sudo() {
+  if ! sudo true; then
+    echo "Error: This script requires sudo privileges"
+    exit 1
   fi
 }
 
-get_mise_version() {
-  mise --version || echo "not installed"
+# Initialize version tracking
+init_version_tracking() {
+  declare -gA before_versions
+  declare -gA after_versions
+  declare -ga failed_updates=()
+
+  echo "📊 Checking current versions..."
+  for script in "${UPDATE_SCRIPTS[@]}"; do
+    before_versions[$script]=$(get_version "$script")
+  done
 }
 
-# Ensure script is run with sudo privileges
-if ! sudo true; then
-  echo "Error: This script requires sudo privileges"
-  exit 1
-fi
-
-echo "🚀 Starting quick update process..."
-echo "-----------------------------------"
-
-# Track success/failure and versions
-declare -A before_versions
-declare -A after_versions
-declare -a failed_updates=()
-
-# Get initial versions
-echo "📊 Checking current versions..."
-before_versions["update_code.sh"]=$(get_vscode_version)
-before_versions["update_chrome.sh"]=$(get_chrome_version)
-before_versions["update_cursor.sh"]=$(get_cursor_version)
-before_versions["update_mise.sh"]=$(get_mise_version)
-
-# Run each update script
-for script in "${UPDATE_SCRIPTS[@]}"; do
+# Run a single update script
+run_update_script() {
+  local script="$1"
   echo -e "\n📦 Running $script..."
+  
   if [ -x "$SCRIPTS_DIR/$script" ]; then
     if "$SCRIPTS_DIR/$script"; then
       echo "✅ $script completed successfully"
+      return 0
     else
       echo "❌ $script failed"
       failed_updates+=("$script")
+      return 1
     fi
   else
     echo "⚠️  Warning: $script not found or not executable"
     failed_updates+=("$script")
+    return 1
   fi
-done
+}
 
-# Get final versions
-after_versions["update_code.sh"]=$(get_vscode_version)
-after_versions["update_chrome.sh"]=$(get_chrome_version)
-after_versions["update_cursor.sh"]=$(get_cursor_version)
-after_versions["update_mise.sh"]=$(get_mise_version)
+# Get final versions after updates
+collect_final_versions() {
+  for script in "${UPDATE_SCRIPTS[@]}"; do
+    after_versions[$script]=$(get_version "$script")
+  done
+}
 
-echo -e "\n-----------------------------------"
-echo "📋 Update Summary:"
-echo "Total scripts: ${#UPDATE_SCRIPTS[@]}"
-echo "Failed scripts: ${#failed_updates[@]}"
+# Print update summary
+print_summary() {
+  echo -e "\n-----------------------------------"
+  echo "📋 Update Summary:"
+  echo "Total scripts: ${#UPDATE_SCRIPTS[@]}"
+  echo "Failed scripts: ${#failed_updates[@]}"
 
-echo -e "\n📊 Version Changes:"
-for script in "${UPDATE_SCRIPTS[@]}"; do
-  app_name=${script#update_} # Remove 'update_' prefix
-  app_name=${app_name%.sh}   # Remove '.sh' suffix
-  echo "- ${app_name^}:"     # Capitalize first letter
-  echo "  Before: ${before_versions[$script]}"
-  if [ "${before_versions[$script]}" != "${after_versions[$script]}" ]; then
-    echo -e "  After:  ${GREEN}${after_versions[$script]}${NC}"
+  echo -e "\n📊 Version Changes:"
+  for script in "${UPDATE_SCRIPTS[@]}"; do
+    local app_name=${script#update_} # Remove 'update_' prefix
+    app_name=${app_name%.sh}        # Remove '.sh' suffix
+    echo "- ${app_name^}:"          # Capitalize first letter
+    echo "  Before: ${before_versions[$script]}"
+    if [ "${before_versions[$script]}" != "${after_versions[$script]}" ]; then
+      echo -e "  After:  ${GREEN}${after_versions[$script]}${NC}"
+    else
+      echo "  After:  ${after_versions[$script]}"
+    fi
+  done
+
+  if [ ${#failed_updates[@]} -gt 0 ]; then
+    echo -e "\n❌ Failed updates:"
+    printf '%s\n' "${failed_updates[@]}"
+    return 1
   else
-    echo "  After:  ${after_versions[$script]}"
+    echo -e "\n✨ All updates completed successfully!"
+    return 0
   fi
-done
+}
 
-if [ ${#failed_updates[@]} -gt 0 ]; then
-  echo -e "\n❌ Failed updates:"
-  printf '%s\n' "${failed_updates[@]}"
-  exit 1
-else
-  echo -e "\n✨ All updates completed successfully!"
-fi
+# Main execution
+main() {
+  echo "🚀 Starting quick update process..."
+  echo "-----------------------------------"
+
+  check_sudo
+  init_version_tracking
+
+  # Run updates
+  for script in "${UPDATE_SCRIPTS[@]}"; do
+    run_update_script "$script" || true  # Continue on error
+  done
+
+  collect_final_versions
+  print_summary
+}
+
+# Run main function
+main "$@"
