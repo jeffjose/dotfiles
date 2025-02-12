@@ -12,4 +12,8 @@ mise upgrade --bump
 
 mise install
 
+rm -rf /home/jeffjose/.local/share/mise/shims
+
+mise reshim
+
 exit 0
