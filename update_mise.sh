@@ -1,8 +1,6 @@
 #!/bin/bash
 #
 # Update mise tools
-set -e
-
 
 echo "Updating mise..."
 mise self-update --yes
@@ -10,10 +8,9 @@ mise self-update --yes
 echo "Upgrading mise tools..."
 mise upgrade --bump
 
+rm -rf /home/jeffjose/.local/share/mise/shims ;
+mise reshim
 mise install
-
-rm -rf /home/jeffjose/.local/share/mise/shims
-
 mise reshim
 
 exit 0
