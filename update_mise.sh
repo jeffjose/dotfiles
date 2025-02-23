@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env -S bash --noprofile
 #
 # Update mise tools
 
@@ -8,7 +8,8 @@ mise self-update --yes
 echo "Upgrading mise tools..."
 mise upgrade --bump
 
-rm -rf /home/jeffjose/.local/share/mise/shims ;
+which mise
+rm -rf /home/jeffjose/.local/share/mise/shims
 mise reshim
 mise install
 mise reshim
