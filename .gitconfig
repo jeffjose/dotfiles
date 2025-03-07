@@ -9,6 +9,7 @@
     psh = push
     ush = push
     st = status
+    t = status
     sb = show-branch
     co = checkout
     d = describe --tags --always

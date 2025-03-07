@@ -43,7 +43,6 @@ rust = "latest"
 "cargo:hyperfine" = "latest"
 "cargo:lla" = "latest"
 "cargo:rustic-rs" = "latest"
-"cargo:mise" = "latest"
 "cargo:tuc" = "latest"
 
 # GitHub repositories
