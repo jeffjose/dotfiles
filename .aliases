@@ -64,6 +64,8 @@
     # Remove a package
     alias remove 'sudo apt -y purge \!*; sudo apt -y autoremove --purge \!*'
 
+    alias rfiles ~/dotfiles/rfiles.sh
+
     # Remove a ppa and all associated packages.
     alias removeppa 'sudo ppa-purge \!*'
 
