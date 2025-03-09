@@ -1,4 +1,6 @@
 #!/bin/bash
+#
+# Jeffrey Jose | Mar 9, 2025
 
 # Set default value of 3 if no argument is provided
 if [ $# -eq 0 ]; then
