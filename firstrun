@@ -69,9 +69,6 @@ run_base() {
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
   run_task "Installing timeago-cli" "$HOME/.cargo/bin/cargo" install timeago-cli
 
-  # Install Go packages
-  run_task "Installing watch CLI" go get github.com/antonmedv/watch
-
   # Setup SSH
   echo -e "\n📦 Setting up SSH..."
   if [ ! -f "$SSH_KEY_PATH" ]; then
@@ -91,11 +88,6 @@ run_common_server_gui() {
   # Install Linuxbrew
   echo -e "\n📦 Installing Linuxbrew..."
   yes | sh -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-  # Install Yarn
-  echo -e "\n📦 Installing Yarn..."
-  curl -o- -L https://yarnpkg.com/install.sh | bash
-  run_task "Setting up Yarn packages" "$DOTFILES_DIR/yarn.sh"
 
   # Install various packages
   run_task "Setting up Cargo packages" "$DOTFILES_DIR/cargo.sh"
