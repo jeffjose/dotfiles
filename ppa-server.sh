@@ -11,9 +11,6 @@ echo "-----------------"
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
 sudo apt-add-repository -y https://cli.github.com/packages
 
-# Install neovim
-sudo add-apt-repository ppa:neovim-ppa/stable
-
 PACKAGES=(
 
   # Github CLI

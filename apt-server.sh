@@ -9,17 +9,11 @@ echo "-----------------"
 
 PACKAGES=(
 
-  # Dev
-  ruby-full
-  clang-format
-  python3-pip
-
   # Other
   ffmpeg
   youtube-dl
   colordiff
   jq
-  npm
   wavemon
   mosh
   detox
@@ -33,10 +27,6 @@ PACKAGES=(
   ntp
   dconf-cli
   tshark
-
-  # CLI Replacements
-  aria2
-  entr
 
   # Containers
   runc
