@@ -19,8 +19,6 @@ PACKAGES=(
   mtr-tiny
   build-essential
   unrar
-  duf
-  dtrx
 
   # Git
   git
@@ -30,7 +28,6 @@ PACKAGES=(
   screen
   ncdu
   htop
-  #neovim
   tree
   nmap
   hardinfo
@@ -47,9 +44,6 @@ PACKAGES=(
 
   # for cargo/rust
   cmake
-
-  # Shell command outputs as json
-  jc
 )
 
 install() {
