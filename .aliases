@@ -34,7 +34,8 @@
     alias x 'echo "Running ~/.xsession .."; ~/.xsession'
     alias xk 'pkill xfce4-screen'
     alias xk 'pkill light-locker'
-    alias tk 'pkill tilix'
+
+    alias m 'rm -rf $HOME/.local/share/mise/shims; mise reshim; mise install; mise reshim; where pnpm'
 
     alias grep grep -iE --color=always
 
@@ -217,7 +218,7 @@
     alias plex 'cd /mnt/matterhorn/Plex'
     alias dd 'cd /mnt/matterhorn/deluge/data/incomplete'
     alias f1 'cd ~/scripts/formula1'
-    alias m 'cd ~/scripts/moneypile'
+    alias mp 'cd ~/scripts/moneypile'
     alias g 'cd ~/scripts/goodreads-api/'
     alias k8s 'cd ~/scripts/k8s'
 
