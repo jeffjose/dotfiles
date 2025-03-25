@@ -56,7 +56,6 @@ if ( ! $?prompt ) exit
     setenv GOOGLEDARTPATH       /usr/lib/google-dartlang
     setenv CARGOPATH            $HOME/.cargo
     setenv PYENVPATH            $HOME/.pyenv
-    setenv MISEPATH             $HOME/.local/share/mise/shims
 
     setenv ANDROID_HOME         $HOME/Android/Sdk
     setenv ANDROID_NDK_HOME     $HOME/Android/Ndk
