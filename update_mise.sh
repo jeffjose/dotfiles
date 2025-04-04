@@ -12,7 +12,7 @@ which mise
 
 # Function to check if pnpm shim exists and is valid
 check_pnpm_shim() {
-  local shim_path="/home/jeffjose/.local/share/mise/shims/pnpm"
+  local shim_path="$HOME/.local/share/mise/shims/pnpm"
   if [ ! -L "$shim_path" ] || [ ! -e "$shim_path" ]; then
     return 1
   fi
@@ -23,7 +23,7 @@ check_pnpm_shim() {
 for i in {1..3}; do
   if ! check_pnpm_shim; then
     echo "Attempt $i: pnpm shim is invalid or missing, running reshim process..."
-    rm -rf /home/jeffjose/.local/share/mise/shims
+    rm -rf "$HOME/.local/share/mise/shims"
     mise reshim
     mise install
     mise reshim
