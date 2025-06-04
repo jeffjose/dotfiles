@@ -2,6 +2,9 @@
 #
 # Update mise tools
 
+# Clear cache, since python builds was breaking for the longest time
+mise cache clear
+
 echo "Updating mise..."
 mise self-update --yes
 
