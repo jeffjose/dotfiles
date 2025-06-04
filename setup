@@ -22,6 +22,7 @@ DIRECTORIES=(
   "$HOME/.screenlayout"
   "$HOME/.jupyter/custom"
   "$HOME/.config/mise"
+  "$HOME/.pnpm"
 )
 
 # Files to symlink (source:target)
