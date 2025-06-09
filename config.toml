@@ -44,6 +44,7 @@ rust = "latest"
 "cargo:lla" = "latest"
 "cargo:rustic-rs" = "latest"
 "cargo:tuc" = "latest"
+"cargo:somo" = "latest"
 
 # GitHub repositories
 "cargo:https://github.com/jeffjose/mediainfo" = "latest"
