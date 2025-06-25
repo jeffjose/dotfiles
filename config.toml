@@ -6,6 +6,7 @@ pnpm = "latest"
 python = "latest"
 yarn = "latest"
 rust = "latest"
+bun = "latest"
 
 # JSON utilities
 "go:github.com/tomnomnom/gron" = "latest"
@@ -49,6 +50,12 @@ rust = "latest"
 # GitHub repositories
 "cargo:https://github.com/jeffjose/mediainfo" = "latest"
 
+# npm
+"npm:@google/gemini-cli" = "latest"
+
 [settings]
 experimental = true
 idiomatic_version_file_enable_tools = ["python"]
+
+[settings.npm]
+bun = true
