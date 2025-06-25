@@ -7,9 +7,14 @@ echo "-----------------"
 echo "Yarn"
 echo "-----------------"
 
+echo "[deprecated]"
+echo "exiting .."
+exit
+
 # Update node to latest
 $HOME/.yarn/bin/yarn global add n
 sudo $HOME/.yarn/bin/n latest
+
 
 PACKAGES=(
 

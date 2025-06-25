@@ -7,6 +7,7 @@ python = "latest"
 yarn = "latest"
 rust = "latest"
 bun = "latest"
+npm = "latest"
 
 # JSON utilities
 "go:github.com/tomnomnom/gron" = "latest"
@@ -52,6 +53,10 @@ bun = "latest"
 
 # npm
 "npm:@google/gemini-cli" = "latest"
+"npm:sass" = "latest"
+"npm:astro" = "latest"
+"npm:postcss-cli" = "latest"
+"npm:t-get" = "latest"
 
 [settings]
 experimental = true
