@@ -23,7 +23,7 @@ check_pnpm_shim() {
 }
 
 # Try reshim process up to 3 times if needed
-for i in {1..3}; do
+for i in {1..5}; do
   if ! check_pnpm_shim; then
     echo "Attempt $i: pnpm shim is invalid or missing, running reshim process..."
     rm -rf "$HOME/.local/share/mise/shims"
