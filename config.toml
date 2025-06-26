@@ -57,6 +57,7 @@ npm = "latest"
 "npm:astro" = "latest"
 "npm:postcss-cli" = "latest"
 "npm:t-get" = "latest"
+"npm:opencode-ai" = "latest"
 
 [settings]
 experimental = true
