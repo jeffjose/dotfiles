@@ -58,6 +58,7 @@ npm = "latest"
 "npm:postcss-cli" = "latest"
 "npm:t-get" = "latest"
 "npm:opencode-ai" = "latest"
+"npm:@anthropic-ai/claude-code" = "latest"
 
 [settings]
 experimental = true

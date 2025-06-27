@@ -15,6 +15,13 @@ mise upgrade --bump
 
 which mise
 
+# Get the actual mise binary location (not the shim)
+MISE_BINARY=$(which mise)
+if [[ -L "$MISE_BINARY" ]]; then
+  # If it's a symlink, follow it to get the real binary
+  MISE_BINARY=$(readlink -f "$MISE_BINARY")
+fi
+
 # Function to check if pnpm shim exists and is valid
 check_pnpm_shim() {
   local shim_path="$HOME/.local/share/mise/shims/pnpm"
@@ -33,9 +40,9 @@ for i in {1..5}; do
 
   echo "Attempt $i of 5: pnpm shim is invalid or missing. Trying to fix..."
   rm -rf "$HOME/.local/share/mise/shims"
-  mise reshim
-  mise install
-  mise reshim
+  "$MISE_BINARY" reshim
+  "$MISE_BINARY" install
+  "$MISE_BINARY" reshim
   sleep 1 # Give it a moment to settle
 done
 
