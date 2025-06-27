@@ -59,6 +59,7 @@ npm = "latest"
 "npm:t-get" = "latest"
 "npm:opencode-ai" = "latest"
 "npm:@anthropic-ai/claude-code" = "latest"
+"npm:vercel" = "latest"
 
 [settings]
 experimental = true
