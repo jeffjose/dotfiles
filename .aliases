@@ -66,6 +66,7 @@
     alias remove 'sudo apt -y purge \!*; sudo apt -y autoremove --purge \!*'
 
     alias rfiles ~/dotfiles/rfiles.sh
+    alias up ~/dotfiles/update_mise.sh
 
     # Remove a ppa and all associated packages.
     alias removeppa 'sudo ppa-purge \!*'
