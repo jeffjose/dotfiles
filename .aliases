@@ -285,6 +285,7 @@
 
     alias rsync 'rsync --stats --progress'
     alias rsync-cp 'rsync --exclude "*.partial" -avzh \!*'
+    alias rsync-mirror 'rsync --exclude "*.partial" -avzh --delete \!*'
 
     alias notes 'cd ~/notes'
 
