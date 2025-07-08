@@ -9,7 +9,7 @@ SCRIPTS_DIR="$HOME/dotfiles"
 UPDATE_SCRIPTS=(
   "update_code.sh"
   "update_chrome.sh"
-  "update_cursor.sh"
+  #"update_cursor.sh"
   "update_mise.sh"
   #"update_rust.sh"  # Currently disabled
 )
@@ -30,7 +30,7 @@ declare -A VERSION_COMMANDS=(
 get_version() {
   local script="$1"
   local command="${VERSION_COMMANDS[$script]}"
-  
+
   if [[ -z "$command" ]]; then
     echo "Version check not configured"
     return 1
@@ -69,7 +69,7 @@ init_version_tracking() {
 run_update_script() {
   local script="$1"
   echo -e "\n📦 Running $script..."
-  
+
   if [ -x "$SCRIPTS_DIR/$script" ]; then
     if "$SCRIPTS_DIR/$script"; then
       echo "✅ $script completed successfully"
