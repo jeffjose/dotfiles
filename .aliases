@@ -594,6 +594,10 @@
 
     alias httptrace 'httptap -- curl -s -o /dev/null -L \!*'
 
+    alias claude 'claude --dangerously-skip-permissions'
+    alias opus claude --model opus
+    alias ccu 'pnpx ccusage@latest'
+
     # Google
     #
     #
