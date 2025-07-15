@@ -60,6 +60,7 @@ npm = "latest"
 "npm:opencode-ai" = "latest"
 "npm:@anthropic-ai/claude-code" = "latest"
 "npm:vercel" = "latest"
+"npm:pnpx" = "latest"
 
 [settings]
 experimental = true
