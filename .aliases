@@ -596,7 +596,7 @@
 
     alias claude 'claude --dangerously-skip-permissions'
     alias opus claude --model opus
-    alias ccu 'pnpx ccusage@latest'
+    alias ccu 'bunx ccusage@latest'
     alias cculive 'ccu blocks --live'
 
     # Google
