@@ -598,6 +598,7 @@
     alias opus claude --model opus
     alias ccu 'bunx ccusage@latest'
     alias cculive 'ccu blocks --live'
+    alias gemini 'gemini --yolo'
 
     # Google
     #
