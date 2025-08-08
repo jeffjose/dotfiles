@@ -33,7 +33,7 @@
     dif = diff
     stashall = stash --include-untracked
     empty = commit --allow-empty
-    cp = "!f() { git commit --allow-empty -m \"CHECKPOINT: $1\"; }; f"
+    cp = "!f() { git commit --allow-empty -m \"🏁 CHECKPOINT: $1\"; }; f"
     fs = "!f() { git commit --allow-empty -m \"🚀 START: $1\"; }; f"
     fe = "!f() { git commit --allow-empty -m \"✅ END: $1\"; }; f"
     sha = log -n 1 --pretty="%h"
