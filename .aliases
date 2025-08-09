@@ -599,6 +599,7 @@
     alias ccu 'bunx ccusage@latest'
     alias cculive 'ccu blocks --live'
     alias gemini 'gemini --yolo'
+    alias qwen 'qwen --yolo'
 
     # Google
     #
