@@ -79,8 +79,11 @@ endif
 set is_git_repo = 0
 if (-d .git) then
     set is_git_repo = 1
-else if (`git rev-parse --is-inside-work-tree >& /dev/null && echo 1` == "1") then
-    set is_git_repo = 1
+else
+    git rev-parse --is-inside-work-tree >& /dev/null
+    if ($status == 0) then
+        set is_git_repo = 1
+    endif
 endif
 
 if ($is_git_repo == 1) then
