@@ -84,7 +84,7 @@ else if (`git rev-parse --is-inside-work-tree >& /dev/null && echo 1` == "1") th
 endif
 
 if ($is_git_repo == 1) then
-  set git_status = `~/dotfiles/gitstatus.sh`
+  set git_status = `bash ~/dotfiles/gitstatus.sh`
   
   set git_branch    = $git_status[1]
 
