@@ -75,14 +75,6 @@ endif
 
 # Git - optimized detection
 #
-# Cache git status for fast directory checks
-if (! $?last_git_dir) then
-    set last_git_dir = ""
-endif
-if (! $?last_git_time) then
-    set last_git_time = 0
-endif
-
 # Check if we're in a git repo more efficiently
 set is_git_repo = 0
 if (-d .git) then
@@ -92,67 +84,56 @@ else if (`git rev-parse --is-inside-work-tree >& /dev/null && echo 1` == "1") th
 endif
 
 if ($is_git_repo == 1) then
-  # Use cached git status if same directory and within 2 seconds
-  set current_pwd = `pwd`
-  set current_time = `date +%s`
-  @ time_diff = $current_time - $last_git_time
+  set git_status = `~/dotfiles/gitstatus.sh`
   
-  if ("$current_pwd" == "$last_git_dir" && $time_diff < 2) then
-    # Use cached values (they're already set from last run)
+  set git_branch    = $git_status[1]
+
+  if ($git_status[2] == '_NO_REMOTE_TRACKING_') then
+    set git_remote = ''
   else
-    set git_status = `~/dotfiles/gitstatus.sh`
-    set last_git_dir = "$current_pwd"
-    set last_git_time = $current_time
-    
-    set git_branch    = $git_status[1]
+    set git_remote = "$git_status[2]"
+  endif
 
-    if ($git_status[2] == '_NO_REMOTE_TRACKING_') then
-      set git_remote = ''
-    else
-      set git_remote = "$git_status[2]"
-    endif
+  if ($git_status[4] == 0) then
+    set git_staged = ''
+  else
+    set git_staged="+${git_status[4]}"
+  endif
 
-    if ($git_status[4] == 0) then
-      set git_staged = ''
-    else
-      set git_staged="+${git_status[4]}"
-    endif
+  if ($git_status[5] == 0) then
+    set git_conflicts = ''
+  else
+    set git_conflicts = "!!$git_status[5]"
+  endif
 
-    if ($git_status[5] == 0) then
-      set git_conflicts = ''
-    else
-      set git_conflicts = "!!$git_status[5]"
-    endif
+  if ($git_status[6] == 0) then
+    set git_changed = ''
+  else
+    set git_changed="+${git_status[6]}"
+  endif
 
-    if ($git_status[6] == 0) then
-      set git_changed = ''
-    else
-      set git_changed="+${git_status[6]}"
-    endif
+  if ($git_status[7] == 0) then
+    set git_untracked = ''
+  else
+    set git_untracked="+${git_status[7]}"
+  endif
 
-    if ($git_status[7] == 0) then
-      set git_untracked = ''
-    else
-      set git_untracked="+${git_status[7]}"
-    endif
+  if ($git_status[8] == 0) then
+    set git_stashed = ''
+  else
+    set git_stashed = "+$git_status[8]"
+  endif
 
-    if ($git_status[8] == 0) then
-      set git_stashed = ''
-    else
-      set git_stashed = "+$git_status[8]"
-    endif
+  if ("$git_status[9]" == 0) then
+    set git_clean = ''
+  else
+    set git_clean="✔"
+  endif
 
-    if ("$git_status[9]" == 0) then
-      set git_clean = ''
-    else
-      set git_clean="✔"
-    endif
-
-    if ("$git_status[10]" != "-") then
-      set git5_cl = "$git_status[10]"
-    else
-      set git5_cl = '-'
-    endif
+  if ("$git_status[10]" != "-") then
+    set git5_cl = "$git_status[10]"
+  else
+    set git5_cl = '-'
   endif
 
   set git_str = " ${magenta}${git_branch}${git_remote}${end}:${red}${git_untracked}${end}${yellow}${git_changed}${end}${blue}${git_staged}${end}${cyan}${git_stashed}${end}${green}${git_clean}${end}:${blue}${git5_cl}${end}"
@@ -162,34 +143,9 @@ else
 endif
 
 
-# Firebase project detection - only check if firebase.json exists
-if (-f firebase.json) then
-  # Cache firebase project for 10 seconds
-  if (! $?firebase_cache_time) then
-    set firebase_cache_time = 0
-  endif
-  set current_time = `date +%s`
-  @ time_diff = $current_time - $firebase_cache_time
-  
-  if (! $?firebase_cache || $time_diff > 10) then
-    set firebase_cache = `~/dotfiles/firebaseproject.sh`
-    set firebase_cache_time = $current_time
-  endif
-  set _firebase_str = "$firebase_cache"
-
-  if ($_firebase_str == "") then
-    set firebase_str = " -?-"
-  else if ($_firebase_str == "beanbaby-prod") then
-    set firebase_str = " ${red}${_firebase_str}${end}"
-  else
-    set firebase_str = " ${magenta}${_firebase_str}${end}"
-  endif
-else
-  set firebase_str = ""
-endif
 
 if ($?STY) then
-    set prompt = "-(${cyan}%B%P%b${end} ${host_color}${host_name} ${ip_address}${end} ${green}%B%/%b${green}${end}${git_str}${firebase_str})-\n${prompt_key}${end} "
+    set prompt = "-(${cyan}%B%P%b${end} ${host_color}${host_name} ${ip_address}${end} ${green}%B%/%b${green}${end}${git_str})-\n${prompt_key}${end} "
 else
     set prompt = "-(${white}%P${end} ${white}${host_name} ${ip_address}${end} ${white}%/${end})-\n?${end} "
 endif
