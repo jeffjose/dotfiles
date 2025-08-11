@@ -15,6 +15,11 @@ if [ -z "${__GIT_PROMPT_DIR}" ]; then
   __GIT_PROMPT_DIR="$(cd -P "$(dirname "${SOURCE}")" && pwd)"
 fi
 
+# Early exit for non-git directories
+if [ ! -d .git ] && [ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" != "true" ]; then
+  exit 0
+fi
+
 gitstatus=$(LC_ALL=C git status --untracked-files=${__GIT_PROMPT_SHOW_UNTRACKED_FILES:-all} --porcelain --branch)
 
 # if the status is fatal, exit now
@@ -68,11 +73,9 @@ done <<<"$gitstatus"
 
 num_stashed=0
 if [[ "$__GIT_PROMPT_IGNORE_STASH" != "1" ]]; then
-  stash_file="$(git rev-parse --git-dir)/logs/refs/stash"
+  stash_file="$(git rev-parse --git-dir 2>/dev/null)/logs/refs/stash"
   if [[ -e "${stash_file}" ]]; then
-    while IFS='' read -r wcline || [[ -n "$wcline" ]]; do
-      ((num_stashed++))
-    done <${stash_file}
+    num_stashed=$(wc -l < "${stash_file}" 2>/dev/null || echo 0)
   fi
 fi
 
@@ -129,9 +132,27 @@ if [[ -z "$upstream" ]]; then
   upstream='^'
 fi
 
-# jeffjose
-timeago_dt="$(git log -1 --format=%cD)"
-timeago_str="$(timeago "$timeago_dt")"
+# jeffjose - optimized timeago without external command
+if git log -1 --format=%ct &>/dev/null; then
+  timeago_seconds=$(($(date +%s) - $(git log -1 --format=%ct 2>/dev/null || echo 0)))
+  if [ $timeago_seconds -lt 60 ]; then
+    timeago_str="${timeago_seconds}s"
+  elif [ $timeago_seconds -lt 3600 ]; then
+    timeago_str="$((timeago_seconds / 60))m"
+  elif [ $timeago_seconds -lt 86400 ]; then
+    timeago_str="$((timeago_seconds / 3600))h"
+  elif [ $timeago_seconds -lt 604800 ]; then
+    timeago_str="$((timeago_seconds / 86400))d"
+  elif [ $timeago_seconds -lt 2592000 ]; then
+    timeago_str="$((timeago_seconds / 604800))w"
+  elif [ $timeago_seconds -lt 31536000 ]; then
+    timeago_str="$((timeago_seconds / 2592000))mo"
+  else
+    timeago_str="$((timeago_seconds / 31536000))y"
+  fi
+else
+  timeago_str=""
+fi
 
 # jeffjose | describe
 #describe_str="$(git describe --tags --always)"

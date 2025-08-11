@@ -1,12 +1,29 @@
-# cwdcmd
+# cwdcmd - optimized version
 #
 
   set output_file = '/tmp/cwdcmd_recent_dirs'
-
-  pwd >> ${output_file}
-
-  tail -n 10 ${output_file} | sponge ${output_file}
-
-  /bin/cat /tmp/cwdcmd_recent_dirs | sort | uniq | sponge ${output_file}
-
-  unset ${output_file}
+  
+  # Only update if directory changed from last time
+  if (! $?last_cwd_logged) then
+    set last_cwd_logged = ""
+  endif
+  
+  set current_dir = `pwd`
+  
+  if ("$current_dir" != "$last_cwd_logged") then
+    # Read existing dirs, add current, dedupe, and keep last 10
+    # Using a temp file to avoid sponge dependency
+    set temp_file = "${output_file}.tmp"
+    
+    # Get existing dirs (if file exists), add current dir, dedupe, keep last 10
+    if (-f ${output_file}) then
+      (cat ${output_file}; echo "$current_dir") | awk '!seen[$0]++' | tail -10 > ${temp_file}
+    else
+      echo "$current_dir" > ${temp_file}
+    endif
+    
+    mv ${temp_file} ${output_file}
+    set last_cwd_logged = "$current_dir"
+  endif
+  
+  unset output_file

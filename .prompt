@@ -35,7 +35,17 @@ else
     set host_name = "${HOST}"
 endif
 
-set ip_address = `\ip -o route get 8.8.8.8 | awk -F 'src | uid' '{print $2}'`
+# Cache IP address for 60 seconds
+if (! $?cached_ip_time) then
+    set cached_ip_time = 0
+endif
+set current_time = `date +%s`
+@ time_diff = $current_time - $cached_ip_time
+if (! $?cached_ip || $time_diff > 60) then
+    set cached_ip = `\ip -o route get 8.8.8.8 | awk -F 'src | uid' '{print $2}'`
+    set cached_ip_time = $current_time
+endif
+set ip_address = $cached_ip
 
 #if ("${WIFI}" == 'banana-unleashed') then
 #    set wifi_color = "${magenta}"
@@ -63,60 +73,86 @@ else
   set prompt_key = "#"
 endif
 
-# Git
+# Git - optimized detection
 #
-if (`bash -c 'git rev-parse --git-dir 2> /dev/null'` != "") then
+# Cache git status for fast directory checks
+if (! $?last_git_dir) then
+    set last_git_dir = ""
+endif
+if (! $?last_git_time) then
+    set last_git_time = 0
+endif
 
-  set git_status = `~/dotfiles/gitstatus.sh`
+# Check if we're in a git repo more efficiently
+set is_git_repo = 0
+if (-d .git) then
+    set is_git_repo = 1
+else if (`git rev-parse --is-inside-work-tree >& /dev/null && echo 1` == "1") then
+    set is_git_repo = 1
+endif
 
-  set git_branch    = $git_status[1]
-
-  if ($git_status[2] == '_NO_REMOTE_TRACKING_') then
-    set git_remote = ''
+if ($is_git_repo == 1) then
+  # Use cached git status if same directory and within 2 seconds
+  set current_pwd = `pwd`
+  set current_time = `date +%s`
+  @ time_diff = $current_time - $last_git_time
+  
+  if ("$current_pwd" == "$last_git_dir" && $time_diff < 2) then
+    # Use cached values (they're already set from last run)
   else
-    set git_remote = "$git_status[2]"
-  endif
+    set git_status = `~/dotfiles/gitstatus.sh`
+    set last_git_dir = "$current_pwd"
+    set last_git_time = $current_time
+    
+    set git_branch    = $git_status[1]
 
-  if ($git_status[4] == 0) then
-    set git_staged = ''
-  else
-    set git_staged="+${git_status[4]}"
-  endif
+    if ($git_status[2] == '_NO_REMOTE_TRACKING_') then
+      set git_remote = ''
+    else
+      set git_remote = "$git_status[2]"
+    endif
 
-  if ($git_status[5] == 0) then
-    set git_conflicts = ''
-  else
-    set git_conflicts = "!!$git_status[5]"
-  endif
+    if ($git_status[4] == 0) then
+      set git_staged = ''
+    else
+      set git_staged="+${git_status[4]}"
+    endif
 
-  if ($git_status[6] == 0) then
-    set git_changed = ''
-  else
-    set git_changed="+${git_status[6]}"
-  endif
+    if ($git_status[5] == 0) then
+      set git_conflicts = ''
+    else
+      set git_conflicts = "!!$git_status[5]"
+    endif
 
-  if ($git_status[7] == 0) then
-    set git_untracked = ''
-  else
-    set git_untracked="+${git_status[7]}"
-  endif
+    if ($git_status[6] == 0) then
+      set git_changed = ''
+    else
+      set git_changed="+${git_status[6]}"
+    endif
 
-  if ($git_status[8] == 0) then
-    set git_stashed = ''
-  else
-    set git_stashed = "+$git_status[8]"
-  endif
+    if ($git_status[7] == 0) then
+      set git_untracked = ''
+    else
+      set git_untracked="+${git_status[7]}"
+    endif
 
-  if ("$git_status[9]" == 0) then
-    set git_clean = ''
-  else
-    set git_clean="✔"
-  endif
+    if ($git_status[8] == 0) then
+      set git_stashed = ''
+    else
+      set git_stashed = "+$git_status[8]"
+    endif
 
-  if ("$git_status[10]" != "-") then
-    set git5_cl = "$git_status[10]"
-  else
-    set git5_cl = '-'
+    if ("$git_status[9]" == 0) then
+      set git_clean = ''
+    else
+      set git_clean="✔"
+    endif
+
+    if ("$git_status[10]" != "-") then
+      set git5_cl = "$git_status[10]"
+    else
+      set git5_cl = '-'
+    endif
   endif
 
   set git_str = " ${magenta}${git_branch}${git_remote}${end}:${red}${git_untracked}${end}${yellow}${git_changed}${end}${blue}${git_staged}${end}${cyan}${git_stashed}${end}${green}${git_clean}${end}:${blue}${git5_cl}${end}"
@@ -126,8 +162,20 @@ else
 endif
 
 
+# Firebase project detection - only check if firebase.json exists
 if (-f firebase.json) then
-  set _firebase_str = `~/dotfiles/firebaseproject.sh`
+  # Cache firebase project for 10 seconds
+  if (! $?firebase_cache_time) then
+    set firebase_cache_time = 0
+  endif
+  set current_time = `date +%s`
+  @ time_diff = $current_time - $firebase_cache_time
+  
+  if (! $?firebase_cache || $time_diff > 10) then
+    set firebase_cache = `~/dotfiles/firebaseproject.sh`
+    set firebase_cache_time = $current_time
+  endif
+  set _firebase_str = "$firebase_cache"
 
   if ($_firebase_str == "") then
     set firebase_str = " -?-"
