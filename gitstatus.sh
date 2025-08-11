@@ -15,11 +15,6 @@ if [ -z "${__GIT_PROMPT_DIR}" ]; then
   __GIT_PROMPT_DIR="$(cd -P "$(dirname "${SOURCE}")" && pwd)"
 fi
 
-# Early exit for non-git directories
-if [ ! -d .git ] && [ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" != "true" ]; then
-  exit 0
-fi
-
 gitstatus=$(LC_ALL=C git status --untracked-files=${__GIT_PROMPT_SHOW_UNTRACKED_FILES:-all} --porcelain --branch)
 
 # if the status is fatal, exit now

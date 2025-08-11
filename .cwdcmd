@@ -17,7 +17,7 @@
     
     # Get existing dirs (if file exists), add current dir, dedupe, keep last 10
     if (-f ${output_file}) then
-      (cat ${output_file}; echo "$current_dir") | awk '!seen[$0]++' | tail -10 > ${temp_file}
+      (cat ${output_file}; echo "$current_dir") | sort -u | tail -10 > ${temp_file}
     else
       echo "$current_dir" > ${temp_file}
     endif
