@@ -141,8 +141,10 @@ else
 endif
 
 # Debug timing - calculate and display elapsed time
-if ($?PROMPT_DEBUG && $?prompt_start_time) then
-    set prompt_end_time = `date +%s%3N`
-    @ prompt_elapsed = $prompt_end_time - $prompt_start_time
-    echo "Prompt took ${prompt_elapsed}ms"
+if ($?PROMPT_DEBUG) then
+    if ($?prompt_start_time) then
+        set prompt_end_time = `date +%s%3N`
+        @ prompt_elapsed = $prompt_end_time - $prompt_start_time
+        echo "Prompt took ${prompt_elapsed}ms"
+    endif
 endif
