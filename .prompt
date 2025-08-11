@@ -35,7 +35,22 @@ else
     set host_name = "${HOST}"
 endif
 
-set ip_address = `\ip -o route get 8.8.8.8 | awk -F 'src | uid' '{print $2}'`
+# Cache IP address for 60 seconds
+if (! $?cached_ip_time) then
+    set cached_ip_time = 0
+endif
+if (! $?cached_ip) then
+    set cached_ip = ""
+endif
+
+set current_time = `date +%s`
+@ time_diff = $current_time - $cached_ip_time
+
+if ($time_diff > 60) then
+    set cached_ip = `\ip -o route get 8.8.8.8 | awk -F 'src | uid' '{print $2}'`
+    set cached_ip_time = $current_time
+endif
+set ip_address = $cached_ip
 
 #if ("${WIFI}" == 'banana-unleashed') then
 #    set wifi_color = "${magenta}"
