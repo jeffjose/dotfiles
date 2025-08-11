@@ -144,5 +144,5 @@ endif
 if ($?PROMPT_DEBUG && $?prompt_start_time) then
     set prompt_end_time = `date +%s%3N`
     @ prompt_elapsed = $prompt_end_time - $prompt_start_time
-    echo "${yellow}Prompt took ${prompt_elapsed}ms${end}"
+    echo "Prompt took ${prompt_elapsed}ms"
 endif

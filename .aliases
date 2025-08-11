@@ -17,6 +17,15 @@
     alias sudopkill "pgrep \!* | cut -d ' ' -f1 | xargs sudo kill -9"
 
     alias find 'fdfind'
+    
+    # Toggle prompt debug timing
+    alias pd 'if ($?PROMPT_DEBUG) then\
+        unsetenv PROMPT_DEBUG\
+        echo "Prompt debug disabled"\
+    else\
+        setenv PROMPT_DEBUG 1\
+        echo "Prompt debug enabled"\
+    endif'
 
     alias md mkdir -p
 
