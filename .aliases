@@ -19,11 +19,7 @@
     alias find 'fdfind'
     
     # Toggle prompt debug timing
-    alias pd 'if ($?PROMPT_DEBUG) then\
-        unsetenv PROMPT_DEBUG\
-    else\
-        setenv PROMPT_DEBUG 1\
-    endif'
+    alias pd 'if ($?PROMPT_DEBUG) unsetenv PROMPT_DEBUG; if (! $?PROMPT_DEBUG) setenv PROMPT_DEBUG 1'
 
     alias md mkdir -p
 
