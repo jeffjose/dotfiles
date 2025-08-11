@@ -66,7 +66,33 @@ if ( ! $?prompt ) exit
 
     setenv BREWPATH /home/linuxbrew/.linuxbrew
 
-    setenv PATH ${GRADLEPATH}/bin:${MISEPATH}:${CARGOPATH}/bin:${PYENVPATH}/bin:${BREWPATH}/bin:${GOPATH}/bin:${PNPM_HOME}:${BUNPATH}/bin:${DARTPATH}/bin:${GOOGLEDARTPATH}/bin:${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/build-tools/${ANDROID_VER}:${HOME}/.pub-cache/bin:${HOME}/bin:${HOME}/.local/bin:/usr/sbin:${PATH}
+    # Build PATH with only existing directories
+    set new_path = ""
+    
+    # Add each directory only if it exists
+    if (-d ${GRADLEPATH}/bin) set new_path = "${new_path}:${GRADLEPATH}/bin"
+    if (-d ${MISEPATH}) set new_path = "${new_path}:${MISEPATH}"
+    if (-d ${CARGOPATH}/bin) set new_path = "${new_path}:${CARGOPATH}/bin"
+    if (-d ${PYENVPATH}/bin) set new_path = "${new_path}:${PYENVPATH}/bin"
+    if (-d ${BREWPATH}/bin) set new_path = "${new_path}:${BREWPATH}/bin"
+    if (-d ${GOPATH}/bin) set new_path = "${new_path}:${GOPATH}/bin"
+    if (-d ${PNPM_HOME}) set new_path = "${new_path}:${PNPM_HOME}"
+    if (-d ${BUNPATH}/bin) set new_path = "${new_path}:${BUNPATH}/bin"
+    if (-d ${DARTPATH}/bin) set new_path = "${new_path}:${DARTPATH}/bin"
+    if (-d ${GOOGLEDARTPATH}/bin) set new_path = "${new_path}:${GOOGLEDARTPATH}/bin"
+    if (-d ${ANDROID_HOME}/emulator) set new_path = "${new_path}:${ANDROID_HOME}/emulator"
+    if (-d ${ANDROID_HOME}/tools/bin) set new_path = "${new_path}:${ANDROID_HOME}/tools/bin"
+    if (-d ${ANDROID_HOME}/platform-tools) set new_path = "${new_path}:${ANDROID_HOME}/platform-tools"
+    if (-d ${ANDROID_HOME}/build-tools/${ANDROID_VER}) set new_path = "${new_path}:${ANDROID_HOME}/build-tools/${ANDROID_VER}"
+    if (-d ${HOME}/.pub-cache/bin) set new_path = "${new_path}:${HOME}/.pub-cache/bin"
+    if (-d ${HOME}/bin) set new_path = "${new_path}:${HOME}/bin"
+    if (-d ${HOME}/.local/bin) set new_path = "${new_path}:${HOME}/.local/bin"
+    if (-d /usr/sbin) set new_path = "${new_path}:/usr/sbin"
+    
+    # Remove leading colon and append to existing PATH
+    setenv PATH `echo $new_path | sed 's/^://'`:${PATH}
+    
+    unset new_path
 
     #setenv PYTHONPATH $HOME/.local/lib/python2.7/site-packages:/usr/local/buildtools/current/sitecustomize
 
