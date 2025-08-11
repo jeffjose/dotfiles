@@ -132,12 +132,15 @@ if ( ! $?prompt ) exit
 
 # Various usage statistics set with the time command.
 # Do "man tcsh" to find about more data that can be shown here.
-    set time=(8\
-    "\
-    Time spent in user mode   (CPU seconds) : %Us\
-    Time spent in kernel mode (CPU seconds) : %Ss\
-    Total time (hrs                         : %Es\
-    CPU utilisation (percentage)            : %P\
+# Only shows for commands taking > 8 seconds
+    set time=(8 "\
+─────────────────────────────────────────\
+  Elapsed time    : %Es\
+  CPU usage       : %P\
+  User time       : %Us\
+  System time     : %Ss\
+  Memory (max RSS): %Mk\
+─────────────────────────────────────────\
     ")
 
     if ($?STY) then
