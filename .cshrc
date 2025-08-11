@@ -140,7 +140,9 @@ if ( ! $?prompt ) exit
   User time       : %Us\
   System time     : %Ss\
   Memory (max RSS): %Mk\
-  Page faults: %F+%R  |  I/O: %I+%O  |  Context sw: %c+%w\
+  Page faults     : %F+%R (major+minor)\
+  I/O operations  : %I+%O (input+output)\
+  Context switches: %c+%w (voluntary+involuntary)\
 ─────────────────────────────────────────\
     ")
 
