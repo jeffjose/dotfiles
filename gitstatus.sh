@@ -152,7 +152,7 @@ fi
 # jeffjose | describe
 #describe_str="$(git describe --tags --always)"
 
-printf "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n" \
+printf "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n" \
   "$branch" \
   "$remote" \
   "$upstream" \
