@@ -134,10 +134,14 @@ if ( ! $?prompt ) exit
 # Do "man tcsh" to find about more data that can be shown here.
 # Only shows for commands taking > 8 seconds
     set time=(8 "\
-─────────────────────────────────────────────────────────\
-  Time: %Es (%P CPU)  |  User: %Us  Sys: %Ss  |  Mem: %Mk\
+─────────────────────────────────────────\
+  Elapsed time    : %Es\
+  CPU usage       : %P\
+  User time       : %Us\
+  System time     : %Ss\
+  Memory (max RSS): %Mk\
   Page faults: %F+%R  |  I/O: %I+%O  |  Context sw: %c+%w\
-─────────────────────────────────────────────────────────\
+─────────────────────────────────────────\
     ")
 
     if ($?STY) then
