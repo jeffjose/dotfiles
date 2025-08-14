@@ -16,10 +16,9 @@
     alias pkill "pgrep \!* | cut -d ' ' -f1 | xargs kill -9"
     alias sudopkill "pgrep \!* | cut -d ' ' -f1 | xargs sudo kill -9"
 
-    alias find 'fdfind'
-    
     # Toggle prompt debug timing
     alias pd 'set _pd_toggle = $?PROMPT_DEBUG; if ($_pd_toggle) unsetenv PROMPT_DEBUG; if (! $_pd_toggle) setenv PROMPT_DEBUG 1; unset _pd_toggle'
+    alias find 'fd'
 
     alias md mkdir -p
 
