@@ -68,7 +68,7 @@ if ( ! $?prompt ) exit
 
     # Build PATH with only existing directories
     set new_path = ""
-    
+
     # Add each directory only if it exists
     if (-d ${GRADLEPATH}/bin) set new_path = "${new_path}:${GRADLEPATH}/bin"
     if (-d ${MISEPATH}) set new_path = "${new_path}:${MISEPATH}"
@@ -88,10 +88,10 @@ if ( ! $?prompt ) exit
     if (-d ${HOME}/bin) set new_path = "${new_path}:${HOME}/bin"
     if (-d ${HOME}/.local/bin) set new_path = "${new_path}:${HOME}/.local/bin"
     if (-d /usr/sbin) set new_path = "${new_path}:/usr/sbin"
-    
+
     # Remove leading colon and append to existing PATH
     setenv PATH `echo $new_path | sed 's/^://'`:${PATH}
-    
+
     unset new_path
 
     #setenv PYTHONPATH $HOME/.local/lib/python2.7/site-packages:/usr/local/buildtools/current/sitecustomize
@@ -140,9 +140,7 @@ if ( ! $?prompt ) exit
   User time       : %Us\
   System time     : %Ss\
   Memory (max RSS): %Mk\
-  Page faults     : %F+%R (major+minor)\
   I/O operations  : %I+%O (input+output)\
-  Context switches: %c+%w (voluntary+involuntary)\
 ─────────────────────────────────────────\
     ")
 
