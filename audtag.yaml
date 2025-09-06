@@ -1,0 +1,42 @@
+# Audtag Configuration
+# Place this file at ~/audtag.yaml (user config) or ./audtag.yaml (project config)
+# Each task defined here becomes available as an audtag subcommand
+
+# Define tasks that become available as audtag subcommands
+# Each task here becomes a command: audtag <taskname>
+tasks:
+  # Move files to organized directory structure (Plex-friendly)
+  - name: move
+    description: "Move files to organized directory structure"
+    destination: "/mnt/matterhorn/Plex/Audio.Books/{artist}/{album}/"
+    naming_pattern: "{album} ({year}) - pt{track:03d}.{ext}"
+    
+  # Copy files to backup location
+  - name: copy
+    description: "Create backup copies"
+    destination: "/backup/Audio.Books/{artist}/{album}/"
+    naming_pattern: "{album} ({year}) - pt{track:03d}.{ext}"
+    
+  # Rename files in place (matches your Plex structure)
+  - name: rename
+    description: "Rename files in current directory"
+    naming_pattern: "{album} ({year}) - pt{track:03d}.{ext}"
+
+# Available variables for patterns:
+# {artist}     - Artist/Author name
+# {album}      - Album/Book title
+# {title}      - Track/Chapter title
+# {track}      - Track number
+# {track:02d}  - Track number with 2-digit zero padding (01, 02, ..., 99)
+# {track:03d}  - Track number with 3-digit zero padding (001, 002, ..., 999)
+# {year}       - Year
+# {genre}      - Genre
+# {composer}   - Composer/Narrator
+# {filename}   - Original filename (without extension)
+# {ext}        - File extension
+# {date:%Y-%m-%d} - Current date (Python strftime format)
+
+# Notes:
+# - Use {track:03d} for audiobooks that may have 100+ parts
+# - Cover images should be named: {album} ({year}) - cover.jpg
+# - For series, include in album name: "Book Title, Book N [Series Name N]"

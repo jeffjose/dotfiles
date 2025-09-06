@@ -14,6 +14,7 @@ npm = "latest"
 "go:github.com/josephburnett/jd" = "latest"
 
 # CLI utilities
+"go:github.com/junegunn/fzf" = "latest"
 "go:github.com/antonmedv/watch" = "latest"
 "go:github.com/ericchiang/pup" = "latest"
 "go:github.com/monasticacademy/httptap" = "latest"

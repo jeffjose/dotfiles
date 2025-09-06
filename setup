@@ -52,6 +52,7 @@ declare -A SYMLINKS=(
   ["$DOTFILES_DIR/containers.conf"]="$HOME/.config/containers/containers.conf"
   ["$DOTFILES_DIR/.jq"]="$HOME/.jq"
   ["$DOTFILES_DIR/config.toml"]="$HOME/.config/mise/config.toml"
+  ["$DOTFILES_DIR/audtag.yaml"]="$HOME/audtag.yaml"
 )
 
 # Track failures
