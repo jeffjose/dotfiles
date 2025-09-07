@@ -9,18 +9,18 @@ tasks:
   - name: move
     description: "Move files to organized directory structure"
     destination: "/mnt/matterhorn/Plex/Audio.Books/{artist}/{album}/"
-    naming_pattern: "{album} ({year}) - pt{track:03d}.{ext}"
-    
+    naming_pattern: "{track:02d} {title}.{ext}"
+
   # Copy files to backup location
   - name: copy
     description: "Create backup copies"
     destination: "/backup/Audio.Books/{artist}/{album}/"
-    naming_pattern: "{album} ({year}) - pt{track:03d}.{ext}"
-    
+    naming_pattern: "{track:02d} {title}.{ext}"
+
   # Rename files in place (matches your Plex structure)
   - name: rename
     description: "Rename files in current directory"
-    naming_pattern: "{album} ({year}) - pt{track:03d}.{ext}"
+    naming_pattern: "{track:02d} {title}.{ext}"
 
 # Available variables for patterns:
 # {artist}     - Artist/Author name
