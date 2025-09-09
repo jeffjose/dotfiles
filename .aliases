@@ -371,7 +371,7 @@
     alias copysshkey 'copytext ~/.ssh/id_rsa.pub'
 
 
-    alias jclone 'git clone https://github.com/jeffjose/\!*'
+    alias jclone '(which gh >& /dev/null && gh repo clone jeffjose/\!*) || git clone https://github.com/jeffjose/\!*'
     alias ghclone 'gh repo clone jeffjose/\!*'
 
     alias jadd 'git remote add origin https://github.com/jeffjose/\!*.git; git branch -M main; fixgitconfig; git push -u origin main'

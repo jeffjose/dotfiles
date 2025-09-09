@@ -128,6 +128,14 @@ main() {
   echo "🚀 Starting quick update process..."
   echo "-----------------------------------"
 
+  # Update dotfiles first
+  echo "📂 Updating dotfiles..."
+  cd ~/dotfiles
+  git pull
+  ./setup.sh
+  cd - > /dev/null
+  echo "✅ Dotfiles updated"
+
   check_sudo
   init_version_tracking
 

@@ -4,6 +4,13 @@
 
 set -euo pipefail
 
+# Update dotfiles first
+echo "Updating dotfiles..."
+cd ~/dotfiles
+git pull
+./setup.sh
+cd - > /dev/null
+
 # Clear cache, since python builds was breaking for the longest time
 mise cache clear
 
