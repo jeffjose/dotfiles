@@ -8,7 +8,7 @@ set -euo pipefail
 echo "Updating dotfiles..."
 cd ~/dotfiles
 git pull
-./setup.sh
+./setup
 cd - > /dev/null
 
 # Clear cache, since python builds was breaking for the longest time

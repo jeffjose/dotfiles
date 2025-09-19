@@ -132,7 +132,7 @@ main() {
   echo "📂 Updating dotfiles..."
   cd ~/dotfiles
   git pull
-  ./setup.sh
+  ./setup
   cd - > /dev/null
   echo "✅ Dotfiles updated"
 
