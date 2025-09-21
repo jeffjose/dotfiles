@@ -571,7 +571,7 @@
     # While the executable comes from /home/jeffjose, the .wine/ is /root/.wine/
     alias mp3tag 'sudo wine ~/.wine/drive_c/Program\ Files/Mp3tag/Mp3tag.exe'
 
-    alias tzupdate 'sudo /home/jeffjose/.local/share/mise/shims/tzupdate'
+    alias tzupdate 'sudo /home/jeffjose/.cargo/bin/tzupdate'
 
     # Add alias
     # sudo ip address add 192.168.1.6/24 dev eno1
