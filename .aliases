@@ -587,6 +587,8 @@
     alias wgup 'sudo wg-quick up'
     alias wgdown 'sudo wg-quick up'
 
+    alias wt 'sudo wg show wg0 >& /dev/null && (echo "Bringing wg0 down..."; sudo wg-quick down wg0) || (echo "Bringing wg0 up..."; sudo wg-quick up wg0)'
+
     alias wg 'sudo wg'
 
     #alias mediainfo '$HOME/scripts/mediainfo/mediainfo.sh'
