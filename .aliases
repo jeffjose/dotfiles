@@ -600,6 +600,7 @@
 
     alias claude 'claude --dangerously-skip-permissions'
     alias opus claude --model opus
+    alias sonnet claude --model sonnet
     alias ccu 'bunx ccusage@latest'
     alias cculive 'ccu blocks --live'
     alias gemini 'gemini --yolo'
