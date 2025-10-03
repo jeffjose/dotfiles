@@ -62,12 +62,11 @@ declare -a failed_tasks=()
 run_task() {
   local task_name="$1"
   shift
-  echo -e "\n📦 $task_name..."
-  if "$@"; then
-    echo "✅ $task_name completed successfully"
+  if "$@" 2>/dev/null; then
+    echo "✓ $task_name"
     return 0
   else
-    echo "❌ $task_name failed"
+    echo "✗ $task_name"
     failed_tasks+=("$task_name")
     return 1
   fi
@@ -77,46 +76,34 @@ echo "🚀 Setting up dotfiles in $HOME"
 echo "-----------------------------------"
 
 # Create directories
-echo -e "\n🔄 Creating Directories"
-echo "-----------------------------------"
+echo -e "\n📁 Directories"
 for dir in "${DIRECTORIES[@]}"; do
-  run_task "Creating $dir" mkdir -p "$dir"
+  run_task "  $dir" mkdir -p "$dir"
 done
 
 # Create empty files
-echo -e "\n🔄 Creating Empty Files"
-echo "-----------------------------------"
-run_task "Creating cwdcmd_recent_dirs" touch /tmp/cwdcmd_recent_dirs
-run_task "Creating .aliases.sensitive.sh" touch "$HOME/.aliases.sensitive.sh"
+echo -e "\n📄 Files"
+run_task "  /tmp/cwdcmd_recent_dirs" touch /tmp/cwdcmd_recent_dirs
+run_task "  $HOME/.aliases.sensitive.sh" touch "$HOME/.aliases.sensitive.sh"
 
 # Setup screen symlink
-echo -e "\n🔄 Setting up Screen"
-echo "-----------------------------------"
-run_task "Linking screen" ln -sf /usr/bin/screen "$HOME/bin/scrn"
+echo -e "\n🔗 Screen"
+run_task "  $HOME/bin/scrn → /usr/bin/screen" ln -sf /usr/bin/screen "$HOME/bin/scrn"
 
 # Create symlinks
-echo -e "\n🔄 Creating Symlinks"
-echo "-----------------------------------"
+echo -e "\n🔗 Symlinks"
 for src in "${!SYMLINKS[@]}"; do
   target="${SYMLINKS[$src]}"
   if [ -e "$target" ] && [ ! -L "$target" ]; then
-    run_task "Backing up $target" mv "$target" "$target$BACKUP_SUFFIX"
+    run_task "  $target (backup)" mv "$target" "$target$BACKUP_SUFFIX"
   fi
-  run_task "Linking $src" ln -sf "$src" "$target"
+  run_task "  $target → $(basename "$src")" ln -sf "$src" "$target"
 done
-
-echo -e "\n-----------------------------------"
-echo "📋 Setup Summary:"
-echo "Status:"
-echo "  - Directories created ✓"
-echo "  - Empty files created ✓"
-echo "  - Screen setup ✓"
-echo "  - Symlinks created ✓"
 
 if [ ${#failed_tasks[@]} -gt 0 ]; then
   echo -e "\n❌ Failed tasks:"
   printf '%s\n' "${failed_tasks[@]}"
   exit 1
 else
-  echo -e "\n✨ Setup completed successfully!"
+  echo -e "\n✨ Done!"
 fi
