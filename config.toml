@@ -8,6 +8,7 @@ yarn = "latest"
 rust = "latest"
 bun = "latest"
 npm = "latest"
+uv = "latest"
 
 # JSON utilities
 "go:github.com/tomnomnom/gron" = "latest"
