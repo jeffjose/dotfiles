@@ -42,6 +42,7 @@
     alias grep grep -iE --color=always
 
     alias ip ip -c --brief
+    alias pnpx 'pnpm dlx'
 
     alias exe chmod a+x
 
@@ -599,8 +600,13 @@
     alias httptrace 'httptap -- curl -s -o /dev/null -L \!*'
 
     alias claude 'claude --dangerously-skip-permissions'
+
     alias opus claude --model opus
     alias sonnet claude --model sonnet
+
+    alias opush pnpm --package=happy-coder dlx happy --model opus
+    alias sonneth pnpm --package=happy-coder dlx happy --model sonnet
+
     alias ccu 'bunx ccusage@latest'
     alias cculive 'ccu blocks --live'
     alias gemini 'gemini --yolo'
