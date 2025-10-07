@@ -606,6 +606,7 @@
 
     alias opush pnpm --package=happy-coder dlx happy --model opus
     alias sonneth pnpm --package=happy-coder dlx happy --model sonnet
+    alias happy pnpm --package=happy-coder dlx happy
 
     alias ccu 'bunx ccusage@latest'
     alias cculive 'ccu blocks --live'
