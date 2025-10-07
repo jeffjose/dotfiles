@@ -63,7 +63,6 @@ uv = "latest"
 "npm:opencode-ai" = "latest"
 "npm:@anthropic-ai/claude-code" = "latest"
 "npm:vercel" = "latest"
-"npm:pnpx" = "latest"
 "npm:@qwen-code/qwen-code" = "latest"
 
 [settings]
