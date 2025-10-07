@@ -604,8 +604,8 @@
     alias opus claude --model opus
     alias sonnet claude --model sonnet
 
-    alias opush pnpm --package=happy-coder dlx happy --model opus
-    alias sonneth pnpm --package=happy-coder dlx happy --model sonnet
+    alias opush pnpm --package=happy-coder dlx happy --model opus --yolo
+    alias sonneth pnpm --package=happy-coder dlx happy --model sonnet --yolo
     alias happy pnpm --package=happy-coder dlx happy
 
     alias ccu 'bunx ccusage@latest'
