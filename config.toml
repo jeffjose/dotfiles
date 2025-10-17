@@ -1,7 +1,7 @@
 [tools]
 go = "latest"
 java = "latest"
-node = "latest"
+node = "24" #  25 breaks claude
 pnpm = "latest"
 python = "latest"
 yarn = "latest"
