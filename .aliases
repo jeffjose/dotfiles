@@ -289,6 +289,7 @@
     alias rsync 'rsync --stats --progress'
     alias rsync-cp 'rsync --exclude "*.partial" -avzh \!*'
     alias rsync-mirror 'rsync --exclude "*.partial" -avzh --delete \!*'
+    alias rsync-stats 'rsync -av --dry-run --stats \!* | tail -20 | sed -e "s/Number of files:/Total files at source:/g" -e "s/Number of created files:/Files to be created:/g" -e "s/Number of deleted files:/Files to be deleted:/g" -e "s/Number of regular files transferred:/Files to be transferred:/g" -e "s/Total file size:/Total size at source:/g" -e "s/Total transferred file size:/Size to be transferred:/g" -e "s/Literal data:/Data to send:/g" -e "s/Matched data:/Data already at dest:/g"'
 
     alias notes 'cd ~/notes'
 
