@@ -94,9 +94,10 @@ term screen.xterm-256color
     # - %s now = screen size (was seconds in Screen 4.x)
     # - %S now = session name
     # - No escape code for seconds anymore
-    # Workaround: Could use backtick command, but skipping for now
+    # Workaround: Use backtick to run 'date' command for time with seconds
     # Format: %c=time(24hr), %C=time(12hr), %A=AM/PM, %D=day, %d=date, %M=month
-    hardstatus alwayslastline "%{= 7,4} %H %{= 7,0} %-Lw%{= 0,2}%25> %n:%t %{= 7,0}%+w %-= %{= 7,4} %D, %d %M %C %A "
+    backtick 1 1 1 date '+%I:%M:%S %p'
+    hardstatus alwayslastline "%{= 7,4} %H %{= 7,0} %-Lw%{= 0,2}%25> %n:%t %{= 7,0}%+w %-= %{= 7,4} %D, %d %M %1` "
 
 
 # The presistant bar for all windows (including split ones)
