@@ -1,19 +1,25 @@
 #
+# GNU Screen 5.0 Configuration
+# BREAKING CHANGES from Screen 4.x:
+# - Color syntax changed: OLD %{= kR} → NEW %{7;1} (numeric fg;bg format)
+# - Escape codes changed: %s now = screen size (was seconds), %S = session name
+# - No native seconds escape; use backtick with 'date' command instead
 
 # Set the correct terminfo for screen itself
-# Try screen.xterm-256color which might have better color support
 term screen.xterm-256color
 
 # Color support configuration
     defbce on
     termcapinfo xterm* ti@:te@
 
-    # Force Screen 5.0 to enable background colors
-    # Screen needs AB (ANSI background) capability to use background colors
-    termcapinfo xterm* 'AB=\E[48;5;%p1%dm:AF=\E[38;5;%p1%dm'
+    # Force Screen to use proper background colors
+    termcapinfo xterm* 'AB=\E[48;5;%p1%dm:AF=\E[38;5;%p1%dm:Sb=\E[4%p1%dm:Sf=\E[3%p1%dm'
 
-    # Also try enabling the truecolor mode which might help
+    # Enable truecolor support (24-bit color)
     truecolor on
+
+    # Force Screen to use background erase
+    termcapinfo xterm* 'ut'
 
 # Alt-.
     bindkey "^[." next # . for next window
@@ -80,40 +86,26 @@ term screen.xterm-256color
 
     #backtick 0 30 30 sh -c 'iwgetid -r'
 
-# The tab bar. Just one per window.
-    # Numeric colors with comma syntax: %{= fg,bg} where fg=foreground, bg=background
+# Status bar (bottom bar, one per screen session)
+    # Screen 5.0 color syntax: %{fg;bg} where colors are numeric (0-7 for basic ANSI)
     # Colors: 0=black 1=red 2=green 3=yellow 4=blue 5=magenta 6=cyan 7=white
-    # Original had: Bk(black on blue), kw(white on black), KG(green on black)
-    # Using WHITE text (7) on colored backgrounds for high contrast
-    # Simplified - no colors on datetime to debug the 155x32 issue
-    # Working hardstatus with colors (backgrounds may not be visible but structure works)
-    # Using simple %c for time instead of %C:%s%A which was causing issues
-    # Try different datetime formats to avoid garbled output
-    # Option: %c:%s for 24hr with seconds, or try spacing %C %A separately
-    # Screen 5.0 broke datetime escapes:
-    # - %s now = screen size (was seconds in Screen 4.x)
-    # - %S now = session name
-    # - No escape code for seconds anymore
-    # Workaround: Use backtick to run 'date' command for time with seconds
-    # Format: %c=time(24hr), %C=time(12hr), %A=AM/PM, %D=day, %d=date, %M=month
+    # Original: "%{= Bk} %H %{= kw} %-Lw%{KG}%25> %n:%t %{= kw}%+w %-= %{= KW} %l %{= kG} %{= Bk} %D, %d %M %{= kw} %{= Bk}%C:%s%A "
+    # Fix 2: Tab bar background - change inactive tabs from white bg (0;7) to black bg (7;0)
+    # Fix 5: Load average %l should be visible
     backtick 1 1 1 date '+%I:%M:%S %p'
-    hardstatus alwayslastline "%{= 7,4} %H %{= 7,0} %-Lw%{= 0,2}%25> %n:%t %{= 7,0}%+w %-= %{= 7,4} %D, %d %M %1` "
+    attrcolor b ".I"
+    hardstatus alwayslastline "%{0;4} %H %{7;0} %-Lw%{0;2}%25> %n:%t %{7;0}%+w %-= %{7;0} %l %{0;2} %{0;4} %D, %d %M %{7;0} %{0;4}%1` "
 
-
-# The presistant bar for all windows (including split ones)
-#    caption always "%{= yk}%h %= %1` %t -%n- "
-
-# without backtick version
-
-    # Show a colored border on the active window
-    caption always "%{= wk}%?%F%{= Mk}%? -%n- %t %= %t -%n- "
-
-    # Dumb bar
-    #caption always "%{= k} -%n- %h"
+# Caption bar (per-window bar for splits)
+    # Original: "%{= wk}%?%F%{= Mk}%? -%n- %t %= %t -%n- "
+    # wk = white bg (7), black fg (0) → 0;7, Mk = magenta bg (5), black fg (0) → 0;5
+    # Fix: Inactive needs WHITE background
+    caption always "%?%F%{0;5}%:%{0;7}%? -%n- %t %= %t -%n- "
 
 
 # Vertical bar
-    sorendition 00 wk
+    # sorendition format: attr colorpair - trying wk directly or numeric
+    sorendition =r wk
 
 # Messages
     activity "Someone's tinkering in %t(%n)"
