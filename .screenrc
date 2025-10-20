@@ -10,6 +10,13 @@ term screen-256color
     # Tell Screen that xterm supports truecolor
     termcapinfo xterm* ti@:te@
 
+    # Enable bright/bold colors for Screen's UI (hardstatus/caption)
+    attrcolor b ".I"
+    attrcolor i "+b"
+    # Tell Screen the terminal has color capabilities (CAB/CAF)
+    # This is critical for Screen 5.0 to enable D_hascolor
+    termcapinfo xterm* 'Co#256:pa#32767:AB=\E[48;5;%dm:AF=\E[38;5;%dm:op=\E[39;49m'
+
 # Alt-.
     bindkey "^[." next # . for next window
 # Alt-,
