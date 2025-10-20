@@ -90,22 +90,22 @@ term screen.xterm-256color
     # Screen 5.0 color syntax: %{fg;bg} where colors are numeric (0-7 for basic ANSI)
     # Colors: 0=black 1=red 2=green 3=yellow 4=blue 5=magenta 6=cyan 7=white
     # Original: "%{= Bk} %H %{= kw} %-Lw%{KG}%25> %n:%t %{= kw}%+w %-= %{= KW} %l %{= kG} %{= Bk} %D, %d %M %{= kw} %{= Bk}%C:%s%A "
-    # Fix 2: Tab bar background - change inactive tabs from white bg (0;7) to black bg (7;0)
-    # Fix 5: Load average %l should be visible
+    # Fix: %l doesn't work in Screen 5.0, using backtick for load average
     backtick 1 1 1 date '+%I:%M:%S %p'
+    backtick 2 5 5 cut -d" " -f1-3 /proc/loadavg
     attrcolor b ".I"
-    hardstatus alwayslastline "%{0;4} %H %{7;0} %-Lw%{0;2}%25> %n:%t %{7;0}%+w %-= %{7;0} %l %{0;2} %{0;4} %D, %d %M %{7;0} %{0;4}%1` "
+    hardstatus alwayslastline "%{0;4} %H %{7;0} %-Lw%{0;2}%25> %n:%t %{7;0}%+w %-= %{0;245} %2` %{7;0} %{0;4} %D, %d %M %{7;0} %{0;4} %1` "
 
 # Caption bar (per-window bar for splits)
     # Original: "%{= wk}%?%F%{= Mk}%? -%n- %t %= %t -%n- "
-    # wk = white bg (7), black fg (0) → 0;7, Mk = magenta bg (5), black fg (0) → 0;5
-    # Fix: Inactive needs WHITE background
-    caption always "%?%F%{0;5}%:%{0;7}%? -%n- %t %= %t -%n- "
+    # Using 256-color gray (245) instead of white (7) for inactive windows
+    # Active: black on magenta (0;5), Inactive: black on gray (0;245)
+    caption always "%?%F%{0;5}%:%{0;245}%? -%n- %t %= %t -%n- "
 
 
 # Vertical bar
-    # sorendition format: attr colorpair - trying wk directly or numeric
-    sorendition =r wk
+    # Limited to basic 8 colors (can't use gray 245), keeping white as closest option
+    sorendition wr
 
 # Messages
     activity "Someone's tinkering in %t(%n)"
