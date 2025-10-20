@@ -1,7 +1,20 @@
 #
 
-#TODO: Include a comment for the following line
+# Set the correct terminfo for screen itself (with truecolor)
+# Using standard screen-256color since screen-256color-tc might not be available everywhere
+term screen-256color
+
+# For 24-bit truecolor support
+    truecolor on
+    defbce on
+    # Tell Screen that the PARENT terminal (xterm) supports truecolor
+    termcapinfo xterm* 'RGB'
+    termcapinfo xterm* 'Tc'
     termcapinfo xterm* ti@:te@
+    # Enable bold colors and attributes
+    attrcolor b ".I"
+    # Enable 256 color and true color
+    termcapinfo xterm* 'colors#0x1000000:Co#0x1000000:AB=\E[48;2;%p1%{65536}%/%d;%p1%{256}%/%{255}%&%d;%p1%{255}%&%dm:AF=\E[38;2;%p1%{65536}%/%d;%p1%{256}%/%{255}%&%d;%p1%{255}%&%dm'
 
 # Alt-.
     bindkey "^[." next # . for next window

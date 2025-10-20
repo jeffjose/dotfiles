@@ -1,7 +1,9 @@
 if ( ! $?prompt ) exit
 
    # Fixes vertical scrolling issues in vim
-   setenv TERM xterm-256color
+   if ( "$TERM" !~ "screen*" ) then
+     setenv TERM xterm-256color
+   endif
 
 # Auto correct turn'd on
 # Possible values = (cmd complete all)
