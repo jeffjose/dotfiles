@@ -1,21 +1,19 @@
 #
 
 # Set the correct terminfo for screen itself
-term screen-256color
+# Try screen.xterm-256color which might have better color support
+term screen.xterm-256color
 
-# For 24-bit truecolor support in Screen 5.0
-    truecolor on
+# Color support configuration
     defbce on
-
-    # Tell Screen that xterm supports truecolor
     termcapinfo xterm* ti@:te@
 
-    # Enable bright/bold colors for Screen's UI (hardstatus/caption)
-    attrcolor b ".I"
-    attrcolor i "+b"
-    # Tell Screen the terminal has color capabilities (CAB/CAF)
-    # This is critical for Screen 5.0 to enable D_hascolor
-    termcapinfo xterm* 'Co#256:pa#32767:AB=\E[48;5;%dm:AF=\E[38;5;%dm:op=\E[39;49m'
+    # Force Screen 5.0 to enable background colors
+    # Screen needs AB (ANSI background) capability to use background colors
+    termcapinfo xterm* 'AB=\E[48;5;%p1%dm:AF=\E[38;5;%p1%dm'
+
+    # Also try enabling the truecolor mode which might help
+    truecolor on
 
 # Alt-.
     bindkey "^[." next # . for next window
@@ -83,7 +81,22 @@ term screen-256color
     #backtick 0 30 30 sh -c 'iwgetid -r'
 
 # The tab bar. Just one per window.
-    hardstatus alwayslastline "%{= Bk} %H %{= kw} %-Lw%{KG}%25> %n:%t %{= kw}%+w %-= %{= KW} %l %{= kG} %{= Bk} %D, %d %M %{= kw} %{= Bk}%C:%s%A "
+    # Numeric colors with comma syntax: %{= fg,bg} where fg=foreground, bg=background
+    # Colors: 0=black 1=red 2=green 3=yellow 4=blue 5=magenta 6=cyan 7=white
+    # Original had: Bk(black on blue), kw(white on black), KG(green on black)
+    # Using WHITE text (7) on colored backgrounds for high contrast
+    # Simplified - no colors on datetime to debug the 155x32 issue
+    # Working hardstatus with colors (backgrounds may not be visible but structure works)
+    # Using simple %c for time instead of %C:%s%A which was causing issues
+    # Try different datetime formats to avoid garbled output
+    # Option: %c:%s for 24hr with seconds, or try spacing %C %A separately
+    # Screen 5.0 broke datetime escapes:
+    # - %s now = screen size (was seconds in Screen 4.x)
+    # - %S now = session name
+    # - No escape code for seconds anymore
+    # Workaround: Could use backtick command, but skipping for now
+    # Format: %c=time(24hr), %C=time(12hr), %A=AM/PM, %D=day, %d=date, %M=month
+    hardstatus alwayslastline "%{= 7,4} %H %{= 7,0} %-Lw%{= 0,2}%25> %n:%t %{= 7,0}%+w %-= %{= 7,4} %D, %d %M %C %A "
 
 
 # The presistant bar for all windows (including split ones)
