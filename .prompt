@@ -5,6 +5,14 @@ if ($?PROMPT_DEBUG) then
     set prompt_start_time = `date +%s%3N`  # milliseconds since epoch
 endif
 
+# Early exit for TWIG mode - skip all the expensive logic
+if ($?TWIG) then
+    if ($TWIG == "true") then
+        set prompt = "`/home/jeffjose/scripts/twig/target/debug/twig --mode tcsh`"
+        goto prompt_debug_end
+    endif
+endif
+
     set     red="%{\033[1;31m%}"
     set   green="%{\033[0;32m%}"
     set  yellow="%{\033[1;33m%}"
@@ -140,6 +148,7 @@ else
     set prompt = "-(${white}%P${end} ${white}${host_name} ${ip_address}${end} ${white}%/${end})-\n?${end} "
 endif
 
+prompt_debug_end:
 # Debug timing - calculate and display elapsed time
 if ($?PROMPT_DEBUG) then
     if ($?prompt_start_time) then
