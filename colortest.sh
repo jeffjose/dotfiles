@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 echo "--- TERM variable ---"
 echo "TERM = $TERM"
 echo ""
