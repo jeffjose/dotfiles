@@ -8,7 +8,7 @@ endif
 # Early exit for TWIG mode - skip all the expensive logic
 if ($?TWIG) then
     if ($TWIG == "true") then
-        set prompt = "`/home/jeffjose/scripts/twig/target/debug/twig --mode tcsh`"
+        set prompt = "`$HOME/scripts/twig/target/debug/twig --mode tcsh`"
         goto prompt_debug_end
     endif
 endif
