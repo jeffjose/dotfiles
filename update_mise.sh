@@ -18,7 +18,8 @@ echo "Updating mise..."
 mise self-update --yes
 
 echo "Upgrading mise tools..."
-mise upgrade --bump
+mise upgrade
+# mise upgrade --bump  # Commented out to prevent auto-updating config.toml versions
 
 which mise
 
