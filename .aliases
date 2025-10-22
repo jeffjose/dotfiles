@@ -30,7 +30,7 @@
 
     # Temp directory creation and navigation
     alias tmp 'set tmpdir = `mktemp -d /tmp/tmp.XXXXXX`; cd $tmpdir; pwd'
-    alias dt 'set dtname = "\!*"; if ("$dtname" == "") set dtdir = `mktemp -d ~/Downloads/tmp.XXXXXX`; if ("$dtname" != "") set dtdir = ~/Downloads/${dtname}-`pwgen -A 4 1`; if ("$dtname" != "") mkdir -p $dtdir; cd $dtdir; pwd'
+    alias dt 'set dtname = "\!*"; if ("$dtname" == "") set dtdir = `mktemp -d ~/Downloads/tmp.XXXXXX`; if ("$dtname" != "") set dtdir = ~/Downloads/${dtname}-`date +%Y-%m-%d-%H-%M`-`pwgen -A 4 1`; if ("$dtname" != "") mkdir -p $dtdir; cd $dtdir; pwd'
 
     alias sipy  poetry run ipython3
 
