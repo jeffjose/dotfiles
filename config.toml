@@ -9,6 +9,7 @@ rust = "latest"
 bun = "latest"
 npm = "latest"
 uv = "latest"
+zig = "latest"
 
 # JSON utilities
 "go:github.com/tomnomnom/gron" = "latest"
