@@ -140,12 +140,11 @@ if ( ! $?prompt ) exit
 # Only shows for commands taking > 8 seconds
     set time=(8 "\
 ─────────────────────────────────────────\
-  Elapsed time    : %Es\
-  CPU usage       : %P\
-  User time       : %Us\
-  System time     : %Ss\
-  Memory (max RSS): %Mk\
-  I/O operations  : %I+%O (input+output)\
+  Elapsed time       : %Es\
+  CPU usage          : %P\
+  User / System time : %Us / %Ss\
+  Memory (max RSS)   : %Mk\
+  I/O operations     : %I+%O (in+out)\
 ─────────────────────────────────────────\
     ")
 
