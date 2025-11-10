@@ -24,10 +24,6 @@ PACKAGES=(
   gparted
   feh
 
-  # Torrents
-  #qbittorrent
-  transmission
-
   # Fonts
   fonts-firacode
   fonts-inter
