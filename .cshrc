@@ -103,8 +103,9 @@ if ( ! $?prompt ) exit
 
     setenv PIPENV_PYTHON $HOME/.pyenv/shims/python
 
-    # Use public PyPI for uv/uvx to bypass corporate registry
+    # Use public PyPI for uv/uvx to bypass corporate registry (overrides /etc/pip.conf Airlock)
     setenv UV_INDEX_URL https://pypi.org/simple/
+    setenv PIP_INDEX_URL https://pypi.org/simple/
 
     setenv LD_LIBRARY_PATH /lib:/usr/lib:/usr/local/lib
 
