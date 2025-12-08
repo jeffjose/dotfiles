@@ -1,0 +1,4 @@
+# Override corporate Airlock registry to use public PyPI
+[[index]]
+url = "https://pypi.org/simple/"
+default = true

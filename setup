@@ -22,6 +22,7 @@ DIRECTORIES=(
   "$HOME/.screenlayout"
   "$HOME/.jupyter/custom"
   "$HOME/.config/mise"
+  "$HOME/.config/uv"
   "$HOME/.pnpm"
 )
 
@@ -52,6 +53,7 @@ declare -A SYMLINKS=(
   ["$DOTFILES_DIR/containers.conf"]="$HOME/.config/containers/containers.conf"
   ["$DOTFILES_DIR/.jq"]="$HOME/.jq"
   ["$DOTFILES_DIR/config.toml"]="$HOME/.config/mise/config.toml"
+  ["$DOTFILES_DIR/uv/uv.toml"]="$HOME/.config/uv/uv.toml"
   ["$DOTFILES_DIR/audtag.yaml"]="$HOME/audtag.yaml"
 )
 
