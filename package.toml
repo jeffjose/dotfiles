@@ -1,0 +1,14 @@
+[[packages]]
+name = "antigravity"
+url = "https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev"
+distribution = "antigravity-debian"
+
+[[packages]]
+name = "google-chrome-stable"
+type = "deb"
+url = "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
+
+[[packages]]
+name = "code"
+type = "deb"
+url = "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"

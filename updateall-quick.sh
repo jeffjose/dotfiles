@@ -11,6 +11,7 @@ UPDATE_SCRIPTS=(
   "update_chrome.sh"
   #"update_cursor.sh"
   "update_mise.sh"
+  "update_deb.sh"
   #"update_rust.sh"  # Currently disabled
 )
 
@@ -24,6 +25,7 @@ declare -A VERSION_COMMANDS=(
   ["update_chrome.sh"]="google-chrome --version"
   ["update_cursor.sh"]="md5sum \$HOME/bin/cursor | cut -d' ' -f1"
   ["update_mise.sh"]="mise --version"
+  ["update_deb.sh"]="echo 'n/a'"
 )
 
 # Get version for a specific application
