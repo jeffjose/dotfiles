@@ -67,6 +67,7 @@ if ( ! $?prompt ) exit
     setenv ANDROID_VER          30.0.2
 
     setenv BREWPATH /home/linuxbrew/.linuxbrew
+    setenv LMSTUDIOPATH $HOME/.lmstudio
 
     # Build PATH with only existing directories
     if ( ! $?__MY_PATHS_ARE_SET ) then
@@ -90,6 +91,7 @@ if ( ! $?prompt ) exit
         if (-d ${HOME}/.pub-cache/bin) set new_path = "${new_path}:${HOME}/.pub-cache/bin"
         if (-d ${HOME}/bin) set new_path = "${new_path}:${HOME}/bin"
         if (-d ${HOME}/.local/bin) set new_path = "${new_path}:${HOME}/.local/bin"
+        if (-d ${LMSTUDIOPATH}/bin) set new_path = "${new_path}:${LMSTUDIOPATH}/bin"
         if (-d /usr/sbin) set new_path = "${new_path}:/usr/sbin"
 
         # Remove leading colon and append to existing PATH
