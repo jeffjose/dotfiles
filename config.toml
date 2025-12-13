@@ -65,6 +65,7 @@ zig = "latest"
 "npm:@anthropic-ai/claude-code" = "latest"
 "npm:vercel" = "latest"
 "npm:@qwen-code/qwen-code" = "latest"
+"npm:@beads/bd" = "latest"
 ninja = "latest"
 cmake = "latest"
 
