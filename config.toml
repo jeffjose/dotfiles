@@ -24,7 +24,7 @@ zig = "latest"
 
 # File finding utilities
 "cargo:fd-find" = "latest"
-"cargo:find-files" = "latest"
+#"cargo:find-files" = "latest"
 
 # Git utilities
 "cargo:timeago-cli" = "latest"
