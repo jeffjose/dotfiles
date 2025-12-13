@@ -18,13 +18,12 @@ zig = "latest"
 # CLI utilities
 "go:github.com/junegunn/fzf" = "latest"
 "go:github.com/antonmedv/watch" = "latest"
-"go:github.com/ericchiang/pup" = "latest"
 "go:github.com/monasticacademy/httptap" = "latest"
 "go:github.com/charmbracelet/crush" = "latest"
 
 # File finding utilities
 "cargo:fd-find" = "latest"
-#"cargo:find-files" = "latest"
+"cargo:find-files" = "latest"
 
 # Git utilities
 "cargo:timeago-cli" = "latest"
