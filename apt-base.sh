@@ -22,6 +22,7 @@ PACKAGES=(
 
   # Git
   git
+  gh
 
   # Other
   ack
