@@ -11,8 +11,9 @@ git pull
 ./setup
 cd - > /dev/null
 
-# Clear cache, since python builds was breaking for the longest time
+# Clear caches to prevent corruption from interrupted downloads
 mise cache clear
+go clean -cache 2>/dev/null || true
 
 echo "Updating mise..."
 mise self-update --yes
