@@ -10,6 +10,7 @@ bun = "latest"
 npm = "latest"
 uv = "latest"
 zig = "latest"
+yt-dlp = "latest"
 
 # JSON utilities
 "go:github.com/tomnomnom/gron" = "latest"
