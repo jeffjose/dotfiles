@@ -67,8 +67,16 @@ yt-dlp = "latest"
 "npm:vercel" = "latest"
 "npm:@qwen-code/qwen-code" = "latest"
 "npm:@beads/bd" = "latest"
+"npm:typescript" = "latest"
+"npm:ts-node" = "latest"
+"npm:degit" = "latest"
+"npm:firebase-tools" = "latest"
 ninja = "latest"
 cmake = "latest"
+
+# Python CLI tools
+"pipx:yt-dlp" = "latest"
+"pipx:speedtest-cli" = "latest"
 
 [settings]
 experimental = true

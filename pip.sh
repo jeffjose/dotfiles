@@ -7,8 +7,6 @@ echo "-----------------"
 echo "Python Packages"
 echo "-----------------"
 
-PACKAGES=(
-  yapf speedtest-cli black youtube-dlc catt
-)
-
-pip3 install --upgrade ${PACKAGES[*]}
+echo "[deprecated] - Python CLI tools are now managed by mise (pipx backend)"
+echo "See ~/.config/mise/config.toml"
+echo "exiting .."
