@@ -92,6 +92,14 @@ run_task "  $HOME/.aliases.sensitive.sh" touch "$HOME/.aliases.sensitive.sh"
 echo -e "\n🔗 Screen"
 run_task "  $HOME/bin/scrn → /usr/bin/screen" ln -sf /usr/bin/screen "$HOME/bin/scrn"
 
+# Symlink bin scripts
+echo -e "\n🔗 Bin scripts"
+for script in "$DOTFILES_DIR/bin/"*; do
+  [ -f "$script" ] || continue
+  script_name=$(basename "$script")
+  run_task "  $HOME/bin/$script_name → bin/$script_name" ln -sf "$script" "$HOME/bin/$script_name"
+done
+
 # Create symlinks
 echo -e "\n🔗 Symlinks"
 for src in "${!SYMLINKS[@]}"; do

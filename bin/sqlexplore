@@ -1,0 +1,97 @@
+#!/bin/bash
+# Explore SQLite database with NocoDB
+# Usage: sqlexplore <path-to-sqlite-file>
+
+# Don't use set -e as jq may return non-zero on empty input
+
+DBFILE="${1:?Usage: sqlexplore <path-to-sqlite-file>}"
+ABSFILE=$(realpath "$DBFILE")
+DBDIR=$(dirname "$ABSFILE")
+DBNAME=$(basename "$ABSFILE")
+TITLE="${DBNAME%.*}"
+
+CONTAINER_NAME="nocodb-explore"
+PORT=8080
+ADMIN_EMAIL="admin@local.dev"
+ADMIN_PASSWORD="admin123"
+
+# Stop existing container if running
+podman stop $CONTAINER_NAME >/dev/null 2>&1 || true
+podman rm $CONTAINER_NAME >/dev/null 2>&1 || true
+
+echo "Starting NocoDB with $DBNAME..."
+
+podman run -d --name $CONTAINER_NAME -p $PORT:8080 \
+  -v "$DBDIR:/app/data:z" \
+  -e NC_ADMIN_EMAIL="$ADMIN_EMAIL" \
+  -e NC_ADMIN_PASSWORD="$ADMIN_PASSWORD" \
+  nocodb/nocodb:latest >/dev/null 2>&1
+
+echo "Waiting for NocoDB to start..."
+# Wait for health endpoint
+until curl -s http://localhost:$PORT/api/v1/health >/dev/null 2>&1; do
+  sleep 1
+done
+# Wait a bit more for full initialization
+sleep 3
+# Wait until login endpoint returns JSON
+until curl -s -X POST "http://localhost:$PORT/api/v1/auth/user/signin" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@test.com","password":"test"}' 2>/dev/null | grep -q '"msg":\|"token":'; do
+  sleep 1
+done
+echo "NocoDB is ready!"
+
+# Login and get token
+RESPONSE=$(curl -s -X POST "http://localhost:$PORT/api/v1/auth/user/signin" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"'"$ADMIN_EMAIL"'","password":"'"$ADMIN_PASSWORD"'"}' 2>/dev/null)
+TOKEN=$(echo "$RESPONSE" | jq -r '.token' 2>/dev/null || true)
+
+if [ "$TOKEN" = "null" ] || [ -z "$TOKEN" ]; then
+  echo "Auto-setup failed. Manual setup required."
+  echo ""
+  echo "NocoDB: http://localhost:$PORT"
+  echo "Email: $ADMIN_EMAIL"
+  echo "Password: $ADMIN_PASSWORD"
+  echo "DB path: /app/data/$DBNAME"
+  exit 1
+fi
+
+# Create project with external SQLite connection using v1 API
+RESULT=$(curl -s -X POST "http://localhost:$PORT/api/v1/db/meta/projects" \
+  -H "Content-Type: application/json" \
+  -H "xc-auth: $TOKEN" \
+  -d "{
+    \"title\": \"$TITLE\",
+    \"bases\": [{
+      \"type\": \"sqlite3\",
+      \"config\": {
+        \"client\": \"sqlite3\",
+        \"connection\": {
+          \"filename\": \"/app/data/$DBNAME\"
+        }
+      }
+    }]
+  }" 2>/dev/null)
+
+BASE_ID=$(echo "$RESULT" | jq -r '.id // empty' 2>/dev/null)
+
+if [ -n "$BASE_ID" ]; then
+  echo ""
+  echo "Database connected: $TITLE"
+  echo ""
+  echo "Open: http://localhost:$PORT"
+  echo "Email: $ADMIN_EMAIL"
+  echo "Password: $ADMIN_PASSWORD"
+  echo ""
+  echo "Stop: podman stop $CONTAINER_NAME && podman rm $CONTAINER_NAME"
+
+  # Open browser
+  xdg-open "http://localhost:$PORT" 2>/dev/null &
+else
+  echo "Base creation failed: $RESULT"
+  echo ""
+  echo "NocoDB: http://localhost:$PORT"
+  echo "DB path: /app/data/$DBNAME"
+fi
