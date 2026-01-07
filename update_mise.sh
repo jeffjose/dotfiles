@@ -16,7 +16,7 @@ mise cache clear
 go clean -cache 2>/dev/null || true
 
 echo "Updating mise..."
-mise self-update --yes
+mise self-update --yes || true
 
 echo "Upgrading mise tools..."
 mise upgrade
