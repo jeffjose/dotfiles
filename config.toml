@@ -54,6 +54,7 @@ yt-dlp = "latest"
 
 # GitHub repositories
 "cargo:https://github.com/jeffjose/mediainfo" = "latest"
+"cargo:https://github.com/jeffjose/safeclean" = "latest"
 
 # npm
 "npm:@google/gemini-cli" = "latest"
