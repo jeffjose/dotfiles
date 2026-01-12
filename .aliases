@@ -383,6 +383,9 @@
     alias jadd 'git remote add origin https://github.com/jeffjose/\!*.git; git branch -M main; fixgitconfig; git push -u origin main'
     alias clone 'cd ~/scripts; git clone \!*'
 
+    alias newproject 'mkdir -p \!*; cd \!*; touch README.md; git init; git add README.md; git commit -m "Initial"; antigravity . README.md'
+    alias np newproject
+
     alias reboot-bootloader systemctl reboot --firmware-setup
 
     alias pixel-pause 'sudo dbus-send --system --print-reply --dest=org.bluez /org/bluez/hci0/dev_3C_28_6D_F4_EF_25 org.bluez.MediaControl1.Pause'
