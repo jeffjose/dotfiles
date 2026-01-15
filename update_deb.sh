@@ -154,7 +154,8 @@ run_parallel() {
 
         local cmd
         cmd=$(build_command "$name" "$pkg_type" "$url" "$dist")
-        eval "$cmd" > "$outfile" 2>&1 &
+        # Detach from TTY (</dev/null) to prevent progress bars showing until we tail the output
+        eval "$cmd" < /dev/null > "$outfile" 2>&1 &
         pids+=($!)
     done
 
