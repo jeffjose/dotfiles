@@ -386,7 +386,7 @@
     alias ghnew 'set _repo = `basename $cwd`; gh repo create $_repo --private --source=. --remote=origin --push || (git remote set-url origin `gh repo view $_repo --json sshUrl -q .sshUrl` || git remote add origin `gh repo view $_repo --json sshUrl -q .sshUrl`; git push -u origin master); unset _repo'
     alias clone 'cd ~/scripts; git clone \!*'
 
-    alias newproject 'mkdir -p \!*; cd \!*; touch README.md; git init; git add README.md; git commit -m "Initial"; antigravity . README.md'
+    alias newproject 'mkdir -p \!*; cd \!*; touch README.md; git init; git add README.md; git commit -m "Initial"; code README.md'
     alias np newproject
 
     alias reboot-bootloader systemctl reboot --firmware-setup
