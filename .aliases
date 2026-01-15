@@ -381,6 +381,9 @@
     alias ghclone 'gh repo clone jeffjose/\!*'
 
     alias jadd 'git remote add origin https://github.com/jeffjose/\!*.git; git branch -M main; fixgitconfig; git push -u origin main'
+
+    # Create private GitHub repo (or use existing) and push
+    alias ghnew 'set _repo = `basename $cwd`; gh repo create $_repo --private --source=. --remote=origin --push || (git remote set-url origin `gh repo view $_repo --json sshUrl -q .sshUrl` || git remote add origin `gh repo view $_repo --json sshUrl -q .sshUrl`; git push -u origin master); unset _repo'
     alias clone 'cd ~/scripts; git clone \!*'
 
     alias newproject 'mkdir -p \!*; cd \!*; touch README.md; git init; git add README.md; git commit -m "Initial"; antigravity . README.md'
