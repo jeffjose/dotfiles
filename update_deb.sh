@@ -50,16 +50,18 @@ for pkg in config.get('packages', []):
 }
 
 # Build deb-downloader command for a package
+# Usage: build_command name type url dist [--install]
 build_command() {
     local name="$1"
     local pkg_type="$2"
     local url="$3"
     local dist="$4"
+    local install_flag="${5:-}"
 
     if [[ "$pkg_type" == "deb" ]]; then
-        echo "~/scripts/deb-downloader/deb-downloader --deb \"$url\" --install"
+        echo "~/scripts/deb-downloader/deb-downloader --deb \"$url\" $install_flag"
     else
-        echo "~/scripts/deb-downloader/deb-downloader --url \"$url\" --dist \"$dist\" --install"
+        echo "~/scripts/deb-downloader/deb-downloader --url \"$url\" --dist \"$dist\" $install_flag"
     fi
 }
 
@@ -126,7 +128,7 @@ run_sequential() {
 
         echo "=== $name ==="
         local cmd
-        cmd=$(build_command "$name" "$pkg_type" "$url" "$dist")
+        cmd=$(build_command "$name" "$pkg_type" "$url" "$dist" "--install")
         eval "$cmd" || exit_code=1
         echo ""
     done
@@ -139,7 +141,7 @@ run_parallel() {
     declare -a outfiles=()
     local exit_code=0
 
-    # Start background downloads for packages 2+ first
+    # Start background downloads for packages 2+ (download only, no install)
     for i in "${!pkg_names[@]}"; do
         if [[ $i -eq 0 ]]; then
             continue  # Skip first package, will run in foreground
@@ -155,24 +157,43 @@ run_parallel() {
         temp_files+=("$outfile")
 
         local cmd
+        # No --install flag - just download in background
         cmd=$(build_command "$name" "$pkg_type" "$url" "$dist")
         eval "$cmd" < /dev/null > "$outfile" 2>&1 &
         pids[$i]=$!
     done
 
-    # Run first package in foreground (real TTY = progress bars)
+    # Run first package in foreground with install (real TTY = progress bars + sudo)
     echo "=== ${pkg_names[0]} ==="
     local cmd
-    cmd=$(build_command "${pkg_names[0]}" "${pkg_types[0]}" "${pkg_urls[0]}" "${pkg_dists[0]}")
+    cmd=$(build_command "${pkg_names[0]}" "${pkg_types[0]}" "${pkg_urls[0]}" "${pkg_dists[0]}" "--install")
     eval "$cmd" || exit_code=1
     echo ""
 
-    # Show remaining packages' output sequentially
+    # Show remaining packages' download output, then install in foreground
     for i in "${!pkg_names[@]}"; do
         if [[ $i -eq 0 ]]; then
             continue  # Already ran first package
         fi
-        show_progress "${pids[$i]}" "${outfiles[$i]}" "${pkg_names[$i]}" || exit_code=1
+
+        local name="${pkg_names[$i]}"
+        local pkg_type="${pkg_types[$i]}"
+        local url="${pkg_urls[$i]}"
+        local dist="${pkg_dists[$i]}"
+
+        # Wait for download to finish and show its output
+        echo "=== $name ==="
+        tail -f "${outfiles[$i]}" 2>/dev/null &
+        local tail_pid=$!
+        wait "${pids[$i]}" 2>/dev/null || true
+        sleep 0.2
+        kill "$tail_pid" 2>/dev/null || true
+        wait "$tail_pid" 2>/dev/null || true
+
+        # Now run install in foreground (can prompt for sudo)
+        cmd=$(build_command "$name" "$pkg_type" "$url" "$dist" "--install")
+        eval "$cmd" || exit_code=1
+        echo ""
     done
     return $exit_code
 }
