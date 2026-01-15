@@ -133,32 +133,45 @@ run_sequential() {
     return $exit_code
 }
 
-# Parallel mode - download in parallel, show progress sequentially
+# Parallel mode - first package in foreground, others download in background
 run_parallel() {
     declare -a pids=()
     declare -a outfiles=()
+    local exit_code=0
 
-    # Start all downloads in parallel
+    # Start background downloads for packages 2+ first
     for i in "${!pkg_names[@]}"; do
+        if [[ $i -eq 0 ]]; then
+            continue  # Skip first package, will run in foreground
+        fi
+
         local name="${pkg_names[$i]}"
         local pkg_type="${pkg_types[$i]}"
         local url="${pkg_urls[$i]}"
         local dist="${pkg_dists[$i]}"
 
         local outfile="$TMPDIR/deb-dl-${name//[^a-zA-Z0-9]/_}.$$"
-        outfiles+=("$outfile")
+        outfiles[$i]="$outfile"
         temp_files+=("$outfile")
 
         local cmd
         cmd=$(build_command "$name" "$pkg_type" "$url" "$dist")
-        # Detach from TTY (</dev/null) to prevent progress bars showing until we tail the output
         eval "$cmd" < /dev/null > "$outfile" 2>&1 &
-        pids+=($!)
+        pids[$i]=$!
     done
 
-    # Show progress sequentially
-    local exit_code=0
+    # Run first package in foreground (real TTY = progress bars)
+    echo "=== ${pkg_names[0]} ==="
+    local cmd
+    cmd=$(build_command "${pkg_names[0]}" "${pkg_types[0]}" "${pkg_urls[0]}" "${pkg_dists[0]}")
+    eval "$cmd" || exit_code=1
+    echo ""
+
+    # Show remaining packages' output sequentially
     for i in "${!pkg_names[@]}"; do
+        if [[ $i -eq 0 ]]; then
+            continue  # Already ran first package
+        fi
         show_progress "${pids[$i]}" "${outfiles[$i]}" "${pkg_names[$i]}" || exit_code=1
     done
     return $exit_code
