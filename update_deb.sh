@@ -9,6 +9,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONFIG_FILE="$SCRIPT_DIR/package.toml"
 TMPDIR="${TMPDIR:-/tmp}"
 PARALLEL=true
 
@@ -27,19 +28,67 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Create temp files for output
-out_antigravity="$TMPDIR/deb-dl-antigravity.$$"
-out_chrome="$TMPDIR/deb-dl-chrome.$$"
-out_code="$TMPDIR/deb-dl-code.$$"
+# Parse package.toml and output package info as JSON lines
+parse_packages() {
+    python3 -c "
+import sys
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
 
-# Cleanup on exit
-cleanup() {
-    rm -f "$out_antigravity" "$out_chrome" "$out_code"
+with open('$CONFIG_FILE', 'rb') as f:
+    config = tomllib.load(f)
+
+for pkg in config.get('packages', []):
+    name = pkg.get('name', '')
+    pkg_type = pkg.get('type', 'apt')
+    url = pkg.get('url', '')
+    dist = pkg.get('distribution', '')
+    print(f'{name}|{pkg_type}|{url}|{dist}')
+"
 }
-trap cleanup EXIT
+
+# Build deb-downloader command for a package
+build_command() {
+    local name="$1"
+    local pkg_type="$2"
+    local url="$3"
+    local dist="$4"
+
+    if [[ "$pkg_type" == "deb" ]]; then
+        echo "~/scripts/deb-downloader/deb-downloader --deb \"$url\" --install"
+    else
+        echo "~/scripts/deb-downloader/deb-downloader --url \"$url\" --dist \"$dist\" --install"
+    fi
+}
 
 echo "Updating deb packages..."
 echo ""
+
+# Read packages into arrays
+declare -a pkg_names=()
+declare -a pkg_types=()
+declare -a pkg_urls=()
+declare -a pkg_dists=()
+
+while IFS='|' read -r name pkg_type url dist; do
+    pkg_names+=("$name")
+    pkg_types+=("$pkg_type")
+    pkg_urls+=("$url")
+    pkg_dists+=("$dist")
+done < <(parse_packages)
+
+num_packages=${#pkg_names[@]}
+
+# Cleanup function - will be updated after we know temp files
+declare -a temp_files=()
+cleanup() {
+    for f in "${temp_files[@]}"; do
+        rm -f "$f"
+    done
+}
+trap cleanup EXIT
 
 # Function to show output of a background job, following until done
 show_progress() {
@@ -50,7 +99,6 @@ show_progress() {
     echo "=== $name ==="
 
     # Tail the output file, following new content
-    # Stop when the process exits
     tail -f "$outfile" 2>/dev/null &
     local tail_pid=$!
 
@@ -69,54 +117,49 @@ show_progress() {
 
 # Sequential mode - run one at a time with direct output
 run_sequential() {
-    echo "=== antigravity ==="
-    ~/scripts/deb-downloader/deb-downloader \
-        --url "https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev" \
-        --dist "antigravity-debian" \
-        --install || return 1
-    echo ""
+    local exit_code=0
+    for i in "${!pkg_names[@]}"; do
+        local name="${pkg_names[$i]}"
+        local pkg_type="${pkg_types[$i]}"
+        local url="${pkg_urls[$i]}"
+        local dist="${pkg_dists[$i]}"
 
-    echo "=== google-chrome-stable ==="
-    ~/scripts/deb-downloader/deb-downloader \
-        --deb "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb" \
-        --install || return 1
-    echo ""
-
-    echo "=== code (VS Code) ==="
-    ~/scripts/deb-downloader/deb-downloader \
-        --deb "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64" \
-        --install || return 1
-    echo ""
+        echo "=== $name ==="
+        local cmd
+        cmd=$(build_command "$name" "$pkg_type" "$url" "$dist")
+        eval "$cmd" || exit_code=1
+        echo ""
+    done
+    return $exit_code
 }
 
 # Parallel mode - download in parallel, show progress sequentially
 run_parallel() {
-    # Start all downloads in parallel, capturing output to temp files
-    ~/scripts/deb-downloader/deb-downloader \
-        --url "https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev" \
-        --dist "antigravity-debian" \
-        --install \
-        > "$out_antigravity" 2>&1 &
-    pid_antigravity=$!
+    declare -a pids=()
+    declare -a outfiles=()
 
-    ~/scripts/deb-downloader/deb-downloader \
-        --deb "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb" \
-        --install \
-        > "$out_chrome" 2>&1 &
-    pid_chrome=$!
+    # Start all downloads in parallel
+    for i in "${!pkg_names[@]}"; do
+        local name="${pkg_names[$i]}"
+        local pkg_type="${pkg_types[$i]}"
+        local url="${pkg_urls[$i]}"
+        local dist="${pkg_dists[$i]}"
 
-    ~/scripts/deb-downloader/deb-downloader \
-        --deb "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64" \
-        --install \
-        > "$out_code" 2>&1 &
-    pid_code=$!
+        local outfile="$TMPDIR/deb-dl-${name//[^a-zA-Z0-9]/_}.$$"
+        outfiles+=("$outfile")
+        temp_files+=("$outfile")
+
+        local cmd
+        cmd=$(build_command "$name" "$pkg_type" "$url" "$dist")
+        eval "$cmd" > "$outfile" 2>&1 &
+        pids+=($!)
+    done
 
     # Show progress sequentially
-    # By the time we show each one, it may already be done (which is fine)
     local exit_code=0
-    show_progress "$pid_antigravity" "$out_antigravity" "antigravity" || exit_code=1
-    show_progress "$pid_chrome" "$out_chrome" "google-chrome-stable" || exit_code=1
-    show_progress "$pid_code" "$out_code" "code (VS Code)" || exit_code=1
+    for i in "${!pkg_names[@]}"; do
+        show_progress "${pids[$i]}" "${outfiles[$i]}" "${pkg_names[$i]}" || exit_code=1
+    done
     return $exit_code
 }
 
