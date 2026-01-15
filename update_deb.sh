@@ -66,9 +66,6 @@ build_command() {
 echo "Updating deb packages..."
 echo ""
 
-# Cache sudo credentials upfront to avoid password prompts during parallel downloads
-sudo -v
-
 # Read packages into arrays
 declare -a pkg_names=()
 declare -a pkg_types=()
