@@ -24,6 +24,7 @@ DIRECTORIES=(
   "$HOME/.config/mise"
   "$HOME/.config/uv"
   "$HOME/.pnpm"
+  "$HOME/.config/ranger"
 )
 
 # Files to symlink (source:target)
@@ -55,6 +56,8 @@ declare -A SYMLINKS=(
   ["$DOTFILES_DIR/config.toml"]="$HOME/.config/mise/config.toml"
   ["$DOTFILES_DIR/uv/uv.toml"]="$HOME/.config/uv/uv.toml"
   ["$DOTFILES_DIR/audtag.yaml"]="$HOME/audtag.yaml"
+  ["$DOTFILES_DIR/ranger/rc.conf"]="$HOME/.config/ranger/rc.conf"
+  ["$DOTFILES_DIR/ranger/rifle.conf"]="$HOME/.config/ranger/rifle.conf"
 )
 
 # Track failures
