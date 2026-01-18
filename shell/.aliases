@@ -72,8 +72,8 @@
     # Remove a package
     alias remove 'sudo apt -y purge \!*; sudo apt -y autoremove --purge \!*'
 
-    alias rfiles ~/dotfiles/rfiles.sh
-    alias up ~/dotfiles/update_mise.sh
+    alias rfiles ~/dotfiles/scripts/utils/rfiles.sh
+    alias up ~/dotfiles/scripts/update/update_mise.sh
 
     # Remove a ppa and all associated packages.
     alias removeppa 'sudo ppa-purge \!*'
@@ -179,14 +179,14 @@
 
     alias so 'echo "Sourcing ~/.cshrc .."; source ~/.cshrc'
     alias SO so
-    alias firstrun  ~/dotfiles/firstrun
-    alias uq ~/dotfiles/updateall-quick.sh
+    alias firstrun  ~/dotfiles/scripts/install/firstrun
+    alias uq ~/dotfiles/scripts/update/updateall-quick.sh
     alias setup     '~/dotfiles/setup; so'
-    alias updateall ~/dotfiles/updateall.sh
+    alias updateall ~/dotfiles/scripts/update/updateall.sh
 
-    alias updateall-quick ~/dotfiles/updateall-quick.sh
+    alias updateall-quick ~/dotfiles/scripts/update/updateall-quick.sh
 
-    alias gift ~/dotfiles/gift.sh
+    alias gift ~/dotfiles/scripts/utils/gift.sh
 
     alias ubuntuupdate 'sudo do-release-upgrade -d'
 
@@ -572,10 +572,10 @@
     alias sshfix 'ssh-keygen -f ~/.ssh/known_hosts -R \!*; ssh \!*'
 
 
-    alias update_rust '~/dotfiles/update_rust.sh'
-    alias update_vim '~/dotfiles/update_vim.sh'
-    alias update_chrome '~/dotfiles/update_chrome.sh'
-    alias update_code '~/dotfiles/update_code.sh'
+    alias update_rust '~/dotfiles/scripts/update/update_rust.sh'
+    alias update_vim '~/dotfiles/scripts/update/update_vim.sh'
+    alias update_chrome '~/dotfiles/scripts/update/update_chrome.sh'
+    alias update_code '~/dotfiles/scripts/update/update_code.sh'
 
 
     alias install_deb 'wget -O /tmp/install-package.deb "\!*"; gdebi /tmp/install-package.deb'

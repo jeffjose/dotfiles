@@ -81,7 +81,7 @@ endif
 #
 if (`bash -c 'git rev-parse --git-dir 2> /dev/null'` != "") then
 
-  set git_status = `~/dotfiles/gitstatus.sh`
+  set git_status = `~/dotfiles/git/gitstatus.sh`
 
   set git_branch    = $git_status[1]
 

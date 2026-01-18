@@ -10,5 +10,5 @@ sudo mkdir -p /mnt/matterhorn/Plex
 sudo mkdir -p /mnt/matterhorn/deluge
 sudo mkdir -p /mnt/matterhorn/jdownloader
 
-#sudo patch -b -u /etc/fstab -i fstab.patch
+#sudo patch -b -u /etc/fstab -i ~/dotfiles/services/fstab.patch
 

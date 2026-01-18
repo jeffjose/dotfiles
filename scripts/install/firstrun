@@ -57,12 +57,12 @@ run_base() {
   echo -e "\n🔄 Running Base Setup"
   echo "-----------------------------------"
 
-  run_task "Setting up user" "$DOTFILES_DIR/setup_user" "$DEFAULT_USER"
-  run_task "Installing base packages" "$DOTFILES_DIR/apt-base.sh"
-  run_task "Setting up base PPAs" "$DOTFILES_DIR/ppa-base.sh"
-  run_task "Patching NTP config" sudo patch -f /etc/ntp.conf ntp.patch
+  run_task "Setting up user" "$DOTFILES_DIR/scripts/install/setup_user" "$DEFAULT_USER"
+  run_task "Installing base packages" "$DOTFILES_DIR/scripts/install/apt-base.sh"
+  run_task "Setting up base PPAs" "$DOTFILES_DIR/scripts/install/ppa-base.sh"
+  run_task "Patching NTP config" sudo patch -f /etc/ntp.conf "$DOTFILES_DIR/services/ntp.patch"
   run_task "Cleaning packages" sudo apt autoremove
-  run_task "Setting up Vim" "$DOTFILES_DIR/vim.sh"
+  run_task "Setting up Vim" "$DOTFILES_DIR/scripts/install/vim.sh"
 
   # Install Rust and cargo packages
   echo -e "\n📦 Installing Rust..."
@@ -90,11 +90,11 @@ run_common_server_gui() {
   yes | sh -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
   # Install various packages
-  run_task "Setting up Cargo packages" "$DOTFILES_DIR/cargo.sh"
-  run_task "Setting up Go packages" "$DOTFILES_DIR/go.sh"
-  run_task "Setting up fonts" "$DOTFILES_DIR/fonts.sh"
-  run_task "Setting up Podman" "$DOTFILES_DIR/podman.sh"
-  run_task "Setting up pip packages" "$DOTFILES_DIR/pip.sh"
+  run_task "Setting up Cargo packages" "$DOTFILES_DIR/scripts/install/cargo.sh"
+  run_task "Setting up Go packages" "$DOTFILES_DIR/scripts/install/go.sh"
+  run_task "Setting up fonts" "$DOTFILES_DIR/scripts/install/fonts.sh"
+  run_task "Setting up Podman" "$DOTFILES_DIR/scripts/install/podman.sh"
+  run_task "Setting up pip packages" "$DOTFILES_DIR/scripts/install/pip.sh"
 }
 
 # Server setup tasks
@@ -103,8 +103,8 @@ run_server() {
   echo "-----------------------------------"
 
   run_base
-  run_task "Installing server packages" "$DOTFILES_DIR/apt-server.sh"
-  run_task "Setting up server PPAs" "$DOTFILES_DIR/ppa-server.sh"
+  run_task "Installing server packages" "$DOTFILES_DIR/scripts/install/apt-server.sh"
+  run_task "Setting up server PPAs" "$DOTFILES_DIR/scripts/install/ppa-server.sh"
   run_common_server_gui
 }
 
@@ -115,12 +115,12 @@ run_gui() {
 
   run_server
 
-  run_task "Installing GUI packages" "$DOTFILES_DIR/apt-gui.sh"
-  run_task "Setting up GUI PPAs" "$DOTFILES_DIR/ppa-gui.sh"
+  run_task "Installing GUI packages" "$DOTFILES_DIR/scripts/install/apt-gui.sh"
+  run_task "Setting up GUI PPAs" "$DOTFILES_DIR/scripts/install/ppa-gui.sh"
 
   # Install and setup Espanso
   run_task "Installing Espanso" sudo snap install espanso --classic
-  run_task "Setting up Espanso" "$DOTFILES_DIR/espanso.sh"
+  run_task "Setting up Espanso" "$DOTFILES_DIR/scripts/install/espanso.sh"
 
   # Android setup
   run_task "Setting up Android" sudo usermod -aG plugdev "$DEFAULT_USER"
@@ -130,11 +130,11 @@ run_gui() {
   echo -e "\n📦 Setting up VS Code theme..."
   rm -rf "$HOME/.vscode/extensions/material-theme-jeffjose"
   mkdir -p "$HOME/.vscode/extensions"
-  run_task "Installing VS Code theme" cp -r "$DOTFILES_DIR/material-theme-jeffjose" "$HOME/.vscode/extensions/material-theme-jeffjose"
+  run_task "Installing VS Code theme" cp -r "$DOTFILES_DIR/themes/material-theme-jeffjose" "$HOME/.vscode/extensions/material-theme-jeffjose"
 
   # Terminal setup
-  run_task "Setting up Tilix" dconf load /com/gexperts/Tilix/ <tilix.dconf
-  run_task "Setting up XFCE" "$DOTFILES_DIR/xfce.sh"
+  run_task "Setting up Tilix" dconf load /com/gexperts/Tilix/ <"$DOTFILES_DIR/desktop/tilix.dconf"
+  run_task "Setting up XFCE" "$DOTFILES_DIR/scripts/install/xfce.sh"
 
   # Print manual steps
   echo -e "\n📋 Manual Steps Required:"

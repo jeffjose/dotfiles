@@ -5,7 +5,7 @@
 set -e # Exit on error
 
 # Constants
-SCRIPTS_DIR="$HOME/dotfiles"
+SCRIPTS_DIR="$HOME/dotfiles/scripts/update"
 UPDATE_SCRIPTS=(
   "update_code.sh"
   "update_chrome.sh"
