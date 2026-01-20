@@ -9,7 +9,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_FILE="$SCRIPT_DIR/package.toml"
+DOTFILES_DIR="$SCRIPT_DIR/../.."
+CONFIG_FILE="$DOTFILES_DIR/misc/package.toml"
 TMPDIR="${TMPDIR:-/tmp}"
 PARALLEL=true
 
