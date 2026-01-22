@@ -58,6 +58,7 @@ declare -A SYMLINKS=(
   ["$DOTFILES_DIR/apps/audtag.yaml"]="$HOME/audtag.yaml"
   ["$DOTFILES_DIR/apps/ranger/rc.conf"]="$HOME/.config/ranger/rc.conf"
   ["$DOTFILES_DIR/apps/ranger/rifle.conf"]="$HOME/.config/ranger/rifle.conf"
+  ["$DOTFILES_DIR/shell/.tmux.conf"]="$HOME/.tmux.conf"
 )
 
 # Track failures
