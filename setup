@@ -59,6 +59,7 @@ declare -A SYMLINKS=(
   ["$DOTFILES_DIR/apps/ranger/rc.conf"]="$HOME/.config/ranger/rc.conf"
   ["$DOTFILES_DIR/apps/ranger/rifle.conf"]="$HOME/.config/ranger/rifle.conf"
   ["$DOTFILES_DIR/shell/.tmux.conf"]="$HOME/.tmux.conf"
+  ["$DOTFILES_DIR/shell/.bashrc"]="$HOME/.bashrc"
 )
 
 # Track failures
