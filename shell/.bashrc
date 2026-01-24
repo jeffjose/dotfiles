@@ -336,10 +336,10 @@ _enhanced_file_completion() {
 }
 
 # Apply enhanced completion to common commands
-complete -o default -o bashdefault -F _enhanced_file_completion vi vim nvim cat less more head tail
-complete -o default -o bashdefault -F _enhanced_file_completion code nano emacs
-complete -o default -o bashdefault -F _enhanced_file_completion cp mv rm ln chmod chown
-complete -o default -o bashdefault -F _enhanced_file_completion source .
+complete -o default -o bashdefault -o filenames -F _enhanced_file_completion vi vim nvim cat less more head tail
+complete -o default -o bashdefault -o filenames -F _enhanced_file_completion code nano emacs
+complete -o default -o bashdefault -o filenames -F _enhanced_file_completion cp mv rm ln chmod chown
+complete -o default -o bashdefault -o filenames -F _enhanced_file_completion source .
 
 # ============================================================================
 # CARGO
