@@ -32,6 +32,9 @@ bind '"\e[B": history-search-forward'
 bind '"\eOA": history-search-backward'
 bind '"\eOB": history-search-forward'
 
+# Show all completions on first Tab (don't require double-tap)
+bind 'set show-all-if-ambiguous on'
+
 # Space expands history (!!, !$, !cmd, etc.)
 bind 'Space: magic-space'
 
@@ -193,6 +196,9 @@ alias ping8='ping 8.8.8.8'
 # Quick exit
 alias xit='exit'
 
+# History
+alias h='history'
+
 # Source config
 alias so='echo "Sourcing ~/.bashrc .."; source ~/.bashrc'
 alias SO='so'
@@ -291,6 +297,49 @@ if [[ -f /usr/share/bash-completion/bash_completion ]]; then
 elif [[ -f /etc/bash_completion ]]; then
     . /etc/bash_completion
 fi
+
+# Enhanced completion (like tcsh's "set complete = enhance")
+# Allows "s-n<TAB>" to complete to "something-nothing"
+_enhanced_file_completion() {
+    local cur="${COMP_WORDS[COMP_CWORD]}"
+    local pattern=""
+    local char
+
+    # Build glob pattern: insert * after each character, but treat - specially
+    # "s-n" becomes "s*-n*"
+    for ((i=0; i<${#cur}; i++)); do
+        char="${cur:$i:1}"
+        if [[ "$char" == "-" ]]; then
+            pattern+="*-"
+        else
+            pattern+="$char"
+        fi
+    done
+    pattern+="*"
+
+    # Generate completions using the pattern
+    COMPREPLY=($(compgen -f -- "$cur"))
+
+    # If standard completion finds nothing, try enhanced pattern
+    if [[ ${#COMPREPLY[@]} -eq 0 ]] || [[ ! -e "${COMPREPLY[0]}" ]]; then
+        local matches=()
+        local f
+        # Use nullglob to handle no matches gracefully
+        local old_nullglob=$(shopt -p nullglob)
+        shopt -s nullglob
+        for f in $pattern; do
+            matches+=("$f")
+        done
+        eval "$old_nullglob"
+        COMPREPLY=("${matches[@]}")
+    fi
+}
+
+# Apply enhanced completion to common commands
+complete -o default -o bashdefault -F _enhanced_file_completion vi vim nvim cat less more head tail
+complete -o default -o bashdefault -F _enhanced_file_completion code nano emacs
+complete -o default -o bashdefault -F _enhanced_file_completion cp mv rm ln chmod chown
+complete -o default -o bashdefault -F _enhanced_file_completion source .
 
 # ============================================================================
 # CARGO
