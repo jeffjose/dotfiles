@@ -95,25 +95,44 @@ run_task "  $HOME/.aliases.sensitive.sh" touch "$HOME/.aliases.sensitive.sh"
 
 # Setup screen symlink
 echo -e "\n🔗 Screen"
-run_task "  $HOME/bin/scrn → /usr/bin/screen" ln -sf /usr/bin/screen "$HOME/bin/scrn"
+if [ -L "$HOME/bin/scrn" ] && [ "$(readlink "$HOME/bin/scrn")" = "/usr/bin/screen" ]; then
+  echo "  (no changes)"
+else
+  run_task "  $HOME/bin/scrn → /usr/bin/screen" ln -sf /usr/bin/screen "$HOME/bin/scrn"
+fi
 
 # Symlink bin scripts
 echo -e "\n🔗 Bin scripts"
+bin_count=0
 for script in "$DOTFILES_DIR/bin/"*; do
   [ -f "$script" ] || continue
   script_name=$(basename "$script")
-  run_task "  $HOME/bin/$script_name → bin/$script_name" ln -sf "$script" "$HOME/bin/$script_name"
+  target="$HOME/bin/$script_name"
+  # Skip if symlink already points to correct target
+  if [ -L "$target" ] && [ "$(readlink "$target")" = "$script" ]; then
+    continue
+  fi
+  run_task "  $target → bin/$script_name" ln -sf "$script" "$target"
+  ((bin_count++)) || true
 done
+[ $bin_count -eq 0 ] && echo "  (no changes)"
 
 # Create symlinks
 echo -e "\n🔗 Symlinks"
+symlink_count=0
 for src in "${!SYMLINKS[@]}"; do
   target="${SYMLINKS[$src]}"
+  # Skip if symlink already points to correct target
+  if [ -L "$target" ] && [ "$(readlink "$target")" = "$src" ]; then
+    continue
+  fi
   if [ -e "$target" ] && [ ! -L "$target" ]; then
     run_task "  $target (backup)" mv "$target" "$target$BACKUP_SUFFIX"
   fi
   run_task "  $target → $(basename "$src")" ln -sf "$src" "$target"
+  ((symlink_count++)) || true
 done
+[ $symlink_count -eq 0 ] && echo "  (no changes)"
 
 if [ ${#failed_tasks[@]} -gt 0 ]; then
   echo -e "\n❌ Failed tasks:"
