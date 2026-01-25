@@ -2,75 +2,16 @@
 # ~/.bashrc - Bash configuration ported from tcsh
 # Managed by dotfiles
 
-# Exit if not interactive
-[[ $- != *i* ]] && return
-
 # ============================================================================
-# HISTORY CONFIGURATION
-# ============================================================================
-
-# ignorespace = ignore commands starting with space
-# ignoredups  = ignore duplicate consecutive commands
-# erasedups   = erase ALL previous duplicates
-HISTCONTROL=ignoreboth:erasedups
-
-HISTSIZE=10000
-HISTFILESIZE=10000
-
-shopt -s histappend
-
-# Save history after each command
-PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a"
-
-# ============================================================================
-# HISTORY SEARCH
-# ============================================================================
-
-# Type text, then up/down arrow searches history with that prefix
-bind '"\e[A": history-search-backward'
-bind '"\e[B": history-search-forward'
-bind '"\eOA": history-search-backward'
-bind '"\eOB": history-search-forward'
-
-# Show all completions on first Tab (don't require double-tap)
-bind 'set show-all-if-ambiguous on'
-
-# Space expands history (!!, !$, !cmd, etc.)
-bind 'Space: magic-space'
-
-# Show expanded command before executing
-shopt -s histverify
-
-# ============================================================================
-# SHELL BEHAVIOR
-# ============================================================================
-
-set -o ignoreeof                    # Prevent Ctrl-D exit
-shopt -s extglob                    # Extended globbing
-shopt -s nocaseglob                 # Case-insensitive globbing
-shopt -s cdspell                    # Autocorrect cd typos
-shopt -s checkwinsize               # Update LINES/COLUMNS after each command
-shopt -s globstar 2>/dev/null       # ** matches recursively
-
-bind '"\C-x": "exit\n"'             # Ctrl-x exits
-
-# ============================================================================
-# EDITOR & TERMINAL
+# ENVIRONMENT & PATH (always run, even for non-interactive shells)
 # ============================================================================
 
 export EDITOR=nvim
 export TERM=xterm-256color
 
-# ============================================================================
-# COLORS
-# ============================================================================
-
 export LS_COLORS='no=00:fi=00:di=01;97:ow=01;97:st=01;97:tw=01;97:ln=01;36:pi=40;33:so=01;35:bd=40;33;01:cd=40;33;01:or=01;05;37;41:mi=00;00;00;41:ex=01;32:*.cmd=01;32:*.exe=01;32:*.com=01;32:*.btm=01;32:*.bat=01;32:*.sh=01;32:*.csh=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.gz=01;31:*.bz2=01;31:*.bz=01;31:*.tz=01;31:*.rpm=01;31:*.cpio=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.xbm=01;35:*.xpm=01;35:*.png=01;35:*.tif=01;35:*.r=01;35:*.map=01;35:*.adb=01;98:*.pdf=01;35'
 
-# ============================================================================
 # PATH SETUP (matching tcsh order exactly)
-# ============================================================================
-
 if [[ -z "$__MY_PATHS_ARE_SET" ]]; then
     export GRADLEPATH=/opt/gradle
     export GOPATH=$HOME/go
@@ -120,8 +61,60 @@ export PIP_INDEX_URL=https://pypi.org/simple/
 export UV_INDEX_URL=https://pypi.org/simple/
 export PIPENV_PYTHON=$HOME/.pyenv/shims/python
 
+# Cargo
+[[ -f "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"
+
 # ============================================================================
-# ALIASES
+# EXIT HERE FOR NON-INTERACTIVE SHELLS
+# ============================================================================
+[[ $- != *i* ]] && return
+
+# ============================================================================
+# HISTORY CONFIGURATION (interactive only)
+# ============================================================================
+
+HISTCONTROL=ignoreboth:erasedups
+HISTSIZE=10000
+HISTFILESIZE=10000
+
+shopt -s histappend
+
+# Save history after each command
+PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a"
+
+# ============================================================================
+# HISTORY SEARCH (interactive only)
+# ============================================================================
+
+bind '"\e[A": history-search-backward'
+bind '"\e[B": history-search-forward'
+bind '"\eOA": history-search-backward'
+bind '"\eOB": history-search-forward'
+
+# Show all completions on first Tab
+bind 'set show-all-if-ambiguous on'
+
+# Space expands history
+bind 'Space: magic-space'
+
+# Show expanded command before executing
+shopt -s histverify
+
+# ============================================================================
+# SHELL BEHAVIOR (interactive only)
+# ============================================================================
+
+set -o ignoreeof                    # Prevent Ctrl-D exit
+shopt -s extglob                    # Extended globbing
+shopt -s nocaseglob                 # Case-insensitive globbing
+shopt -s cdspell                    # Autocorrect cd typos
+shopt -s checkwinsize               # Update LINES/COLUMNS after each command
+shopt -s globstar 2>/dev/null       # ** matches recursively
+
+bind '"\C-x": "exit\n"'             # Ctrl-x exits
+
+# ============================================================================
+# ALIASES (interactive only)
 # ============================================================================
 
 # Core
@@ -236,7 +229,7 @@ alias service='sudo service'
 alias systemctl='sudo systemctl'
 
 # ============================================================================
-# FUNCTIONS
+# FUNCTIONS (interactive only)
 # ============================================================================
 
 tmp() { local tmpdir=$(mktemp -d /tmp/tmp.XXXXXX); cd "$tmpdir"; pwd; }
@@ -289,7 +282,7 @@ ghnew() {
 sshfix() { ssh-keygen -f ~/.ssh/known_hosts -R "$1"; ssh "$1"; }
 
 # ============================================================================
-# COMPLETION
+# COMPLETION (interactive only)
 # ============================================================================
 
 if [[ -f /usr/share/bash-completion/bash_completion ]]; then
@@ -299,14 +292,11 @@ elif [[ -f /etc/bash_completion ]]; then
 fi
 
 # Enhanced completion (like tcsh's "set complete = enhance")
-# Allows "s-n<TAB>" to complete to "something-nothing"
 _enhanced_file_completion() {
     local cur="${COMP_WORDS[COMP_CWORD]}"
     local pattern=""
     local char
 
-    # Build glob pattern: insert * after each character, but treat - specially
-    # "s-n" becomes "s*-n*"
     for ((i=0; i<${#cur}; i++)); do
         char="${cur:$i:1}"
         if [[ "$char" == "-" ]]; then
@@ -317,14 +307,11 @@ _enhanced_file_completion() {
     done
     pattern+="*"
 
-    # Generate completions using the pattern
     COMPREPLY=($(compgen -f -- "$cur"))
 
-    # If standard completion finds nothing, try enhanced pattern
     if [[ ${#COMPREPLY[@]} -eq 0 ]] || [[ ! -e "${COMPREPLY[0]}" ]]; then
         local matches=()
         local f
-        # Use nullglob to handle no matches gracefully
         local old_nullglob=$(shopt -p nullglob)
         shopt -s nullglob
         for f in $pattern; do
@@ -335,20 +322,13 @@ _enhanced_file_completion() {
     fi
 }
 
-# Apply enhanced completion to common commands
 complete -o default -o bashdefault -o filenames -F _enhanced_file_completion vi vim nvim cat less more head tail
 complete -o default -o bashdefault -o filenames -F _enhanced_file_completion code nano emacs
 complete -o default -o bashdefault -o filenames -F _enhanced_file_completion cp mv rm ln chmod chown
 complete -o default -o bashdefault -o filenames -F _enhanced_file_completion source .
 
 # ============================================================================
-# CARGO
-# ============================================================================
-
-[[ -f "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"
-
-# ============================================================================
-# STARSHIP PROMPT
+# STARSHIP PROMPT (interactive only)
 # ============================================================================
 
 if command -v starship &>/dev/null; then
