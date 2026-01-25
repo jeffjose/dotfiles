@@ -142,7 +142,13 @@ endif
 
 # Firebase checks removed - no longer needed
 
-if ($?STY) then
+# Use colorful prompt in screen, VS Code (local), or VS Code Remote Tunnel
+set use_color_prompt = 0
+if ($?STY) set use_color_prompt = 1
+if ($?VSCODE_IPC_HOOK_CLI) set use_color_prompt = 1
+if ($?REMOTEHOST) set use_color_prompt = 1
+
+if ($use_color_prompt) then
     set prompt = "-(${cyan}%B%P%b${end} ${host_color}${host_name} ${ip_address}${end} ${green}%B%/%b${green}${end}${git_str})-\n${prompt_key}${end} "
 else
     set prompt = "-(${white}%P${end} ${white}${host_name} ${ip_address}${end} ${white}%/${end})-\n?${end} "
