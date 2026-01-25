@@ -158,6 +158,10 @@ if ( ! $?prompt ) exit
         # Inside a screen session. Do nothing
     else if ($?SSH_CLIENT) then
         # Inside an ssh session. Do nothing
+    else if ($?REMOTEHOST) then
+        # Inside VS Code Remote Tunnel. Do nothing
+    else if ($?VSCODE_IPC_HOOK_CLI) then
+        # Inside VS Code terminal (local). Do nothing
     else
         # A blank terminal session.
         # get or create a new session named 'mainsession'
