@@ -58,6 +58,7 @@ yt-dlp = "latest"
 "cargo:https://github.com/jeffjose/git-cal" = "latest"
 "cargo:https://github.com/jeffjose/loc" = "latest"
 "cargo:https://github.com/jeffjose/wat" = "latest"
+"cargo:https://github.com/jeffjose/seal" = "latest"
 
 # npm
 "npm:@google/gemini-cli" = "latest"
