@@ -203,7 +203,6 @@ alias fb='thunar . &'
 alias dl='thunar ~/Downloads &'
 
 # Claude/AI
-alias claude='claude --dangerously-skip-permissions'
 alias opus='claude --model opus'
 alias sonnet='claude --model sonnet'
 
@@ -257,6 +256,7 @@ jclone() {
     else
         git clone "https://github.com/jeffjose/$1"
     fi
+    cd "$1" && fixgitconfig
 }
 
 newproject() {
