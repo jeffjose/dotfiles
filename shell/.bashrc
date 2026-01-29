@@ -205,6 +205,8 @@ alias dl='thunar ~/Downloads &'
 # Claude/AI
 alias opus='claude --model opus'
 alias sonnet='claude --model sonnet'
+alias flash='gemini --model gemini-3-flash-preview'
+alias pro='gemini --model gemini-3-pro-preview'
 
 # Kubectl
 alias k='sudo kubectl'
