@@ -53,12 +53,12 @@ yt-dlp = "latest"
 "cargo:somo" = "latest"
 
 # GitHub repositories
-"cargo:https://github.com/jeffjose/mediainfo" = "latest"
-"cargo:https://github.com/jeffjose/safeclean" = "latest"
-"cargo:https://github.com/jeffjose/git-cal" = "latest"
-"cargo:https://github.com/jeffjose/loc" = "latest"
-"cargo:https://github.com/jeffjose/wat" = "latest"
-"cargo:https://github.com/jeffjose/seal" = "latest"
+"cargo:https://github.com/jeffjose/mediainfo" = "branch:main"
+"cargo:https://github.com/jeffjose/safeclean" = "branch:main"
+"cargo:https://github.com/jeffjose/git-cal" = "branch:main"
+"cargo:https://github.com/jeffjose/loc" = "branch:main"
+"cargo:https://github.com/jeffjose/wat" = "branch:main"
+"cargo:https://github.com/jeffjose/seal" = "branch:main"
 
 # npm
 "npm:@google/gemini-cli" = "latest"
