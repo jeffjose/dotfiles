@@ -42,6 +42,7 @@
     alias xk 'pkill light-locker'
 
     alias m 'rm -rf $HOME/.local/share/mise/shims; mise reshim; mise install; mise reshim; where pnpm'
+    alias mup 'mise upgrade; m'
 
     alias grep grep -iE --color=always
 
