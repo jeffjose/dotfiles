@@ -32,20 +32,43 @@ endif
 #endif
 
 
-if (${HOST} == "jeffjose-glaptop.roam.corp.google.com") then
+# === PRIMARY MACHINES (Yellow) ===
+# Personal laptop
+if (${HOST} == "skyfall") then
+    set host_name = ${HOST}
+    set host_color = "${yellow}"
+
+# Google machines - edit hostnames here as needed
+else if (${HOST} == "jeffjose-glaptop.roam.corp.google.com") then
     set host_name = "glaptop"
     set host_color = "${yellow}"
 else if (${HOST} == "jeffjose.mtv.corp.google.com") then
     set host_name = "gworkstation"
-    set host_color = "${magenta}"
+    set host_color = "${yellow}"
+else if (${HOST} == "jeffjose2.mtv.corp.google.com") then
+    set host_name = "gworkstation2"
+    set host_color = "${yellow}"
+
+# === SECONDARY MACHINES (Blue) ===
+# Desktop
+else if (${HOST} == "woodwind") then
+    set host_name = ${HOST}
+    set host_color = "${blue}"
+
+# === SERVERS (White) ===
+else if (${HOST} == "matterhorn") then
+    set host_name = ${HOST}
+    set host_color = "${white}"
+else if (${HOST} == "basalt") then
+    set host_name = ${HOST}
+    set host_color = "${white}"
 else if (${HOST} == "nomad") then
     set host_name = ${HOST}
-    set host_color = "${magenta}"
-else if (${HOST} == "skyfall") then
-    set host_name = ${HOST}
-    set host_color = "${magenta}"
+    set host_color = "${white}"
+
+# === DEFAULT (White for unknown servers) ===
 else
-    set host_color = "${yellow}"
+    set host_color = "${white}"
     set host_name = "${HOST}"
 endif
 
