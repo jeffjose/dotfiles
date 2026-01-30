@@ -37,39 +37,57 @@ endif
 if (${HOST} == "skyfall") then
     set host_name = ${HOST}
     set host_color = "${yellow}"
+    set time_color = "${cyan}"
+    set cwd_color = "${green}"
 
 # Google machines - edit hostnames here as needed
 else if (${HOST} == "jeffjose-glaptop.roam.corp.google.com") then
     set host_name = "glaptop"
     set host_color = "${yellow}"
+    set time_color = "${cyan}"
+    set cwd_color = "${green}"
 else if (${HOST} == "jeffjose.mtv.corp.google.com") then
     set host_name = "gworkstation"
     set host_color = "${yellow}"
+    set time_color = "${cyan}"
+    set cwd_color = "${green}"
 else if (${HOST} == "jeffjose2.mtv.corp.google.com") then
     set host_name = "gworkstation2"
     set host_color = "${yellow}"
+    set time_color = "${cyan}"
+    set cwd_color = "${green}"
 
 # === SECONDARY MACHINES (Blue) ===
 # Desktop
 else if (${HOST} == "woodwind") then
     set host_name = ${HOST}
     set host_color = "${blue}"
+    set time_color = "${cyan}"
+    set cwd_color = "${green}"
 
 # === SERVERS (White) ===
 else if (${HOST} == "matterhorn") then
     set host_name = ${HOST}
     set host_color = "${white}"
+    set time_color = "${white}"
+    set cwd_color = "${white}"
 else if (${HOST} == "basalt") then
     set host_name = ${HOST}
     set host_color = "${white}"
+    set time_color = "${white}"
+    set cwd_color = "${white}"
 else if (${HOST} == "nomad") then
     set host_name = ${HOST}
     set host_color = "${white}"
+    set time_color = "${white}"
+    set cwd_color = "${white}"
 
 # === DEFAULT (White for unknown servers) ===
 else
     set host_color = "${white}"
     set host_name = "${HOST}"
+    set time_color = "${white}"
+    set cwd_color = "${white}"
 endif
 
 set ip_address = `\ip -o route get 8.8.8.8 | awk -F 'src | uid' '{print $2}'`
@@ -172,7 +190,7 @@ if ($?VSCODE_IPC_HOOK_CLI) set use_color_prompt = 1
 if ($?REMOTEHOST) set use_color_prompt = 1
 
 if ($use_color_prompt) then
-    set prompt = "-(${cyan}%B%P%b${end} ${host_color}${host_name} ${ip_address}${end} ${green}%B%/%b${green}${end}${git_str})-\n${prompt_key}${end} "
+    set prompt = "-(${time_color}%B%P%b${end} ${host_color}${host_name} ${ip_address}${end} ${cwd_color}%B%/%b${end}${git_str})-\n${prompt_key}${end} "
 else
     set prompt = "-(${white}%P${end} ${white}${host_name} ${ip_address}${end} ${white}%/${end})-\n?${end} "
 endif
