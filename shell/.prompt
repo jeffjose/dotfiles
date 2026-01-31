@@ -39,6 +39,13 @@ if (${HOST} == "skyfall") then
     set host_color = "${yellow}"
     set time_color = "${cyan}"
     set cwd_color = "${green}"
+    set git_branch_color = "${magenta}"
+    set git_untracked_color = "${red}"
+    set git_changed_color = "${yellow}"
+    set git_staged_color = "${blue}"
+    set git_stashed_color = "${cyan}"
+    set git_clean_color = "${green}"
+    set git_cl_color = "${blue}"
 
 # Google machines - edit hostnames here as needed
 else if (${HOST} == "jeffjose-glaptop.roam.corp.google.com") then
@@ -46,16 +53,37 @@ else if (${HOST} == "jeffjose-glaptop.roam.corp.google.com") then
     set host_color = "${yellow}"
     set time_color = "${cyan}"
     set cwd_color = "${green}"
+    set git_branch_color = "${magenta}"
+    set git_untracked_color = "${red}"
+    set git_changed_color = "${yellow}"
+    set git_staged_color = "${blue}"
+    set git_stashed_color = "${cyan}"
+    set git_clean_color = "${green}"
+    set git_cl_color = "${blue}"
 else if (${HOST} == "jeffjose.mtv.corp.google.com") then
     set host_name = "gworkstation"
     set host_color = "${yellow}"
     set time_color = "${cyan}"
     set cwd_color = "${green}"
+    set git_branch_color = "${magenta}"
+    set git_untracked_color = "${red}"
+    set git_changed_color = "${yellow}"
+    set git_staged_color = "${blue}"
+    set git_stashed_color = "${cyan}"
+    set git_clean_color = "${green}"
+    set git_cl_color = "${blue}"
 else if (${HOST} == "jeffjose2.mtv.corp.google.com") then
     set host_name = "gworkstation2"
     set host_color = "${yellow}"
     set time_color = "${cyan}"
     set cwd_color = "${green}"
+    set git_branch_color = "${magenta}"
+    set git_untracked_color = "${red}"
+    set git_changed_color = "${yellow}"
+    set git_staged_color = "${blue}"
+    set git_stashed_color = "${cyan}"
+    set git_clean_color = "${green}"
+    set git_cl_color = "${blue}"
 
 # === SECONDARY MACHINES (Blue) ===
 # Desktop
@@ -64,6 +92,13 @@ else if (${HOST} == "woodwind") then
     set host_color = "${blue}"
     set time_color = "${cyan}"
     set cwd_color = "${green}"
+    set git_branch_color = "${magenta}"
+    set git_untracked_color = "${red}"
+    set git_changed_color = "${yellow}"
+    set git_staged_color = "${blue}"
+    set git_stashed_color = "${cyan}"
+    set git_clean_color = "${green}"
+    set git_cl_color = "${blue}"
 
 # === SERVERS (White) ===
 else if (${HOST} == "matterhorn") then
@@ -71,16 +106,37 @@ else if (${HOST} == "matterhorn") then
     set host_color = "${white}"
     set time_color = "${white}"
     set cwd_color = "${white}"
+    set git_branch_color = "${white}"
+    set git_untracked_color = "${white}"
+    set git_changed_color = "${white}"
+    set git_staged_color = "${white}"
+    set git_stashed_color = "${white}"
+    set git_clean_color = "${white}"
+    set git_cl_color = "${white}"
 else if (${HOST} == "basalt") then
     set host_name = ${HOST}
     set host_color = "${white}"
     set time_color = "${white}"
     set cwd_color = "${white}"
+    set git_branch_color = "${white}"
+    set git_untracked_color = "${white}"
+    set git_changed_color = "${white}"
+    set git_staged_color = "${white}"
+    set git_stashed_color = "${white}"
+    set git_clean_color = "${white}"
+    set git_cl_color = "${white}"
 else if (${HOST} == "nomad") then
     set host_name = ${HOST}
     set host_color = "${white}"
     set time_color = "${white}"
     set cwd_color = "${white}"
+    set git_branch_color = "${white}"
+    set git_untracked_color = "${white}"
+    set git_changed_color = "${white}"
+    set git_staged_color = "${white}"
+    set git_stashed_color = "${white}"
+    set git_clean_color = "${white}"
+    set git_cl_color = "${white}"
 
 # === DEFAULT (White for unknown servers) ===
 else
@@ -88,6 +144,13 @@ else
     set host_name = "${HOST}"
     set time_color = "${white}"
     set cwd_color = "${white}"
+    set git_branch_color = "${white}"
+    set git_untracked_color = "${white}"
+    set git_changed_color = "${white}"
+    set git_staged_color = "${white}"
+    set git_stashed_color = "${white}"
+    set git_clean_color = "${white}"
+    set git_cl_color = "${white}"
 endif
 
 set ip_address = `\ip -o route get 8.8.8.8 | awk -F 'src | uid' '{print $2}'`
@@ -174,7 +237,7 @@ if (`bash -c 'git rev-parse --git-dir 2> /dev/null'` != "") then
     set git5_cl = '-'
   endif
 
-  set git_str = " ${white}${git_branch}${git_remote}${end}:${white}${git_untracked}${end}${white}${git_changed}${end}${white}${git_staged}${end}${white}${git_stashed}${end}${white}${git_clean}${end}:${white}${git5_cl}${end}"
+  set git_str = " ${git_branch_color}${git_branch}${git_remote}${end}:${git_untracked_color}${git_untracked}${end}${git_changed_color}${git_changed}${end}${git_staged_color}${git_staged}${end}${git_stashed_color}${git_stashed}${end}${git_clean_color}${git_clean}${end}:${git_cl_color}${git5_cl}${end}"
 
 else
   set git_str = ''
