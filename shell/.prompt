@@ -84,6 +84,18 @@ else if (${HOST} == "jeffjose2.mtv.corp.google.com") then
     set git_stashed_color = "${cyan}"
     set git_clean_color = "${green}"
     set git_cl_color = "${blue}"
+else if (${HOST} == "jeffjose-glapstation") then
+    set host_name = "glapstation"
+    set host_color = "${yellow}"
+    set time_color = "${cyan}"
+    set cwd_color = "${green}"
+    set git_branch_color = "${magenta}"
+    set git_untracked_color = "${red}"
+    set git_changed_color = "${yellow}"
+    set git_staged_color = "${blue}"
+    set git_stashed_color = "${cyan}"
+    set git_clean_color = "${green}"
+    set git_cl_color = "${blue}"
 
 # === SECONDARY MACHINES (Blue) ===
 # Desktop
