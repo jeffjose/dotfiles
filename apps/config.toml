@@ -76,7 +76,6 @@ yt-dlp = "latest"
 "npm:ts-node" = "latest"
 "npm:degit" = "latest"
 "npm:firebase-tools" = "latest"
-"npm:clawdbot" = "latest"
 ninja = "latest"
 cmake = "latest"
 
