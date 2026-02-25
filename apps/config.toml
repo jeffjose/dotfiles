@@ -57,6 +57,7 @@ yt-dlp = "latest"
 "cargo:https://github.com/jeffjose/safeclean" = "branch:main"
 "cargo:https://github.com/jeffjose/git-cal" = "branch:main"
 "cargo:https://github.com/jeffjose/loc" = "branch:main"
+"cargo:https://github.com/jeffjose/hotshot" = "branch:main"
 "cargo:https://github.com/jeffjose/wat" = "branch:main"
 "cargo:https://github.com/jeffjose/seal" = "branch:main"
 
