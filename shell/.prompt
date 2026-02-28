@@ -115,7 +115,7 @@ else if (${HOST} == "woodwind") then
 # === SERVERS (White) ===
 else if (${HOST} == "matterhorn") then
     set host_name = ${HOST}
-    set host_color = "${white}"
+    set host_color = "${red}"
     set time_color = "${white}"
     set cwd_color = "${white}"
     set git_branch_color = "${white}"
@@ -127,7 +127,7 @@ else if (${HOST} == "matterhorn") then
     set git_cl_color = "${white}"
 else if (${HOST} == "basalt") then
     set host_name = ${HOST}
-    set host_color = "${white}"
+    set host_color = "${magenta}"
     set time_color = "${white}"
     set cwd_color = "${white}"
     set git_branch_color = "${white}"
