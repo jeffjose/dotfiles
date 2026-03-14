@@ -613,8 +613,8 @@
 
     alias claude 'claude --dangerously-skip-permissions'
 
-    alias opus claude --model opus-1m
-    alias sonnet claude --model sonnet
+    alias opus claude --model 'opus[1m]'
+    alias sonnet claude --model 'sonnet[1m]'
     alias flash 'gemini --model gemini-3-flash-preview'
     alias pro 'gemini --model gemini-3-pro-preview'
 
