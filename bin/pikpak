@@ -1,0 +1,79 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#   "questionary",
+# ]
+# ///
+
+import sys
+import re
+import subprocess
+from urllib.parse import unquote_plus
+
+
+def extract_magnets(text):
+    pattern = r"magnet:\?[^\s\"'<>\]]+"
+    return list(dict.fromkeys(re.findall(pattern, text)))  # deduplicated, order preserved
+
+
+def label(magnet):
+    dn = re.search(r"[&?]dn=([^&]+)", magnet)
+    if dn:
+        return unquote_plus(dn.group(1))
+    return magnet[:80]
+
+
+def main():
+    import questionary
+
+    if len(sys.argv) < 2:
+        print("Usage: pikpak <folder>", file=sys.stderr)
+        print("  e.g. pikpak tvshows", file=sys.stderr)
+        print("       pikpak movies", file=sys.stderr)
+        sys.exit(1)
+
+    folder = sys.argv[1]
+
+    print("Paste text containing magnet links, then press Ctrl+D:")
+    try:
+        text = sys.stdin.read()
+    except KeyboardInterrupt:
+        sys.exit(0)
+
+    magnets = extract_magnets(text)
+
+    if not magnets:
+        print("No magnet links found.")
+        sys.exit(0)
+
+    print(f"\nFound {len(magnets)} magnet link(s).\n")
+
+    choices = [questionary.Choice(title=label(m), value=m) for m in magnets]
+
+    selected = questionary.checkbox(
+        f"Select to send to pikpak:{folder}",
+        choices=choices,
+    ).ask()
+
+    if not selected:
+        print("Nothing selected.")
+        sys.exit(0)
+
+    print()
+    for magnet in selected:
+        name = label(magnet)
+        print(f"Submitting: {name}")
+        result = subprocess.run(
+            ["rclone", "backend", "addurl", f"pikpak:{folder}", magnet],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode == 0:
+            print(f"  OK")
+        else:
+            print(f"  ERROR: {result.stderr.strip()}")
+
+
+if __name__ == "__main__":
+    main()
