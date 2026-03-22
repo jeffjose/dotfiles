@@ -36,28 +36,33 @@ NVIDIA driver auto-upgraded from `580.95.05` → `580.126.09` on **2026-01-29** 
 - Kernel upgraded 6.8.0-90 → 6.8.0-101 (Feb 28)
 - Kernel upgraded 6.8.0-101 → 6.8.0-106 (Mar 16)
 
+### Fix Applied
+
+1. ~~**Switch to nvidia-driver-570**~~ — **Done (2026-03-21)**
+   - Installed `nvidia-driver-570` (version 570.211.01)
+   - CUDA 12.8 (down from 13.0, fine for ollama and general use)
+   - Kernel unchanged: 6.8.0-106
+
+2. ~~**Pin the driver**~~ — **Done (2026-03-21)**
+   - `/etc/apt/preferences.d/nvidia-pin` in place, pinning `nvidia-driver-*` to `570.*` at priority 1001
+
 ### Next Steps
 
-1. **Switch to nvidia-driver-570** (version 570.211.01)
-   - Prebuilt kernel modules exist for 6.8.0-106 — no kernel change needed
-   - CUDA drops from 13.0 → 12.8 (fine for ollama and general use)
-   - RTX 3090 fully supported
-   ```
-   sudo apt install nvidia-driver-570
-   sudo reboot
-   ```
+1. **Monitor uptime** — if 3+ days without a crash, confirmed fixed (pre-upgrade baseline was 7-24 days)
 
-2. **Monitor uptime** — if 3+ days without a crash, confirmed fixed (pre-upgrade baseline was 7-24 days)
-
-3. **Pin the driver** to prevent unattended-upgrades from breaking it again:
-   ```
-   # /etc/apt/preferences.d/nvidia-pin
-   Package: nvidia-driver-*
-   Pin: version 570.*
-   Pin-Priority: 1001
-   ```
-
-4. **If 570 also crashes** — suspect hardware (PSU under load, GPU itself). Next steps would be:
+2. **If 570 also crashes** — suspect hardware (PSU under load, GPU itself). Next steps would be:
    - Run `gpu-burn` stress test to try to reproduce under load
    - Check PSU voltages
    - Try nvidia-driver-590 or the open kernel module variant (nvidia-driver-580-open)
+
+---
+
+## Log
+
+| Date | Event |
+|------|-------|
+| 2026-01-29 | nvidia-driver auto-upgraded 580.95.05 → 580.126.09 via unattended-upgrades. Crashes begin. |
+| 2026-02-28 | Kernel upgraded 6.8.0-90 → 6.8.0-101. Crashes continue. |
+| 2026-03-16 | Kernel upgraded 6.8.0-101 → 6.8.0-106. Crashes continue. |
+| 2026-03-21 | Investigation. Root cause identified as driver 580.126.09. |
+| 2026-03-21 | Downgraded to nvidia-driver-570 (570.211.01). Apt pin set. Rebooted. Monitoring. |
