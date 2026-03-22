@@ -76,43 +76,43 @@ Key sources:
 - [Solved: GPU fallen off bus - Arch Forums](https://bbs.archlinux.org/viewtopic.php?id=304020)
 - [NVIDIA/Troubleshooting - ArchWiki](https://wiki.archlinux.org/title/NVIDIA/Troubleshooting)
 
-### Current test (2026-03-22)
+### Test 1: Clock lock + PCIe runtime PM (2026-03-22) — FAILED
 
 **Clock lock + PCIe runtime PM** — neither persists across reboots:
 ```
 sudo nvidia-smi -lgc 210,210
 sudo sh -c 'echo on > /sys/bus/pci/devices/0000:01:00.0/power/control'
 ```
-If stable 3+ days → make permanent, then back off one at a time to isolate.
+Result: crashed after ~6.5 hours while watching YouTube on Chrome. Not just an idle issue — also crashes during light GPU use (hardware video decode). Clock lock only locks graphics clocks, not NVDEC.
 
-### If current test fails — next steps
+### Test 2: Kernel parameters (2026-03-22) — ACTIVE
 
-**Step 1: Kernel parameters (most effective fix reported by others)**
-
-Add to `GRUB_CMDLINE_LINUX_DEFAULT` in `/etc/default/grub`:
+Applied persistent kernel parameters in `/etc/default/grub`:
 ```
-pcie_aspm=off nvidia.NVreg_EnableGpuFirmware=0 nvidia.NVreg_DynamicPowerManagement=0x00
-```
-Then:
-```
-sudo update-grub && sudo reboot
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash pcie_aspm=off nvidia.NVreg_EnableGpuFirmware=0 nvidia.NVreg_DynamicPowerManagement=0x00"
 ```
 - `pcie_aspm=off` — disables PCIe ASPM entirely. Fixes it for most people alone.
 - `nvidia.NVreg_EnableGpuFirmware=0` — disables GSP firmware (known to cause crashes since driver 555+, per ArchWiki)
 - `nvidia.NVreg_DynamicPowerManagement=0x00` — disables NVIDIA dynamic power management
 
-**Step 2: Disable ASPM in BIOS/UEFI**
+These persist across reboots. Rebooted at ~15:37. Monitoring.
+
+**Success criteria:** 3+ days uptime (pre-crash baseline was 7-24 days).
+
+### If Test 2 fails — next steps
+
+**Step 1: Disable ASPM in BIOS/UEFI**
 
 Look for settings like:
 - "PEG 0/1 ASPM: Disabled"
 - "PCIe ASPM Support: Disabled"
 - "Native ASPM: Enabled" (lets OS control, combined with kernel `pcie_aspm=off`)
 
-**Step 3: BIOS update**
+**Step 2: BIOS update**
 
 The `PEG1.PEGP._DSM` ACPI error is a motherboard BIOS bug. Check for a newer BIOS version.
 
-**Step 4: Physical checks (unlikely needed)**
+**Step 3: Physical checks (unlikely needed)**
 
 - Reseat GPU and power connectors
 - Try a different PCIe slot if available
@@ -136,3 +136,5 @@ The `PEG1.PEGP._DSM` ACPI error is a motherboard BIOS bug. Check for a newer BIO
 | 2026-03-22 ~09:08 | Crashed after ~4.25 hours. Clock lock did NOT persist across the 04:49 reboot. |
 | 2026-03-22 09:34 | Found PCIe runtime PM set to `auto` for GPU (`/sys/bus/pci/devices/0000:01:00.0/power/control`). This lets the PCIe link sleep independently of GPU clocks — likely the missing factor. Also found stale nvidia-firmware-580 packages still installed (not harmful but should clean up). |
 | 2026-03-22 | **Test: clock lock + PCIe runtime PM.** `nvidia-smi -lgc 210,210` + `echo on > .../power/control`. Neither persists across reboots. If stable 3+ days, make permanent and then back off one at a time to isolate. |
+| 2026-03-22 ~15:31 | Crashed after ~6.5 hours while actively watching YouTube. Clock lock + PCIe runtime PM not enough. Also crashed during active use, not just idle. |
+| 2026-03-22 15:37 | Applied kernel params: `pcie_aspm=off nvidia.NVreg_EnableGpuFirmware=0 nvidia.NVreg_DynamicPowerManagement=0x00` in GRUB. Rebooted. This is the fix that works for most people online. Persists across reboots. |
