@@ -102,3 +102,4 @@ System crashing and hard-rebooting every 6-18 hours. No kernel panic logged, no 
 | 2026-03-21 | Crashed again after ~2.75 hours on driver 570. Driver downgrade did NOT fix it. |
 | 2026-03-21 | Investigation: ACPI BIOS errors on GPU PCIe slot (PEG1.PEGP), USB disconnects before crash, no Xid/MCE/thermal issues. Suspect hardware (PSU/BIOS/GPU). |
 | 2026-03-21 | User confirms crashes almost always when idle/away. Rarely during active use. Points to GPU idle power state transition as trigger. |
+| 2026-03-21 22:05 | Locked GPU clocks to 210 MHz (`nvidia-smi -lgc 210,210`) to prevent deep idle power states. Drawing ~38W. Monitoring for crashes. Note: does not persist across reboots. |
