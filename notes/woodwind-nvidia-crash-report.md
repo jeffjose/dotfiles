@@ -65,28 +65,57 @@ System crashing and hard-rebooting every 6-18 hours. No kernel panic logged, no 
 
 ### Working theories
 
-1. **GPU idle power state crash (prime suspect)** — when idle long enough, the GPU drops into deep power-saving states. The ACPI BIOS bug on PEG1.PEGP could be causing a bad power state transition that the GPU can't recover from, triggering a hard reset. This fits the pattern: crashes when idle/away, rarely during active use.
-2. **ACPI/BIOS bug** — the BIOS _DSM error on PEG1.PEGP is a buggy power management method for the GPU's PCIe slot. Could directly cause the bad state transition.
-3. **PSU degradation** — less likely given idle-only pattern, but a failing PSU could still drop voltage during transient load changes. The USB disconnect is a possible symptom.
+**This is a known issue.** Widely reported across NVIDIA forums, Arch wiki, Ubuntu communities. The exact symptom — silent hard reset at idle, no Xid, no kernel panic — is the classic **"GPU has fallen off the bus" (Xid 79)** problem caused by PCIe ASPM (Active State Power Management). The GPU's PCIe link enters a low-power state (L0s/L1) and fails to wake, taking the whole system down before anything can log. The ACPI BIOS bug on PEG1.PEGP makes it worse by mishandling the power state transitions.
 
-### Next Steps (ordered by likelihood of fixing it)
+**Not a hardware issue.** GPU and PSU are almost certainly fine. It's a software/firmware interaction between Linux, NVIDIA driver, and the motherboard BIOS.
 
-1. **Disable GPU deep power states (quick test)** — keep GPU from entering deep idle states:
-   ```
-   # Add to kernel cmdline in /etc/default/grub:
-   nvidia.NVreg_PreserveVideoMemoryAllocations=1 nvidia.NVreg_DynamicPowerManagement=0
-   # Then: sudo update-grub && sudo reboot
-   ```
-   Or use nvidia-smi to lock performance state:
-   ```
-   sudo nvidia-smi -pm 1                    # persistence mode (already enabled)
-   sudo nvidia-smi -lgc 210,210             # lock GPU clocks to base (prevents deep idle)
-   ```
-2. **Check for BIOS update** — the ACPI errors are a known class of BIOS bugs that can affect GPU stability
-3. **Try `pci=nocrs` kernel parameter** — ignore ACPI PCI resource settings, may work around the BIOS bug
-4. **Try nvidia-driver-580-open** (open kernel module) — different code path, might handle the ACPI interaction differently
-5. **Run `gpu-burn` stress test** — less useful now since crashes happen at idle, but can confirm it's not load-related
-6. **Monitor PSU voltages** — lower priority given idle crash pattern
+Key sources:
+- [Xid 79 GPU crash while idling if ASPM L0s enabled](https://forums.developer.nvidia.com/t/nvidia-driver-xid-79-gpu-crash-while-idling-if-aspm-l0s-is-enabled-in-uefi-bios-gpu-has-fallen-off-the-bus/314453)
+- [XID 79 happens on idle only](https://forums.developer.nvidia.com/t/xid-79-gpu-has-fallen-off-the-bus-happens-on-idle-only/323332)
+- [GPU falls off bus when idle, displays powered off](https://forums.developer.nvidia.com/t/gpu-has-fallen-off-the-bus-while-idle-only-occurs-when-all-displays-powered-off/203096)
+- [Solved: GPU fallen off bus - Arch Forums](https://bbs.archlinux.org/viewtopic.php?id=304020)
+- [NVIDIA/Troubleshooting - ArchWiki](https://wiki.archlinux.org/title/NVIDIA/Troubleshooting)
+
+### Current test (2026-03-22)
+
+**Clock lock + PCIe runtime PM** — neither persists across reboots:
+```
+sudo nvidia-smi -lgc 210,210
+sudo sh -c 'echo on > /sys/bus/pci/devices/0000:01:00.0/power/control'
+```
+If stable 3+ days → make permanent, then back off one at a time to isolate.
+
+### If current test fails — next steps
+
+**Step 1: Kernel parameters (most effective fix reported by others)**
+
+Add to `GRUB_CMDLINE_LINUX_DEFAULT` in `/etc/default/grub`:
+```
+pcie_aspm=off nvidia.NVreg_EnableGpuFirmware=0 nvidia.NVreg_DynamicPowerManagement=0x00
+```
+Then:
+```
+sudo update-grub && sudo reboot
+```
+- `pcie_aspm=off` — disables PCIe ASPM entirely. Fixes it for most people alone.
+- `nvidia.NVreg_EnableGpuFirmware=0` — disables GSP firmware (known to cause crashes since driver 555+, per ArchWiki)
+- `nvidia.NVreg_DynamicPowerManagement=0x00` — disables NVIDIA dynamic power management
+
+**Step 2: Disable ASPM in BIOS/UEFI**
+
+Look for settings like:
+- "PEG 0/1 ASPM: Disabled"
+- "PCIe ASPM Support: Disabled"
+- "Native ASPM: Enabled" (lets OS control, combined with kernel `pcie_aspm=off`)
+
+**Step 3: BIOS update**
+
+The `PEG1.PEGP._DSM` ACPI error is a motherboard BIOS bug. Check for a newer BIOS version.
+
+**Step 4: Physical checks (unlikely needed)**
+
+- Reseat GPU and power connectors
+- Try a different PCIe slot if available
 
 ---
 
