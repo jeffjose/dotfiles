@@ -103,3 +103,7 @@ System crashing and hard-rebooting every 6-18 hours. No kernel panic logged, no 
 | 2026-03-21 | Investigation: ACPI BIOS errors on GPU PCIe slot (PEG1.PEGP), USB disconnects before crash, no Xid/MCE/thermal issues. Suspect hardware (PSU/BIOS/GPU). |
 | 2026-03-21 | User confirms crashes almost always when idle/away. Rarely during active use. Points to GPU idle power state transition as trigger. |
 | 2026-03-21 22:05 | Locked GPU clocks to 210 MHz (`nvidia-smi -lgc 210,210`) to prevent deep idle power states. Drawing ~38W. Monitoring for crashes. Note: does not persist across reboots. |
+| 2026-03-22 ~04:49 | Crashed after ~6.75 hours (clock lock was active for ~5h of that). Longer than usual but still crashed. Clock lock alone is not enough. |
+| 2026-03-22 ~09:08 | Crashed after ~4.25 hours. Clock lock did NOT persist across the 04:49 reboot. |
+| 2026-03-22 09:34 | Found PCIe runtime PM set to `auto` for GPU (`/sys/bus/pci/devices/0000:01:00.0/power/control`). This lets the PCIe link sleep independently of GPU clocks — likely the missing factor. Also found stale nvidia-firmware-580 packages still installed (not harmful but should clean up). |
+| 2026-03-22 | **Test: clock lock + PCIe runtime PM.** `nvidia-smi -lgc 210,210` + `echo on > .../power/control`. Neither persists across reboots. If stable 3+ days, make permanent and then back off one at a time to isolate. |
