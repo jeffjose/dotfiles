@@ -61,25 +61,32 @@ System crashing and hard-rebooting every 6-18 hours. No kernel panic logged, no 
 - **Temps are fine** — GPU 31°C, CPU 21-24°C, NVMe 33-38°C. Not thermal.
 - **No HW throttling** — no HW Slowdown, no HW Power Brake, no thermal slowdown active.
 - **GPU drawing only ~30W at idle** (limit 350W) — crash is happening at idle, not under load.
+- **User reports crashes almost always happen when away from the computer** — overnight, or when idle for a while. Only crashed once or twice during active use (light work: Chrome, VS Code, webdev). GPU is never pushed hard. This strongly suggests the crash is triggered by **GPU idle power state transitions** (P8 → deeper states), not by load.
 
 ### Working theories
 
-1. **ACPI/BIOS bug** — the BIOS _DSM error on PEG1.PEGP could be causing the GPU to enter a bad power state. A BIOS update might fix this.
-2. **PSU degradation** — even at idle 30W, a failing PSU can drop voltage on the 12V rail momentarily, causing a hard reset. The USB disconnect is a classic PSU symptom.
-3. **GPU hardware fault** — the card itself may be failing. A silent hard reset with no Xid is unusual for software issues.
+1. **GPU idle power state crash (prime suspect)** — when idle long enough, the GPU drops into deep power-saving states. The ACPI BIOS bug on PEG1.PEGP could be causing a bad power state transition that the GPU can't recover from, triggering a hard reset. This fits the pattern: crashes when idle/away, rarely during active use.
+2. **ACPI/BIOS bug** — the BIOS _DSM error on PEG1.PEGP is a buggy power management method for the GPU's PCIe slot. Could directly cause the bad state transition.
+3. **PSU degradation** — less likely given idle-only pattern, but a failing PSU could still drop voltage during transient load changes. The USB disconnect is a possible symptom.
 
-### Next Steps
+### Next Steps (ordered by likelihood of fixing it)
 
-1. **Check for BIOS update** — the ACPI errors are a known class of BIOS bugs that can affect GPU stability
-2. **Run `gpu-burn` stress test** — try to trigger crash under load to see if it's power-related
+1. **Disable GPU deep power states (quick test)** — keep GPU from entering deep idle states:
    ```
-   git clone https://github.com/wilicc/gpu-burn
-   cd gpu-burn && make
-   ./gpu_burn 300   # 5 minute stress test
+   # Add to kernel cmdline in /etc/default/grub:
+   nvidia.NVreg_PreserveVideoMemoryAllocations=1 nvidia.NVreg_DynamicPowerManagement=0
+   # Then: sudo update-grub && sudo reboot
    ```
-3. **Monitor PSU voltages** — check 12V rail stability if possible (BIOS hardware monitor or multimeter)
-4. **Try nvidia-driver-580-open** (open kernel module) — different code path, might avoid the ACPI interaction
-5. **Try booting with `pci=nocrs`** — kernel parameter to ignore ACPI PCI resource settings, may work around the BIOS bug
+   Or use nvidia-smi to lock performance state:
+   ```
+   sudo nvidia-smi -pm 1                    # persistence mode (already enabled)
+   sudo nvidia-smi -lgc 210,210             # lock GPU clocks to base (prevents deep idle)
+   ```
+2. **Check for BIOS update** — the ACPI errors are a known class of BIOS bugs that can affect GPU stability
+3. **Try `pci=nocrs` kernel parameter** — ignore ACPI PCI resource settings, may work around the BIOS bug
+4. **Try nvidia-driver-580-open** (open kernel module) — different code path, might handle the ACPI interaction differently
+5. **Run `gpu-burn` stress test** — less useful now since crashes happen at idle, but can confirm it's not load-related
+6. **Monitor PSU voltages** — lower priority given idle crash pattern
 
 ---
 
@@ -94,3 +101,4 @@ System crashing and hard-rebooting every 6-18 hours. No kernel panic logged, no 
 | 2026-03-21 | Downgraded to nvidia-driver-570 (570.211.01). Apt pin set. Rebooted. Monitoring. |
 | 2026-03-21 | Crashed again after ~2.75 hours on driver 570. Driver downgrade did NOT fix it. |
 | 2026-03-21 | Investigation: ACPI BIOS errors on GPU PCIe slot (PEG1.PEGP), USB disconnects before crash, no Xid/MCE/thermal issues. Suspect hardware (PSU/BIOS/GPU). |
+| 2026-03-21 | User confirms crashes almost always when idle/away. Rarely during active use. Points to GPU idle power state transition as trigger. |
