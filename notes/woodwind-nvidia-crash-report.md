@@ -2,6 +2,7 @@
 
 Machine: woodwind (desktop)
 GPU: NVIDIA GeForce RTX 3090 (GA102, rev a1)
+Motherboard: ASUS ROG Maximus Z690 HERO (BIOS 1720, 2022-08-12) — **17 versions behind, latest is 4505 (2025-12-15)**
 OS: Ubuntu 22.04 (jammy), HWE kernel
 
 ---
@@ -99,23 +100,55 @@ These persist across reboots. Rebooted at ~15:37. Monitoring.
 
 **Success criteria:** 3+ days uptime (pre-crash baseline was 7-24 days).
 
-### If Test 2 fails — next steps
+### Test 2 result (2026-03-23)
 
-**Step 1: Disable ASPM in BIOS/UEFI**
+Kernel params helped (10.5 hours, longest since January) but **still crashed twice overnight**:
+- 15:37 → ~02:15 (10.5 hours)
+- 02:15 → ~06:33 (4.25 hours)
 
-Look for settings like:
-- "PEG 0/1 ASPM: Disabled"
-- "PCIe ASPM Support: Disabled"
-- "Native ASPM: Enabled" (lets OS control, combined with kernel `pcie_aspm=off`)
+### Next steps
 
-**Step 2: BIOS update**
+**Step 1: Update BIOS (highest priority)**
 
-The `PEG1.PEGP._DSM` ACPI error is a motherboard BIOS bug. Check for a newer BIOS version.
+Current BIOS **1720** is from Aug 2022 — 17 versions behind. Latest is **4505** (Dec 2025). The `PEG1.PEGP._DSM` ACPI bug is almost certainly fixed in newer ACPI tables. This board has known GPU issues reported by others (RTX 3090 performance problems, RTX 4090 black screens, broken ASPM).
 
-**Step 3: Physical checks (unlikely needed)**
+Update via ASUS EZ Flash:
+1. Download BIOS 4505 from [ASUS support page](https://www.asus.com/us/supportonly/rog%20maximus%20z690%20hero/helpdesk_bios/)
+2. Copy to USB drive (FAT32)
+3. Enter BIOS → Tool → ASUS EZ Flash 3 Utility
+4. Select the file and flash
+
+**Note:** BIOS 2004+ introduced rollback restrictions — once updated, you may not be able to downgrade. Back up current BIOS settings first.
+
+**Step 2: Disable ASPM in BIOS (do this during BIOS update)**
+
+Advanced Mode → Platform Misc Configuration:
+- **PEG - ASPM**: Disabled (this is the GPU slot — critical one)
+- **DMI Link ASPM Control**: Disabled
+- **DMI ASPM**: Disabled
+- **L1 Substates**: Disabled
+- **Native ASPM**: Disabled (prevents OS from controlling ASPM)
+
+**Step 3: Check recall status**
+
+This board has a [CPSC recall](https://www.cpsc.gov/Recalls/2022/ASUS-Computer-International-Recalls-ASUS-ROG-Maximus-Z690-Hero-Motherboards-Due-to-Fire-and-Burn-Hazards) for a reversed capacitor causing shorts/fire. Affected: part `90MB18E0-MVAAY0` with serials starting **MA**, **MB**, or **MC**. Probably not related to idle crashes (causes POST failures), but worth verifying.
+
+**Step 4: Physical checks (if BIOS update doesn't fix it)**
 
 - Reseat GPU and power connectors
 - Try a different PCIe slot if available
+
+### Online reports matching this issue
+
+- **ASUS Z690/Z790 boards specifically** have buggy ACPI `_DSM` tables for the GPU PCIe slot — confirmed by user who swapped to ASRock and errors disappeared
+- **RTX 3090 on Z690 HERO** — performance halved after BIOS update past 0811 (Tom's Hardware)
+- **RTX 4090 on Z690 HERO** — random black screens and freezing (ROG Forum)
+- **PCIe ASPM L0s confirmed broken** for NVIDIA GPUs on Intel platforms (NVIDIA Forums, multiple threads)
+- Sources:
+  - [Xid 79 crash at idle with ASPM L0s](https://forums.developer.nvidia.com/t/nvidia-driver-xid-79-gpu-crash-while-idling-if-aspm-l0s-is-enabled-in-uefi-bios-gpu-has-fallen-off-the-bus/314453)
+  - [GPU issue since Z690 Hero BIOS update](https://forums.tomshardware.com/threads/gpu-issue-since-z690-hero-bios-update-please-can-anyone-help-me.3757866/)
+  - [Z690 Hero black screens with RTX 4090](https://rog-forum.asus.com/t5/gaming-motherboards/z690-hero-random-but-consistent-black-screens-freezing-only-with/td-p/924789)
+  - [Persistent ACPI/_DSM GPU issues on ASUS boards](https://www.linux.org/threads/persistent-acpi-_dsm-gpu-power-and-freezing-issues.55289/)
 
 ---
 
@@ -138,3 +171,6 @@ The `PEG1.PEGP._DSM` ACPI error is a motherboard BIOS bug. Check for a newer BIO
 | 2026-03-22 | **Test: clock lock + PCIe runtime PM.** `nvidia-smi -lgc 210,210` + `echo on > .../power/control`. Neither persists across reboots. If stable 3+ days, make permanent and then back off one at a time to isolate. |
 | 2026-03-22 ~15:31 | Crashed after ~6.5 hours while actively watching YouTube. Clock lock + PCIe runtime PM not enough. Also crashed during active use, not just idle. |
 | 2026-03-22 15:37 | Applied kernel params: `pcie_aspm=off nvidia.NVreg_EnableGpuFirmware=0 nvidia.NVreg_DynamicPowerManagement=0x00` in GRUB. Rebooted. This is the fix that works for most people online. Persists across reboots. |
+| 2026-03-23 ~02:15 | Crashed after ~10.5 hours (longest since Jan, but still crashed). Kernel params alone not enough. |
+| 2026-03-23 ~06:33 | Crashed after ~4.25 hours. |
+| 2026-03-23 | Identified motherboard: ASUS ROG Maximus Z690 HERO, BIOS 1720 (Aug 2022) — 17 versions behind. Known GPU/ASPM issues on this board. BIOS update to 4505 is top priority next step. |
