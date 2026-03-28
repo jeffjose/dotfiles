@@ -174,3 +174,36 @@ This board has a [CPSC recall](https://www.cpsc.gov/Recalls/2022/ASUS-Computer-I
 | 2026-03-23 ~02:15 | Crashed after ~10.5 hours (longest since Jan, but still crashed). Kernel params alone not enough. |
 | 2026-03-23 ~06:33 | Crashed after ~4.25 hours. |
 | 2026-03-23 | Identified motherboard: ASUS ROG Maximus Z690 HERO, BIOS 1720 (Aug 2022) — 17 versions behind. Known GPU/ASPM issues on this board. BIOS update to 4505 is top priority next step. |
+| 2026-03-25 | Investigated whether BIOS update is a confirmed fix. **It is not.** No one has confirmed that a BIOS update fixes silent hard reboots on this board. One user reports RTX 3090 performance *halved* after updating past BIOS 0811. The ACPI `_DSM` errors are widely described as "usually ignorable." BIOS update carries risk (rollback restricted after 2004). |
+| 2026-03-28 | Status check: **14 crashes in 3 days** (Wed 25 → Sat 28). Average uptime 4.8 hours. No improvement. All kernel params still active (`pcie_aspm=off`, GSP off, DPM off). Driver 570.211.01. Still zero log traces before any crash — last entries are always mundane cron/DHCP. No BIOS changes made yet. |
+
+### Crash log (2026-03-25 to 2026-03-28)
+
+| Boot | Start | End | Uptime |
+|------|-------|-----|--------|
+| 1 | Wed 25 14:18 | Wed 25 21:50 | 7.5 hrs |
+| 2 | Wed 25 21:51 | Thu 26 02:27 | 4.6 hrs |
+| 3 | Thu 26 02:29 | Thu 26 05:31 | 3.0 hrs |
+| 4 | Thu 26 05:33 | Thu 26 09:12 | 3.6 hrs |
+| 5 | Thu 26 09:13 | Thu 26 14:05 | 4.9 hrs |
+| 6 | Thu 26 14:07 | Thu 26 16:30 | 2.4 hrs |
+| 7 | Thu 26 16:31 | Fri 27 02:50 | 10.3 hrs |
+| 8 | Fri 27 02:51 | Fri 27 06:24 | 3.5 hrs |
+| 9 | Fri 27 06:27 | Fri 27 10:38 | 4.2 hrs |
+| 10 | Fri 27 10:40 | Fri 27 12:09 | 1.5 hrs |
+| 11 | Fri 27 12:10 | Fri 27 18:28 | 6.3 hrs |
+| 12 | Fri 27 18:29 | Sat 28 01:53 | 7.4 hrs |
+| 13 | Sat 28 01:54 | Sat 28 04:52 | 3.0 hrs |
+| 14 | Sat 28 04:53 | Sat 28 08:57 | 4.1 hrs |
+
+### Current status (2026-03-28)
+
+**Nothing has worked.** Kernel params, driver downgrade, clock locking, PCIe runtime PM — all tried, all failed. Crashes continue every 3-10 hours with no log trace.
+
+**Remaining options (in order of least-to-most disruptive):**
+1. Disable ASPM in BIOS settings (no flash needed) — check for PCI Express Native Power Management setting
+2. Run memtest86+ — silent hard resets with zero log trace can be bad RAM
+3. Check PSU — RTX 3090 draws 350W peak, transient power spikes cause instant resets
+4. BIOS update to 4505 — risky (rollback restricted), unconfirmed fix, but 17 versions behind
+5. Reseat GPU and power connectors
+6. Try GPU in a different PCIe slot or different machine to isolate
