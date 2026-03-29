@@ -177,6 +177,9 @@ This board has a [CPSC recall](https://www.cpsc.gov/Recalls/2022/ASUS-Computer-I
 | 2026-03-25 | Investigated whether BIOS update is a confirmed fix. **It is not.** No one has confirmed that a BIOS update fixes silent hard reboots on this board. One user reports RTX 3090 performance *halved* after updating past BIOS 0811. The ACPI `_DSM` errors are widely described as "usually ignorable." BIOS update carries risk (rollback restricted after 2004). |
 | 2026-03-28 | Status check: **14 crashes in 3 days** (Wed 25 → Sat 28). Average uptime 4.8 hours. No improvement. All kernel params still active (`pcie_aspm=off`, GSP off, DPM off). Driver 570.211.01. Still zero log traces before any crash — last entries are always mundane cron/DHCP. No BIOS changes made yet. |
 | 2026-03-28 | **memtest86+ v6.10: PASSED.** 13 passes, 0 errors, 10+ hours, CPU 44/49°C. System did NOT crash during memtest. This is critical: 10 hours of heavy CPU+RAM stress with no crash, while Linux crashes every 4.8 hours. **Rules out RAM, CPU, and PSU.** The crash only happens when Linux + NVIDIA driver are loaded. |
+| 2026-03-25 06:56 | `systemd` and `udev` auto-upgraded (249.11-0ubuntu3.17 → 249.11-0ubuntu3.19) via unattended-upgrades. udev manages device power management including PCIe. Did not immediately stop crashes (14 more crashes after this). |
+| 2026-03-27 06:20 | `bind9` libs upgraded (irrelevant). |
+| 2026-03-29 | **Uptime 12h 49m and counting** — longest since January. No changes made in BIOS. No new driver/kernel changes. Only difference: system was fully power-cycled through memtest (which doesn't load NVIDIA drivers) before this boot. The udev upgrade from Mar 25 is the only potentially relevant software change, though it didn't help immediately. Could be coincidence — prior longest session was 10.3 hrs. Monitoring. |
 
 ### Crash log (2026-03-25 to 2026-03-28)
 
