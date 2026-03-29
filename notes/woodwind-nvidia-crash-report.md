@@ -176,6 +176,7 @@ This board has a [CPSC recall](https://www.cpsc.gov/Recalls/2022/ASUS-Computer-I
 | 2026-03-23 | Identified motherboard: ASUS ROG Maximus Z690 HERO, BIOS 1720 (Aug 2022) — 17 versions behind. Known GPU/ASPM issues on this board. BIOS update to 4505 is top priority next step. |
 | 2026-03-25 | Investigated whether BIOS update is a confirmed fix. **It is not.** No one has confirmed that a BIOS update fixes silent hard reboots on this board. One user reports RTX 3090 performance *halved* after updating past BIOS 0811. The ACPI `_DSM` errors are widely described as "usually ignorable." BIOS update carries risk (rollback restricted after 2004). |
 | 2026-03-28 | Status check: **14 crashes in 3 days** (Wed 25 → Sat 28). Average uptime 4.8 hours. No improvement. All kernel params still active (`pcie_aspm=off`, GSP off, DPM off). Driver 570.211.01. Still zero log traces before any crash — last entries are always mundane cron/DHCP. No BIOS changes made yet. |
+| 2026-03-28 | **memtest86+ v6.10: PASSED.** 13 passes, 0 errors, 10+ hours, CPU 44/49°C. System did NOT crash during memtest. This is critical: 10 hours of heavy CPU+RAM stress with no crash, while Linux crashes every 4.8 hours. **Rules out RAM, CPU, and PSU.** The crash only happens when Linux + NVIDIA driver are loaded. |
 
 ### Crash log (2026-03-25 to 2026-03-28)
 
@@ -198,12 +199,28 @@ This board has a [CPSC recall](https://www.cpsc.gov/Recalls/2022/ASUS-Computer-I
 
 ### Current status (2026-03-28)
 
-**Nothing has worked.** Kernel params, driver downgrade, clock locking, PCIe runtime PM — all tried, all failed. Crashes continue every 3-10 hours with no log trace.
+**Nothing has worked so far.** Kernel params, driver downgrade (570), clock locking, PCIe runtime PM — all tried, all failed. Crashes continue every 3-10 hours with no log trace.
 
-**Remaining options (in order of least-to-most disruptive):**
-1. Disable ASPM in BIOS settings (no flash needed) — check for PCI Express Native Power Management setting
-2. Run memtest86+ — silent hard resets with zero log trace can be bad RAM
-3. Check PSU — RTX 3090 draws 350W peak, transient power spikes cause instant resets
-4. BIOS update to 4505 — risky (rollback restricted), unconfirmed fix, but 17 versions behind
-5. Reseat GPU and power connectors
-6. Try GPU in a different PCIe slot or different machine to isolate
+**memtest86+ passed (10 hrs, 0 errors, no crash).** This is the most important data point yet:
+- Hardware is fine: RAM, CPU, PSU all survived 10+ hours of heavy stress
+- The crash **only happens when Linux + NVIDIA driver are loaded**
+- This is definitively a software/firmware issue, not hardware
+
+**What we know now:**
+- Not RAM (memtest passed)
+- Not CPU (memtest passed)
+- Not PSU (memtest stresses power delivery, no crash)
+- Not thermal (temps always normal)
+- Not driver-specific (crashes on both 580.126.09 and 570.211.01)
+- Not kernel-specific (crashes on 6.8.0-90, -101, and -106)
+- `pcie_aspm=off` + GSP off + DPM off not enough
+- Clock locking + PCIe runtime PM not enough
+- Crashes at idle AND during light use (YouTube)
+- Zero log trace before any crash
+
+**Remaining options (narrowed):**
+1. **Disable ASPM in BIOS** (no flash needed) — kernel param `pcie_aspm=off` may not override firmware-level ASPM. Check Advanced → Platform Misc Config for PEG-ASPM, Native ASPM, L1 Substates
+2. **BIOS update to 4505** — the ACPI `_DSM` bug on PEG1.PEGP may be causing the crash even with ASPM "off". 17 versions behind. Risky (rollback restricted after 2004) but increasingly likely to be the fix
+3. **Try nouveau driver** — if the crash stops with nouveau, confirms it's the proprietary NVIDIA kernel module
+4. **Try nomodeset / headless boot** — boot without GPU driver to confirm stability
+5. **Reseat GPU and power connectors** — cheap to try, unlikely to help given memtest passed
