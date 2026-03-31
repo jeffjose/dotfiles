@@ -20,7 +20,7 @@ yt-dlp = "latest"
 "go:github.com/junegunn/fzf" = "latest"
 "go:github.com/antonmedv/watch" = "latest"
 "go:github.com/monasticacademy/httptap" = "latest"
-"go:github.com/charmbracelet/crush" = "latest"
+#"go:github.com/charmbracelet/crush" = "latest"
 
 # File finding utilities
 "cargo:fd-find" = "latest"
