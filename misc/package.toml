@@ -1,7 +1,7 @@
-[[packages]]
-name = "antigravity"
-url = "https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev"
-distribution = "antigravity-debian"
+#[[packages]]
+#name = "antigravity"
+#url = "https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev"
+#distribution = "antigravity-debian"
 
 [[packages]]
 name = "google-chrome-stable"
