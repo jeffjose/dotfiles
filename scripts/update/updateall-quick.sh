@@ -12,6 +12,7 @@ UPDATE_SCRIPTS=(
   #"update_cursor.sh"
   "update_mise.sh"
   "update_deb.sh"
+  "update_claude_desktop.sh"
   #"update_rust.sh"  # Currently disabled
 )
 
@@ -26,6 +27,7 @@ declare -A VERSION_COMMANDS=(
   ["update_cursor.sh"]="md5sum \$HOME/bin/cursor | cut -d' ' -f1"
   ["update_mise.sh"]="mise --version"
   ["update_deb.sh"]="echo 'n/a'"
+  ["update_claude_desktop.sh"]="cat \$HOME/bin/.claude-desktop.tag 2>/dev/null || echo 'not installed'"
 )
 
 # Get version for a specific application
