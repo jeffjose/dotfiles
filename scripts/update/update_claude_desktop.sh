@@ -83,6 +83,16 @@ confirm() {
 
 echo "🔄 Checking for Claude Desktop updates..."
 
+# Get current version
+echo -n "Current version: "
+if [ -f "$TAG_FILE" ]; then
+  cat "$TAG_FILE"
+else
+  echo "not installed"
+fi
+
+echo "🔍 Checking for new version..."
+
 # Fetch latest release metadata FIRST — no point prompting if there's nothing to do.
 RELEASE_JSON=$(curl -sL "$API_URL")
 TAG_NAME=$(echo "$RELEASE_JSON" | grep '"tag_name"' | head -n1 | cut -d'"' -f4)
@@ -140,8 +150,16 @@ if ! curl -L --fail -o "$TMP" "$DOWNLOAD_URL"; then
 fi
 
 # Install
-mv "$TMP" "$DEST"
+echo "📦 Installing Claude Desktop..."
+if ! mv "$TMP" "$DEST"; then
+  echo "Error: Failed to install Claude Desktop"
+  exit 1
+fi
 chmod +x "$DEST"
 echo "$TAG_NAME" >"$TAG_FILE"
 
-echo "✅ Claude Desktop installed at $DEST ($TAG_NAME)"
+# Verify installation
+echo -n "Updated version: "
+cat "$TAG_FILE"
+
+echo "✅ Claude Desktop update complete!"
