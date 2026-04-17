@@ -75,6 +75,7 @@
 
     alias rfiles ~/dotfiles/scripts/utils/rfiles.sh
     alias up ~/dotfiles/scripts/update/update_mise.sh
+    alias appimage ~/dotfiles/scripts/utils/appimage.sh
 
     # Remove a ppa and all associated packages.
     alias removeppa 'sudo ppa-purge \!*'
