@@ -11,6 +11,7 @@ npm = "latest"
 uv = "latest"
 zig = "0.14.0"
 yt-dlp = "latest"
+aube = "latest"
 
 # JSON utilities
 "go:github.com/tomnomnom/gron" = "latest"
