@@ -138,6 +138,46 @@ This board has a [CPSC recall](https://www.cpsc.gov/Recalls/2022/ASUS-Computer-I
 - Reseat GPU and power connectors
 - Try a different PCIe slot if available
 
+### 2026-04-25: One month later — no progress
+
+Four weeks since last test. Pattern is unchanged.
+
+**State of the machine (this morning):**
+- Kernel: **6.8.0-110** (auto-upgraded from -106 since last entry; did not help)
+- Driver: 570.211.01 (still pinned via `/etc/apt/preferences.d/nvidia-pin`)
+- BIOS: **still 1720** (Aug 2022) — never updated
+- Kernel params: still `pcie_aspm=off nvidia.NVreg_EnableGpuFirmware=0 nvidia.NVreg_DynamicPowerManagement=0x00`
+- Stale `nvidia-firmware-580` packages (580.95.05, 580.126.09) **still installed** (low priority but not cleaned up since 2026-03-22)
+
+**Crash cadence (last 5 days):**
+
+| Day | Reboots | Avg uptime |
+|-----|---------|-----------|
+| Apr 21 | 5 | 3.6 hrs |
+| Apr 22 | 7 | 3.4 hrs |
+| Apr 23 | 5 | 4.4 hrs |
+| Apr 24 | 5 | 4.6 hrs |
+| Apr 25 (to 11:20) | 5 | 2.5 hrs |
+
+**25 unclean reboots in 5 days. Avg ~3.7 hrs uptime.** No `shutdown` records in this window — every reboot is a silent hard reset. (Total wtmp: 224 reboots all-time, only **5 clean shutdowns ever** — last clean shutdown was 2026-03-28.)
+
+**No new log signatures.** The PEG1.PEGP `_DSM.USRG` ACPI error still fires at every boot — same wording, same offset:
+```
+ACPI BIOS Error (bug): Failure creating named object [\_SB.PC00.PEG1.PEGP._DSM.USRG], AE_ALREADY_EXISTS
+ACPI Error: Aborting method \_SB.PC00.PEG1.PEGP._DSM due to previous error
+```
+Crashes still leave zero trace before reset.
+
+**What this rules in:** Everything software-side has been ruled out. The only un-tried levers are firmware/physical:
+1. Disable ASPM in BIOS firmware itself (kernel `pcie_aspm=off` is a hint, not a guarantee against firmware-controlled ASPM). **Free, reversible, no flash.**
+2. BIOS update 1720 → 4505 (17 versions of fixes; the smoking gun is still in dmesg).
+3. Diagnostic: boot once on `nouveau` to confirm whether the proprietary NVIDIA kmod is the actual trigger vs. raw BIOS/ACPI.
+4. Reseat GPU / try alternate PCIe slot.
+
+Order of operations: (1) → (3) for free data → (2) if still crashing.
+
+---
+
 ### Online reports matching this issue
 
 - **ASUS Z690/Z790 boards specifically** have buggy ACPI `_DSM` tables for the GPU PCIe slot — confirmed by user who swapped to ASRock and errors disappeared
@@ -180,6 +220,9 @@ This board has a [CPSC recall](https://www.cpsc.gov/Recalls/2022/ASUS-Computer-I
 | 2026-03-25 06:56 | `systemd` and `udev` auto-upgraded (249.11-0ubuntu3.17 → 249.11-0ubuntu3.19) via unattended-upgrades. udev manages device power management including PCIe. Did not immediately stop crashes (14 more crashes after this). |
 | 2026-03-27 06:20 | `bind9` libs upgraded (irrelevant). |
 | 2026-03-29 | **Uptime 12h 49m and counting** — longest since January. No changes made in BIOS. No new driver/kernel changes. Only difference: system was fully power-cycled through memtest (which doesn't load NVIDIA drivers) before this boot. The udev upgrade from Mar 25 is the only potentially relevant software change, though it didn't help immediately. Could be coincidence — prior longest session was 10.3 hrs. Monitoring. |
+| ~2026-04 | Kernel auto-upgraded 6.8.0-106 → 6.8.0-110 via unattended-upgrades. No help. |
+| 2026-04-21 to 04-25 | **25 unclean reboots in 5 days**, avg ~3.7 hr uptime. Pattern unchanged from March. No clean shutdowns. PEG1.PEGP `_DSM.USRG` ACPI error still firing at every boot. No log trace before any crash. |
+| 2026-04-25 | Status check appended to report. No physical/firmware changes made yet. BIOS still 1720, kernel params unchanged, driver 570.211.01. Stale nvidia-firmware-580 packages still installed. Recommended next step: disable ASPM in BIOS UI (free, reversible) before considering BIOS flash. |
 
 ### Crash log (2026-03-25 to 2026-03-28)
 
@@ -199,6 +242,15 @@ This board has a [CPSC recall](https://www.cpsc.gov/Recalls/2022/ASUS-Computer-I
 | 12 | Fri 27 18:29 | Sat 28 01:53 | 7.4 hrs |
 | 13 | Sat 28 01:54 | Sat 28 04:52 | 3.0 hrs |
 | 14 | Sat 28 04:53 | Sat 28 08:57 | 4.1 hrs |
+
+### Current status (2026-04-25)
+
+**Same problem, four weeks later.** No physical/firmware changes were attempted. Kernel auto-upgraded from -106 to -110 via unattended-upgrades; that did nothing.
+
+- 25 silent hard resets in the last 5 days. Avg uptime ~3.7 hrs.
+- Last clean shutdown: 2026-03-28.
+- ACPI `_DSM.USRG` error on PEG1.PEGP still fires at every boot.
+- Out of software-side moves. The remaining levers are all firmware/physical (BIOS ASPM toggle, BIOS flash 1720→4505, nouveau diagnostic, GPU reseat/slot swap).
 
 ### Current status (2026-03-28)
 
