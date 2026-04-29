@@ -2,7 +2,7 @@
 go = "latest"
 java = "latest"
 node = "24.14.1"
-pnpm = "latest"
+"npm:pnpm" = "latest"
 python = "latest"
 yarn = "latest"
 rust = "latest"
