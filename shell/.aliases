@@ -41,7 +41,7 @@
     alias xk 'pkill xfce4-screen'
     alias xk 'pkill light-locker'
 
-    alias m 'rm -rf $HOME/.local/share/mise/shims; mise reshim; mise install; mise reshim; where pnpm'
+    alias m 'rm -rf $HOME/.local/share/mise/shims; mise reshim; mise install; mise reshim; where pnpm; pnpm --version >& /dev/null && echo "Shims verified" || echo "Shims broken — pnpm not resolving"'
     alias mup 'mise upgrade; m'
 
     alias grep grep -iE --color=always
