@@ -60,6 +60,12 @@ if ( ! $?prompt ) exit
     setenv PYENVPATH            $HOME/.pyenv
     setenv MISEPATH             $HOME/.local/share/mise/shims
 
+    # mise's npm: backend shells out to npm install. These force scripts to run
+    # and stop omit=optional from skipping platform-native deps — required for
+    # @anthropic-ai/claude-code, sass, and similar packages to install cleanly.
+    setenv npm_config_ignore_scripts false
+    setenv npm_config_omit ''
+
     setenv PNPM_HOME            $HOME/.pnpm
     setenv ANDROID_HOME         $HOME/Android/Sdk
     setenv ANDROID_NDK_HOME     $HOME/Android/Ndk

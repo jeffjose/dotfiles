@@ -4,6 +4,12 @@
 
 set -euo pipefail
 
+# Force npm to run postinstall scripts and pull platform-native optional deps
+# even if ~/.npmrc disables them (e.g. corporate hardening). Without this, mise's
+# npm: backend silently produces broken installs of @anthropic-ai/claude-code etc.
+export npm_config_ignore_scripts=false
+export npm_config_omit=
+
 # Update dotfiles first
 echo "Updating dotfiles..."
 cd ~/dotfiles
@@ -59,5 +65,8 @@ if ! $shim_fixed; then
   echo "Failed to fix pnpm shim after 5 attempts." >&2
   exit 1
 fi
+
+# Self-heal claude-code if its native binary is missing (see script header).
+"$HOME/dotfiles/scripts/install/fix-mise-claude-code.sh"
 
 exit 0
