@@ -20,12 +20,17 @@ export npm_config_ignore_scripts=false
 export npm_config_omit=
 
 claude_works() {
-  command -v claude >/dev/null 2>&1 && claude --version >/dev/null 2>&1
+  local cmd="${1:-claude}"
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    return 1
+  fi
+  # Verify it's actually working and not the stub
+  "$cmd" --version >/dev/null 2>&1
 }
 
 run_postinstall_in() {
   local dir="$1" cjs
-  cjs="$(find "$dir" -name install.cjs -path '*/@anthropic-ai/claude-code/install.cjs' 2>/dev/null | head -n 1)"
+  cjs="$(find -L "$dir" -name install.cjs -path '*/@anthropic-ai/claude-code/install.cjs' 2>/dev/null | head -n 1)"
   if [[ -z "$cjs" ]]; then
     return 1
   fi
@@ -33,14 +38,20 @@ run_postinstall_in() {
   node "$cjs"
 }
 
-if claude_works; then
-  echo "✓ claude already works"
+# Check if the primary mise-installed version works
+install_dir="$(mise where 'npm:@anthropic-ai/claude-code' 2>/dev/null || true)"
+claude_bin="claude"
+if [[ -n "$install_dir" ]]; then
+  claude_bin="$install_dir/bin/claude"
+fi
+
+if claude_works "$claude_bin"; then
+  echo "✓ claude already works ($claude_bin)"
   exit 0
 fi
 
-install_dir="$(mise where 'npm:@anthropic-ai/claude-code' 2>/dev/null || true)"
 if [[ -n "$install_dir" && -d "$install_dir" ]]; then
-  if run_postinstall_in "$install_dir" && claude_works; then
+  if run_postinstall_in "$install_dir" && claude_works "$claude_bin"; then
     echo "✓ claude fixed via postinstall"
     exit 0
   fi
@@ -51,12 +62,16 @@ mise uninstall 'npm:@anthropic-ai/claude-code' >/dev/null 2>&1 || true
 mise install
 mise reshim
 
+# Re-check install_dir after reinstall
 install_dir="$(mise where 'npm:@anthropic-ai/claude-code' 2>/dev/null || true)"
-if [[ -n "$install_dir" && -d "$install_dir" ]]; then
-  run_postinstall_in "$install_dir" || true
+if [[ -n "$install_dir" ]]; then
+  claude_bin="$install_dir/bin/claude"
+  if [[ -d "$install_dir" ]]; then
+    run_postinstall_in "$install_dir" || true
+  fi
 fi
 
-if claude_works; then
+if claude_works "$claude_bin"; then
   echo "✓ claude fixed via reinstall"
   exit 0
 fi
