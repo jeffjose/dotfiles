@@ -38,8 +38,7 @@
     alias ffprobe ffprobe -hide_banner
 
     alias x 'echo "Running ~/.xsession .."; ~/.xsession'
-    alias xk 'pkill xfce4-screen'
-    alias xk 'pkill light-locker'
+    alias xk 'pkill xfce4-screen; pkill light-locker'
 
     alias m 'rm -rf $HOME/.local/share/mise/shims; mise reshim; mise install; mise reshim; ~/dotfiles/scripts/install/fix-mise-claude-code.sh; where pnpm; pnpm --version >& /dev/null && echo "Shims verified" || echo "Shims broken — pnpm not resolving"'
     alias mup 'mise upgrade; m'
@@ -600,7 +599,7 @@
     alias v 'git commit -m "Version update" -n; git pull && git push'
 
     alias wgup 'sudo wg-quick up'
-    alias wgdown 'sudo wg-quick up'
+    alias wgdown 'sudo wg-quick down'
 
     alias wt 'sudo wg show wg0 >& /dev/null && (echo "Bringing wg0 down..."; sudo wg-quick down wg0) || (echo "Bringing wg0 up..."; sudo wg-quick up wg0)'
 
@@ -615,8 +614,8 @@
 
     alias claude 'claude --dangerously-skip-permissions'
 
-    alias opus 'claude --model "opus[1m]"'
-    alias sonnet 'claude --model "sonnet[1m]"'
+    alias opus 'claude --model opus'
+    alias sonnet 'claude --model sonnet'
     alias flash 'gemini --model gemini-3-flash-preview'
     alias pro 'gemini --model gemini-3-pro-preview'
 
