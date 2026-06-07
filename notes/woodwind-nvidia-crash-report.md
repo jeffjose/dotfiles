@@ -178,6 +178,107 @@ Order of operations: (1) → (3) for free data → (2) if still crashing.
 
 ---
 
+## 2026-06-06: ASPM conclusively ruled out — live diagnostics
+
+Six weeks later. Still crashing, **now worse**. Live diagnostics finally answer the open question from 04-25 step 1 ("is `pcie_aspm=off` actually being honored?"). It is — and ASPM is not the cause.
+
+**State of the machine:**
+- Kernel: **6.8.0-124** (auto-upgraded from -110; no help)
+- Driver: 570.211.01 (still pinned)
+- BIOS: **still 1720** (Aug 2022) — never updated
+- Kernel params: unchanged (`pcie_aspm=off nvidia.NVreg_EnableGpuFirmware=0 nvidia.NVreg_DynamicPowerManagement=0x00`)
+
+**Crash cadence (from `last reboot`):**
+- Jun 6: ~9 hard resets (17:20, 14:49, 10:28, 07:54, 06:24, 04:55, 03:41, 02:04, 00:15) — intervals ~1.5–2.5 hr
+- Jun 5: 6+ resets (21:39, 15:40, 12:08, 09:41, 06:43, 04:28)
+- **Zero clean shutdowns since wtmp begins (May 17).** Avg uptime now ~1.5–2.5 hr — *worse* than the ~3.7 hr seen in April.
+
+**ASPM is genuinely OFF — ruled out as the cause.** `sudo lspci -vv`:
+```
+# GPU endpoint 0000:01:00.0
+LnkCap:    ... ASPM L0s L1, Exit Latency L0s <512ns, L1 <16us
+LnkCtl:    ASPM Disabled; RCB 64 bytes, CommClk+
+L1SubCtl1: PCI-PM_L1.2- PCI-PM_L1.1- ASPM_L1.2- ASPM_L1.1-   # all L1 substates off
+# upstream root port 0000:00:01.0
+LnkCap:    ... ASPM not supported
+LnkCtl:    ASPM Disabled
+```
+The endpoint has ASPM disabled, all L1 substates disabled, AND the upstream root port reports **"ASPM not supported"** — the link physically cannot enter ASPM. Link is healthy (16GT/s x16, no degradation). **This kills the entire ASPM / "GPU fell off the bus due to L0s/L1" working theory that drove 03-21 through 04-25.** The kernel param was being honored all along; it never mattered.
+
+Corollary: the 04-25 "step 1" (disable PEG/per-slot ASPM in BIOS) is now **pointless** — ASPM is already off at every level. Don't waste a reboot on it.
+
+**The `_DSM` ACPI bug is still firing this boot** (and is NOT ASPM — it's the GPU slot's power-management method, i.e. RTD3/GC6 runtime power transitions):
+```
+[ 9.525810] ACPI Warning: \_SB.PC00.PEG1.PEGP._DSM: Argument #4 type mismatch - Found [Buffer], ACPI requires [Package]
+[ 9.722052] ACPI BIOS Error (bug): Failure creating named object [\_SB.PC00.PEG1.PEGP._DSM.USRG], AE_ALREADY_EXISTS
+[ 9.722071] ACPI Error: Aborting method \_SB.PC00.PEG1.PEGP._DSM due to previous error
+```
+GPU `power/runtime_status = active`, `power/control = auto`.
+
+**Revised conclusion.** With ASPM off and still crashing, the remaining firmware suspect is the broken `_DSM` method (governs GPU runtime power-down/resume). A broken `_DSM` mishandling a GPU power transition is fully consistent with "GPU drops silently, hard reset, zero log trace." Only a BIOS update can fix a broken `_DSM` — so the **BIOS flash 1720 → 4505 is now the #1 lever**, not #3.
+
+**Revised order of operations:**
+1. **BIOS flash 1720 → 4505** — only thing that can fix the `_DSM` ACPI bug. (Caveats: 4505 has mixed stability reports online; rollback locked after BIOS 2004 — back up settings first.)
+2. **nouveau diagnostic boot** — one boot on the open driver. If it stays up, confirms the proprietary kmod's power handling (interacting with the broken `_DSM`) is the trigger. Free, high-information.
+3. **Force GPU runtime PM off persistently** — udev rule writing `power/control = on` (tried manually 03-22, never persisted).
+4. ~~Disable PEG/ASPM in BIOS~~ — dropped; ASPM already confirmed off at every level.
+
+**New online findings (June 2026 search):**
+- **No public fix exists.** Still an open, unsolved class of bug across all 2026 NVIDIA branches (570, 580.119, 580.142, 590.x, 595.x). Driver **595 on Ubuntu 26.04 (May 2026) crashes identically** with Xid 79 on an ASUS board — confirming a newer driver is NOT the answer. Staying pinned on 570 is fine.
+- ASUS ROG forum thread *"No Native ASPM support on Asus Z690 Maximus Hero"*: on this exact board "Native ASPM" set to Enable silently reverts to Auto. (Less relevant now that ASPM is confirmed off anyway, but documents the board's flaky ASPM firmware.)
+- BIOS 4505 has mixed reports — some stable, some report instability/game crashes on sibling Z690/Z790 boards and reverted. Update with eyes open.
+- Sources:
+  - [GPU fallen off bus, Ubuntu 26.04, driver 595, ASUS (May 2026)](https://forums.developer.nvidia.com/t/gpu-has-fallen-off-the-bus-within-minutes-of-boot-ubuntu-26-04-595-driver-asus-prime-5070/369604)
+  - [Xid 79 during Firefox WebRTC, RTX 3090, 580.142 (Mar 2026)](https://forums.developer.nvidia.com/t/xid-79-gpu-falls-off-bus-during-firefox-webrtc-webcam-session-rtx-3090-580-142-kde-wayland/364961)
+  - [No Native ASPM support on Asus Z690 Maximus Hero — ROG Forum](https://rog-forum.asus.com/t5/intel-700-600-series/no-native-aspm-support-on-asus-z690-maximus-hero/td-p/1111024)
+  - [BIOS 4505 Z690 Hero — mixed stability reports](https://rog-forum.asus.com/t5/intel-700-600-series/bios-4505-z690-hero/td-p/1130489)
+
+### Procedures (ready to run — NOT yet done as of 2026-06-06)
+
+Safest → riskiest. Do in order; each is reversible except the BIOS flash.
+
+**Procedure A — Force GPU runtime PM off (udev rule). Zero risk, pure software.**
+
+Targets the now-prime suspect: `power/control=auto` lets the kernel runtime-suspend the GPU through the broken `_DSM` path. Pin it `on` so it persists across reboots (manual `echo on` never stuck before).
+```sh
+echo 'ACTION=="add", SUBSYSTEM=="pci", DRIVER=="nvidia", ATTR{power/control}="on"' \
+  | sudo tee /etc/udev/rules.d/80-nvidia-no-runtime-pm.rules
+sudo reboot
+# verify after reboot:
+cat /sys/bus/pci/devices/0000:01:00.0/power/control   # should now read: on
+```
+Revert: `sudo rm /etc/udev/rules.d/80-nvidia-no-runtime-pm.rules && sudo reboot`
+Success criteria: 3+ days uptime.
+
+**Procedure B — nouveau diagnostic boot. Zero brick risk, fully reversible.**
+
+One data point: does the machine stop hard-resetting on the open driver? If yes → cause is the proprietary kmod + `_DSM` interaction, and the BIOS flash is justified. (nouveau on Ampere is slow/rough — diagnostic only.)
+```sh
+# 1. blacklist the proprietary driver
+printf 'blacklist nvidia\nblacklist nvidia_drm\nblacklist nvidia_modeset\nblacklist nvidia_uvm\n' \
+  | sudo tee /etc/modprobe.d/blacklist-nvidia.conf
+# 2. un-blacklist nouveau (Ubuntu's nvidia packages disable it)
+grep -rl nouveau /etc/modprobe.d/ /lib/modprobe.d/ 2>/dev/null   # find the file(s) that blacklist nouveau
+#    edit each hit and comment out the "blacklist nouveau" / "options nouveau modeset=0" line
+# 3. remove nvidia-drm.modeset / nvidia params from GRUB if present, then:
+sudo update-initramfs -u
+sudo update-grub
+sudo reboot
+glxinfo | grep -i "opengl renderer"   # confirm it says "NV..." / nouveau, not NVIDIA
+```
+Revert: `sudo rm /etc/modprobe.d/blacklist-nvidia.conf`, restore the nouveau-blacklist line(s), `sudo update-initramfs -u && sudo reboot`. Worst case (black screen): boot the previous kernel / recovery mode and revert — nothing was written to firmware.
+
+**Procedure C — BIOS flash 1720 → 4505. LAST RESORT. Small but real brick risk; one-way (rollback locked after 2004).**
+
+Only firmware fix for the broken `_DSM`. Use **BIOS FlashBack** (rear-I/O button) — safest method, doesn't depend on a successful boot, very brick-resistant. Do NOT use EZ Flash if FlashBack is available.
+1. Back up current BIOS settings / note XMP + key values first.
+2. Download BIOS 4505 from the [ASUS support page](https://www.asus.com/us/supportonly/rog%20maximus%20z690%20hero/helpdesk_bios/).
+3. Rename per ASUS FlashBack instructions (BIOSRenamer tool / `M16H.CAP`), put on a FAT32 USB stick.
+4. Insert into the dedicated FlashBack USB port, press the FlashBack button, wait for the LED to finish blinking. **Do not cut power.** Use a UPS if available.
+Caveat: 4505 has mixed stability reports on sibling Z690/Z790 boards; one report of RTX 3090 perf halved past BIOS 0811. Update with eyes open.
+
+---
+
 ### Online reports matching this issue
 
 - **ASUS Z690/Z790 boards specifically** have buggy ACPI `_DSM` tables for the GPU PCIe slot — confirmed by user who swapped to ASRock and errors disappeared
@@ -223,6 +324,9 @@ Order of operations: (1) → (3) for free data → (2) if still crashing.
 | ~2026-04 | Kernel auto-upgraded 6.8.0-106 → 6.8.0-110 via unattended-upgrades. No help. |
 | 2026-04-21 to 04-25 | **25 unclean reboots in 5 days**, avg ~3.7 hr uptime. Pattern unchanged from March. No clean shutdowns. PEG1.PEGP `_DSM.USRG` ACPI error still firing at every boot. No log trace before any crash. |
 | 2026-04-25 | Status check appended to report. No physical/firmware changes made yet. BIOS still 1720, kernel params unchanged, driver 570.211.01. Stale nvidia-firmware-580 packages still installed. Recommended next step: disable ASPM in BIOS UI (free, reversible) before considering BIOS flash. |
+| ~2026-05 | Kernel auto-upgraded 6.8.0-110 → 6.8.0-124 via unattended-upgrades. No help. |
+| 2026-06-05/06 | **~15 hard resets over 2 days**, avg uptime ~1.5–2.5 hr — worse than April. Zero clean shutdowns since wtmp begins (May 17). |
+| 2026-06-06 | **ASPM conclusively ruled out via live `lspci -vv`.** GPU endpoint `ASPM Disabled` + all L1 substates off; upstream root port `00:01.0` reports `ASPM not supported`. `pcie_aspm=off` was honored all along — ASPM never mattered. Kills the 03-21→04-25 ASPM theory. `_DSM` ACPI error still fires this boot. GPU `runtime_status=active`, `power/control=auto`. **Revised: BIOS flash 1720→4505 now #1 lever** (only fix for broken `_DSM`); BIOS ASPM toggle dropped as redundant. Online: no public fix; driver 595 (May 2026) still crashes identically — newer driver not the answer. |
 
 ### Crash log (2026-03-25 to 2026-03-28)
 
