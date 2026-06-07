@@ -1,0 +1,25 @@
+[Unit]
+Description=Claude Code Remote Control
+Documentation=https://code.claude.com/docs/en/remote-control
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h
+Environment=HOME=%h
+Environment=PATH=%h/.cargo/bin:%h/.local/bin:%h/.local/share/mise/shims:/usr/local/bin:/usr/bin:/bin
+# remote-control prompts "Enable Remote Control? (y/n)" once on startup; feed it a "y".
+# `claude` is resolved via PATH above (mise shim, ~/.local/bin, or /usr/local/bin),
+# so this works regardless of how Claude Code was installed.
+ExecStart=/bin/sh -c 'printf "y\n" | claude remote-control'
+# The live status UI repaints every second; drop stdout so it doesn't flood journald.
+# Real errors go to stderr -> journal.
+StandardOutput=null
+StandardError=journal
+Restart=always
+RestartSec=10
+TimeoutStopSec=20
+
+[Install]
+WantedBy=default.target
