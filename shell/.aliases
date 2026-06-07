@@ -637,6 +637,8 @@
     # Explore SQLite database with NocoDB (auto-creates account and base)
     alias sqlexplore '~/dotfiles/bin/sqlexplore \!*'
 
+    alias stripaud '~/scripts/stripaud/stripaud'
+
     # Google
     #
     #
