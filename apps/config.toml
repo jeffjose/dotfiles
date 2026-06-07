@@ -49,7 +49,7 @@ yt-dlp = "latest"
 "cargo:hyperfine" = "latest"
 "cargo:lla" = "latest"
 "cargo:rustic-rs" = "latest"
-"cargo:tuc" = "1.2.0"
+"cargo:tuc" = "latest"
 "cargo:somo" = "latest"
 
 # GitHub repositories
