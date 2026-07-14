@@ -61,6 +61,7 @@ is_corp_host() {
 # Default is what we *think* is right; user can override.
 confirm() {
   local prompt="$1" default="$2" reply
+  local timeout=10
   local hint
   if [ "$default" = "y" ]; then
     hint="[Y/n]"
@@ -73,7 +74,12 @@ confirm() {
     [ "$default" = "y" ]
     return $?
   fi
-  read -r -p "$prompt $hint " reply </dev/tty || reply=""
+  # Interactive: prompt, but auto-pick the default after $timeout seconds.
+  # On timeout (or empty input) read leaves $reply empty and we fall back.
+  if ! read -r -t "$timeout" -p "$prompt $hint (${timeout}s → $default) " reply </dev/tty; then
+    reply=""
+    echo "" # newline after the timed-out prompt
+  fi
   reply=${reply:-$default}
   case "$reply" in
     [yY]|[yY][eE][sS]) return 0 ;;
