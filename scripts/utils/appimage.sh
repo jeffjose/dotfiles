@@ -49,7 +49,7 @@ mktmp() {
 usage() {
   cat >&2 <<EOF
 Usage:
-  $(basename "$0") install [--unofficial] <url-or-path>
+  $(basename "$0") install [--unofficial] [--name <name>] <url-or-path>
   $(basename "$0") list
   $(basename "$0") update <name>
   $(basename "$0") update --all
@@ -58,6 +58,7 @@ Usage:
 
 If the first arg looks like a URL or an AppImage path, \`install\` is implied.
 --unofficial tags an AppImage as a community/3rd-party build (shown in list).
+--name overrides the auto-derived name (useful when the asset filename is odd).
 EOF
   exit 1
 }
@@ -90,7 +91,7 @@ resolve_github() {
       . as $r
       | ([$r.assets[] | select(.name | test("\\.AppImage$"; "i"))]) as $a
       | (($a | map(select(.name | test("x86[_-]?64|linux"; "i"))) + $a) | .[0].browser_download_url // empty) as $url
-      | if ($url == "") then "" else "\($url)\t\($r.tag_name // "")" end
+      | if ($url == "") then "" else "\($url)\t\($r.tag_name // "")\t\($r.name // "")" end
     ' <<<"$json"
     return 0
   fi
@@ -207,13 +208,14 @@ remove_desktop_entry() {
 write_metadata() {
   local name="$1" source_url="$2" asset_url="$3" tag="$4" github_repo="$5"
   local filename="$6" sha256="$7" target="$8" origin="${9:-install}"
-  local unofficial="${10:-false}"
+  local unofficial="${10:-false}" release_name="${11:-}"
   mkdir -p "$META_DIR"
   jq -n \
     --arg name "$name" \
     --arg source_url "$source_url" \
     --arg asset_url "$asset_url" \
     --arg tag "$tag" \
+    --arg release_name "$release_name" \
     --arg github_repo "$github_repo" \
     --arg filename "$filename" \
     --arg sha256 "$sha256" \
@@ -222,8 +224,8 @@ write_metadata() {
     --argjson unofficial "$unofficial" \
     --arg installed_at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
     '{name:$name, source_url:$source_url, asset_url:$asset_url, tag:$tag,
-      github_repo:$github_repo, filename:$filename, sha256:$sha256,
-      target:$target, origin:$origin, unofficial:$unofficial,
+      release_name:$release_name, github_repo:$github_repo, filename:$filename,
+      sha256:$sha256, target:$target, origin:$origin, unofficial:$unofficial,
       installed_at:$installed_at}' \
     > "$META_DIR/$name.json"
 }
@@ -231,10 +233,11 @@ write_metadata() {
 # --- install -----------------------------------------------------------------
 
 cmd_install() {
-  local arg="" unofficial="false"
+  local arg="" unofficial="false" name_override=""
   while [ $# -gt 0 ]; do
     case "$1" in
       --unofficial) unofficial="true"; shift ;;
+      --name) name_override="${2:-}"; shift 2 ;;
       -*) echo "Unknown option: $1" >&2; exit 1 ;;
       *) arg="$1"; shift ;;
     esac
@@ -242,7 +245,7 @@ cmd_install() {
   [ -n "$arg" ] || usage
   mkdir -p "$BIN_DIR" "$APPIMAGE_BIN_DIR"
 
-  local source_url="$arg" asset_url="" tag="" github_repo=""
+  local source_url="$arg" asset_url="" tag="" github_repo="" release_name=""
   github_repo=$(github_repo_from_url "$arg" || true)
 
   if [ -n "$github_repo" ]; then
@@ -252,8 +255,7 @@ cmd_install() {
       echo "No .AppImage asset found in release" >&2
       exit 1
     fi
-    asset_url="${resolved%%$'\t'*}"
-    tag="${resolved#*$'\t'}"
+    IFS=$'\t' read -r asset_url tag release_name <<<"$resolved"
     echo "Asset: $asset_url"
     arg="$asset_url"
   fi
@@ -274,7 +276,11 @@ cmd_install() {
   filename=$(basename "$src")
 
   local name
-  name=$(derive_name "$filename")
+  if [ -n "$name_override" ]; then
+    name="$name_override"
+  else
+    name=$(derive_name "$filename")
+  fi
   [ -n "$name" ] || { echo "Could not derive name from: $filename" >&2; exit 1; }
 
   local target="$APPIMAGE_BIN_DIR/$name.AppImage"
@@ -289,7 +295,7 @@ cmd_install() {
   write_wrapper "$name" "$target"
   install_desktop_entry "$name" "$target" || true
   write_metadata "$name" "$source_url" "$asset_url" "$tag" "$github_repo" \
-                 "$filename" "$sha256" "$target" "install" "$unofficial"
+                 "$filename" "$sha256" "$target" "install" "$unofficial" "$release_name"
 
   echo "Installed: $name"
   echo "  Binary:   $target"
@@ -333,33 +339,43 @@ cmd_update_one() {
   local meta="$META_DIR/$name.json"
   [ -f "$meta" ] || { echo "Not managed: $name" >&2; return 1; }
 
-  local source_url github_repo current_tag origin
+  local source_url github_repo current_tag current_release_name origin unofficial
   source_url=$(jq -r '.source_url // ""' "$meta")
   github_repo=$(jq -r '.github_repo // ""' "$meta")
   current_tag=$(jq -r '.tag // ""' "$meta")
+  current_release_name=$(jq -r '.release_name // ""' "$meta")
   origin=$(jq -r '.origin // "install"' "$meta")
+  unofficial=$(jq -r '.unofficial // false' "$meta")
 
   if [ -z "$github_repo" ] || [ "$origin" = "migrated" ]; then
     echo "[$name] no tracked source (re-run: appimage install <url> to enable updates)" >&2
     return 0
   fi
 
-  local resolved new_asset new_tag
+  local resolved new_asset new_tag new_release_name
   resolved=$(resolve_github "$source_url") || { echo "[$name] resolve failed" >&2; return 1; }
   if [ -z "$resolved" ]; then
     echo "[$name] no asset found in latest release" >&2
     return 1
   fi
-  new_asset="${resolved%%$'\t'*}"
-  new_tag="${resolved#*$'\t'}"
+  IFS=$'\t' read -r new_asset new_tag new_release_name <<<"$resolved"
 
-  if [ -n "$current_tag" ] && [ "$new_tag" = "$current_tag" ]; then
-    echo "[$name] up-to-date ($current_tag)"
+  # Decide if up-to-date. Rolling releases (e.g. tag "latest") keep the same tag
+  # across versions, so also compare the release name, which carries the version.
+  # Legacy metadata without a release_name falls back to tag-only comparison.
+  local same_tag=false same_name=false
+  [ -n "$current_tag" ] && [ "$new_tag" = "$current_tag" ] && same_tag=true
+  { [ -z "$current_release_name" ] || [ "$new_release_name" = "$current_release_name" ]; } && same_name=true
+  if $same_tag && $same_name; then
+    echo "[$name] up-to-date (${current_release_name:-$current_tag})"
     return 0
   fi
 
-  echo "[$name] ${current_tag:-?} -> ${new_tag:-?}"
-  cmd_install "$source_url"
+  echo "[$name] ${current_release_name:-${current_tag:-?}} -> ${new_release_name:-${new_tag:-?}}"
+  local reinstall_args=()
+  [ "$unofficial" = "true" ] && reinstall_args+=(--unofficial)
+  reinstall_args+=(--name "$name" "$source_url")
+  cmd_install "${reinstall_args[@]}"
 }
 
 cmd_update() {

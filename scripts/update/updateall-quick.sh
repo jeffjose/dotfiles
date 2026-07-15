@@ -13,6 +13,7 @@ UPDATE_SCRIPTS=(
   "update_mise.sh"
   "update_deb.sh"
   "update_claude_desktop.sh"
+  "update_appimage.sh"
   #"update_rust.sh"  # Currently disabled
 )
 
@@ -28,6 +29,7 @@ declare -A VERSION_COMMANDS=(
   ["update_mise.sh"]="mise --version"
   ["update_deb.sh"]="echo 'n/a'"
   ["update_claude_desktop.sh"]="cat \$HOME/bin/.claude-desktop.tag 2>/dev/null || echo 'not installed'"
+  ["update_appimage.sh"]="jq -r '.release_name // .tag // \"-\"' \$HOME/bin/.appimage/meta/antigravity.json 2>/dev/null || echo 'n/a'"
 )
 
 # Get version for a specific application
