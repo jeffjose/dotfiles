@@ -1,0 +1,13 @@
+# appimage catalog — apps installable via `appimage install -i` or `appimage install <name>`.
+#
+# Tab-separated columns:  name <TAB> source_url <TAB> guard <TAB> description
+#   - guard: name of an appimage-guards/<guard>.sh hook, or "-" for none
+#   - source_url is a GitHub repo/release URL (preferred, enables updates) or a
+#     direct .AppImage URL
+#   - lines starting with # and blank lines are ignored
+#
+# Keep columns tab-separated (not spaces). Every field must be non-empty (use
+# "-" for no guard) — adjacent tabs collapse when parsed and would misalign.
+#
+code	https://github.com/valicm/VSCode-AppImage	-	VS Code (official build, repackaged as an AppImage)
+claude-desktop	https://github.com/aaddrick/claude-desktop-debian	personal-only	Claude Desktop (community Linux build; personal hosts only)
