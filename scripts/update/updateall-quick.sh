@@ -23,7 +23,7 @@ NC='\033[0m' # No Color
 
 # Version check functions
 declare -A VERSION_COMMANDS=(
-  ["update_code.sh"]="code --version | head -n1"
+  ["update_code.sh"]="jq -r '.release_name // .tag // \"-\"' \$HOME/bin/.appimage/meta/code.json 2>/dev/null || echo 'n/a'"
   ["update_chrome.sh"]="google-chrome --version"
   ["update_cursor.sh"]="md5sum \$HOME/bin/cursor | cut -d' ' -f1"
   ["update_mise.sh"]="mise --version"

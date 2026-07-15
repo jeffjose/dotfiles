@@ -1,70 +1,51 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 #
-# Jeffrey Jose | Aug 11, 2024
+# Install / update VS Code as an AppImage via scripts/utils/appimage.sh.
+#
+# VS Code used to be installed from Microsoft's .deb (dpkg -Ei). We now favour
+# AppImages, so `code` is managed like every other AppImage (ghostty, antigravity,
+# claude-desktop, ...). Microsoft ships no official AppImage — issue microsoft/vscode#10857
+# has been open for years — so we use valicm/VSCode-AppImage, which repackages the
+# *official* VS Code release binary into an AppImage (not the de-branded VSCodium fork).
+#
+# On a fresh machine this installs; afterwards `uq`'s update_appimage.sh keeps it
+# current via `appimage update --all`, so re-running this is a fast no-op.
+#
+# Migrating off the .deb: after the AppImage installs, remove the old system
+# package once with `sudo dpkg -P code` (the ~/bin/code wrapper shadows /usr/bin/code
+# in PATH, so this is safe to do at your leisure).
+#
+# Jeffrey Jose | 2026-07-15
 #
 set -e # Exit on error
 
-# Constants
-CODE_URL="https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
-TEMP_PATH="$HOME/Downloads/code.deb"
-USER_AGENT="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
-ETAG_FILE="$HOME/Downloads/code.etag"
+APPIMAGE="$HOME/dotfiles/scripts/utils/appimage.sh"
+SOURCE_URL="https://github.com/valicm/VSCode-AppImage"
+NAME="code"
+META="$HOME/bin/.appimage/meta/$NAME.json"
 
-# Ensure script is run with sudo privileges
-if ! sudo true; then
-  echo "Error: This script requires sudo privileges"
+if [ ! -x "$APPIMAGE" ]; then
+  echo "⚠️  appimage manager not found at $APPIMAGE"
   exit 1
 fi
 
 echo "🔄 Checking for VS Code updates..."
 
-# Get current version
+# Current version. The AppImage's `code` entrypoint is the GUI Electron binary,
+# which ignores `--version` (the real CLI lives at usr/bin/bin/code inside the
+# image), so read the version the manager recorded in metadata instead.
 echo -n "Current version: "
-code --version | head -n 1 || echo "not installed"
+jq -r '.release_name // .tag // "-"' "$META" 2>/dev/null || echo "not installed"
 
-# Check version metadata
-echo "🔍 Checking for new version..."
-CURRENT_ETAG=""
-if [ -f "$ETAG_FILE" ]; then
-  CURRENT_ETAG=$(cat "$ETAG_FILE")
-fi
-
-HEADERS=$(curl -sI -A "$USER_AGENT" -L "$CODE_URL")
-NEW_ETAG=$(echo "$HEADERS" | grep -i "etag" | awk '{print $2}' | tr -d '"\r\n')
-
-if [ -z "$NEW_ETAG" ]; then
-  echo "⚠️  Could not determine version from server headers"
-  echo "📥 Proceeding with download..."
+if [ -f "$META" ]; then
+  # Already managed — check the source and upgrade only if newer.
+  "$APPIMAGE" update "$NAME"
 else
-  if [ "$CURRENT_ETAG" = "$NEW_ETAG" ]; then
-    echo "✅ VS Code is already up to date! (ETag: $NEW_ETAG)"
-    exit 0
-  fi
+  # First install: repackaged official VS Code AppImage. --name pins the wrapper
+  # to `code` (the derived name from the asset filename would be "vscode-x86").
+  echo "📥 Installing VS Code AppImage..."
+  "$APPIMAGE" install --name "$NAME" "$SOURCE_URL"
+  echo "ℹ️  If the old .deb is still installed, remove it once: sudo dpkg -P code"
 fi
-
-# Download new version
-echo "📥 Downloading latest stable build..."
-if ! wget -O "$TEMP_PATH" \
-  --header="user-agent: $USER_AGENT" \
-  "$CODE_URL"; then
-  echo "Error: Failed to download VS Code"
-  exit 1
-fi
-
-# Save new metadata
-if [ -n "$NEW_ETAG" ]; then
-  echo "$NEW_ETAG" >"$ETAG_FILE"
-fi
-
-# Install new version
-echo "📦 Installing VS Code..."
-if ! sudo dpkg -Ei "$TEMP_PATH"; then
-  echo "Error: Failed to install VS Code"
-  exit 1
-fi
-
-# Verify installation
-echo -n "Updated version: "
-code --version | head -n 1
 
 echo "✅ VS Code update complete!"
