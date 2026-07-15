@@ -28,7 +28,7 @@ declare -A VERSION_COMMANDS=(
   ["update_cursor.sh"]="md5sum \$HOME/bin/cursor | cut -d' ' -f1"
   ["update_mise.sh"]="mise --version"
   ["update_deb.sh"]="echo 'n/a'"
-  ["update_claude_desktop.sh"]="cat \$HOME/bin/.claude-desktop.tag 2>/dev/null || echo 'not installed'"
+  ["update_claude_desktop.sh"]="jq -r '.tag // .release_name // \"-\"' \$HOME/bin/.appimage/meta/claude-desktop.json 2>/dev/null || echo 'not installed'"
   ["update_appimage.sh"]="jq -r '.release_name // .tag // \"-\"' \$HOME/bin/.appimage/meta/antigravity.json 2>/dev/null || echo 'n/a'"
 )
 
