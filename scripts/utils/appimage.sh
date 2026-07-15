@@ -87,10 +87,22 @@ resolve_github() {
     [ -n "${GITHUB_TOKEN:-}" ] && hdrs+=(-H "Authorization: Bearer ${GITHUB_TOKEN}")
     local json
     json=$(curl -sfL "${hdrs[@]}" "$api") || { echo "GitHub API request failed: $api" >&2; return 1; }
-    jq -r '
+    # Pick the asset for THIS machine's architecture. Some releases ship both
+    # arches with names like "anylinux-x86_64" / "anylinux-aarch64" — matching on
+    # "linux" alone would grab whichever is listed first, so match the host arch
+    # explicitly and, failing that, prefer arch-neutral assets over foreign ones.
+    local host_pat foreign_pat
+    case "$(uname -m)" in
+      x86_64|amd64)  host_pat="x86[_-]?64|amd64"; foreign_pat="aarch64|arm64|armv[0-9]|riscv|ppc64|s390|loong" ;;
+      aarch64|arm64) host_pat="aarch64|arm64";    foreign_pat="x86[_-]?64|amd64|i[3-6]86|riscv|ppc64|s390|loong" ;;
+      *)             host_pat="$(uname -m)";       foreign_pat="x86[_-]?64|amd64|aarch64|arm64" ;;
+    esac
+    jq -r --arg hostpat "$host_pat" --arg foreignpat "$foreign_pat" '
       . as $r
       | ([$r.assets[] | select(.name | test("\\.AppImage$"; "i"))]) as $a
-      | (($a | map(select(.name | test("x86[_-]?64|linux"; "i"))) + $a) | .[0].browser_download_url // empty) as $url
+      | ($a | map(select(.name | test($hostpat; "i")))) as $host
+      | ($a | map(select(.name | test($foreignpat; "i") | not))) as $neutral
+      | (($host + $neutral + $a) | .[0].browser_download_url // empty) as $url
       | if ($url == "") then "" else "\($url)\t\($r.tag_name // "")\t\($r.name // "")" end
     ' <<<"$json"
     return 0
