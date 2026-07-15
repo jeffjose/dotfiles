@@ -191,8 +191,16 @@ install_desktop_entry() {
   fi
 
   local desktop_dst="$APP_DIR/$name.desktop"
-  awk -v exec_line="Exec=$BIN_DIR/$name" -v icon_line="${icon_dst:+Icon=$icon_dst}" '
-    /^Exec=/   { print exec_line; next }
+  awk -v exec_prefix="Exec=$BIN_DIR/$name" -v icon_line="${icon_dst:+Icon=$icon_dst}" '
+    /^Exec=/   {
+      # Preserve a trailing field code (%u/%U/%f/%F) from the source Exec so
+      # URL-scheme handlers (e.g. claude://) and file handlers still receive
+      # their argument via xdg-open. Without %u the callback URL is dropped.
+      code = ""
+      if (match($0, /%[uUfF]/)) code = " " substr($0, RSTART, RLENGTH)
+      print exec_prefix code
+      next
+    }
     /^TryExec=/ { next }
     /^Icon=/   { if (icon_line != "") print icon_line; next }
     { print }
