@@ -134,13 +134,15 @@ main() {
   echo "🚀 Starting quick update process..."
   echo "-----------------------------------"
 
-  # Update dotfiles first
+  # Update dotfiles first (best-effort — don't abort the whole update run if the
+  # pull fails, e.g. offline, merge conflict, or detached HEAD). Subshell keeps a
+  # failed cd/pull from stranding us in the wrong directory.
   echo "📂 Updating dotfiles..."
-  cd ~/dotfiles
-  git pull
-  ./setup
-  cd - > /dev/null
-  echo "✅ Dotfiles updated"
+  if ( cd ~/dotfiles && git pull && ./setup ); then
+    echo "✅ Dotfiles updated"
+  else
+    echo "⚠️  Dotfiles update failed; continuing with the rest of the updates." >&2
+  fi
 
   check_sudo
   init_version_tracking

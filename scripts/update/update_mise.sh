@@ -10,12 +10,13 @@ set -euo pipefail
 export npm_config_ignore_scripts=false
 export npm_config_omit=
 
-# Update dotfiles first
+# Update dotfiles first (best-effort — don't abort the mise update if this
+# fails, e.g. offline, merge conflict, or detached HEAD). Run in a subshell so
+# a failed `cd`/`git pull` can't strand us in the wrong directory.
 echo "Updating dotfiles..."
-cd ~/dotfiles
-git pull
-./setup
-cd - > /dev/null
+if ! ( cd ~/dotfiles && git pull && ./setup ); then
+  echo "⚠️  dotfiles update failed; continuing with mise update." >&2
+fi
 
 # Clear caches to prevent corruption from interrupted downloads
 mise cache clear
