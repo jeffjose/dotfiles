@@ -293,6 +293,97 @@ Caveat: 4505 has mixed stability reports on sibling Z690/Z790 boards; one report
 
 ---
 
+## 2026-07-16: Fresh analysis — theory revised to low-load power delivery failure (likely PSU)
+
+Five weeks since last entry. Crashes continue and are still worsening. New live diagnostics overturn the working theory.
+
+**State of the machine:**
+- Kernel: 6.8.0-124, driver 570.211.01 (pinned), BIOS still 1720
+- Kernel params unchanged (`pcie_aspm=off`, GSP off, DPM off)
+- Microcode is NOT stale despite old BIOS: OS early-loads `0x3e` (current, intel-microcode 3.20260210) over BIOS's `0x23`
+- Procedures A/B/C from 06-06: **none were done** (`power/control` still `auto`, nvidia still loaded, BIOS still 1720)
+- wtmp now records **483 reboots**
+
+**New evidence (live, this session):**
+
+1. **Crash cadence is now metronomic and NOT idle-correlated.** Last 76 boots: mean uptime **2.41 h, median 2.24 h, stdev 0.96 h** (min 0.79, max 6.2). Distribution is tightly clustered at 2–3 h, at all hours, including midday active use. The "only crashes when away/idle" pattern from March is gone (or was never the right frame).
+   ```
+   0-1h: ###   (3)
+   1-2h: ###################### (22)
+   2-3h: ################################### (35)
+   3-4h: ########### (11)
+   4-5h: ####  (4)
+   6-7h: #     (1)
+   ```
+2. **Death is instantaneous.** journald writes until <5 s before every reset (a code-tunnel 5-second polling loop is the last entry in every crashed boot). No wind-down, no gap, no kernel message — the platform just stops.
+3. **Still zero Xid ever** (two apparent "xid" journal hits since Jul 1 are base64 image blobs in code-tunnel HTML — false positives). Zero MCE, zero PCIe AER, across 483 reboots. No hardware watchdog is armed (no iTCO/wdt module, systemd watchdog disabled) — not a watchdog reset.
+4. **GPU runtime PM never engages.** `runtime_status=active`, `runtime_suspended_time=0` all boot, GPU sits at P8 / ~24 W / 210 MHz. This means **the broken `_DSM` method is never exercised at runtime** — it only aborts once during boot-time ACPI parse. The 06-06 conclusion ("BIOS flash to fix `_DSM` is the #1 lever") is substantially weakened: `_DSM` can't be crashing a machine on a code path that never runs.
+5. **Deep package idle is constant regardless of activity.** cpu0 this boot: C10 entered 219k times, ~97% residency — *during an active desktop session*. From the power-delivery side, this machine is "idle" 24/7. So the memtest result and the "crashes during YouTube" result stop being contradictory (see below).
+
+**Revised theory: progressive low-load power-delivery failure — PSU is the prime suspect (board VRM second).**
+
+The one pattern no software theory explains is the **monotonic degradation on frozen software**:
+
+| Period | Typical uptime |
+|--------|---------------|
+| pre-Jan 2026 | 7–24 days |
+| Feb–Mar | 6–18 h |
+| Mar 25–28 | 4.8 h |
+| Apr 21–25 | 3.7 h |
+| Jun 5–6 | ~2 h |
+| Jul 9–16 | **2.4 h ± 1.0** |
+
+Driver has been pinned at 570.211.01 since March; crashes got 2× worse anyway. Deterministic software bugs don't trend; aging hardware does. Combined with: instant no-trace reset (= platform-level reset: PSU power-good drop or VRM fault), tight thermal-accumulation-shaped time-to-failure, immunity under memtest's constant high load, and susceptibility whenever the platform is in deep idle (which is ~always, even "active" desktop use draws maybe 50–80 W at the wall with C10 at 97%) — the picture is a component in the power path that misbehaves at **low load**, worsening over months.
+
+This also reframes old evidence:
+- **memtest86+ 10 h clean (March)**: memtest pins the CPU — no C-states, constant ~100–150 W draw. If the fault only manifests at low load (many semi-passive PSUs also run 0 RPM below ~30% load and heat-soak), memtest would never crash. The report's central paradox ("crashes only under Linux+NVIDIA") dissolves: it's not Linux+NVIDIA, it's *low power draw*, which only Linux idle achieves.
+- **Jan 29 driver-upgrade onset**: plausibly coincidence with degradation crossing threshold — or 580.126 lowered idle draw slightly and tipped a marginal PSU over the edge. Either way the driver was never the cause (both 570 and 580 crash; 595 reports online are a different population).
+- **Worsening through spring→summer** is consistent with rising ambient temperature shortening a thermal trip time.
+
+**Discriminating tests (all non-destructive, each conclusive within ~a day).** With MTTF 2.4 h ± 1.0, surviving 12 h under a test is already decisive (>5σ from the current distribution); 24 h is conclusive.
+
+1. **Disable deep C-states at runtime** — no reboot, self-reverting on reboot, instantly reversible:
+   ```sh
+   # disable C8 + C10 on all cores (C1E/C6 remain available)
+   for c in /sys/devices/system/cpu/cpu*/cpuidle/state3/disable /sys/devices/system/cpu/cpu*/cpuidle/state4/disable; do
+     echo 1 | sudo tee $c > /dev/null
+   done
+   # verify: grep . /sys/devices/system/cpu/cpu0/cpuidle/state*/disable
+   # revert: same loop with echo 0 (or just reboot)
+   ```
+   Survives 24 h → trigger is deep package idle (raises wall draw ~10–20 W and keeps VRM/PSU switching in a happier regime). Make persistent with `intel_idle.max_cstate=2` in GRUB while deciding on hardware.
+2. **PSU fan check** — zero risk, physical: note the PSU model; if it has a hybrid/Zero-RPM switch, set the fan to always-on (or point a desk fan at the PSU intake). Survives → PSU heat-soak at low load confirmed → replace PSU.
+3. **Constant light CPU load** (`stress-ng --cpu 4` or similar) if #1 fails — separates "load keeps it alive" from C-states specifically.
+4. **Re-run memtest86+ now** — the March pass is 4 months stale; failure rate has doubled since. If memtest *now* crashes → hardware confirmed outright.
+5. **iGPU-only boot** (blacklist nvidia, monitor on motherboard output — the 12700K has UHD 770) if the above are ambiguous — fully exonerates or implicates the NVIDIA stack in one day.
+
+**Likely eventual fix if theory holds: replace the PSU.** Ordinary component swap, not a risky operation. BIOS flash drops to "someday, for hygiene" — no longer load-bearing.
+
+### Plan for today (2026-07-16)
+
+One variable at a time. With MTTF 2.4 h, ~12 h of survival is decisive.
+
+1. **Now:** disable C8/C10 via sysfs (test #1 above). No reboot needed. Note the time. Use the machine normally.
+2. **Now (observation only, changes nothing):** identify the PSU — model, wattage, age — and check whether its fan is spinning while the system idles. Note if it has a Zero-RPM/hybrid switch. Don't flip it yet.
+3. **Tonight:** if the machine survived >12 h → deep-idle trigger confirmed; add `intel_idle.max_cstate=2` to GRUB as a persistent workaround and plan a PSU swap at leisure.
+4. **If it crashed anyway:** C-states exonerated; next test is the PSU fan (flip switch / desk fan) tomorrow, then fresh memtest overnight.
+
+### Test 3: Deep C-states disabled at runtime (2026-07-16) — ACTIVE
+
+- **Started: 2026-07-16 20:56:44 PDT** (56 min into the current boot, which began 20:00:21).
+- C8 (state3) and C10 (state4) disabled via sysfs on all 20 threads — verified 40/40 `disable` flags set, and cpu0's C10 residency counter fully stopped advancing afterward. Deepest reachable state is now C6.
+- **Nothing was made persistent.** No reboot needed; do NOT reboot — the setting lives only in this boot. Any reboot (or crash) silently reverts it to stock behavior.
+
+**What to expect:**
+- Under the status quo (last 76 boots: mean uptime 2.41 h, stdev 0.96, max 6.2), this boot should die around **22:25 PDT ± 1 h**.
+- Surviving past **~02:00 (6 h uptime)** already beats every one of the last 76 boots.
+- Surviving past **~09:00 Thu morning (13 h uptime)** is decisive: deep package idle (C8/C10) is the trigger. Then: add `intel_idle.max_cstate=2` to `GRUB_CMDLINE_LINUX_DEFAULT` + `update-grub` for persistence, and plan a PSU replacement (root cause is still likely marginal power delivery at low load — the C-state cap just keeps draw above the misbehavior threshold, at a cost of ~10–20 W idle).
+- **If it crashes anyway** (uptime in the usual 1–4 h band): C-states are exonerated; the fault trips even at C6-max draw. Next: PSU fan test (Zero-RPM switch / desk fan), then fresh overnight memtest — if memtest *now* fails too, hardware is confirmed outright.
+
+**How to check (morning of 07-17):** `last -x reboot | head -3` — if the top entry still shows the `Jul 16 20:00` boot, the test survived. Record the result here either way.
+
+---
+
 ## Log
 
 | Date | Event |
@@ -327,6 +418,8 @@ Caveat: 4505 has mixed stability reports on sibling Z690/Z790 boards; one report
 | ~2026-05 | Kernel auto-upgraded 6.8.0-110 → 6.8.0-124 via unattended-upgrades. No help. |
 | 2026-06-05/06 | **~15 hard resets over 2 days**, avg uptime ~1.5–2.5 hr — worse than April. Zero clean shutdowns since wtmp begins (May 17). |
 | 2026-06-06 | **ASPM conclusively ruled out via live `lspci -vv`.** GPU endpoint `ASPM Disabled` + all L1 substates off; upstream root port `00:01.0` reports `ASPM not supported`. `pcie_aspm=off` was honored all along — ASPM never mattered. Kills the 03-21→04-25 ASPM theory. `_DSM` ACPI error still fires this boot. GPU `runtime_status=active`, `power/control=auto`. **Revised: BIOS flash 1720→4505 now #1 lever** (only fix for broken `_DSM`); BIOS ASPM toggle dropped as redundant. Online: no public fix; driver 595 (May 2026) still crashes identically — newer driver not the answer. |
+| 2026-07-16 | **Theory revised: low-load power-delivery failure (PSU prime suspect).** Live analysis: 76 recent boots show metronomic crashes (mean 2.41 h ± 0.96) at all hours incl. active use — idle correlation gone. Journal written <5 s before every reset. Zero Xid/MCE/AER in 483 reboots; no watchdog armed. GPU runtime PM never engages (`runtime_suspended_time=0`) → broken `_DSM` never exercised at runtime → BIOS-flash-as-#1-lever demoted. C10 residency ~97% even during active use → memtest immunity (constant high load, no C-states) no longer contradicts hardware. Monotonic degradation on frozen software (24 d → 2.4 h over 6 months) points to aging hardware in the power path. Next: runtime C-state disable test, PSU fan check, fresh memtest. |
+| 2026-07-16 20:56 | **Test 3 started: C8/C10 disabled at runtime via sysfs** (all 20 threads, verified; C10 residency stopped advancing). Not persistent — reverts on any reboot/crash. Expected crash under status quo ~22:25 ± 1 h; surviving past ~09:00 on 07-17 (13 h) = deep-idle trigger confirmed → make persistent with `intel_idle.max_cstate=2` and plan PSU swap. Crash anyway = C-states exonerated → PSU fan test, then fresh memtest. |
 
 ### Crash log (2026-03-25 to 2026-03-28)
 
