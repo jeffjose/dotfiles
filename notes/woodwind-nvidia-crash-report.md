@@ -368,7 +368,13 @@ One variable at a time. With MTTF 2.4 h, ~12 h of survival is decisive.
 3. **Tonight:** if the machine survived >12 h → deep-idle trigger confirmed; add `intel_idle.max_cstate=2` to GRUB as a persistent workaround and plan a PSU swap at leisure.
 4. **If it crashed anyway:** C-states exonerated; next test is the PSU fan (flip switch / desk fan) tomorrow, then fresh memtest overnight.
 
-### Test 3: Deep C-states disabled at runtime (2026-07-16) — ACTIVE
+### Test 3: Deep C-states disabled at runtime (2026-07-16) — FAILED
+
+**Result (checked 2026-07-17 08:16):** crashed at **23:05:46**, 2 h 09 m after C8/C10 were disabled (3 h 05 m boot total) — squarely inside the normal 2.4 h ± 1.0 distribution. Five more crashes overnight at the usual cadence (23:07→00:42, 00:43→02:25, 02:27→04:28, 04:29→06:13, 06:14→07:33). No improvement signal whatsoever.
+
+**Conclusion: deep package C-states (C8/C10) are exonerated.** The fault trips even with the CPU capped at C6. Combined with earlier results, the "low-load" condition that matters is not CPU package idle depth. → **Branch B of the playbook is now active.** Next: B2 (PSU fan test — physical), B3 (fresh memtest overnight), B4 (iGPU-only boot).
+
+Original test plan follows for the record:
 
 - **Started: 2026-07-16 20:56:44 PDT** (56 min into the current boot, which began 20:00:21).
 - C8 (state3) and C10 (state4) disabled via sysfs on all 20 threads — verified 40/40 `disable` flags set, and cpu0's C10 residency counter fully stopped advancing afterward. Deepest reachable state is now C6.
@@ -495,6 +501,7 @@ B5. **Hardware, in order of likelihood/cost:**
 | 2026-06-06 | **ASPM conclusively ruled out via live `lspci -vv`.** GPU endpoint `ASPM Disabled` + all L1 substates off; upstream root port `00:01.0` reports `ASPM not supported`. `pcie_aspm=off` was honored all along — ASPM never mattered. Kills the 03-21→04-25 ASPM theory. `_DSM` ACPI error still fires this boot. GPU `runtime_status=active`, `power/control=auto`. **Revised: BIOS flash 1720→4505 now #1 lever** (only fix for broken `_DSM`); BIOS ASPM toggle dropped as redundant. Online: no public fix; driver 595 (May 2026) still crashes identically — newer driver not the answer. |
 | 2026-07-16 | **Theory revised: low-load power-delivery failure (PSU prime suspect).** Live analysis: 76 recent boots show metronomic crashes (mean 2.41 h ± 0.96) at all hours incl. active use — idle correlation gone. Journal written <5 s before every reset. Zero Xid/MCE/AER in 483 reboots; no watchdog armed. GPU runtime PM never engages (`runtime_suspended_time=0`) → broken `_DSM` never exercised at runtime → BIOS-flash-as-#1-lever demoted. C10 residency ~97% even during active use → memtest immunity (constant high load, no C-states) no longer contradicts hardware. Monotonic degradation on frozen software (24 d → 2.4 h over 6 months) points to aging hardware in the power path. Next: runtime C-state disable test, PSU fan check, fresh memtest. |
 | 2026-07-16 20:56 | **Test 3 started: C8/C10 disabled at runtime via sysfs** (all 20 threads, verified; C10 residency stopped advancing). Not persistent — reverts on any reboot/crash. Expected crash under status quo ~22:25 ± 1 h; surviving past ~09:00 on 07-17 (13 h) = deep-idle trigger confirmed → make persistent with `intel_idle.max_cstate=2` and plan PSU swap. Crash anyway = C-states exonerated → PSU fan test, then fresh memtest. |
+| 2026-07-16 23:05 | **Test 3 FAILED.** Crashed 2 h 09 m after C-states were capped at C6 — inside the normal distribution. Five more crashes overnight (00:42, 02:25, 04:28, 06:13, 07:33), cadence unchanged. **C8/C10 exonerated.** Playbook Branch B active: next is B2 (PSU fan, physical), B3 (fresh memtest), B4 (iGPU-only boot). |
 
 ### Crash log (2026-03-25 to 2026-03-28)
 
