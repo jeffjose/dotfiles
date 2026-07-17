@@ -382,6 +382,81 @@ One variable at a time. With MTTF 2.4 h, ~12 h of survival is decisive.
 
 **How to check (morning of 07-17):** `last -x reboot | head -3` — if the top entry still shows the `Jul 16 20:00` boot, the test survived. Record the result here either way.
 
+Mid-test sanity check (should show `1` for states 3+4; if a crash happened, these read `0` again):
+```sh
+grep . /sys/devices/system/cpu/cpu0/cpuidle/state[34]/disable
+```
+
+### Debugging playbook — next steps (written 2026-07-16, execute from here)
+
+Decision tree from Test 3's outcome. Every step is non-destructive unless marked. After each step, append the result to the Log table with date/time.
+
+---
+
+**BRANCH A — Test 3 SURVIVED (>13 h uptime): deep-idle trigger confirmed.**
+
+A1. Record result (uptime achieved, what the machine was doing). Then make the C-state cap persistent:
+```sh
+# edit /etc/default/grub: append intel_idle.max_cstate=2 to GRUB_CMDLINE_LINUX_DEFAULT
+sudo sed -i.bak 's/^\(GRUB_CMDLINE_LINUX_DEFAULT=".*\)"/\1 intel_idle.max_cstate=2"/' /etc/default/grub
+grep GRUB_CMDLINE_LINUX_DEFAULT /etc/default/grub   # eyeball it
+sudo update-grub
+sudo reboot
+# verify after reboot: deepest listed state should be C6, and param present:
+cat /proc/cmdline
+grep . /sys/devices/system/cpu/cpu0/cpuidle/state*/name
+```
+Revert: restore `/etc/default/grub.bak`, `sudo update-grub`, reboot.
+
+A2. Monitor 3–7 days (`last -x reboot`). Stable → workaround confirmed; the machine is usable again. Idle power cost ~10–20 W.
+
+A3. Optional refinement (narrows which state is toxic, recovers some power): re-enable C8 but keep C10 off — at runtime, `echo 0` to state3/disable only (keep state4 disabled... note: with `max_cstate=2` in GRUB, states 3/4 don't exist; to test this, remove the GRUB param and use a boot-time systemd unit or /etc/rc.local-style sysfs writes instead). Only bother if the idle power cost matters.
+
+A4. Root cause is still likely marginal power delivery at low load (PSU first, board VRM second). The cap is a shim, and the degradation trend (24 d → 2.4 h over 6 months) says the component will keep aging — possibly until the cap stops being enough. **Recommend PSU replacement soon anyway.** Any quality 750 W+ ATX unit works for a 12700K + RTX 3090. Before buying, note the current PSU's model/age (A5).
+
+A5. Identify current PSU (physical look, or side panel off): brand, model, wattage, manufacture date, whether it has a Zero-RPM/hybrid switch, whether the fan spins at idle. Record here.
+
+---
+
+**BRANCH B — Test 3 FAILED (crashed with C8/C10 disabled): C-states exonerated.**
+
+Order: B1 (free, observational) → B2 (physical, zero risk) → B3 (free, overnight) → B4 (software, reversible) → B5 (hardware swap).
+
+B1. Record the crash time + uptime in the Log. Confirm the setting was actually active before the crash if possible (it was verified at 20:56 on 07-16; flags reset to 0 after reboot is expected and does NOT mean the test was invalid).
+
+B2. **PSU fan test.** Physically inspect PSU. If it has a Zero-RPM/hybrid/eco switch: set fan to always-on. If not: point a desk fan directly at the PSU intake. One variable — change nothing else. Watch 24 h (`last -x reboot`). Survives → PSU heat-soak at low load confirmed → replace PSU (B5).
+
+B3. **Fresh memtest86+ overnight** (March's pass is stale; failure rate has doubled since). Boot memtest from GRUB menu or USB, run 8+ h. Machine resets/crashes during memtest → hardware confirmed outright (PSU/board/CPU — GPU driver fully exonerated); go to B5. Passes → the fault needs the OS's low-power operation; proceed B4.
+
+B4. **iGPU-only boot** (removes the entire NVIDIA stack; 12700K has UHD 770):
+```sh
+printf 'blacklist nvidia\nblacklist nvidia_drm\nblacklist nvidia_modeset\nblacklist nvidia_uvm\n' \
+  | sudo tee /etc/modprobe.d/blacklist-nvidia.conf
+sudo update-initramfs -u
+# move monitor cable to the motherboard's HDMI/DP output, then:
+sudo reboot
+# verify: lsmod | grep nvidia  -> empty; glxinfo | grep -i renderer -> Intel/Mesa
+```
+If no display on the motherboard output, iGPU may be disabled in BIOS setup (settings toggle only — NOT a flash): Advanced → System Agent → Graphics Configuration → iGPU Multi-Monitor = Enabled.
+Revert: `sudo rm /etc/modprobe.d/blacklist-nvidia.conf && sudo update-initramfs -u && sudo reboot`.
+- Survives 24 h → NVIDIA stack implicated after all (driver's power management keeping the GPU in P8 low-draw is part of the low-load condition; or kmod bug). Combined with B2/B3 results, decide between PSU swap and deeper driver work.
+- Crashes anyway → hardware near-certain even with GPU stack absent → B5.
+
+B5. **Hardware, in order of likelihood/cost:**
+   1. Replace PSU (most likely; ordinary swap).
+   2. Reseat GPU + both ends of all PCIe power cables; try different modular cables if available.
+   3. Try GPU in the second PCIe slot (x8 via chipset — fine for testing).
+   4. If a new PSU doesn't fix it: board VRM/board itself is the remaining suspect; BIOS flash 1720→4505 (Procedure C above) becomes worth doing before condemning the board.
+
+---
+
+**Standing notes for whoever executes this (including future Claude):**
+- MTTF is ~2.4 h ± 1.0 (n=76, Jul 2026), so any single change that yields >12 h uptime is decisive (>5σ); >24 h is conclusive. No need for multi-day waits per test.
+- One variable at a time. Every test above is independently revertible.
+- Check `last -x reboot | head` first thing in any session to see what happened since.
+- The sysfs C-state disable does NOT persist — after any reboot the machine is back to stock deep-idle behavior unless the GRUB param from A1 was applied.
+- Do not bother with: BIOS ASPM toggles (ASPM confirmed off at every level, 06-06), newer NVIDIA drivers (595 crashes identically per online reports, 06-06), kernel upgrades (five kernels made no difference).
+
 ---
 
 ## Log
