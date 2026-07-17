@@ -374,7 +374,19 @@ One variable at a time. With MTTF 2.4 h, ~12 h of survival is decisive.
 
 **Conclusion: deep package C-states (C8/C10) are exonerated.** The fault trips even with the CPU capped at C6. Combined with earlier results, the "low-load" condition that matters is not CPU package idle depth. → **Branch B of the playbook is now active.** Next: B2 (PSU fan test — physical), B3 (fresh memtest overnight), B4 (iGPU-only boot).
 
-Original test plan follows for the record:
+### Test 4 (playbook B4): NVIDIA stack fully removed (2026-07-17) — ACTIVE
+
+- **Started: 2026-07-17 08:22:33 PDT** (boot time; blacklist applied and rebooted by user).
+- `/etc/modprobe.d/blacklist-nvidia.conf` in place with both `blacklist` and `install ... /bin/false` lines for nvidia/nvidia_drm/nvidia_modeset/nvidia_uvm; initramfs rebuilt.
+- Verified after reboot: `lsmod` shows **no nvidia modules**, `nvidia-smi` can't talk to a driver, and `lspci -k` shows **no kernel driver bound to the 3090 at all** (not even nouveau; i915 not loaded either — machine is headless via SSH). This is the purest form of the test: the GPU sits untouched in VBIOS boot state.
+- Revert: `sudo sh -c 'rm /etc/modprobe.d/blacklist-nvidia.conf && update-initramfs -u && reboot'`
+
+**What to expect:**
+- Under status quo (MTTF 2.4 h ± 1.0), crash by **~10:45 ± 1 h**; surviving past **~20:30 (12 h)** is decisive.
+- **Crashes anyway** → hardware near-certain (no GPU driver existed to cause it) → playbook B5: PSU swap first, plus B2 (PSU fan observation) and B3 (fresh memtest) for confirmation.
+- **Survives** → the NVIDIA stack is implicated after all. Caveat/confounder: with no driver, the 3090 has no power management and idles hotter/hungrier than P8 (~30-40 W vs ~24 W, and different rail behavior) — so a survival could also mean "the higher load floor masks the fault." Follow-ups would need to separate those (e.g., nouveau boot, or driver loaded with persistence mode + locked clocks).
+
+Original Test 3 plan follows for the record:
 
 - **Started: 2026-07-16 20:56:44 PDT** (56 min into the current boot, which began 20:00:21).
 - C8 (state3) and C10 (state4) disabled via sysfs on all 20 threads — verified 40/40 `disable` flags set, and cpu0's C10 residency counter fully stopped advancing afterward. Deepest reachable state is now C6.
@@ -502,6 +514,7 @@ B5. **Hardware, in order of likelihood/cost:**
 | 2026-07-16 | **Theory revised: low-load power-delivery failure (PSU prime suspect).** Live analysis: 76 recent boots show metronomic crashes (mean 2.41 h ± 0.96) at all hours incl. active use — idle correlation gone. Journal written <5 s before every reset. Zero Xid/MCE/AER in 483 reboots; no watchdog armed. GPU runtime PM never engages (`runtime_suspended_time=0`) → broken `_DSM` never exercised at runtime → BIOS-flash-as-#1-lever demoted. C10 residency ~97% even during active use → memtest immunity (constant high load, no C-states) no longer contradicts hardware. Monotonic degradation on frozen software (24 d → 2.4 h over 6 months) points to aging hardware in the power path. Next: runtime C-state disable test, PSU fan check, fresh memtest. |
 | 2026-07-16 20:56 | **Test 3 started: C8/C10 disabled at runtime via sysfs** (all 20 threads, verified; C10 residency stopped advancing). Not persistent — reverts on any reboot/crash. Expected crash under status quo ~22:25 ± 1 h; surviving past ~09:00 on 07-17 (13 h) = deep-idle trigger confirmed → make persistent with `intel_idle.max_cstate=2` and plan PSU swap. Crash anyway = C-states exonerated → PSU fan test, then fresh memtest. |
 | 2026-07-16 23:05 | **Test 3 FAILED.** Crashed 2 h 09 m after C-states were capped at C6 — inside the normal distribution. Five more crashes overnight (00:42, 02:25, 04:28, 06:13, 07:33), cadence unchanged. **C8/C10 exonerated.** Playbook Branch B active: next is B2 (PSU fan, physical), B3 (fresh memtest), B4 (iGPU-only boot). |
+| 2026-07-17 08:22 | **Test 4 started (playbook B4): NVIDIA stack fully removed.** Modules blacklisted + install-blocked, initramfs rebuilt, rebooted. Verified: zero nvidia modules, no driver bound to the 3090 at all (no nouveau, no i915 — headless via SSH). Crash by ~10:45 ± 1 h = hardware near-certain → PSU swap. Survive past ~20:30 = NVIDIA stack implicated (with the no-driver-idles-hotter confounder noted in the test section). |
 
 ### Crash log (2026-03-25 to 2026-03-28)
 
