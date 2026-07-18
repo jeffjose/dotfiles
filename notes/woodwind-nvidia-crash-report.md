@@ -6,7 +6,7 @@ Motherboard: ASUS ROG Maximus Z690 HERO (BIOS 1720, 2022-08-12) — **17 version
 PSU: **Seasonic PRIME 1200W Platinum** (per seller's part list; semi-passive "Hybrid Mode" confirmed on rear panel; 12-yr warranty line; manufacture date TBD from side sticker)
 Case: Fractal North, Noctua A12x25 fans
 OS: Ubuntu 22.04 (jammy), HWE kernel
-History: bought used ~mid-2025; prior usage unknown
+History: bought used **2025-12-11**; prior usage unknown. Note: the crash-evidence table's first period ("Dec 11 – Jan 29: stable, 7–24 day uptimes") begins on the purchase date — the machine ran clean for only ~7 weeks in this home before crashes began. Whether it was equally stable for the previous owner is unknown/unverifiable.
 
 ---
 
