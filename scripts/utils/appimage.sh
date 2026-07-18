@@ -197,9 +197,14 @@ is_appimage() {
 
 write_wrapper() {
   local name="$1" target="$2"
+  # These are GUI apps; launched from a terminal they spew Electron/Chromium
+  # chatter to stdout/stderr. Redirect that to a per-app log (truncated each
+  # launch so it stays small) to keep the shell clean — `tail` it to debug.
   cat > "$BIN_DIR/$name" <<EOF
 #!/bin/sh
-exec "$target" "\$@"
+log_dir="\${HOME}/bin/.appimage/logs"
+mkdir -p "\$log_dir"
+exec "$target" "\$@" >"\$log_dir/$name.log" 2>&1
 EOF
   chmod +x "$BIN_DIR/$name"
 }

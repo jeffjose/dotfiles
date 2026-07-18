@@ -11,3 +11,4 @@
 #
 code	https://github.com/valicm/VSCode-AppImage	-	VS Code (official build, repackaged as an AppImage)
 claude-desktop	https://github.com/aaddrick/claude-desktop-debian	personal-only	Claude Desktop (community Linux build; personal hosts only)
+lmstudio	https://installers.lmstudio.ai/linux/x64/0.4.19-2/LM-Studio-0.4.19-2-x64.AppImage	personal-only	LM Studio (local LLM runner; personal hosts only)
