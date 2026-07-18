@@ -374,7 +374,21 @@ One variable at a time. With MTTF 2.4 h, ~12 h of survival is decisive.
 
 **Conclusion: deep package C-states (C8/C10) are exonerated.** The fault trips even with the CPU capped at C6. Combined with earlier results, the "low-load" condition that matters is not CPU package idle depth. → **Branch B of the playbook is now active.** Next: B2 (PSU fan test — physical), B3 (fresh memtest overnight), B4 (iGPU-only boot).
 
-### Test 4 (playbook B4): NVIDIA stack fully removed (2026-07-17) — ACTIVE
+### Test 4 (playbook B4): NVIDIA stack fully removed (2026-07-17) — CRASHED after 9 h 39 m (most informative result yet)
+
+**Result (checked 18:14):** hard crash at **18:02:09** after **9 h 39 m** — journal ends mid-polling-loop, no shutdown sequence. The machine auto-rebooted at 18:03 (current boot, still driverless — blacklist persists).
+
+**Two decisive facts, one from each side:**
+1. **It crashed with no NVIDIA (or any GPU) driver loaded.** The NVIDIA software stack is conclusively NOT required for the crash. Combined with memtest passing and zero log traces ever: this is a hardware/platform fault, full stop.
+2. **It survived 4× longer than the recent norm** (9.64 h vs mean 2.41 ± 0.96, n=76; longest uptime since March). Probability of that under the status-quo distribution ≈ 0 — removing the driver genuinely changed the failure rate. The failure is **load/power-state modulated**: a driverless 3090 sits in its VBIOS boot state (no P-state transitions, no dynamic power management, steady draw) and the machine lasts far longer, but still eventually trips.
+
+**Interpretation:** both facts point at marginal power-delivery hardware (PSU first, board VRM second). The NVIDIA driver was never the cause — its dynamic power transitions (P8↔P5, NVDEC on/off, per-rail load swings) merely accelerate a fault that exists without it. Steadier draw → slower accumulation → later trip. This is exactly how a degrading PSU behaves.
+
+**Verdict: software diagnostics have taken this as far as they can. The next step is hardware: identify/replace the PSU (playbook B5.1), with B2 (fan observation) and B3 (overnight memtest) as optional corroboration.**
+
+Machine state note: still driverless/headless as of this entry. Revert whenever desktop use is needed (crashes will resume at the fast cadence): `sudo sh -c 'rm /etc/modprobe.d/blacklist-nvidia.conf && update-initramfs -u && reboot'`
+
+Original Test 4 plan follows for the record:
 
 - **Started: 2026-07-17 08:22:33 PDT** (boot time; blacklist applied and rebooted by user).
 - `/etc/modprobe.d/blacklist-nvidia.conf` in place with both `blacklist` and `install ... /bin/false` lines for nvidia/nvidia_drm/nvidia_modeset/nvidia_uvm; initramfs rebuilt.
@@ -515,6 +529,7 @@ B5. **Hardware, in order of likelihood/cost:**
 | 2026-07-16 20:56 | **Test 3 started: C8/C10 disabled at runtime via sysfs** (all 20 threads, verified; C10 residency stopped advancing). Not persistent — reverts on any reboot/crash. Expected crash under status quo ~22:25 ± 1 h; surviving past ~09:00 on 07-17 (13 h) = deep-idle trigger confirmed → make persistent with `intel_idle.max_cstate=2` and plan PSU swap. Crash anyway = C-states exonerated → PSU fan test, then fresh memtest. |
 | 2026-07-16 23:05 | **Test 3 FAILED.** Crashed 2 h 09 m after C-states were capped at C6 — inside the normal distribution. Five more crashes overnight (00:42, 02:25, 04:28, 06:13, 07:33), cadence unchanged. **C8/C10 exonerated.** Playbook Branch B active: next is B2 (PSU fan, physical), B3 (fresh memtest), B4 (iGPU-only boot). |
 | 2026-07-17 08:22 | **Test 4 started (playbook B4): NVIDIA stack fully removed.** Modules blacklisted + install-blocked, initramfs rebuilt, rebooted. Verified: zero nvidia modules, no driver bound to the 3090 at all (no nouveau, no i915 — headless via SSH). Crash by ~10:45 ± 1 h = hardware near-certain → PSU swap. Survive past ~20:30 = NVIDIA stack implicated (with the no-driver-idles-hotter confounder noted in the test section). |
+| 2026-07-17 18:02 | **Test 4 result: crashed after 9 h 39 m with zero GPU drivers loaded.** Hard reset mid-journal-write, no shutdown sequence. NVIDIA software conclusively exonerated as required cause (crash needs no driver) AND uptime was 4× the recent mean (9.64 h vs 2.41 ± 0.96, longest since March) — failure is load/power-state modulated. Both point at marginal power-delivery hardware. **Software diagnostics complete. Next: PSU identify/replace (B5.1); B2 fan observation + B3 overnight memtest as corroboration.** User note: PSU is "Gold"-badged, machine bought used, seller claimed premium PSU — check model/date for warranty (premium units: 10–12 yr, possible $0 RMA). |
 
 ### Crash log (2026-03-25 to 2026-03-28)
 
