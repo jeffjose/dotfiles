@@ -1,9 +1,12 @@
 # Woodwind NVIDIA Crash Report
 
 Machine: woodwind (desktop)
-GPU: NVIDIA GeForce RTX 3090 (GA102, rev a1)
+GPU: NVIDIA GeForce RTX 3090 Founders Edition (GA102, rev a1)
 Motherboard: ASUS ROG Maximus Z690 HERO (BIOS 1720, 2022-08-12) — **17 versions behind, latest is 4505 (2025-12-15)**
+PSU: **Seasonic PRIME 1200W Platinum** (per seller's part list; semi-passive "Hybrid Mode" confirmed on rear panel; 12-yr warranty line; manufacture date TBD from side sticker)
+Case: Fractal North, Noctua A12x25 fans
 OS: Ubuntu 22.04 (jammy), HWE kernel
+History: bought used ~mid-2025; prior usage unknown
 
 ---
 
@@ -533,6 +536,7 @@ B5. **Hardware, in order of likelihood/cost:**
 | 2026-07-17 18:18 | **Test 4 reverted — back to normal desktop.** Blacklist removed, initramfs rebuilt, rebooted at 18:18. Verified: nvidia 570.211.01 loaded, display working, GPU at P8/33 W. Expect crashes to resume at the fast (~2.4 h) cadence. Machine is in use for regular work — save often. **Outstanding: read PSU sticker (brand/model/wattage/date) → warranty check vs ~$120–150 replacement; optional Zero-RPM fan switch test (flip while powered off); optional overnight memtest.** |
 | 2026-07-17 ~18:45 | **PSU identified from photo: Seasonic** (model/wattage TBD — side sticker not visible). Rear panel has a **HYBRID MODE button = semi-passive fan** that stays fully stopped at low load — exactly the heat-soak-at-idle mechanism in the working theory. Also: Seasonic Focus-era units have a documented protection-circuit incompatibility with RTX 30-series transients (acknowledged by Seasonic, revised in later units) — different symptom (load trips) but establishes this PSU generation + 3090 as a known-bad pairing. **Test 5 (fan test): press Hybrid Mode OFF → fan runs continuously. If uptimes stretch well past 2.4 h ± 1.0 baseline → PSU heat-soak confirmed.** Warranty: Seasonic Focus 10 yr / Prime 12 yr — get side-sticker model+date for RMA-vs-buy decision. |
 | 2026-07-17 18:33 | **Test 5 started (playbook B2): Hybrid Mode pressed OFF** (button now out/up; was depressed = hybrid ON for the entire crash history — fan stopped at idle all along, consistent with heat-soak theory). Fan should now spin continuously at min RPM. Visual/airflow confirmation pending (AC noise masks sound; min-RPM fans are near-silent). Driver loaded, normal desktop use. **Baseline: 2.41 h ± 0.96 (n=76). Crash within ~1–4 h → fan didn't matter → PSU still prime suspect via other mechanism (aging caps/OCP) or board VRM; replacement still the play. Survive past ~06:30 on 07-18 (12 h) → decisive: PSU heat-soak at idle confirmed → RMA/replace.** |
+| 2026-07-17 ~19:00 | **PSU identified via seller's part list: Seasonic PRIME 1200W Platinum** (flagship line, 12-yr warranty, ~$300 unit new; PRIME Platinum 1200 = SSR-1200PD era, launched ~2017). Notable: 1200 W capacity vs ~60 W idle draw = **~5% load** — extraordinarily low load fraction, deep inside the semi-passive zero-fan zone and at the bottom of the regulation curve. The extreme oversizing strengthens the low-load-misbehavior theory. Warranty: 12 yr from purchase; second-owner + no receipt → RMA is a goodwill coin-flip; email Seasonic with serial + side-sticker date code. Replacement need NOT be 1200 W — 850 W Gold (~$120–150) is correctly sized for 12700K + 3090. |
 
 ### Crash log (2026-03-25 to 2026-03-28)
 
