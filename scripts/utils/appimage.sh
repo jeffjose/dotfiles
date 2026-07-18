@@ -11,6 +11,7 @@
 #   info <name-or-path>          crack open an AppImage and print what's inside
 #   update <name> | --all | -i   re-check GitHub source and upgrade if newer
 #   remove <name>                delete binary, wrapper, desktop entry, metadata
+#   wrap <name> | --all          regenerate the ~/bin/<name> wrapper from metadata
 #   migrate [<name>]             adopt pre-existing ~/bin/<name> AppImages
 #
 # If the first arg looks like a URL, an .AppImage path, or a catalog name,
@@ -86,6 +87,7 @@ COMMANDS
   catalog                            list apps available to install
   info <name|path>                   inspect a managed app or AppImage file
   remove <name>                      uninstall an app (binary, launcher, metadata)
+  wrap <name> | --all                regenerate the ~/bin/<name> wrapper script
   migrate [<name>]                   adopt pre-existing ~/bin/<name> AppImages
 
 INSTALL OPTIONS
@@ -847,6 +849,41 @@ cmd_remove() {
   echo "Removed: $name"
 }
 
+# --- wrap --------------------------------------------------------------------
+
+# Regenerate the ~/bin/<name> wrapper for a managed app from its metadata. Use
+# after write_wrapper's logic changes (e.g. new output-redirect behaviour) to
+# re-apply it to already-installed apps without a full reinstall/download.
+cmd_wrap_one() {
+  local name="$1"
+  local meta="$META_DIR/$name.json"
+  [ -f "$meta" ] || { echo "Not managed: $name" >&2; return 1; }
+  local target
+  target=$(jq -r '.target' "$meta")
+  if [ ! -f "$target" ]; then
+    echo "[$name] binary missing ($target) — skipping" >&2
+    return 1
+  fi
+  write_wrapper "$name" "$target"
+  echo "Wrapped: $name"
+}
+
+cmd_wrap() {
+  if [ "${1:-}" = "--all" ]; then
+    mkdir -p "$META_DIR"
+    local f found=0
+    for f in "$META_DIR"/*.json; do
+      [ -e "$f" ] || continue
+      found=1
+      cmd_wrap_one "$(jq -r '.name' "$f")" || true
+    done
+    [ "$found" -eq 1 ] || echo "(no managed AppImages)" >&2
+  else
+    [ -n "${1:-}" ] || usage
+    cmd_wrap_one "$1"
+  fi
+}
+
 # --- migrate -----------------------------------------------------------------
 
 migrate_one() {
@@ -917,6 +954,7 @@ case "$cmd" in
   info)    shift; [ $# -eq 1 ] || usage; cmd_info "$1" ;;
   update)  shift; cmd_update "$@" ;;
   remove)  shift; [ $# -eq 1 ] || usage; cmd_remove "$1" ;;
+  wrap)    shift; cmd_wrap "${1:-}" ;;
   migrate) shift; cmd_migrate "${1:-}" ;;
   -h|--help) usage ;;
   *)
