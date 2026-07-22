@@ -209,6 +209,22 @@ mkdir -p "\$log_dir"
 exec "$target" "\$@" >"\$log_dir/$name.log" 2>&1
 EOF
   chmod +x "$BIN_DIR/$name"
+  ensure_apparmor_profile "$name"
+}
+
+# Some Electron AppImages cannot launch at all under Ubuntu's
+# kernel.apparmor_restrict_unprivileged_userns=1 without a profile granting
+# `userns` — Chromium's sandbox setup aborts. See apps/apparmor/ for the detail.
+#
+# Best-effort: this needs sudo, and install/wrap runs plenty of places where no
+# password can be entered. A failure here must never fail the AppImage install —
+# `uq` calls the same script and will apply it properly next run.
+ensure_apparmor_profile() {
+  local name="$1"
+  local installer="$HOME/dotfiles/scripts/install/apparmor-appimage.sh"
+  [ -x "$installer" ] || return 0
+  [ -f "$HOME/dotfiles/apps/apparmor/$name-appimage" ] || return 0
+  "$installer" "$name-appimage" || true
 }
 
 install_desktop_entry() {

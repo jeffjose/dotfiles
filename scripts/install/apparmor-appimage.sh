@@ -15,9 +15,24 @@
 #
 set -euo pipefail
 
+# Usage: apparmor-appimage.sh [profile ...]
+#   no args  -> install every profile in apps/apparmor (what `uq` does)
+#   with args -> only those, silently skipping ones we ship no profile for.
+#               appimage.sh calls it this way after writing a wrapper, so an
+#               app with no profile costs nothing.
 SRC_DIR="$HOME/dotfiles/apps/apparmor"
 DEST_DIR="/etc/apparmor.d"
-PROFILES=(code-appimage)
+
+if [ "$#" -gt 0 ]; then
+  PROFILES=()
+  for arg in "$@"; do
+    [ -f "$SRC_DIR/$arg" ] && PROFILES+=("$arg")
+  done
+  [ ${#PROFILES[@]} -eq 0 ] && exit 0
+else
+  mapfile -t PROFILES < <(cd "$SRC_DIR" 2>/dev/null && ls 2>/dev/null || true)
+  [ ${#PROFILES[@]} -eq 0 ] && { echo "No AppArmor profiles to install."; exit 0; }
+fi
 
 # No AppArmor (non-Ubuntu, container, BSD) -> nothing to do.
 if [ ! -d "$DEST_DIR" ] || ! command -v apparmor_parser >/dev/null 2>&1; then
@@ -38,7 +53,6 @@ for profile in "${PROFILES[@]}"; do
   dest="$DEST_DIR/$profile"
 
   if [ ! -f "$src" ]; then
-    echo "⚠️  missing source profile: $src" >&2
     continue
   fi
 
