@@ -342,3 +342,7 @@ fi
 # ============================================================================
 
 [[ -f ~/.bashrc.local ]] && . ~/.bashrc.local
+
+
+# Added by Antigravity CLI installer
+export PATH="/home/jeffjose/.local/bin:$PATH"
