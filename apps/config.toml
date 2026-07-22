@@ -86,3 +86,15 @@ cmake = "latest"
 
 [settings]
 experimental = true
+
+[env]
+# aube (mise's npm: backend) refuses packages under `lowDownloadThreshold`
+# (1000 weekly downloads) as a typosquat guard, which blocks our own published
+# low-traffic packages -- `mise install npm:t-get` dies with
+# ERR_AUBE_LOW_DOWNLOAD_PACKAGE. Exempt those by name rather than setting
+# lowDownloadThreshold=0, which would drop the guard for everything.
+#
+# Set here rather than in ~/.npmrc: npm reads ~/.npmrc too, does not know this
+# key, and warns "Unknown user config" once per package on every `mise upgrade`.
+# The OSV MAL-* advisory check is separate and still applies.
+AUBE_ALLOWED_UNPOPULAR_PACKAGES = "t-get"

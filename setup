@@ -54,7 +54,6 @@ declare -A SYMLINKS=(
   ["$DOTFILES_DIR/apps/default.yml"]="$HOME/.config/espanso/default.yml"
   ["$DOTFILES_DIR/apps/containers.conf"]="$HOME/.config/containers/containers.conf"
   ["$DOTFILES_DIR/apps/.jq"]="$HOME/.jq"
-  ["$DOTFILES_DIR/apps/.npmrc"]="$HOME/.npmrc"
   ["$DOTFILES_DIR/apps/config.toml"]="$HOME/.config/mise/config.toml"
   ["$DOTFILES_DIR/apps/uv/uv.toml"]="$HOME/.config/uv/uv.toml"
   ["$DOTFILES_DIR/apps/audtag.yaml"]="$HOME/audtag.yaml"
