@@ -67,6 +67,10 @@ if ! $shim_fixed; then
   exit 1
 fi
 
+# Self-heal npm: tools whose aube store under ~/.cache was cleared. Must run
+# before the claude-code fix, which assumes the install dir is actually populated.
+"$HOME/dotfiles/scripts/install/fix-mise-npm-installs.sh"
+
 # Self-heal claude-code if its native binary is missing (see script header).
 "$HOME/dotfiles/scripts/install/fix-mise-claude-code.sh"
 

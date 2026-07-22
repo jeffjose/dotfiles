@@ -1,0 +1,33 @@
+# Let the VS Code AppImage create a user namespace with full capabilities,
+# so Chromium's namespace sandbox works.
+#
+# Ubuntu 24.04+ sets kernel.apparmor_restrict_unprivileged_userns=1. Under that,
+# an unconfined binary that calls unshare(CLONE_NEWUSER) is transitioned into the
+# stock `unprivileged_userns` profile, which denies CAP_SYS_ADMIN. Chromium needs
+# that capability inside the new namespace to set up the sandbox, so it decides
+# the namespace sandbox is unavailable and falls back to the setuid sandbox --
+# and chrome-sandbox inside a squashfs AppImage can never be setuid-root:
+#
+#   FATAL:setuid_sandbox_host.cc] The SUID sandbox helper binary was found, but
+#   is not configured correctly. Rather than run without sandboxing I'm aborting
+#   now. You need to make sure that /tmp/.mount_code.XXXXXX/usr/bin/chrome-sandbox
+#   is owned by root and has mode 4755.
+#
+# Naming the binary here keeps it out of `unprivileged_userns`, so the namespace
+# sandbox succeeds and VS Code stays sandboxed. This is exactly what the distro's
+# own /etc/apparmor.d/code profile does for the .deb at /usr/share/code/code --
+# that profile does not match once VS Code is an AppImage, hence this one.
+#
+# flags=(unconfined) means this grants no confinement beyond the userns rule; it
+# exists to give the binary a name AppArmor can hang the `userns` permission on.
+
+abi <abi/4.0>,
+
+include <tunables/global>
+
+profile code-appimage /home/*/bin/.appimage/bin/code.AppImage flags=(unconfined) {
+  userns,
+
+  # Site-specific additions and overrides. See local/README for details.
+  include if exists <local/code-appimage>
+}

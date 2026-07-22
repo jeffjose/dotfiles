@@ -48,4 +48,8 @@ else
   echo "ℹ️  If the old .deb is still installed, remove it once: sudo dpkg -P code"
 fi
 
+# The AppImage needs an AppArmor profile granting `userns`, or Chromium's
+# sandbox setup aborts on launch. Idempotent; see the script for why.
+"$HOME/dotfiles/scripts/install/apparmor-appimage.sh"
+
 echo "✅ VS Code update complete!"
