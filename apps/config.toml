@@ -11,6 +11,7 @@ bun = "latest"
 zig = "0.14.0"
 yt-dlp = "latest"
 "github:endevco/aube" = "latest"
+"aqua:schollz/croc" = "latest"
 
 # JSON utilities
 "go:github.com/tomnomnom/gron" = "latest"
