@@ -150,6 +150,7 @@
     alias gaa 'git add .'
     alias gd 'git diff'
     alias gp 'git push'
+    alias gt 'git'
 
     alias foxit 'foxit \!* &'
     alias fox foxit
