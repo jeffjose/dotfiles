@@ -62,7 +62,6 @@ yt-dlp = "latest"
 "cargo:https://github.com/jeffjose/seal" = "branch:main"
 
 # npm
-"npm:@google/gemini-cli" = "latest"
 "npm:sass" = "latest"
 "npm:astro" = "latest"
 "npm:postcss-cli" = "latest"

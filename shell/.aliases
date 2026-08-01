@@ -618,19 +618,13 @@
     alias fable 'claude --model fable'
     alias opus 'claude --model opus'
     alias sonnet 'claude --model sonnet'
-    alias flash 'gemini --model gemini-3-flash-preview'
-    alias pro 'gemini --model gemini-3-pro-preview'
 
     alias ag antigravity
 
     alias ccu 'bunx ccusage@latest'
     alias cculive 'ccu blocks --live'
-    alias gemini 'gemini --yolo'
     alias qwen 'qwen --yolo'
 
-
-    # LLM based shortcuts
-    alias gcp 'gemini -m gemini-2.5-flash -p "Look at the files and then git add, commit and push with appropriate commit message. Give very very brief replies"'
 
     # Explore SQLite database with NocoDB (auto-creates account and base)
     alias sqlexplore '~/dotfiles/bin/sqlexplore \!*'
