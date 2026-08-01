@@ -28,6 +28,20 @@ claude_works() {
   "$cmd" --version >/dev/null 2>&1
 }
 
+# Locate the launcher inside a mise npm: install dir. mise has shipped two
+# layouts: a top-level bin/ and, with the aube-backed npm: backend, only
+# node_modules/.bin/. Checking just one makes a healthy install look broken.
+resolve_claude_bin() {
+  local dir="$1" candidate
+  for candidate in "$dir/bin/claude" "$dir/node_modules/.bin/claude"; do
+    if [[ -x "$candidate" ]]; then
+      echo "$candidate"
+      return 0
+    fi
+  done
+  return 1
+}
+
 run_postinstall_in() {
   local dir="$1" cjs
   cjs="$(find -L "$dir" -name install.cjs -path '*/@anthropic-ai/claude-code/install.cjs' 2>/dev/null | head -n 1)"
@@ -42,7 +56,7 @@ run_postinstall_in() {
 install_dir="$(mise where 'npm:@anthropic-ai/claude-code' 2>/dev/null || true)"
 claude_bin="claude"
 if [[ -n "$install_dir" ]]; then
-  claude_bin="$install_dir/bin/claude"
+  claude_bin="$(resolve_claude_bin "$install_dir" || echo claude)"
 fi
 
 if claude_works "$claude_bin"; then
@@ -65,10 +79,10 @@ mise reshim
 # Re-check install_dir after reinstall
 install_dir="$(mise where 'npm:@anthropic-ai/claude-code' 2>/dev/null || true)"
 if [[ -n "$install_dir" ]]; then
-  claude_bin="$install_dir/bin/claude"
   if [[ -d "$install_dir" ]]; then
     run_postinstall_in "$install_dir" || true
   fi
+  claude_bin="$(resolve_claude_bin "$install_dir" || echo claude)"
 fi
 
 if claude_works "$claude_bin"; then
