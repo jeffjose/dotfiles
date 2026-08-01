@@ -1,0 +1,26 @@
+# Let the Discord AppImage create a user namespace with full capabilities,
+# so Chromium's namespace sandbox works.
+#
+# Same failure mode as code-appimage (see that profile for the full write-up):
+# Ubuntu 24.04+ sets kernel.apparmor_restrict_unprivileged_userns=1, which drops
+# an unconfined binary calling unshare(CLONE_NEWUSER) into the stock
+# `unprivileged_userns` profile. That denies CAP_SYS_ADMIN, so Electron falls
+# back to the setuid sandbox — and chrome-sandbox inside a squashfs AppImage can
+# never be setuid-root, so it aborts instead of running unsandboxed.
+#
+# Naming the binary here keeps it out of `unprivileged_userns`, so the namespace
+# sandbox succeeds and Discord stays sandboxed.
+#
+# flags=(unconfined) means this grants no confinement beyond the userns rule; it
+# exists to give the binary a name AppArmor can hang the `userns` permission on.
+
+abi <abi/4.0>,
+
+include <tunables/global>
+
+profile discord-appimage /home/*/bin/.appimage/bin/discord.AppImage flags=(unconfined) {
+  userns,
+
+  # Site-specific additions and overrides. See local/README for details.
+  include if exists <local/discord-appimage>
+}
