@@ -27,10 +27,27 @@ declare -A VERSION_COMMANDS=(
   ["update_chrome.sh"]="google-chrome --version"
   ["update_cursor.sh"]="md5sum \$HOME/bin/cursor | cut -d' ' -f1"
   ["update_mise.sh"]="mise --version"
-  ["update_deb.sh"]="echo 'n/a'"
+  ["update_deb.sh"]="deb_versions"
   ["update_claude_desktop.sh"]="jq -r '.tag // .release_name // \"-\"' \$HOME/bin/.appimage/meta/claude-desktop.json 2>/dev/null || echo 'not installed'"
   ["update_appimage.sh"]="jq -r '.release_name // .tag // \"-\"' \$HOME/bin/.appimage/meta/antigravity.json 2>/dev/null || echo 'n/a'"
 )
+
+# update_deb.sh installs whatever misc/package.toml lists, so there is no single
+# version to report — ask dpkg for each package instead. Read the names from the
+# toml rather than hardcoding them so the summary tracks the config.
+deb_versions() {
+  local toml="$HOME/dotfiles/misc/package.toml"
+  [[ -f "$toml" ]] || { echo "n/a"; return 0; }
+
+  local pkg ver out=""
+  while read -r pkg; do
+    [[ -n "$pkg" ]] || continue
+    ver=$(dpkg-query -W -f='${Version}' "$pkg" 2>/dev/null) || ver=""
+    out="${out:+$out, }${pkg}=${ver:--}"
+  done < <(sed -nE 's/^[[:space:]]*name[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/p' "$toml")
+
+  echo "${out:-n/a}"
+}
 
 # Get version for a specific application
 get_version() {
