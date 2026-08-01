@@ -3,12 +3,14 @@
 #url = "https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev"
 #distribution = "antigravity-debian"
 
+# Debs installed/updated by scripts/update/update_deb.sh (run from `uq`).
+#
+# Prefer an AppImage when one exists — managed by scripts/utils/appimage.sh and
+# updated by update_appimage.sh, so it needs no entry here. Do not list an app in
+# both places: `code` used to be here as well as an AppImage, so every `uq` run
+# reinstalled a .deb that the ~/bin/code wrapper then shadowed anyway.
+
 [[packages]]
 name = "google-chrome-stable"
 type = "deb"
 url = "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
-
-[[packages]]
-name = "code"
-type = "deb"
-url = "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
