@@ -51,12 +51,44 @@ get_version() {
   eval "$command" 2>/dev/null || echo "not installed"
 }
 
-# Check sudo privileges
+# Prompt for the sudo password up front and keep the credential warm.
+#
+# Asking first thing means the prompt is on screen before you wander off to
+# another terminal, instead of appearing a second later behind the dotfiles
+# pull. The background loop then refreshes the timestamp so none of the update
+# scripts re-prompt part way through a long run.
+SUDO_KEEPALIVE_PID=""
+
+stop_sudo_keepalive() {
+  [[ -n "$SUDO_KEEPALIVE_PID" ]] || return 0
+
+  # Note the loop's in-flight `sleep` before killing the loop itself: killing a
+  # subshell doesn't kill its children, so the sleep would otherwise hang around
+  # orphaned for up to a minute after the script exits.
+  local children
+  children="$(pgrep -P "$SUDO_KEEPALIVE_PID" 2>/dev/null || true)"
+  kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true
+  if [[ -n "$children" ]]; then
+    kill $children 2>/dev/null || true
+  fi
+  SUDO_KEEPALIVE_PID=""
+}
+
 check_sudo() {
-  if ! sudo true; then
+  echo "🔑 Asking for sudo up front so the rest of the run is unattended..."
+  if ! sudo -v; then
     echo "Error: This script requires sudo privileges"
     exit 1
   fi
+
+  # Refresh every minute (the default timeout is 5) until the script exits.
+  while true; do
+    sleep 60
+    kill -0 "$$" 2>/dev/null || exit 0
+    sudo -n true 2>/dev/null || exit 0
+  done &
+  SUDO_KEEPALIVE_PID=$!
+  trap stop_sudo_keepalive EXIT
 }
 
 # Initialize version tracking
@@ -133,6 +165,8 @@ print_summary() {
 main() {
   echo "🚀 Starting quick update process..."
   echo "-----------------------------------"
+
+  check_sudo
 
   # Update dotfiles first (best-effort — don't abort the whole update run if the
   # pull fails, e.g. offline, merge conflict, or detached HEAD). Subshell keeps a
