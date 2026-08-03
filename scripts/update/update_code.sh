@@ -11,9 +11,13 @@
 # On a fresh machine this installs; afterwards `uq`'s update_appimage.sh keeps it
 # current via `appimage update --all`, so re-running this is a fast no-op.
 #
-# Migrating off the .deb: after the AppImage installs, remove the old system
-# package once with `sudo dpkg -P code` (the ~/bin/code wrapper shadows /usr/bin/code
-# in PATH, so this is safe to do at your leisure).
+# This is the A (AppImage) path. The B (.deb) path is
+# scripts/install/install-code-deb.sh — manual, and deliberately not wired into
+# `uq`, so nothing reinstalls the .deb behind your back.
+#
+# Both can be installed side by side. ~/bin/code shadows /usr/bin/code in PATH,
+# so a bare `code` runs the AppImage regardless; use /usr/bin/code for the .deb.
+# Removing the .deb is therefore optional — not a required migration step.
 #
 # Jeffrey Jose | 2026-07-15
 #
@@ -45,7 +49,7 @@ else
   # to `code` (the derived name from the asset filename would be "vscode-x86").
   echo "📥 Installing VS Code AppImage..."
   "$APPIMAGE" install --name "$NAME" "$SOURCE_URL"
-  echo "ℹ️  If the old .deb is still installed, remove it once: sudo dpkg -P code"
+  echo "ℹ️  This is the AppImage. For the .deb too: scripts/install/install-code-deb.sh"
 fi
 
 # The AppImage needs an AppArmor profile granting `userns`, or Chromium's
