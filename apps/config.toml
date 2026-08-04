@@ -60,6 +60,7 @@ yt-dlp = "latest"
 "cargo:https://github.com/jeffjose/loc" = "branch:main"
 "cargo:https://github.com/jeffjose/wat" = "branch:main"
 "cargo:https://github.com/jeffjose/seal" = "branch:main"
+"cargo:https://github.com/jeffjose/magicfs" = "branch:main"
 
 # npm
 "npm:sass" = "latest"
