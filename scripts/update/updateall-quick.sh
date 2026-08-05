@@ -91,11 +91,45 @@ stop_sudo_keepalive() {
   SUDO_KEEPALIVE_PID=""
 }
 
+# Best-effort, never fatal. `sudo -v` is not portable across machines:
+#
+#   - work/managed hosts often grant sudo for a fixed list of commands only, so
+#     validating the credential on its own is refused outright ("may not run
+#     sudo");
+#   - some require a security-key touch or re-auth per invocation, which makes a
+#     cached timestamp meaningless;
+#   - a host may have passwordless sudo, or no sudo binary at all.
+#
+# None of that should stop the run — most of what `uq` does (appimages, mise,
+# dotfiles) needs no root, and the steps that do will prompt for themselves.
 check_sudo() {
+  # main() calls this on both sides of the dotfiles pull; only warm up once.
+  [[ -z "$SUDO_KEEPALIVE_PID" ]] || return 0
+
+  if ! command -v sudo >/dev/null 2>&1; then
+    echo "ℹ️  No sudo on this host — skipping the credential warm-up."
+    return 0
+  fi
+
+  # Already usable without a prompt (NOPASSWD sudoers, or a still-warm cache).
+  # Nothing to ask for, and nothing worth keeping alive.
+  if sudo -n true 2>/dev/null; then
+    return 0
+  fi
+
   echo "🔑 Asking for sudo up front so the rest of the run is unattended..."
   if ! sudo -v; then
-    echo "Error: This script requires sudo privileges"
-    exit 1
+    echo "⚠️  Couldn't pre-authorise sudo — continuing anyway." >&2
+    echo "    Steps that need root will prompt when they get there." >&2
+    return 0
+  fi
+
+  # Only worth a keepalive if the credential actually caches. Where it doesn't
+  # (touch-per-command setups), `sudo -v` succeeds but leaves nothing behind, so
+  # the loop would just churn — skip it.
+  if ! sudo -n true 2>/dev/null; then
+    echo "ℹ️  sudo doesn't cache credentials here; skipping the refresh loop."
+    return 0
   fi
 
   # Refresh every minute (the default timeout is 5) until the script exits.

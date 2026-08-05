@@ -14,10 +14,14 @@ UPDATE_SCRIPTS=(
   "update_cursor.sh"
 )
 
-# Ensure script is run with sudo privileges
-if ! sudo true; then
-  echo "Error: This script requires sudo privileges"
-  exit 1
+# Warm the sudo credential, but don't make it a precondition. Managed/work
+# machines commonly allow sudo for a fixed list of commands only, so a bare
+# `sudo true` is refused even though the apt calls below would be permitted.
+# Every task here is wrapped in run_task and reported in the summary, so let the
+# individual steps fail on their own terms instead of aborting the whole run.
+if command -v sudo >/dev/null 2>&1; then
+  sudo -n true 2>/dev/null || sudo true || \
+    echo "⚠️  Couldn't pre-authorise sudo — continuing; root steps may fail or prompt." >&2
 fi
 
 echo "🚀 Starting full system update..."
