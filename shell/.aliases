@@ -630,6 +630,10 @@
     alias sqlexplore '~/dotfiles/bin/sqlexplore \!*'
 
     alias stripaud '~/scripts/stripaud/stripaud'
+    alias mf 'magicfs'
+    alias mfr 'magicfs --sort=random'
+    alias mfs 'magicfs --sort=size'
+    alias mft 'magicfs --sort=time'
 
     # Google
     #
