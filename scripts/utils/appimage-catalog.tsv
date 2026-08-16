@@ -28,3 +28,4 @@ discord	https://github.com/pkgforge-dev/Discord-AppImage	personal-only	Discord (
 croc-gui	https://github.com/interfluve-wav/croc-gui	-	Croc GUI (desktop front-end for the croc CLI; named croc-gui so it does not collide with the croc CLI from mise)
 t3-code	https://github.com/pingdotgg/t3code	-	T3 Code (t3.codes — desktop control plane for driving Claude Code, Codex, OpenCode et al from one window; the repo also cuts nightly prereleases, but /releases/latest keeps us on stable)
 sonic-pi	https://sonic-pi.net/files/releases/{tag}/Sonic-Pi-for-Linux-{arch_short}-{tag}.AppImage#github=sonic-pi-net/sonic-pi	-	Sonic Pi (live-coding music environment; self-hosted download, version tracked from GitHub releases)
+opencode-desktop	https://github.com/sst/opencode	-	OpenCode Desktop (GUI for the opencode agent; named opencode-desktop so it does not shadow the opencode CLI installed from mise as npm:opencode-ai — ~/bin sorts ahead of the mise shims)

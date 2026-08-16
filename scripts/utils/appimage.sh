@@ -3,11 +3,11 @@
 # appimage — tiny AppImage manager.
 #
 # Subcommands:
-#   (none)                       list managed AppImages (default)
+#   (none)                       list apps — installed and available (default)
 #   install <url|path|name>      download / copy & register an AppImage
 #   install -i                   pick apps to install from the catalog
-#   list                         show managed AppImages
-#   catalog                      show apps available to install
+#   list / ls                    show every app: installed ones plus what the
+#                                catalog offers but isn't installed yet
 #   info <name-or-path>          crack open an AppImage and print what's inside
 #   update <name> | --all | -i   re-check GitHub source and upgrade if newer
 #   remove <name>                delete binary, wrapper, desktop entry, metadata
@@ -74,17 +74,17 @@ usage() {
 $PROG — manage AppImages (install, update, and desktop integration).
 
 USAGE
-  $PROG                              list installed AppImages (default)
+  $PROG                              list apps — installed and available (default)
   $PROG <command> [options]
 
 COMMANDS
+  list, ls                           list every app: installed ones, plus the
+                                     catalog apps not installed yet
   install [options] <url|path|name>  install an AppImage and register it
   install -i                         pick apps to install from the catalog
   update <name>                      update one app if a newer release exists
   update --all                       update every managed app
   update -i                          pick which apps to update
-  list                               list installed AppImages
-  catalog                            list apps available to install
   info <name|path>                   inspect a managed app or AppImage file
   remove <name>                      uninstall an app (binary, launcher, metadata)
   wrap <name> | --all                regenerate the ~/bin/<name> wrapper script
@@ -101,7 +101,7 @@ INSTALL OPTIONS
 
 NOTES
   A bare URL or .AppImage path implies 'install'. A bare name that matches a
-  catalog entry ($PROG catalog) is installed from its recorded source.
+  not-installed app in $PROG list is installed from its recorded source.
 EOF
   exit 1
 }
@@ -690,52 +690,66 @@ cmd_install() {
   if [ -f "$APP_DIR/$name.desktop" ]; then echo "  Launcher: $APP_DIR/$name.desktop"; fi
 }
 
-# --- catalog listing ---------------------------------------------------------
-
-cmd_catalog() {
-  local rows
-  rows=$(catalog_rows)
-  if [ -z "$rows" ]; then
-    echo "(catalog is empty: $CATALOG_FILE)" >&2
-    return 0
-  fi
-  {
-    printf 'NAME\tGUARD\tSTATUS\tSOURCE\n'
-    local name url guard desc status
-    while IFS=$'\t' read -r name url guard desc; do
-      [ -n "$name" ] || continue
-      if [ -f "$META_DIR/$name.json" ]; then status="installed"; else status="-"; fi
-      printf '%s\t%s\t%s\t%s\n' "$name" "${guard:--}" "$status" "$url"
-    done <<<"$rows"
-  } | column -t -s $'\t'
-}
-
 # --- list --------------------------------------------------------------------
 
+# Join flag words into the "(unofficial, personal-only)" suffix hung off SOURCE.
+# Empty in, empty out — so the common no-flags row stays clean.
+flag_suffix() {
+  local out="" f
+  for f in "$@"; do
+    [ -n "$f" ] || continue
+    out="${out:+$out, }$f"
+  done
+  [ -n "$out" ] && printf ' (%s)' "$out"
+  return 0
+}
+
+# One table for everything: apps we manage (from metadata) followed by the
+# catalog apps not installed yet. There is no separate `catalog` command — an
+# app you could install and one you already did belong in the same list, and
+# the STATUS column is what tells them apart.
 cmd_list() {
   mkdir -p "$META_DIR"
-  local files=( "$META_DIR"/*.json )
-  if [ ! -e "${files[0]}" ]; then
-    echo "(no managed AppImages)" >&2
+  local out
+  out=$({
+    local f name tag source origin guard flags
+    for f in "$META_DIR"/*.json; do
+      [ -e "$f" ] || continue
+      name=$(jq -r '.name' "$f")
+      tag=$(jq -r 'if (.tag // "") == "" then "-" else .tag end' "$f")
+      origin=$(jq -r '.origin // "install"' "$f")
+      guard=$(jq -r '.guard // ""' "$f")
+      source=$(jq -r '
+        if (.github_repo // "") != "" then .github_repo
+        elif (.source_url // "") != "" then .source_url
+        else "-" end' "$f")
+      flags=$(flag_suffix \
+        "$([ "$(jq -r '.unofficial // false' "$f")" = "true" ] && echo unofficial)" \
+        "$([ "$origin" = "migrated" ] && echo migrated)" \
+        "$guard")
+      printf '%s\t%s\t%s%s\tinstalled %s\n' \
+        "$name" "$tag" "$source" "$flags" \
+        "$(relative_time "$(jq -r '.installed_at' "$f")")"
+    done
+
+    # Catalog apps we don't have. Show the GitHub repo rather than the raw
+    # source URL so these line up with the installed rows above.
+    local url desc repo
+    while IFS=$'\t' read -r name url guard desc; do
+      [ -n "$name" ] || continue
+      [ -f "$META_DIR/$name.json" ] && continue
+      [ "$guard" = "-" ] && guard=""
+      repo=$(github_repo_from_url "$url" || true)
+      printf '%s\t-\t%s%s\tnot installed\n' \
+        "$name" "${repo:-$url}" "$(flag_suffix "$guard")"
+    done < <(catalog_rows | sort)
+  })
+
+  if [ -z "$out" ]; then
+    echo "(no AppImages installed, and the catalog is empty: $CATALOG_FILE)" >&2
     return 0
   fi
-  {
-    printf 'NAME\tVERSION\tSOURCE\tINSTALLED\n'
-    local f name tag source installed origin
-    for f in "${files[@]}"; do
-      name=$(jq -r '.name' "$f")
-      tag=$(jq -r 'if .tag == "" or .tag == null then "-" else .tag end' "$f")
-      origin=$(jq -r '.origin // "install"' "$f")
-      source=$(jq -r '
-        if .github_repo != "" and .github_repo != null then .github_repo
-        elif .source_url != "" and .source_url != null then .source_url
-        else "-" end' "$f")
-      if [ "$(jq -r '.unofficial // false' "$f")" = "true" ]; then source="$source (unofficial)"; fi
-      if [ "$origin" = "migrated" ]; then source="$source (migrated)"; fi
-      installed=$(relative_time "$(jq -r '.installed_at' "$f")")
-      printf '%s\t%s\t%s\t%s\n' "$name" "$tag" "$source" "$installed"
-    done
-  } | column -t -s $'\t'
+  { printf 'NAME\tVERSION\tSOURCE\tSTATUS\n'; printf '%s\n' "$out"; } | column -t -s $'\t'
 }
 
 # --- info --------------------------------------------------------------------
@@ -853,6 +867,24 @@ cmd_update_one() {
   origin=$(jq -r '.origin // "install"' "$meta")
   unofficial=$(jq -r '.unofficial // false' "$meta")
   guard=$(jq -r '.guard // ""' "$meta")
+
+  # Metadata with no tracked source — an app adopted by `migrate`, or installed
+  # from a bare .AppImage URL before it was catalogued — can still update if the
+  # catalog knows the name. Adopt the catalog's source (and guard) and carry on;
+  # the reinstall below writes them into metadata, so this only happens once.
+  if [ -z "$github_repo" ]; then
+    local hit c_url c_guard
+    if hit=$(catalog_lookup "$name"); then
+      IFS=$'\t' read -r c_url c_guard <<<"$hit"
+      github_repo=$(github_repo_from_url "$c_url" || true)
+      if [ -n "$github_repo" ]; then
+        echo "[$name] adopting catalog source: $c_url" >&2
+        source_url="$c_url"
+        [ -n "$guard" ] || guard="$c_guard"
+        origin="install"
+      fi
+    fi
+  fi
 
   if [ -z "$github_repo" ] || [ "$origin" = "migrated" ]; then
     echo "[$name] no tracked source (re-run: appimage install <url> to enable updates)" >&2
@@ -1036,13 +1068,13 @@ cmd_migrate() {
 
 # --- dispatch ----------------------------------------------------------------
 
-# Bare `appimage` lists what's installed rather than dumping help.
+# Bare `appimage` lists apps rather than dumping help.
 [ $# -ge 1 ] || { cmd_list; exit 0; }
 cmd="$1"
 case "$cmd" in
-  install) shift; cmd_install "$@" ;;
-  list)    shift; cmd_list ;;
-  catalog) shift; cmd_catalog ;;
+  install)   shift; cmd_install "$@" ;;
+  list|ls)   shift; cmd_list ;;
+  catalog)   shift; cmd_list ;;   # folded into `list`; kept so muscle memory works
   info)    shift; [ $# -eq 1 ] || usage; cmd_info "$1" ;;
   update)  shift; cmd_update "$@" ;;
   remove)  shift; [ $# -eq 1 ] || usage; cmd_remove "$1" ;;
