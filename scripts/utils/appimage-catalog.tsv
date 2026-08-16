@@ -20,3 +20,4 @@ claude-desktop	https://github.com/aaddrick/claude-desktop-debian	personal-only	C
 lmstudio	https://installers.lmstudio.ai/linux/x64/0.4.19-2/LM-Studio-0.4.19-2-x64.AppImage	personal-only	LM Studio (local LLM runner; personal hosts only)
 discord	https://github.com/pkgforge-dev/Discord-AppImage	personal-only	Discord (unofficial community build by pkgforge-dev; personal hosts only)
 croc-gui	https://github.com/interfluve-wav/croc-gui	-	Croc GUI (desktop front-end for the croc CLI; named croc-gui so it does not collide with the croc CLI from mise)
+t3-code	https://github.com/pingdotgg/t3code	-	T3 Code (t3.codes — desktop control plane for driving Claude Code, Codex, OpenCode et al from one window; the repo also cuts nightly prereleases, but /releases/latest keeps us on stable)
