@@ -2,9 +2,15 @@
 #
 # Tab-separated columns:  name <TAB> source_url <TAB> guard <TAB> description
 #   - guard: name of an appimage-guards/<guard>.sh hook, or "-" for none
-#   - source_url is a GitHub repo/release URL (preferred, enables updates) or a
-#     direct .AppImage URL
+#   - source_url is a GitHub repo/release URL (preferred, enables updates), a
+#     templated download URL, or a direct .AppImage URL (no updates)
 #   - lines starting with # and blank lines are ignored
+#
+# Templated source_url: for projects that tag releases on GitHub but host the
+# AppImage themselves, write the download URL with placeholders and append
+# "#github=OWNER/REPO" to say where the version comes from. Placeholders:
+# {tag} (v5.0.0), {version} (5.0.0), {arch} (x86_64/aarch64), {arch_short}
+# (x64/arm64). Never pin a version here — it re-resolves on every update.
 #
 # Keep columns tab-separated (not spaces). Every field must be non-empty (use
 # "-" for no guard) — adjacent tabs collapse when parsed and would misalign.
@@ -21,3 +27,4 @@ lmstudio	https://installers.lmstudio.ai/linux/x64/0.4.19-2/LM-Studio-0.4.19-2-x6
 discord	https://github.com/pkgforge-dev/Discord-AppImage	personal-only	Discord (unofficial community build by pkgforge-dev; personal hosts only)
 croc-gui	https://github.com/interfluve-wav/croc-gui	-	Croc GUI (desktop front-end for the croc CLI; named croc-gui so it does not collide with the croc CLI from mise)
 t3-code	https://github.com/pingdotgg/t3code	-	T3 Code (t3.codes — desktop control plane for driving Claude Code, Codex, OpenCode et al from one window; the repo also cuts nightly prereleases, but /releases/latest keeps us on stable)
+sonic-pi	https://sonic-pi.net/files/releases/{tag}/Sonic-Pi-for-Linux-{arch_short}-{tag}.AppImage#github=sonic-pi-net/sonic-pi	-	Sonic Pi (live-coding music environment; self-hosted download, version tracked from GitHub releases)

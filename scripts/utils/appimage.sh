@@ -114,22 +114,29 @@ EOF
 #   https://github.com/OWNER/REPO/releases
 #   https://github.com/OWNER/REPO/releases/latest
 #   https://github.com/OWNER/REPO/releases/tag/TAG
+
+# Fetch a release blob from the GitHub API. An empty tag means "latest".
+github_release_json() {
+  local repo="$1" tag="${2:-}" api
+  if [ -n "$tag" ]; then
+    api="https://api.github.com/repos/${repo}/releases/tags/${tag}"
+  else
+    api="https://api.github.com/repos/${repo}/releases/latest"
+  fi
+  local hdrs=(-H "Accept: application/vnd.github+json")
+  if [ -n "${GITHUB_TOKEN:-}" ]; then hdrs+=(-H "Authorization: Bearer ${GITHUB_TOKEN}"); fi
+  curl -sfL "${hdrs[@]}" "$api" || { echo "GitHub API request failed: $api" >&2; return 1; }
+}
+
 resolve_github() {
-  local url="$1" owner repo tag api
+  local url="$1" owner repo tag
   if [[ "$url" =~ ^https?://github\.com/([^/]+)/([^/?#]+)(/releases(/tag/([^/?#]+)|/latest)?)?/?$ ]]; then
     owner="${BASH_REMATCH[1]}"
     repo="${BASH_REMATCH[2]%.git}"
     tag="${BASH_REMATCH[5]:-}"
-    if [ -n "$tag" ]; then
-      api="https://api.github.com/repos/${owner}/${repo}/releases/tags/${tag}"
-    else
-      api="https://api.github.com/repos/${owner}/${repo}/releases/latest"
-    fi
     echo "Resolving GitHub release: ${owner}/${repo}${tag:+ @ $tag}" >&2
-    local hdrs=(-H "Accept: application/vnd.github+json")
-    [ -n "${GITHUB_TOKEN:-}" ] && hdrs+=(-H "Authorization: Bearer ${GITHUB_TOKEN}")
     local json
-    json=$(curl -sfL "${hdrs[@]}" "$api") || { echo "GitHub API request failed: $api" >&2; return 1; }
+    json=$(github_release_json "${owner}/${repo}" "$tag") || return 1
     # Pick the asset for THIS machine's architecture. Some releases ship both
     # arches with names like "anylinux-x86_64" / "anylinux-aarch64" — matching on
     # "linux" alone would grab whichever is listed first, so match the host arch
@@ -153,8 +160,61 @@ resolve_github() {
   return 1
 }
 
+# Resolve a *templated* source URL to "ASSET_URL<TAB>TAG<TAB>RELEASE_NAME".
+#
+# Some projects tag releases on GitHub but host the AppImage on their own site,
+# so there is no release asset to discover — the download URL has to be built
+# from the version. A templated source is that URL with placeholders, plus a
+# "#github=OWNER/REPO" fragment naming the repo the version comes from:
+#
+#   https://sonic-pi.net/files/releases/{tag}/Sonic-Pi-for-Linux-{arch_short}-{tag}.AppImage#github=sonic-pi-net/sonic-pi
+#
+# Placeholders: {tag} (v5.0.0)  {version} (5.0.0)
+#               {arch} (x86_64 / aarch64)  {arch_short} (x64 / arm64)
+#
+# The template — not the resolved URL — is what lands in metadata, so `update`
+# re-resolves it later and picks up new releases on its own.
+resolve_templated() {
+  local url="$1" template repo json tag release_name arch arch_short out
+  template="${url%%#github=*}"
+  repo="${url##*#github=}"
+  [ -n "$template" ] && [ -n "$repo" ] || { echo "Malformed templated source: $url" >&2; return 1; }
+
+  echo "Resolving GitHub release: ${repo} (templated download URL)" >&2
+  json=$(github_release_json "$repo") || return 1
+  tag=$(jq -r '.tag_name // ""' <<<"$json")
+  release_name=$(jq -r '.name // ""' <<<"$json")
+  [ -n "$tag" ] || { echo "No tag_name in latest release of $repo" >&2; return 1; }
+
+  case "$(uname -m)" in
+    x86_64|amd64)  arch="x86_64";      arch_short="x64" ;;
+    aarch64|arm64) arch="aarch64";     arch_short="arm64" ;;
+    *)             arch="$(uname -m)"; arch_short="$(uname -m)" ;;
+  esac
+
+  out="$template"
+  out="${out//\{tag\}/$tag}"
+  out="${out//\{version\}/${tag#v}}"
+  out="${out//\{arch\}/$arch}"
+  out="${out//\{arch_short\}/$arch_short}"
+  printf '%s\t%s\t%s\n' "$out" "$tag" "$release_name"
+}
+
+# Resolve any tracked source (GitHub release page or templated download URL).
+resolve_source() {
+  case "$1" in
+    *'#github='*) resolve_templated "$1" ;;
+    *)            resolve_github "$1" ;;
+  esac
+}
+
 github_repo_from_url() {
   local url="$1"
+  # Templated sources carry their repo in the "#github=OWNER/REPO" fragment.
+  if [[ "$url" == *'#github='* ]]; then
+    echo "${url##*#github=}"
+    return
+  fi
   if [[ "$url" =~ ^https?://github\.com/([^/]+)/([^/?#]+) ]]; then
     echo "${BASH_REMATCH[1]}/${BASH_REMATCH[2]%.git}"
   fi
@@ -558,7 +618,7 @@ cmd_install() {
 
   if [ -n "$github_repo" ]; then
     local resolved
-    resolved=$(resolve_github "$arg") || exit 1
+    resolved=$(resolve_source "$arg") || exit 1
     if [ -z "$resolved" ]; then
       echo "No .AppImage asset found in release" >&2
       exit 1
@@ -800,7 +860,7 @@ cmd_update_one() {
   fi
 
   local resolved new_asset new_tag new_release_name
-  resolved=$(resolve_github "$source_url") || { echo "[$name] resolve failed" >&2; return 1; }
+  resolved=$(resolve_source "$source_url") || { echo "[$name] resolve failed" >&2; return 1; }
   if [ -z "$resolved" ]; then
     echo "[$name] no asset found in latest release" >&2
     return 1

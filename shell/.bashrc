@@ -344,3 +344,6 @@ fi
 
 # Added by Antigravity CLI installer
 export PATH="/home/jeffjose/.local/bin:$PATH"
+
+# ante
+export PATH="/home/jeffjose/.ante/bin:$PATH"
