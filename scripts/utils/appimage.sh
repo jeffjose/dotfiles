@@ -202,11 +202,27 @@ write_wrapper() {
   # These are GUI apps; launched from a terminal they spew Electron/Chromium
   # chatter to stdout/stderr. Redirect that to a per-app log (truncated each
   # launch so it stays small) to keep the shell clean — `tail` it to debug.
+  #
+  # They also have to be detached. A distro package's `code`/`discord` launcher
+  # is a thin CLI that hands off to the real GUI process and exits, so the
+  # prompt comes straight back. An AppImage has no such split: AppRun `exec`s
+  # the GUI binary itself, so running it inline pins the app to the terminal —
+  # it blocks until you quit, and closing the terminal kills it. setsid puts it
+  # in its own session so neither happens.
+  #
+  # Exception: --wait/-w callers (e.g. `code --wait` as $EDITOR, or as git's
+  # core.editor) depend on the process blocking until the file is closed, so
+  # those stay in the foreground.
   cat > "$BIN_DIR/$name" <<EOF
 #!/bin/sh
 log_dir="\${HOME}/bin/.appimage/logs"
 mkdir -p "\$log_dir"
-exec "$target" "\$@" >"\$log_dir/$name.log" 2>&1
+for arg in "\$@"; do
+  case "\$arg" in
+    -w|--wait) exec "$target" "\$@" >"\$log_dir/$name.log" 2>&1 ;;
+  esac
+done
+setsid "$target" "\$@" >"\$log_dir/$name.log" 2>&1 &
 EOF
   chmod +x "$BIN_DIR/$name"
   ensure_apparmor_profile "$name"

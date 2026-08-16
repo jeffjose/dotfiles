@@ -9,7 +9,13 @@
 # Keep columns tab-separated (not spaces). Every field must be non-empty (use
 # "-" for no guard) — adjacent tabs collapse when parsed and would misalign.
 #
-code	https://github.com/valicm/VSCode-AppImage	-	VS Code (official build, repackaged as an AppImage)
+# code — dropped in favour of the apt package. VS Code ships a real .deb, and the
+# AppImage costs ~200MB extra: the squashfuse daemon plus the compressed image
+# sitting in page cache on top of the decompressed pages it serves. AppRun also
+# leaks its mountpoint into PATH/LD_LIBRARY_PATH/XDG_DATA_DIRS, which the
+# integrated terminal then inherits (and the path goes stale on every restart).
+# Kept here for reference only:
+# code	https://github.com/valicm/VSCode-AppImage	-	VS Code (official build, repackaged as an AppImage)
 claude-desktop	https://github.com/aaddrick/claude-desktop-debian	personal-only	Claude Desktop (community Linux build; personal hosts only)
 lmstudio	https://installers.lmstudio.ai/linux/x64/0.4.19-2/LM-Studio-0.4.19-2-x64.AppImage	personal-only	LM Studio (local LLM runner; personal hosts only)
 discord	https://github.com/pkgforge-dev/Discord-AppImage	personal-only	Discord (unofficial community build by pkgforge-dev; personal hosts only)
