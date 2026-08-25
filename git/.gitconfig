@@ -122,3 +122,12 @@
 [credential "https://gist.github.com"]
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
+[safe]
+	directory = /home/jeffjose/github-actions-runner/graphprix/_work/graphprix/graphprix
+	directory = /home/jeffjose/github-actions-runner/graphprix/_work/graphprix/graphprix
+	directory = /home/jeffjose/github-actions-runner/server/_work/homelab/homelab
+	directory = /home/jeffjose/github-actions-runner/server/_work/homelab/homelab
+	directory = /home/jeffjose/github-actions-runner/graphprix/_work/graphprix/graphprix
+	directory = /home/jeffjose/github-actions-runner/server/_work/homelab/homelab
+	directory = /home/jeffjose/github-actions-runner/server/_work/homelab/homelab
+	directory = /home/jeffjose/github-actions-runner/graphprix/_work/graphprix/graphprix

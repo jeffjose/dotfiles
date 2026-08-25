@@ -12,6 +12,11 @@ zig = "0.14.0"
 yt-dlp = "latest"
 "github:endevco/aube" = "latest"
 "aqua:schollz/croc" = "latest"
+# `claude` resolves to aqua:anthropics/claude-code -- the prebuilt native
+# binary. Not the npm package: mise's npm backend (aube) blocks postinstall
+# scripts, and @anthropic-ai/claude-code is a stub whose postinstall is what
+# fetches the real binary, so an npm: install lands broken.
+claude = "latest"
 
 # JSON utilities
 "go:github.com/tomnomnom/gron" = "latest"

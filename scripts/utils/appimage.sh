@@ -303,6 +303,26 @@ ensure_apparmor_profile() {
   "$installer" "$name-appimage" || true
 }
 
+# Find the .desktop entry at the root of an extracted AppImage.
+#
+# `-name '*.desktop'` alone is not enough. An app whose reverse-DNS ID ends in
+# ".desktop" — opencode ships ai.opencode.desktop — gives its *binary* a name
+# the glob matches, and it sorts ahead of the real ai.opencode.desktop.desktop.
+# Taking the first hit blindly once copied a 216MB executable into
+# ~/.local/share/applications/. Require the [Desktop Entry] group header, which
+# only a real entry has; the read is byte-capped so a huge binary stays cheap.
+find_desktop_entry() {
+  local sq="$1" cand
+  while IFS= read -r cand; do
+    [ -n "$cand" ] || continue
+    if head -c 1024 -- "$cand" 2>/dev/null | grep -qa '^\[Desktop Entry\]'; then
+      printf '%s' "$cand"
+      return 0
+    fi
+  done < <(find -L "$sq" -maxdepth 1 -name '*.desktop' -type f 2>/dev/null | sort)
+  return 1
+}
+
 install_desktop_entry() {
   local name="$1" appimage_path="$2"
   local extract_root
@@ -313,7 +333,7 @@ install_desktop_entry() {
   [ -e "$sq" ] || return 0
 
   local desktop_src
-  desktop_src=$(find -L "$sq" -maxdepth 1 -name '*.desktop' -type f 2>/dev/null | head -n1)
+  desktop_src=$(find_desktop_entry "$sq") || return 0
   [ -n "$desktop_src" ] || return 0
 
   # Find icon: prefer Icon=<name> resolution, fall back to .DirIcon.
@@ -839,7 +859,7 @@ cmd_info() {
   work=$(mktmp)
   ( cd "$work" && timeout 30 "$appimage_path" --appimage-extract '*.desktop' >/dev/null 2>&1 ) || true
   sq="$work/squashfs-root"
-  desktop=$(find -L "$sq" -maxdepth 1 -name '*.desktop' -type f 2>/dev/null | head -n1)
+  desktop=$(find_desktop_entry "$sq" || true)
   if [ -n "$desktop" ]; then
     echo "Embedded .desktop ($(basename "$desktop")):"
     local k v
@@ -975,9 +995,10 @@ cmd_remove() {
 
 # --- wrap --------------------------------------------------------------------
 
-# Regenerate the ~/bin/<name> wrapper for a managed app from its metadata. Use
-# after write_wrapper's logic changes (e.g. new output-redirect behaviour) to
-# re-apply it to already-installed apps without a full reinstall/download.
+# Regenerate the ~/bin/<name> wrapper and the .desktop launcher for a managed
+# app from its metadata. Use after write_wrapper / install_desktop_entry logic
+# changes to re-apply them to already-installed apps without a full
+# reinstall/download — it re-extracts from the binary already on disk.
 cmd_wrap_one() {
   local name="$1"
   local meta="$META_DIR/$name.json"
@@ -989,7 +1010,15 @@ cmd_wrap_one() {
     return 1
   fi
   write_wrapper "$name" "$target"
-  echo "Wrapped: $name"
+  # Drop the old entry first: a previously mis-detected one has to go even if
+  # re-extraction turns up nothing this time.
+  remove_desktop_entry "$name"
+  install_desktop_entry "$name" "$target" || true
+  if [ -f "$APP_DIR/$name.desktop" ]; then
+    echo "Wrapped: $name (wrapper + launcher)"
+  else
+    echo "Wrapped: $name (wrapper; no .desktop entry inside the AppImage)"
+  fi
 }
 
 cmd_wrap() {
