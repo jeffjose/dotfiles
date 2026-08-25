@@ -69,7 +69,7 @@ yt-dlp = "latest"
 "npm:t-get" = "latest"
 "npm:opencode-ai" = "latest"
 "npm:@openai/codex" = "latest"
-"npm:@anthropic-ai/claude-code" = "latest"
+"npm:@anthropic-ai/claude-code" = { version = "latest", allow_builds = ["@anthropic-ai/claude-code"] }
 "npm:vercel" = "latest"
 "npm:@qwen-code/qwen-code" = "latest"
 "npm:typescript" = "latest"
