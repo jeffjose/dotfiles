@@ -52,6 +52,39 @@ _SELF_DIR="$(dirname "$_SELF")"
 GUARD_DIR="$_SELF_DIR/appimage-guards"
 CATALOG_FILE="$_SELF_DIR/appimage-catalog.tsv"
 
+# --- update output mode ------------------------------------------------------
+# `update --all` used to narrate two lines per app — a "Resolving ..." line and
+# a "[name] ..." line — which buried the three apps that actually needed
+# attention under twelve that did not. In row mode the chatter is suppressed and
+# each app gets one aligned line plus a summary. A single `update <name>` keeps
+# the original verbose form, where the detail is the point.
+UPDATE_ROWS=false     # true => one aligned row per app, and count the outcomes
+RESOLVE_QUIET=false   # true => resolvers do not announce what they are fetching
+RESOLVE_ERR_FILE=""   # set => resolvers write the failure reason here, not stderr
+NAME_W=18             # name column width, sized to the longest name per run
+_UPD_OK=0; _UPD_NEW=0; _UPD_SKIP=0; _UPD_FAIL=0
+
+# Report one app's outcome. Row mode prints a table line and bumps a counter;
+# otherwise the original message goes out on the stream it always used —
+# results on stdout, problems on stderr.
+upd_emit() {
+  local kind="$1" name="$2" detail="$3" verbose="$4" mark
+  case "$kind" in
+    ok)   mark="✓"; _UPD_OK=$((_UPD_OK + 1)) ;;
+    new)  mark="↑"; _UPD_NEW=$((_UPD_NEW + 1)) ;;
+    skip) mark="·"; _UPD_SKIP=$((_UPD_SKIP + 1)) ;;
+    *)    mark="✗"; _UPD_FAIL=$((_UPD_FAIL + 1)) ;;
+  esac
+  if [ "$UPDATE_ROWS" = "true" ]; then
+    printf '  %s %-*s %s\n' "$mark" "$NAME_W" "$name" "$detail"
+  else
+    case "$kind" in
+      ok|new) printf '%s\n' "$verbose" ;;
+      *)      printf '%s\n' "$verbose" >&2 ;;
+    esac
+  fi
+}
+
 _TMPDIRS=()
 _cleanup_tmpdirs() {
   local d
@@ -122,17 +155,96 @@ EOF
 #   https://github.com/OWNER/REPO/releases/latest
 #   https://github.com/OWNER/REPO/releases/tag/TAG
 
+# A token for api.github.com, or empty if there is none.
+#
+# Unauthenticated callers get 60 requests/hour per IP. `update --all` spends one
+# per GitHub-hosted app — 13 here — so two or three runs in an hour exhaust the
+# quota and every app fails at once, which reads as "sometimes it works,
+# sometimes it doesn't". `gh` is usually logged in already, and borrowing its
+# token lifts the ceiling to 5000/hour, so the limit stops being reachable.
+#
+# Deliberately not cached: every caller runs inside a $(...) subshell, so a cache
+# would not survive to the next app anyway. Reading gh's token is a local file
+# read, and 13 of those are free next to 13 network round trips.
+github_token() {
+  local t=""
+  if [ -n "${GITHUB_TOKEN:-}" ]; then
+    t="$GITHUB_TOKEN"
+  elif command -v gh >/dev/null 2>&1; then
+    t=$(gh auth token 2>/dev/null || true)
+    # `gh auth token` only exists from gh 2.17. Older builds (Ubuntu ships 2.4)
+    # print "unknown command ..." followed by a usage block — on stdout, not
+    # stderr — so 2>/dev/null does not hide it and the exit status is not
+    # enough. Judge it by shape: a real token is one whitespace-free word.
+    case "$t" in ""|*[[:space:]]*) t="" ;; esac
+  fi
+  # Nothing usable from the CLI: read the token gh already stores.
+  # One awk, not a sed|head|tr pipeline: under `set -o pipefail` head can close
+  # the pipe first, sed dies of SIGPIPE, and the whole assignment fails.
+  if [ -z "$t" ] && [ -f "$HOME/.config/gh/hosts.yml" ]; then
+    t=$(awk '/^[[:space:]]*oauth_token:/ {
+               sub(/^[[:space:]]*oauth_token:[[:space:]]*/, "")
+               gsub(/["'\''\r]/, "")
+               print; exit
+             }' "$HOME/.config/gh/hosts.yml" 2>/dev/null || true)
+  fi
+  # Never let anything with whitespace through. A failed lookup that returns an
+  # error message would otherwise be spliced into the Authorization header and
+  # break every request outright — which is worse than sending none at all.
+  case "$t" in
+    ""|*[[:space:]]*) return 0 ;;
+  esac
+  printf '%s' "$t"
+}
+
 # Fetch a release blob from the GitHub API. An empty tag means "latest".
+#
+# On failure the reason goes to RESOLVE_ERR_FILE when the caller set one, so a
+# batch run can put it in the app's own row instead of printing a loose line
+# above it; otherwise it goes to stderr as before.
 github_release_json() {
-  local repo="$1" tag="${2:-}" api
+  local repo="$1" tag="${2:-}" api token
   if [ -n "$tag" ]; then
     api="https://api.github.com/repos/${repo}/releases/tags/${tag}"
   else
     api="https://api.github.com/repos/${repo}/releases/latest"
   fi
   local hdrs=(-H "Accept: application/vnd.github+json")
-  if [ -n "${GITHUB_TOKEN:-}" ]; then hdrs+=(-H "Authorization: Bearer ${GITHUB_TOKEN}"); fi
-  curl -sfL "${hdrs[@]}" "$api" || { echo "GitHub API request failed: $api" >&2; return 1; }
+  token=$(github_token)
+  [ -n "$token" ] && hdrs+=(-H "Authorization: Bearer ${token}")
+
+  local dir code remaining reset msg
+  dir=$(mktemp -d)
+  code=$(curl -sL -o "$dir/body" -D "$dir/hdr" -w '%{http_code}' "${hdrs[@]}" "$api" 2>/dev/null) || code="000"
+
+  if [ "$code" = "200" ]; then
+    cat "$dir/body"
+    rm -rf "$dir"
+    return 0
+  fi
+
+  remaining=$(grep -i '^x-ratelimit-remaining:' "$dir/hdr" 2>/dev/null | tr -d '\r' | awk '{print $2}')
+  reset=$(grep -i '^x-ratelimit-reset:' "$dir/hdr" 2>/dev/null | tr -d '\r' | awk '{print $2}')
+  rm -rf "$dir"
+
+  if { [ "$code" = "403" ] || [ "$code" = "429" ]; } && [ "${remaining:-1}" = "0" ]; then
+    msg="GitHub rate limit reached"
+    if [ -n "$reset" ]; then
+      msg="$msg, resets in $(( (reset - $(date +%s) + 59) / 60 ))m"
+    fi
+    [ -n "$token" ] || msg="$msg (unauthenticated: 60/h — run 'gh auth login' for 5000/h)"
+  elif [ "$code" = "000" ]; then
+    msg="could not reach api.github.com"
+  else
+    msg="GitHub API returned HTTP $code"
+  fi
+
+  if [ -n "${RESOLVE_ERR_FILE:-}" ]; then
+    printf '%s' "$msg" > "$RESOLVE_ERR_FILE"
+  else
+    echo "$msg: $api" >&2
+  fi
+  return 1
 }
 
 resolve_github() {
@@ -141,7 +253,7 @@ resolve_github() {
     owner="${BASH_REMATCH[1]}"
     repo="${BASH_REMATCH[2]%.git}"
     tag="${BASH_REMATCH[5]:-}"
-    echo "Resolving GitHub release: ${owner}/${repo}${tag:+ @ $tag}" >&2
+    [ "$RESOLVE_QUIET" = "true" ] || echo "Resolving GitHub release: ${owner}/${repo}${tag:+ @ $tag}" >&2
     local json
     json=$(github_release_json "${owner}/${repo}" "$tag") || return 1
     # Pick the asset for THIS machine's architecture. Some releases ship both
@@ -187,7 +299,7 @@ resolve_templated() {
   repo="${url##*#github=}"
   [ -n "$template" ] && [ -n "$repo" ] || { echo "Malformed templated source: $url" >&2; return 1; }
 
-  echo "Resolving GitHub release: ${repo} (templated download URL)" >&2
+  [ "$RESOLVE_QUIET" = "true" ] || echo "Resolving GitHub release: ${repo} (templated download URL)" >&2
   json=$(github_release_json "$repo") || return 1
   tag=$(jq -r '.tag_name // ""' <<<"$json")
   release_name=$(jq -r '.name // ""' <<<"$json")
@@ -207,11 +319,72 @@ resolve_templated() {
   printf '%s\t%s\t%s\n' "$out" "$tag" "$release_name"
 }
 
-# Resolve any tracked source (GitHub release page or templated download URL).
+# Resolve a "latest" URL that 302s to the current build.
+#
+# Some vendors are not on GitHub at all, so there is no release to query and no
+# version to interpolate — but they do publish a stable URL that redirects to
+# whatever the newest asset is. LM Studio is the case here:
+#
+#   https://lmstudio.ai/download/latest/linux/x64?format=AppImage#latest
+#     -> https://installers.lmstudio.ai/linux/x64/0.4.23-1/LM-Studio-0.4.23-1-x64.AppImage
+#
+# Mark such a source with a trailing "#latest". We follow the redirect, take the
+# final URL as the asset, and read the version out of its filename — so the
+# version comes from where the redirect lands rather than from a release API.
+#
+# The pinned URL this replaces could never update: with the version baked into
+# the path, re-resolving it just fetched the same build forever.
+#
+# Caveat: this can only see a new version when the redirect target's filename
+# changes. A vendor who serves a constant name (always "App-latest.AppImage")
+# would look permanently up-to-date.
+resolve_latest_redirect() {
+  local url="${1%\#latest}" final base version
+  [ "$RESOLVE_QUIET" = "true" ] || echo "Resolving latest-redirect source: $url" >&2
+  final=$(curl -sIL --max-time 60 -o /dev/null -w '%{url_effective}' "$url") \
+    || { echo "Could not follow redirects for: $url" >&2; return 1; }
+  [ -n "$final" ] || { echo "No redirect target for: $url" >&2; return 1; }
+
+  base="${final%%\?*}"     # drop any query string
+  base="${base##*/}"       # basename
+  case "$base" in
+    *.AppImage|*.appimage|*.APPIMAGE) ;;
+    *) echo "Redirect target is not an .AppImage: $final" >&2; return 1 ;;
+  esac
+
+  # "LM-Studio-0.4.23-1-x64.AppImage" -> "0.4.23-1". Fall back to the whole
+  # filename so a rename still reads as a new version rather than as "same".
+  version=$(printf '%s' "$base" | grep -oE '[0-9]+(\.[0-9]+)+(-[0-9]+)?' | head -n1)
+
+  # Empty release name on purpose. There is no human-facing release title to
+  # report here — the only other candidate is the asset filename, and letting
+  # that through means `list` and `update` show a row reading
+  # "LM-Studio-0.4.23-1-x64.AppImage" where every other app shows a version.
+  # Leaving it blank makes both fall back to the tag. It also takes the
+  # release-name half of update's comparison out of play, which is right: for
+  # these sources the tag is the only thing that carries the version.
+  printf '%s\t%s\t%s\n' "$final" "${version:-$base}" ""
+}
+
+# Resolve any tracked source (GitHub release page, templated download URL, or a
+# latest-redirect URL).
 resolve_source() {
   case "$1" in
     *'#github='*) resolve_templated "$1" ;;
+    *'#latest')   resolve_latest_redirect "$1" ;;
     *)            resolve_github "$1" ;;
+  esac
+}
+
+# Can this source be re-resolved to find a newer build? Update used to ask "is
+# there a github_repo?", which quietly wrote off every non-GitHub vendor. The
+# question it actually wants to ask is this one.
+source_is_resolvable() {
+  case "${1:-}" in
+    "")           return 1 ;;
+    *'#github='*) return 0 ;;
+    *'#latest')   return 0 ;;
+    *)            [ -n "$(github_repo_from_url "$1" || true)" ] ;;
   esac
 }
 
@@ -225,6 +398,19 @@ github_repo_from_url() {
   if [[ "$url" =~ ^https?://github\.com/([^/]+)/([^/?#]+) ]]; then
     echo "${BASH_REMATCH[1]}/${BASH_REMATCH[2]%.git}"
   fi
+}
+
+# What to show as an app's version. Release names are free text upstream: most
+# are useful ("Paseo v0.6.1"), but some are just the asset filename
+# ("LM-Studio-0.4.23-1-x64.AppImage"), which is noise in a table next to a
+# column of tidy versions. Fall back to the tag whenever the name looks like a
+# filename rather than a label.
+version_label() {
+  local release_name="${1:-}" tag="${2:-}"
+  case "$release_name" in
+    ""|*.AppImage|*.appimage|*.APPIMAGE) printf '%s' "${tag:-?}" ;;
+    *)                                   printf '%s' "$release_name" ;;
+  esac
 }
 
 relative_time() {
@@ -746,7 +932,7 @@ cmd_install() {
   local source_url="$arg" asset_url="" tag="" github_repo="" release_name=""
   github_repo=$(github_repo_from_url "$arg" || true)
 
-  if [ -n "$github_repo" ]; then
+  if source_is_resolvable "$arg"; then
     local resolved
     resolved=$(resolve_source "$arg") || exit 1
     if [ -z "$resolved" ]; then
@@ -918,7 +1104,8 @@ cmd_info() {
   if [ -n "$meta" ]; then
     echo "Metadata (managed):"
     jq -r --arg bindir "$BIN_DIR" '
-      (if (.release_name // "") != "" then .release_name
+      (if ((.release_name // "") | test("\\.appimage$"; "i") | not) and (.release_name // "") != ""
+       then .release_name
        elif (.tag // "") != "" then .tag else "-" end) as $ver
       | (if (.github_repo // "") != "" then .github_repo
          elif (.source_url // "") != "" then .source_url else "-" end) as $src
@@ -1011,15 +1198,15 @@ cmd_update_one() {
   # from a bare .AppImage URL before it was catalogued — can still update if the
   # catalog knows the name. Adopt the catalog's source (and guard) and carry on;
   # the reinstall below writes them into metadata, so this only happens once.
-  if [ -z "$github_repo" ]; then
+  if ! source_is_resolvable "$source_url"; then
     local hit c_url c_guard c_flags
     if hit=$(catalog_lookup "$name"); then
       IFS=$'\t' read -r c_url c_guard c_flags <<<"$hit"
       c_guard=$(catalog_unset "$c_guard"); c_flags=$(catalog_unset "$c_flags")
-      github_repo=$(github_repo_from_url "$c_url" || true)
-      if [ -n "$github_repo" ]; then
-        echo "[$name] adopting catalog source: $c_url" >&2
+      if source_is_resolvable "$c_url"; then
+        [ "$UPDATE_ROWS" = "true" ] || echo "[$name] adopting catalog source: $c_url" >&2
         source_url="$c_url"
+        github_repo=$(github_repo_from_url "$c_url" || true)
         [ -n "$guard" ] || guard="$c_guard"
         catalog_has_flag "$c_flags" cli && cli="true"
         catalog_has_flag "$c_flags" no-sandbox && no_sandbox="true"
@@ -1028,15 +1215,22 @@ cmd_update_one() {
     fi
   fi
 
-  if [ -z "$github_repo" ] || [ "$origin" = "migrated" ]; then
-    echo "[$name] no tracked source (re-run: appimage install <url> to enable updates)" >&2
+  if ! source_is_resolvable "$source_url" || [ "$origin" = "migrated" ]; then
+    upd_emit skip "$name" "no tracked source" \
+      "[$name] no tracked source (re-run: appimage install <url> to enable updates)"
     return 0
   fi
 
-  local resolved new_asset new_tag new_release_name
-  resolved=$(resolve_source "$source_url") || { echo "[$name] resolve failed" >&2; return 1; }
+  local resolved new_asset new_tag new_release_name reason=""
+  [ -n "${RESOLVE_ERR_FILE:-}" ] && : > "$RESOLVE_ERR_FILE"
+  if ! resolved=$(resolve_source "$source_url"); then
+    [ -n "${RESOLVE_ERR_FILE:-}" ] && reason=$(cat "$RESOLVE_ERR_FILE" 2>/dev/null || true)
+    upd_emit fail "$name" "${reason:-resolve failed}" "[$name] resolve failed"
+    return 1
+  fi
   if [ -z "$resolved" ]; then
-    echo "[$name] no asset found in latest release" >&2
+    upd_emit fail "$name" "no asset in latest release" \
+      "[$name] no asset found in latest release"
     return 1
   fi
   IFS=$'\t' read -r new_asset new_tag new_release_name <<<"$resolved"
@@ -1047,29 +1241,69 @@ cmd_update_one() {
   local same_tag=false same_name=false
   [ -n "$current_tag" ] && [ "$new_tag" = "$current_tag" ] && same_tag=true
   { [ -z "$current_release_name" ] || [ "$new_release_name" = "$current_release_name" ]; } && same_name=true
+  local cur_label
+  cur_label=$(version_label "$current_release_name" "$current_tag")
   if $same_tag && $same_name; then
-    echo "[$name] up-to-date (${current_release_name:-$current_tag})"
+    upd_emit ok "$name" "$cur_label" "[$name] up-to-date ($cur_label)"
     return 0
   fi
 
   # An update is available. Run the guard now (only when there's actually work to
   # do), then reinstall with the guard already cleared so it doesn't prompt twice.
+  local new_label
+  new_label=$(version_label "$new_release_name" "$new_tag")
   if [ -n "$guard" ]; then
-    if ! run_guard "$name" "update" "${current_release_name:-$current_tag}" \
-                   "${new_release_name:-$new_tag}" "$guard"; then
-      echo "⏭  [$name] guard '$guard' declined — skipping update." >&2
+    if ! run_guard "$name" "update" "$cur_label" "$new_label" "$guard"; then
+      upd_emit skip "$name" "guard '$guard' declined" \
+        "⏭  [$name] guard '$guard' declined — skipping update."
       return 0
     fi
   fi
 
-  echo "[$name] ${current_release_name:-${current_tag:-?}} -> ${new_release_name:-${new_tag:-?}}"
+  upd_emit new "$name" "$cur_label  →  $new_label" "[$name] $cur_label -> $new_label"
   local reinstall_args=()
   [ "$unofficial" = "true" ] && reinstall_args+=(--unofficial)
   [ "$cli" = "true" ] && reinstall_args+=(--cli)
   [ "$no_sandbox" = "true" ] && reinstall_args+=(--no-sandbox)
   [ -n "$guard" ] && reinstall_args+=(--guard "$guard" --skip-guard)
   reinstall_args+=(--name "$name" "$source_url")
-  cmd_install "${reinstall_args[@]}"
+  # In row mode the install's own "Asset/Downloading/Installed" block would tear
+  # the table apart, so drop its stdout — the row above already says what is
+  # happening. curl's progress bar is on stderr and survives, which is the one
+  # bit of feedback worth keeping while a few hundred MB come down.
+  if [ "$UPDATE_ROWS" = "true" ]; then
+    cmd_install "${reinstall_args[@]}" >/dev/null
+  else
+    cmd_install "${reinstall_args[@]}"
+  fi
+}
+
+# Update a batch of apps as a table: one row each, then a tally. Sizes the name
+# column to the longest name so the versions line up whatever is installed.
+update_many() {
+  local n total=$#
+  [ "$total" -gt 0 ] || { echo "(no managed AppImages)" >&2; return 0; }
+
+  UPDATE_ROWS=true
+  RESOLVE_QUIET=true
+  # Collect each failure's reason so it lands in that app's row rather than as a
+  # loose "GitHub API request failed" line floating above the table.
+  RESOLVE_ERR_FILE="$(mktmp)/resolve-err"
+  _UPD_OK=0; _UPD_NEW=0; _UPD_SKIP=0; _UPD_FAIL=0
+  NAME_W=0
+  for n in "$@"; do [ "${#n}" -gt "$NAME_W" ] && NAME_W="${#n}"; done
+
+  printf 'Checking %d managed AppImage%s…\n\n' "$total" "$([ "$total" -eq 1 ] || echo s)"
+  for n in "$@"; do cmd_update_one "$n" || true; done
+
+  printf '\n  %d checked · %d updated · %d up to date · %d skipped' \
+    "$total" "$_UPD_NEW" "$_UPD_OK" "$_UPD_SKIP"
+  [ "$_UPD_FAIL" -gt 0 ] && printf ' · %d failed' "$_UPD_FAIL"
+  printf '\n'
+
+  UPDATE_ROWS=false
+  RESOLVE_QUIET=false
+  RESOLVE_ERR_FILE=""
 }
 
 cmd_update() {
@@ -1086,18 +1320,22 @@ cmd_update() {
     [ -n "$rows" ] || { echo "(no managed AppImages)" >&2; return 0; }
     chosen=$(printf '%s\n' "$rows" | pick_multi "Update" "all")
     [ -n "$chosen" ] || { echo "Nothing selected." >&2; return 0; }
+    local picked=()
     while IFS= read -r n; do
-      [ -n "$n" ] && cmd_update_one "$n" || true
+      [ -n "$n" ] && picked+=("$n")
     done <<<"$chosen"
+    update_many "${picked[@]+"${picked[@]}"}"
     return 0
   fi
 
   if [ "${1:-}" = "--all" ]; then
-    local f
+    mkdir -p "$META_DIR"
+    local f names=()
     for f in "$META_DIR"/*.json; do
       [ -e "$f" ] || continue
-      cmd_update_one "$(jq -r '.name' "$f")" || true
+      names+=("$(jq -r '.name' "$f")")
     done
+    update_many "${names[@]+"${names[@]}"}"
   else
     [ -n "${1:-}" ] || usage
     cmd_update_one "$1"

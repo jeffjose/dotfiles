@@ -14,7 +14,8 @@
 #                   AppImages here ship --no-sandbox and run fine sandboxed
 #                   anyway, so this is never applied automatically.
 #   - source_url is a GitHub repo/release URL (preferred, enables updates), a
-#     templated download URL, or a direct .AppImage URL (no updates)
+#     templated download URL, a "latest" URL marked with a trailing #latest, or
+#     a direct .AppImage URL (the last of these gets no updates)
 #   - lines starting with # and blank lines are ignored
 #
 # Templated source_url: for projects that tag releases on GitHub but host the
@@ -34,7 +35,7 @@
 # Kept here for reference only:
 # code	https://github.com/valicm/VSCode-AppImage	-	VS Code (official build, repackaged as an AppImage)
 claude-desktop	https://github.com/aaddrick/claude-desktop-debian	personal-only	Claude Desktop (community Linux build; personal hosts only)
-lmstudio	https://installers.lmstudio.ai/linux/x64/0.4.19-2/LM-Studio-0.4.19-2-x64.AppImage	personal-only	LM Studio (local LLM runner; personal hosts only)
+lmstudio	https://lmstudio.ai/download/latest/linux/x64?format=AppImage#latest	personal-only	LM Studio (local LLM runner; personal hosts only). Not on GitHub, so the version comes from where the vendor's "latest" URL redirects — the old entry pinned .../0.4.19-2/LM-Studio-0.4.19-2-x64.AppImage and could never update.
 discord	https://github.com/pkgforge-dev/Discord-AppImage	personal-only	Discord (unofficial community build by pkgforge-dev; personal hosts only)
 croc-gui	https://github.com/interfluve-wav/croc-gui	-	Croc GUI (desktop front-end for the croc CLI; named croc-gui so it does not collide with the croc CLI from mise)
 t3-code	https://github.com/pingdotgg/t3code	-	T3 Code (t3.codes — desktop control plane for driving Claude Code, Codex, OpenCode et al from one window; the repo also cuts nightly prereleases, but /releases/latest keeps us on stable)
