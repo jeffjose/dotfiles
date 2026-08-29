@@ -18,6 +18,11 @@ yt-dlp = "latest"
 # fetches the real binary, so an npm: install lands broken.
 claude = "latest"
 
+# Same story for `opencode` (aqua:anomalyco/opencode): the npm package
+# opencode-ai is a stub whose postinstall fetches the real binary, so an npm:
+# install exits with "postinstall script was not run".
+opencode = "latest"
+
 # JSON utilities
 "go:github.com/tomnomnom/gron" = "latest"
 "go:github.com/josephburnett/jd" = "latest"
@@ -72,7 +77,6 @@ claude = "latest"
 "npm:astro" = "latest"
 "npm:postcss-cli" = "latest"
 "npm:t-get" = "latest"
-"npm:opencode-ai" = "latest"
 "npm:@openai/codex" = "latest"
 "npm:@anthropic-ai/claude-code" = { version = "latest", allow_builds = ["@anthropic-ai/claude-code"] }
 "npm:vercel" = "latest"
