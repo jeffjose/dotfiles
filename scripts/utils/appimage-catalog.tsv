@@ -1,7 +1,18 @@
 # appimage catalog — apps installable via `appimage install -i` or `appimage install <name>`.
 #
 # Tab-separated columns:  name <TAB> source_url <TAB> guard <TAB> description
+#                         [<TAB> flags]
 #   - guard: name of an appimage-guards/<guard>.sh hook, or "-" for none
+#   - flags: optional 5th column, comma-separated. Last on purpose, so the rows
+#     without it keep parsing exactly as before. Understood values:
+#       cli         the app is a CLI as well as a GUI, so the wrapper runs it in
+#                   the foreground with output on the terminal when given
+#                   arguments and detaches only when launched bare
+#       no-sandbox  replay the sandbox switches from the app's own .desktop in
+#                   the wrapper. Only for apps that will not start otherwise —
+#                   it turns Chromium's sandbox off. Plenty of the Electron
+#                   AppImages here ship --no-sandbox and run fine sandboxed
+#                   anyway, so this is never applied automatically.
 #   - source_url is a GitHub repo/release URL (preferred, enables updates), a
 #     templated download URL, or a direct .AppImage URL (no updates)
 #   - lines starting with # and blank lines are ignored
@@ -29,3 +40,4 @@ croc-gui	https://github.com/interfluve-wav/croc-gui	-	Croc GUI (desktop front-en
 t3-code	https://github.com/pingdotgg/t3code	-	T3 Code (t3.codes — desktop control plane for driving Claude Code, Codex, OpenCode et al from one window; the repo also cuts nightly prereleases, but /releases/latest keeps us on stable)
 sonic-pi	https://sonic-pi.net/files/releases/{tag}/Sonic-Pi-for-Linux-{arch_short}-{tag}.AppImage#github=sonic-pi-net/sonic-pi	-	Sonic Pi (live-coding music environment; self-hosted download, version tracked from GitHub releases)
 opencode-desktop	https://github.com/sst/opencode	-	OpenCode Desktop (GUI for the opencode agent; named opencode-desktop so it does not shadow the opencode CLI installed from mise as npm:opencode-ai — ~/bin sorts ahead of the mise shims)
+paseo	https://github.com/getpaseo/paseo	-	Paseo (orchestrator for Claude Code / Codex / OpenCode across desktop, mobile and web). Ships one binary that is both the Electron app and the `paseo ls|run|status|logs` CLI, hence the cli flag. Its own .desktop is "Exec=AppRun --no-sandbox %U" — Electron 41 / Chrome 146 cannot start the namespace sandbox here and the setuid fallback can never work from a squashfs AppImage, so without that flag it dies on a /dev/shm error before painting a window.	cli,no-sandbox

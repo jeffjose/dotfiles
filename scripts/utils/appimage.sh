@@ -97,6 +97,13 @@ INSTALL OPTIONS
                       blocks corp hosts). Recorded in metadata, so it re-runs
                       on every update.
   --unofficial        mark as a community/3rd-party build (shown in list)
+  --cli               the app is a CLI as well as a GUI (e.g. paseo): run it in
+                      the foreground with output on the terminal when given
+                      arguments, and detach only when launched bare
+  --no-sandbox        replay the sandbox switches from the app's own .desktop
+                      (e.g. Paseo's "Exec=AppRun --no-sandbox %U") in the
+                      wrapper. Only for apps that cannot start without them —
+                      it turns Chromium's sandbox off. Off by default.
   -i, --interactive   choose apps interactively instead of naming one
 
 NOTES
@@ -258,7 +265,15 @@ is_appimage() {
 }
 
 write_wrapper() {
-  local name="$1" target="$2"
+  local name="$1" target="$2" exec_args="${3:-}" cli="${4:-false}"
+  # Flags the vendor's own .desktop insists on. Paseo ships
+  # "Exec=AppRun --no-sandbox %U" because its Electron 41 / Chrome 146 build
+  # cannot bring up the namespace sandbox here, and the setuid fallback can
+  # never work from a squashfs AppImage. Dropping these on the floor is how a
+  # perfectly good AppImage turns into a crash on launch, so they go ahead of
+  # whatever the caller passed.
+  local pre="${exec_args:+ $exec_args}"
+
   # These are GUI apps; launched from a terminal they spew Electron/Chromium
   # chatter to stdout/stderr. Redirect that to a per-app log (truncated each
   # launch so it stays small) to keep the shell clean — `tail` it to debug.
@@ -273,17 +288,42 @@ write_wrapper() {
   # Exception: --wait/-w callers (e.g. `code --wait` as $EDITOR, or as git's
   # core.editor) depend on the process blocking until the file is closed, so
   # those stay in the foreground.
-  cat > "$BIN_DIR/$name" <<EOF
+  #
+  # Hybrid apps (--cli) invert the default: one binary is both a terminal
+  # program and the desktop app, so detaching has to be decided per call.
+  if [ "$cli" = "true" ]; then
+    # `paseo status` is a CLI whose output the caller is waiting to read —
+    # detaching it into a log file makes it look like it printed nothing. Bare
+    # `paseo` is the Electron GUI and still has to detach. Tell them apart by
+    # the arguments: none at all, or a single <scheme>:// URL (the desktop
+    # entry's %U handing over a paseo:// link), means GUI; anything else is CLI.
+    cat > "$BIN_DIR/$name" <<EOF
+#!/bin/sh
+gui=0
+case \$# in
+  0) gui=1 ;;
+  1) case "\$1" in *://*) gui=1 ;; esac ;;
+esac
+if [ "\$gui" = 0 ]; then
+  exec "$target"$pre "\$@"
+fi
+log_dir="\${HOME}/bin/.appimage/logs"
+mkdir -p "\$log_dir"
+setsid "$target"$pre "\$@" >"\$log_dir/$name.log" 2>&1 &
+EOF
+  else
+    cat > "$BIN_DIR/$name" <<EOF
 #!/bin/sh
 log_dir="\${HOME}/bin/.appimage/logs"
 mkdir -p "\$log_dir"
 for arg in "\$@"; do
   case "\$arg" in
-    -w|--wait) exec "$target" "\$@" >"\$log_dir/$name.log" 2>&1 ;;
+    -w|--wait) exec "$target"$pre "\$@" >"\$log_dir/$name.log" 2>&1 ;;
   esac
 done
-setsid "$target" "\$@" >"\$log_dir/$name.log" 2>&1 &
+setsid "$target"$pre "\$@" >"\$log_dir/$name.log" 2>&1 &
 EOF
+  fi
   chmod +x "$BIN_DIR/$name"
   ensure_apparmor_profile "$name"
 }
@@ -323,8 +363,44 @@ find_desktop_entry() {
   return 1
 }
 
+# Pull the *launch-critical* flags out of an embedded entry's Exec line:
+#   "Exec=AppRun --no-sandbox %U"  ->  "--no-sandbox"
+#
+# Only sandbox switches are taken, because only they decide whether the app
+# starts at all. Paseo ships "--no-sandbox" since its Electron 41 / Chrome 146
+# build cannot bring up the namespace sandbox here and the setuid fallback can
+# never work from a squashfs AppImage; without the flag it dies on a /dev/shm
+# error before painting a window.
+#
+# Everything else in the vendor's Exec is deliberately ignored. VS Code's entry
+# is "Exec=code --unity-launch %F", and --unity-launch is a hint that only makes
+# sense when the launcher starts the app — replaying it from ~/bin/code would
+# also apply it to `code --wait` as $EDITOR, which is not what it means. Those
+# flags stay a property of the .desktop file, not of the wrapper.
+#
+# Extracting is not the same as using: only apps that opted in (--no-sandbox)
+# get these replayed. Half the Electron AppImages here ship "--no-sandbox" in
+# their .desktop and run fine sandboxed anyway, and turning Chromium's sandbox
+# off for all of them — when apps/apparmor/ exists precisely to keep it on —
+# would be a silent downgrade nobody asked for. Opt in per app instead.
+extract_exec_args() {
+  local desktop="$1" line tok out=""
+  line=$(grep -m1 '^Exec=' "$desktop" 2>/dev/null | sed 's/^Exec=//') || return 0
+  # Drop the leading binary token (AppRun / the app name, possibly quoted).
+  line=$(printf '%s' "$line" | sed -E 's/^[[:space:]]*("[^"]*"|[^[:space:]]+)[[:space:]]*//')
+  for tok in $line; do
+    case "$tok" in
+      --*sandbox|--*sandbox=*) out="${out:+$out }$tok" ;;
+    esac
+  done
+  printf '%s' "$out"
+}
+
+# Sets EXEC_ARGS as a side effect — the flags the wrapper has to replay. The
+# caller reads it after this returns, so write_wrapper must run *after* this.
 install_desktop_entry() {
   local name="$1" appimage_path="$2"
+  EXEC_ARGS=""
   local extract_root
   extract_root=$(mktmp)
   ( cd "$extract_root" && "$appimage_path" --appimage-extract >/dev/null 2>&1 ) || return 0
@@ -335,6 +411,8 @@ install_desktop_entry() {
   local desktop_src
   desktop_src=$(find_desktop_entry "$sq") || return 0
   [ -n "$desktop_src" ] || return 0
+
+  EXEC_ARGS=$(extract_exec_args "$desktop_src")
 
   # Find icon: prefer Icon=<name> resolution, fall back to .DirIcon.
   local icon_src="" icon_name icon_ext="" icon_dst=""
@@ -389,6 +467,7 @@ write_metadata() {
   local name="$1" source_url="$2" asset_url="$3" tag="$4" github_repo="$5"
   local filename="$6" sha256="$7" target="$8" origin="${9:-install}"
   local unofficial="${10:-false}" release_name="${11:-}" guard="${12:-}"
+  local exec_args="${13:-}" cli="${14:-false}" no_sandbox="${15:-false}"
   mkdir -p "$META_DIR"
   jq -n \
     --arg name "$name" \
@@ -403,11 +482,15 @@ write_metadata() {
     --arg origin "$origin" \
     --argjson unofficial "$unofficial" \
     --arg guard "$guard" \
+    --arg exec_args "$exec_args" \
+    --argjson cli "$cli" \
+    --argjson no_sandbox "$no_sandbox" \
     --arg installed_at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
     '{name:$name, source_url:$source_url, asset_url:$asset_url, tag:$tag,
       release_name:$release_name, github_repo:$github_repo, filename:$filename,
       sha256:$sha256, target:$target, origin:$origin, unofficial:$unofficial,
-      guard:$guard, installed_at:$installed_at}' \
+      guard:$guard, exec_args:$exec_args, cli:$cli, no_sandbox:$no_sandbox,
+      installed_at:$installed_at}' \
     > "$META_DIR/$name.json"
 }
 
@@ -444,24 +527,46 @@ run_guard() {
 
 # --- catalog -----------------------------------------------------------------
 
-# Emit the catalog as "name<TAB>url<TAB>guard<TAB>description" rows, skipping
-# comments and blank lines. The catalog is the menu behind `install -i` and lets
-# `install <name>` resolve a known app to its source.
+# Emit the catalog as "name<TAB>url<TAB>guard<TAB>description[<TAB>flags]" rows,
+# skipping comments and blank lines. The catalog is the menu behind `install -i`
+# and lets `install <name>` resolve a known app to its source.
 catalog_rows() {
   [ -f "$CATALOG_FILE" ] || return 0
   grep -vE '^[[:space:]]*(#|$)' "$CATALOG_FILE" || true
 }
 
-# Look up a catalog entry by name; prints "url<TAB>guard" and returns 0 on a hit.
-# A guard of "-" (the catalog's "none" placeholder) is normalized to empty.
+# Look up a catalog entry by name; prints "url<TAB>guard<TAB>flags", returns 0 on
+# a hit. `flags` is the optional trailing column — kept last so the many
+# 4-column rows that predate it still parse, landing "-" in `flags`.
+#
+# Empty fields are emitted as "-", never as nothing. Tab counts as IFS
+# whitespace, so a caller's `IFS=$'\t' read` collapses runs of tabs into one
+# separator: printing an empty guard here would shift `flags` left into
+# `c_guard` and have the reader try to run "cli" as a guard script. Callers
+# translate "-" back to empty after splitting.
 catalog_lookup() {
-  local want="$1" name url guard desc
-  while IFS=$'\t' read -r name url guard desc; do
+  local want="$1" name url guard desc flags
+  while IFS=$'\t' read -r name url guard desc flags; do
     [ "$name" = "$want" ] || continue
-    [ "$guard" = "-" ] && guard=""
-    printf '%s\t%s' "$url" "$guard"
+    printf '%s\t%s\t%s' "$url" "${guard:--}" "${flags:--}"
     return 0
   done < <(catalog_rows)
+  return 1
+}
+
+# Undo the "-" placeholder catalog_lookup emits for an absent value.
+catalog_unset() {
+  case "${1:-}" in
+    -|"") printf '' ;;
+    *)    printf '%s' "$1" ;;
+  esac
+}
+
+# Does a catalog flags field carry `want`? Flags are comma-separated (e.g. "cli").
+catalog_has_flag() {
+  case ",${1:-}," in
+    *",$2,"*) return 0 ;;
+  esac
   return 1
 }
 
@@ -578,10 +683,12 @@ pick_multi() {
 
 cmd_install() {
   local arg="" unofficial="false" name_override="" guard="" interactive="false"
-  local skip_guard="false"
+  local skip_guard="false" cli="false" no_sandbox="false"
   while [ $# -gt 0 ]; do
     case "$1" in
       --unofficial) unofficial="true"; shift ;;
+      --cli) cli="true"; shift ;;
+      --no-sandbox) no_sandbox="true"; shift ;;
       --name) name_override="${2:-}"; shift 2 ;;
       --guard) guard="${2:-}"; shift 2 ;;
       --skip-guard) skip_guard="true"; shift ;;   # internal: guard already ran
@@ -595,7 +702,7 @@ cmd_install() {
   # shows a [x]/[ ] install marker and the installed version (no descriptions).
   if [ "$interactive" = "true" ]; then
     local rows chosen sel
-    rows=$(catalog_rows | while IFS=$'\t' read -r n u g d; do
+    rows=$(catalog_rows | while IFS=$'\t' read -r n u g d fl; do
       [ -n "$n" ] || continue
       if [ -f "$META_DIR/$n.json" ]; then
         ver=$(jq -r '.tag // .release_name // "?"' "$META_DIR/$n.json")
@@ -620,11 +727,14 @@ cmd_install() {
 
   # A bare token that is neither a URL nor a file is treated as a catalog name.
   if [[ ! "$arg" =~ ^https?:// ]] && [ ! -f "$arg" ]; then
-    local hit c_url c_guard
+    local hit c_url c_guard c_flags
     if hit=$(catalog_lookup "$arg"); then
-      IFS=$'\t' read -r c_url c_guard <<<"$hit"
+      IFS=$'\t' read -r c_url c_guard c_flags <<<"$hit"
+      c_guard=$(catalog_unset "$c_guard"); c_flags=$(catalog_unset "$c_flags")
       [ -n "$name_override" ] || name_override="$arg"
       [ -n "$guard" ] || guard="$c_guard"
+      catalog_has_flag "$c_flags" cli && cli="true"
+      catalog_has_flag "$c_flags" no-sandbox && no_sandbox="true"
       arg="$c_url"
     else
       echo "Unknown app '$arg' (not a URL, path, or catalog entry)." >&2
@@ -696,17 +806,22 @@ cmd_install() {
 
   rm -f -- "$BIN_DIR/$name"
 
-  write_wrapper "$name" "$target"
+  # Extract first: install_desktop_entry sets EXEC_ARGS, which the wrapper needs.
+  EXEC_ARGS=""
   install_desktop_entry "$name" "$target" || true
+  [ "$no_sandbox" = "true" ] || EXEC_ARGS=""
+  write_wrapper "$name" "$target" "$EXEC_ARGS" "$cli"
   write_metadata "$name" "$source_url" "$asset_url" "$tag" "$github_repo" \
                  "$filename" "$sha256" "$target" "install" "$unofficial" \
-                 "$release_name" "$guard"
+                 "$release_name" "$guard" "$EXEC_ARGS" "$cli" "$no_sandbox"
 
   echo "Installed: $name"
   echo "  Binary:   $target"
   echo "  Wrapper:  $BIN_DIR/$name"
   if [ -n "$tag" ]; then echo "  Version:  $tag"; fi
   if [ -n "$guard" ]; then echo "  Guard:    $guard"; fi
+  if [ -n "$EXEC_ARGS" ]; then echo "  Args:     $EXEC_ARGS (from the app's own .desktop)"; fi
+  if [ "$cli" = "true" ]; then echo "  Mode:     hybrid CLI/GUI"; fi
   if [ -f "$APP_DIR/$name.desktop" ]; then echo "  Launcher: $APP_DIR/$name.desktop"; fi
 }
 
@@ -754,8 +869,8 @@ cmd_list() {
 
     # Catalog apps we don't have. Show the GitHub repo rather than the raw
     # source URL so these line up with the installed rows above.
-    local url desc repo
-    while IFS=$'\t' read -r name url guard desc; do
+    local url desc repo cflags
+    while IFS=$'\t' read -r name url guard desc cflags; do
       [ -n "$name" ] || continue
       [ -f "$META_DIR/$name.json" ] && continue
       [ "$guard" = "-" ] && guard=""
@@ -811,6 +926,8 @@ cmd_info() {
         "  tag          : \(if (.tag // "") == "" then "-" else .tag end)",
         "  source       : \($src)\(if .unofficial then "  (unofficial)" else "" end)\(if .origin == "migrated" then "  (migrated)" else "" end)",
         "  guard        : \(if (.guard // "") == "" then "-" else .guard end)",
+        "  exec args    : \(if (.exec_args // "") == "" then "-" else .exec_args end)\(if .no_sandbox then "  (sandbox off)" else "" end)",
+        "  mode         : \(if .cli then "hybrid CLI/GUI" else "GUI" end)",
         "  asset        : \(if (.asset_url // "") == "" then "-" else .asset_url end)",
         "  installed_at : \(.installed_at // "-")",
         "  wrapper      : \($bindir)/\(.name)"
@@ -879,7 +996,9 @@ cmd_update_one() {
   local meta="$META_DIR/$name.json"
   [ -f "$meta" ] || { echo "Not managed: $name" >&2; return 1; }
 
-  local source_url github_repo current_tag current_release_name origin unofficial guard
+  local source_url github_repo current_tag current_release_name origin unofficial guard cli no_sandbox
+  cli=$(jq -r 'if .cli then "true" else "false" end' "$meta")
+  no_sandbox=$(jq -r 'if .no_sandbox then "true" else "false" end' "$meta")
   source_url=$(jq -r '.source_url // ""' "$meta")
   github_repo=$(jq -r '.github_repo // ""' "$meta")
   current_tag=$(jq -r '.tag // ""' "$meta")
@@ -893,14 +1012,17 @@ cmd_update_one() {
   # catalog knows the name. Adopt the catalog's source (and guard) and carry on;
   # the reinstall below writes them into metadata, so this only happens once.
   if [ -z "$github_repo" ]; then
-    local hit c_url c_guard
+    local hit c_url c_guard c_flags
     if hit=$(catalog_lookup "$name"); then
-      IFS=$'\t' read -r c_url c_guard <<<"$hit"
+      IFS=$'\t' read -r c_url c_guard c_flags <<<"$hit"
+      c_guard=$(catalog_unset "$c_guard"); c_flags=$(catalog_unset "$c_flags")
       github_repo=$(github_repo_from_url "$c_url" || true)
       if [ -n "$github_repo" ]; then
         echo "[$name] adopting catalog source: $c_url" >&2
         source_url="$c_url"
         [ -n "$guard" ] || guard="$c_guard"
+        catalog_has_flag "$c_flags" cli && cli="true"
+        catalog_has_flag "$c_flags" no-sandbox && no_sandbox="true"
         origin="install"
       fi
     fi
@@ -943,6 +1065,8 @@ cmd_update_one() {
   echo "[$name] ${current_release_name:-${current_tag:-?}} -> ${new_release_name:-${new_tag:-?}}"
   local reinstall_args=()
   [ "$unofficial" = "true" ] && reinstall_args+=(--unofficial)
+  [ "$cli" = "true" ] && reinstall_args+=(--cli)
+  [ "$no_sandbox" = "true" ] && reinstall_args+=(--no-sandbox)
   [ -n "$guard" ] && reinstall_args+=(--guard "$guard" --skip-guard)
   reinstall_args+=(--name "$name" "$source_url")
   cmd_install "${reinstall_args[@]}"
@@ -1003,17 +1127,31 @@ cmd_wrap_one() {
   local name="$1"
   local meta="$META_DIR/$name.json"
   [ -f "$meta" ] || { echo "Not managed: $name" >&2; return 1; }
-  local target
+  local target cli no_sandbox
   target=$(jq -r '.target' "$meta")
+  cli=$(jq -r 'if .cli then "true" else "false" end' "$meta")
+  no_sandbox=$(jq -r 'if .no_sandbox then "true" else "false" end' "$meta")
   if [ ! -f "$target" ]; then
     echo "[$name] binary missing ($target) — skipping" >&2
     return 1
   fi
-  write_wrapper "$name" "$target"
   # Drop the old entry first: a previously mis-detected one has to go even if
   # re-extraction turns up nothing this time.
   remove_desktop_entry "$name"
+  # Re-extract before wrapping: this is what re-applies the vendor's Exec flags
+  # to apps installed before appimage.sh started honouring them.
+  EXEC_ARGS=""
   install_desktop_entry "$name" "$target" || true
+  [ "$no_sandbox" = "true" ] || EXEC_ARGS=""
+  write_wrapper "$name" "$target" "$EXEC_ARGS" "$cli"
+  # Keep metadata honest about what the wrapper now replays.
+  local tmp_meta
+  tmp_meta=$(mktemp)
+  if jq --arg exec_args "$EXEC_ARGS" '.exec_args = $exec_args' "$meta" > "$tmp_meta"; then
+    mv -f -- "$tmp_meta" "$meta"
+  else
+    rm -f -- "$tmp_meta"
+  fi
   if [ -f "$APP_DIR/$name.desktop" ]; then
     echo "Wrapped: $name (wrapper + launcher)"
   else
@@ -1057,8 +1195,9 @@ migrate_one() {
   sha256=$(sha256sum "$target" | awk '{print $1}')
   installed_at=$(date -u -r "$target" +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ)
 
-  write_wrapper "$name" "$target"
+  EXEC_ARGS=""
   install_desktop_entry "$name" "$target" || true
+  write_wrapper "$name" "$target" "$EXEC_ARGS"
 
   mkdir -p "$META_DIR"
   jq -n \
@@ -1067,9 +1206,11 @@ migrate_one() {
     --arg sha256 "$sha256" \
     --arg target "$target" \
     --arg installed_at "$installed_at" \
+    --arg exec_args "$EXEC_ARGS" \
     '{name:$name, source_url:"", asset_url:"", tag:"", github_repo:"",
       filename:$filename, sha256:$sha256, target:$target,
-      origin:"migrated", installed_at:$installed_at}' \
+      origin:"migrated", exec_args:$exec_args, cli:false,
+      installed_at:$installed_at}' \
     > "$META_DIR/$name.json"
 
   echo "Migrated: $name"
