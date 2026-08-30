@@ -610,6 +610,7 @@
 
     alias pikpakcli '$HOME/scripts/pikpakcli/pikpakcli --config $HOME/scripts/pikpakcli/config.yml'
     alias sync_pikpak 'pikpakcli download -P \!* -g -c 3'
+    alias sp 'cd && ./sync_pikpak.sh'
 
     alias httptrace 'httptap -- curl -s -o /dev/null -L \!*'
 
