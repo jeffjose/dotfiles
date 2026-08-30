@@ -1260,6 +1260,15 @@ cmd_update_one() {
     fi
   fi
 
+  # Rolling repos (pkgforge-dev's nightly rebuilds) keep the release name at the
+  # upstream app version and put the build stamp in the tag, so both sides of
+  # the arrow render as "Antigravity_IDE: 2.5.5" and the row reads as an update
+  # to the version it is already on. Fall back to the tags, which are the part
+  # that actually differs.
+  if [ "$cur_label" = "$new_label" ]; then
+    cur_label="${current_tag:-$cur_label}"
+    new_label="${new_tag:-$new_label}"
+  fi
   upd_emit new "$name" "$cur_label  →  $new_label" "[$name] $cur_label -> $new_label"
   local reinstall_args=()
   [ "$unofficial" = "true" ] && reinstall_args+=(--unofficial)
