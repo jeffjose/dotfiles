@@ -73,9 +73,7 @@ opencode = "latest"
 "cargo:https://github.com/jeffjose/magicfs" = "branch:main"
 
 # npm
-"npm:sass" = "latest"
 "npm:astro" = "latest"
-"npm:postcss-cli" = "latest"
 "npm:t-get" = "latest"
 "npm:@openai/codex" = "latest"
 "npm:@anthropic-ai/claude-code" = { version = "latest", allow_builds = ["@anthropic-ai/claude-code"] }
@@ -85,7 +83,6 @@ opencode = "latest"
 "npm:ts-node" = "latest"
 "npm:oxlint" = "latest"
 "npm:degit" = "latest"
-"npm:firebase-tools" = "latest"
 "npm:@googleworkspace/cli" = "latest"
 ninja = "latest"
 cmake = "latest"
