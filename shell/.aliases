@@ -76,6 +76,7 @@
     alias up ~/dotfiles/scripts/update/update_mise.sh
     alias appimage ~/dotfiles/scripts/utils/appimage.sh
     alias ai appimage
+    alias pp ~/scripts/plex-search/plex-search
 
     # Remove a ppa and all associated packages.
     alias removeppa 'sudo ppa-purge \!*'
