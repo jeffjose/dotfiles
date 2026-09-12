@@ -8,6 +8,7 @@
 
 import sys
 import re
+import shutil
 import subprocess
 from urllib.parse import unquote_plus
 
@@ -24,6 +25,35 @@ def label(magnet):
     return magnet[:80]
 
 
+def check_rclone():
+    """Fail before the paste, not once per magnet afterwards.
+
+    rclone only grew the pikpak backend in v1.62, and an older one — Ubuntu
+    still ships 1.53 — reports that as `didn't find backend called "pikpak"`
+    on every submission. That reads like a broken remote, so it sends you to
+    rclone.conf, which is the wrong file. Ask the binary what it can do
+    instead, and name the binary asked: the usual cause is a current rclone
+    installed but an old shell still resolving the old one.
+    """
+    try:
+        backends = subprocess.run(
+            ["rclone", "help", "backends"], capture_output=True, text=True
+        ).stdout
+    except FileNotFoundError:
+        sys.exit("No rclone on PATH. Install one with: mise use -g rclone@latest")
+
+    if not re.search(r"^\s*pikpak\s", backends, re.M):
+        version = subprocess.run(
+            ["rclone", "version"], capture_output=True, text=True
+        ).stdout.splitlines()
+        sys.exit(
+            f"{shutil.which('rclone')} is {version[0] if version else 'an unknown version'}, "
+            "which has no pikpak backend (needs v1.62+).\n"
+            "Install a current one with: mise use -g rclone@latest\n"
+            "If you just did, open a new shell — this one still has the old PATH."
+        )
+
+
 def main():
     import questionary
 
@@ -34,6 +64,8 @@ def main():
         sys.exit(1)
 
     folder = sys.argv[1]
+
+    check_rclone()
 
     print("Paste text containing magnet links, then press Ctrl+D:")
     try:
