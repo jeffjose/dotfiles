@@ -15,6 +15,9 @@ rust = "latest"
 bun = "latest"
 "github:astral-sh/uv" = "latest"
 zig = "0.14.0"
+# Static Rust binary (aqua:typst/typst). There is an npm package, but it is a
+# wrapper that downloads this same binary, so take it straight.
+typst = "latest"
 yt-dlp = "latest"
 "github:endevco/aube" = "latest"
 "aqua:schollz/croc" = "latest"
