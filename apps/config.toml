@@ -2,7 +2,13 @@
 go = "latest"
 java = "latest"
 node = "24.14.1"
-"npm:pnpm" = "latest"
+# `pnpm` resolves to aqua:pnpm/pnpm -- the prebuilt native binary. Not npm:pnpm:
+# since pnpm 11 the npm package ships a placeholder whose postinstall swaps in
+# the real binary from @pnpm/exe.<platform>, and mise's npm backend (aube)
+# blocks postinstall scripts. The @pnpm/exe payload lands on disk but nothing
+# puts it in place, so `pnpm --version` dies in node's ESM loader on the
+# shebang-less placeholder. Same failure as claude and opencode below.
+pnpm = "latest"
 python = "latest"
 yarn = "latest"
 rust = "latest"
@@ -90,6 +96,7 @@ cmake = "latest"
 # Python CLI tools
 "pipx:yt-dlp" = "latest"
 "pipx:speedtest-cli" = "latest"
+rclone = "latest"
 
 [settings]
 experimental = true
