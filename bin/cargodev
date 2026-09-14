@@ -1,0 +1,122 @@
+#!/bin/sh
+#
+# cargodev — run a Rust tool from ~/scripts/<name> in the current directory,
+# rebuilding it first so you are always on the latest source.
+#
+#   cargodev whitehall build .
+#   cargodev --release whitehall build .
+#
+# Everything after <tool> is passed through untouched. A no-op rebuild costs
+# ~0.15s; build progress and compiler diagnostics go to stderr, so stdout stays
+# clean for pipes.
+#
+# The tool is built and then exec'd directly rather than run via `cargo run`,
+# because `cargo run` injects RUSTUP_TOOLCHAIN, CARGO_MANIFEST_DIR, CARGO_PKG_*
+# and an LD_LIBRARY_PATH prefix into the child. Those leak into any cargo or
+# rustup the tool itself shells out to — a pinned RUSTUP_TOOLCHAIN would
+# silently override a rust-toolchain.toml in whatever project you point it at.
+# exec'ing the binary gives it the exact environment it gets when you type the
+# target/debug path by hand.
+
+set -eu
+
+root=${CARGODEV_ROOT:-$HOME/scripts}
+profile_arg=
+which_only=0
+
+usage() {
+    cat <<EOF
+usage: cargodev [--release] <tool> [args...]
+
+Rebuild ~/scripts/<tool> and run it here, in the current directory.
+Arguments after <tool> are passed to the tool untouched.
+
+  --release   build and run the release profile (default: debug)
+  --debug     build and run the debug profile
+  --which     print the binary that would run, then exit
+  --list      list the Rust tools under $root
+  --help      show this message
+
+CARGODEV_ROOT overrides the search root (currently $root).
+EOF
+}
+
+list_tools() {
+    for manifest in "$root"/*/Cargo.toml; do
+        [ -f "$manifest" ] || continue
+        dir=${manifest%/Cargo.toml}
+        echo "${dir##*/}"
+    done
+}
+
+while [ $# -gt 0 ]; do
+    case $1 in
+        --release) profile_arg=--release; shift ;;
+        --debug)   profile_arg=; shift ;;
+        --which)   which_only=1; shift ;;
+        --list)    list_tools; exit 0 ;;
+        -h|--help) usage; exit 0 ;;
+        --)        shift; break ;;
+        -*)        printf 'cargodev: unknown option: %s\n\n' "$1" >&2; usage >&2; exit 2 ;;
+        *)         break ;;
+    esac
+done
+
+if [ $# -lt 1 ]; then
+    usage >&2
+    exit 2
+fi
+
+tool=$1
+shift
+
+manifest=$root/$tool/Cargo.toml
+if [ ! -f "$manifest" ]; then
+    printf 'cargodev: no Cargo.toml at %s\n' "$manifest" >&2
+    printf 'available tools:\n' >&2
+    list_tools | sed 's/^/  /' >&2
+    exit 1
+fi
+
+# Capture cargo's JSON on stdout; json-render-diagnostics keeps human-readable
+# warnings and errors flowing to stderr. Asking cargo for the artifact path
+# rather than assuming target/<profile>/<tool> means CARGO_TARGET_DIR, workspace
+# target dirs, .cargo/config.toml overrides and a bin name that differs from the
+# directory name are all handled for free.
+artifacts=$(mktemp "${TMPDIR:-/tmp}/cargodev.XXXXXX")
+trap 'rm -f "$artifacts"' EXIT HUP INT TERM
+
+if ! cargo build --message-format=json-render-diagnostics $profile_arg \
+        --manifest-path "$manifest" >"$artifacts"; then
+    exit 1
+fi
+
+executables=$(sed -n 's/.*"executable":"\([^"]*\)".*/\1/p' "$artifacts")
+
+if [ -z "$executables" ]; then
+    printf 'cargodev: %s built no binary (a library-only crate?)\n' "$tool" >&2
+    exit 1
+fi
+
+# A workspace can produce several binaries; prefer the one named after the tool.
+exe=$(printf '%s\n' "$executables" | awk -F/ -v t="$tool" '$NF == t' | tail -n 1)
+if [ -z "$exe" ]; then
+    if [ "$(printf '%s\n' "$executables" | wc -l)" -eq 1 ]; then
+        exe=$executables
+    else
+        printf 'cargodev: %s builds several binaries, none named %s:\n' "$tool" "$tool" >&2
+        printf '%s\n' "$executables" | sed 's/^/  /' >&2
+        exit 1
+    fi
+fi
+
+if [ "$which_only" -eq 1 ]; then
+    printf '%s\n' "$exe"
+    exit 0
+fi
+
+# exec replaces this shell, so the EXIT trap would never fire: clean up first.
+rm -f "$artifacts"
+trap - EXIT HUP INT TERM
+
+exec "$exe" "$@"
