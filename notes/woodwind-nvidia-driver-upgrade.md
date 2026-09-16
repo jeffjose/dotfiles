@@ -2,7 +2,12 @@
 
 Change record + rollback for lifting the March 2026 driver pin.
 Companion to [woodwind-nvidia-crash-report.md](woodwind-nvidia-crash-report.md).
-Script: [`scripts/utils/upgrade-nvidia-woodwind.sh`](../scripts/utils/upgrade-nvidia-woodwind.sh)
+The upgrade is **complete and verified** (see below); the one-shot script that
+performed it was deleted afterwards. Recover it from git if ever needed:
+
+```sh
+git show acbb14b:scripts/utils/upgrade-nvidia-woodwind.sh
+```
 
 ---
 
@@ -153,22 +158,38 @@ Impact was cosmetic — GPU, CUDA and ComfyUI all worked without it (the daemon
 runs with `--no-persistence-mode` and only avoids driver re-init latency) — but
 it left a permanently failed unit.
 
-**Fix, now folded into the script as step 5 (idempotent — just re-run it):**
+**Fix — applied 2026-09-15 22:12, service now `active (running)`.** If a future
+driver upgrade reproduces it, this is the whole repair:
 
 ```sh
-sudo dpkg-reconfigure nvidia-compute-utils-610
+sudo dpkg-reconfigure nvidia-compute-utils-<series>   # recreates user + group
 sudo systemctl restart nvidia-persistenced
 ```
 
-Two other script fixes came out of this run:
+Symptom to recognise it by: `nvidia-compute-utils-<new>` sits at `ii` while
+`getent passwd nvidia-persistenced` returns nothing.
 
-- **Step 4 is now version-agnostic.** It only swept `-580` before, so the 4 `rc`
-  residues the 570 *removal itself* creates (`libnvidia-compute-570`,
-  `nvidia-compute-utils-570`, `nvidia-dkms-570`, `nvidia-kernel-common-570`)
-  survived it. It now sweeps every series except `$TARGET`.
-- **The series regex is anchored** as `-(4|5|6)[0-9][0-9](-|$)`. A looser
-  `-[0-9][0-9][0-9]` also matched `linux-signatures-nvidia-6.8.0-138-generic`
-  via the *kernel* version, which must never be purged.
+### Reusable: sweeping leftovers from other driver series
+
+The first sweep only matched `-580`, so the 4 `rc` residues that removing *570*
+itself creates (`libnvidia-compute-570`, `nvidia-compute-utils-570`,
+`nvidia-dkms-570`, `nvidia-kernel-common-570`) survived it. Version-agnostic
+version — set `TARGET` to the series you want to keep, and **review the list
+before purging**:
+
+```sh
+TARGET=610
+dpkg-query -W -f='${db:Status-Abbrev}|${Package}\n' \
+  | awk -F'|' -v t="-$TARGET" \
+      '$1 ~ /^(ii|rc)/ && $2 ~ /nvidia/ \
+       && $2 ~ /-(4[0-9][0-9]|5[0-9][0-9]|6[0-9][0-9])(-|$)/ \
+       && index($2, t) == 0 {print $2}'
+```
+
+⚠️ The series pattern **must** be anchored with `(-|$)`. A looser
+`-[0-9][0-9][0-9]` also matches `linux-signatures-nvidia-6.8.0-138-generic` via
+the *kernel* version — purging that would be a mistake. Verified after the
+sweep: that package is still `ii`, and no nvidia package off -610 remains.
 
 ---
 
@@ -181,3 +202,4 @@ Two other script fixes came out of this run:
 | 2026-09-05 | Current boot begins. |
 | 2026-09-15 | ComfyUI install hits the `12080` error. Pin traced, confirmed obsolete. Upgrade scripted to 610.57.04 and recorded here. Superseded `~/scripts/fix-nvidia.sh`. |
 | 2026-09-15 22:06 | Script run; rebooted onto **610.57.04 / CUDA 13.3**. All checks green, 0 Xid, ComfyUI torch cu130 initializes on the GPU. Two follow-ups: `nvidia-persistenced` user deleted by the 570 postrm (fixed, script step 5), and 4 stale 570 `rc` residues left by a too-narrow sweep (fixed, step 4). |
+| 2026-09-15 22:12 | Follow-ups applied. `nvidia-persistenced` user + group restored, service **active (running)**; all 570 `rc` residues purged. Final state: **zero failed units, zero Xid, no nvidia package off -610**, `linux-signatures-nvidia-6.8.0-138-generic` intact, ComfyUI torch cu130 running on the GPU. One-shot upgrade script deleted (recover via `git show acbb14b:scripts/utils/upgrade-nvidia-woodwind.sh`). **Upgrade closed.** |
