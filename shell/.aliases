@@ -637,6 +637,11 @@
     alias mfs 'magicfs --sort=size'
     alias mft 'magicfs --sort=time'
 
+
+    # Mirrors how the Comfy Desktop AppImage launches: models/input/output all
+    # live in ~/ComfyUI-Shared, reached via the desktop-generated paths yaml.
+    alias comfy-server 'cd ~/ComfyUI-Installs/ComfyUI && ComfyUI/.venv/bin/python3 -s ComfyUI/main.py --listen 0.0.0.0 --port 8188 --enable-manager --extra-model-paths-config ~/.local/share/comfyui-desktop-2/instance-model-paths/*.yaml --input-directory ~/ComfyUI-Shared/input --output-directory ~/ComfyUI-Shared/output'
+
     # Google
     #
     #
