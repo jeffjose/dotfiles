@@ -103,18 +103,72 @@ Note that rolling back re-breaks ComfyUI — 570 cannot run the cu130 torch.
 
 ---
 
-## Verification after reboot
+## Verification after reboot — DONE 2026-09-15 22:08, all green
 
-```sh
-nvidia-smi          # expect Driver Version: 610.x, CUDA Version: 13.x
-cat /proc/cmdline   # pcie_aspm / NVreg_* should be absent
-dkms status         # expect nvidia/610.57.04, <kernel>: installed
+| Check | Result |
+|---|---|
+| `nvidia-smi` | `610.57.04`, CUDA UMD **13.3**, RTX 3090 detected, P8 / 31 W / 41 °C |
+| `cat /proc/cmdline` | `ro quiet splash vt.handoff=7` — all 3 crash-era params gone |
+| `dkms status` | `nvidia/610.57.04, 6.8.0-138-generic: installed` |
+| Driver packages | `nvidia-driver-610 610.57.04-0ubuntu0.22.04.3`; all 22 nvidia pkgs on -610 |
+| 580 remnants | none |
+| Xid errors | **0** |
+| X11 session | healthy (Xorg on vt7 via lightdm) |
+
+**ComfyUI torch now initializes.** Note the venv is `ComfyUI/ComfyUI/.venv` —
+*not* `standalone-env`, which has no torch in it:
+
+```
+torch          : 2.12.1+cu130
+torch cuda ver : 13.0
+cuda available : True
+device         : NVIDIA GeForce RTX 3090   capability (8, 6)
+matmul on GPU  : OK
 ```
 
-Then launch ComfyUI; the cu130 torch should initialize against the GPU.
+Original `RuntimeError: ... driver is too old (found version 12080)` is resolved.
 
 **Watch for:** crashes returning would be surprising and would *not* implicate
 610 by default — check the PSU Hybrid Mode button first.
+
+---
+
+## Gotcha hit during the upgrade: nvidia-persistenced user deleted
+
+After the reboot, one unit had failed:
+
+```
+nvidia-persistenced.service: Failed with result 'exit-code'
+ERROR: Failed to find user ID of user 'nvidia-persistenced': Success
+```
+
+**Cause — a dpkg ordering hazard.** `nvidia-compute-utils-610.postinst` creates
+the `nvidia-persistenced` system user; `nvidia-compute-utils-570.postrm` runs
+`userdel nvidia-persistenced`. dpkg configured 610 *before* removing 570, so the
+old package's postrm deleted the user out from under the new one. Both the user
+and its group ended up missing while `nvidia-compute-utils-610` sat happily at
+`ii`.
+
+Impact was cosmetic — GPU, CUDA and ComfyUI all worked without it (the daemon
+runs with `--no-persistence-mode` and only avoids driver re-init latency) — but
+it left a permanently failed unit.
+
+**Fix, now folded into the script as step 5 (idempotent — just re-run it):**
+
+```sh
+sudo dpkg-reconfigure nvidia-compute-utils-610
+sudo systemctl restart nvidia-persistenced
+```
+
+Two other script fixes came out of this run:
+
+- **Step 4 is now version-agnostic.** It only swept `-580` before, so the 4 `rc`
+  residues the 570 *removal itself* creates (`libnvidia-compute-570`,
+  `nvidia-compute-utils-570`, `nvidia-dkms-570`, `nvidia-kernel-common-570`)
+  survived it. It now sweeps every series except `$TARGET`.
+- **The series regex is anchored** as `-(4|5|6)[0-9][0-9](-|$)`. A looser
+  `-[0-9][0-9][0-9]` also matched `linux-signatures-nvidia-6.8.0-138-generic`
+  via the *kernel* version, which must never be purged.
 
 ---
 
@@ -126,3 +180,4 @@ Then launch ComfyUI; the cu130 torch should initialize against the GPU.
 | 2026-07-18 | Root cause confirmed: PSU semi-passive fan heat-soak. Hybrid Mode OFF = fix. Driver exonerated. |
 | 2026-09-05 | Current boot begins. |
 | 2026-09-15 | ComfyUI install hits the `12080` error. Pin traced, confirmed obsolete. Upgrade scripted to 610.57.04 and recorded here. Superseded `~/scripts/fix-nvidia.sh`. |
+| 2026-09-15 22:06 | Script run; rebooted onto **610.57.04 / CUDA 13.3**. All checks green, 0 Xid, ComfyUI torch cu130 initializes on the GPU. Two follow-ups: `nvidia-persistenced` user deleted by the 570 postrm (fixed, script step 5), and 4 stale 570 `rc` residues left by a too-narrow sweep (fixed, step 4). |

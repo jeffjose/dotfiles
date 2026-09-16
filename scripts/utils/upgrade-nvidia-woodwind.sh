@@ -19,7 +19,14 @@ set -euo pipefail
 # DO NOT TOUCH: the PSU Hybrid Mode button must stay OFF (button out/up).
 #   That is the actual fix and this script does not affect it.
 
-echo "=== woodwind: nvidia 570 -> 610 ==="
+# Driver series to install. 610 = newest in jammy-updates/multiverse.
+# Anything >= 580 satisfies CUDA 13. Proprietary (not -open) to match the
+# previous setup.
+TARGET=${TARGET:-610}
+
+echo "=== woodwind: nvidia -> $TARGET ==="
+echo
+echo "Re-running this script is safe: every step is idempotent."
 echo
 
 STAMP=$(date +%Y%m%d-%H%M%S)
@@ -51,23 +58,28 @@ sudo update-grub
 
 # --- Step 3: install 610 ----------------------------------------------------
 echo
-echo "[3/6] apt update + installing nvidia-driver-610..."
+echo "[3/6] apt update + installing nvidia-driver-$TARGET..."
 sudo apt-get update
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
   -o Dpkg::Options::="--force-confdef" \
   -o Dpkg::Options::="--force-confold" \
-  nvidia-driver-610
+  "nvidia-driver-$TARGET"
 
-# --- Step 4: sweep the stale 580 leftovers ----------------------------------
-# The 570 stack is removed automatically by the 610 install above, so this only
-# sweeps what that leaves behind:
-#   - 2 orphaned nvidia-firmware-580-* packages (still fully installed; the
-#     crash report flagged these back in March)
-#   - 9 'rc' config residues from the March 580 -> 570 downgrade
+# --- Step 4: sweep leftovers from every other driver series -----------------
+# Sweeps any nvidia package (installed OR 'rc' config-residue) that is not part
+# of $TARGET. At first run this caught 2 orphaned nvidia-firmware-580-* plus 9
+# 'rc' residues from the March downgrade, and the 4 'rc' residues that the 570
+# removal itself leaves behind.
 echo
-echo "[4/6] Sweeping stale 580 leftovers..."
+echo "[4/6] Sweeping leftovers from other driver series..."
 STALE=$(dpkg-query -W -f='${db:Status-Abbrev}|${Package}\n' 2>/dev/null \
-        | awk -F'|' '$1 ~ /^(ii|rc)/ && $2 ~ /nvidia/ && $2 ~ /-580/ {print $2}')
+        | awk -F'|' -v t="-$TARGET" \
+            '$1 ~ /^(ii|rc)/ && $2 ~ /nvidia/ \
+             && $2 ~ /-(4[0-9][0-9]|5[0-9][0-9]|6[0-9][0-9])(-|$)/ \
+             && index($2, t) == 0 {print $2}')
+# The series pattern must be anchored with (-|$): a looser /-[0-9][0-9][0-9]/
+# also matches linux-signatures-nvidia-6.8.0-138-generic via the kernel
+# version, which must NOT be purged.
 if [[ -n "$STALE" ]]; then
   echo "$STALE" | sed 's/^/  /'
   # shellcheck disable=SC2086
@@ -77,9 +89,30 @@ else
 fi
 sudo apt-get autoremove -y
 
-# --- Step 5: verify the module built ----------------------------------------
+# --- Step 5: repair the nvidia-persistenced user, then verify ----------------
+# dpkg ordering hazard: nvidia-compute-utils-<new>.postinst creates the
+# 'nvidia-persistenced' system user, but nvidia-compute-utils-<old>.postrm runs
+# `userdel nvidia-persistenced` and may execute AFTER it. The user then vanishes
+# and nvidia-persistenced.service fails with:
+#   ERROR: Failed to find user ID of user 'nvidia-persistenced': Success
+# Re-running the postinst after the sweep restores it. Idempotent.
 echo
-echo "[5/6] DKMS status (expect nvidia/610.* for $(uname -r)):"
+echo "[5/6] Checking the nvidia-persistenced user..."
+if getent passwd nvidia-persistenced > /dev/null; then
+  echo "  user present"
+else
+  echo "  user MISSING (known dpkg ordering hazard) -- reconfiguring..."
+  sudo dpkg-reconfigure "nvidia-compute-utils-$TARGET"
+  getent passwd nvidia-persistenced > /dev/null \
+    && echo "  user restored" || echo "  STILL MISSING -- investigate"
+fi
+sudo systemctl restart nvidia-persistenced || true
+systemctl is-active nvidia-persistenced \
+  && echo "  nvidia-persistenced: active" \
+  || echo "  nvidia-persistenced: NOT active -- check 'systemctl status'"
+
+echo
+echo "DKMS status (expect nvidia/$TARGET.* for $(uname -r)):"
 dkms status || true
 echo
 echo "Installed driver packages:"
@@ -92,7 +125,7 @@ echo
 echo "    sudo reboot"
 echo
 echo "After reboot, verify:"
-echo "    nvidia-smi                 # expect Driver 610.x, CUDA Version 13.x"
+echo "    nvidia-smi                 # expect Driver $TARGET.x, CUDA Version 13.x"
 echo "    cat /proc/cmdline          # crash-era params should be gone"
 echo
 echo "Then start ComfyUI -- the cu130 torch should initialize."
