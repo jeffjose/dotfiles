@@ -58,6 +58,7 @@ opencode = "latest"
 "cargo:cargo-make" = "latest"
 "cargo:cargo-cache" = "latest"
 "cargo:cargo-binstall" = "latest"
+"cargo:kache" = "latest"
 
 # CLI utilities
 "cargo:rargs" = "latest"
