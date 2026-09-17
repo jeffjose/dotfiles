@@ -621,6 +621,8 @@
     alias opus 'claude --model opus'
     alias sonnet 'claude --model sonnet'
 
+    alias claude-multi '$HOME/.local/share/multi-cli/bin/claude-multi'
+
     alias ag antigravity
 
     alias ccu 'bunx ccusage@latest'
