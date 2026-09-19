@@ -352,3 +352,7 @@ export PATH="/home/jeffjose/.ante/bin:$PATH"
 export PATH="$HOME/.grok/bin:$PATH"
 [[ -r "$HOME/.grok/completions/bash/grok.bash" ]] && source "$HOME/.grok/completions/bash/grok.bash"
 # <<< grok installer <<<
+
+# >>> multi-cli >>>
+export PATH='/home/jeffjose/.local/share/multi-cli/bin':"$PATH"
+# <<< multi-cli <<<

@@ -97,6 +97,7 @@ if ( ! $?prompt ) exit
         if (-d ${HOME}/.pub-cache/bin) set new_path = "${new_path}:${HOME}/.pub-cache/bin"
         if (-d ${HOME}/bin) set new_path = "${new_path}:${HOME}/bin"
         if (-d ${HOME}/.local/bin) set new_path = "${new_path}:${HOME}/.local/bin"
+        if (-d ${HOME}/.local/share/multi-cli/bin) set new_path = "${new_path}:${HOME}/.local/share/multi-cli/bin"  # multi-cli
         if (-d ${LMSTUDIOPATH}/bin) set new_path = "${new_path}:${LMSTUDIOPATH}/bin"
         if (-d /usr/sbin) set new_path = "${new_path}:/usr/sbin"
 
