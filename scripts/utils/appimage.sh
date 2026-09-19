@@ -8,8 +8,8 @@
 #   install -i                   pick apps to install from the catalog
 #   list / ls                    show every app: installed ones plus what the
 #                                catalog offers but isn't installed yet
-#   info <name-or-path>          crack open an AppImage and print what's inside
-#   update <name> | --all | -i   re-check GitHub source and upgrade if newer
+#   info / i <name-or-path>      crack open an AppImage and print what's inside
+#   update / u [<name>...] | -i re-check sources and upgrade; no names = all
 #   remove <name>                delete binary, wrapper, desktop entry, metadata
 #   wrap <name> | --all          regenerate the ~/bin/<name> wrapper from metadata
 #   migrate [<name>]             adopt pre-existing ~/bin/<name> AppImages
@@ -115,10 +115,10 @@ COMMANDS
                                      catalog apps not installed yet
   install [options] <url|path|name>  install an AppImage and register it
   install -i                         pick apps to install from the catalog
-  update <name>                      update one app if a newer release exists
-  update --all                       update every managed app
+  update, u                          update every managed app (same as --all)
+  update, u <name>...                update just the named apps
   update -i                          pick which apps to update
-  info <name|path>                   inspect a managed app or AppImage file
+  info, i <name|path>                inspect a managed app or AppImage file
   remove <name>                      uninstall an app (binary, launcher, metadata)
   wrap <name> | --all                regenerate the ~/bin/<name> wrapper script
   migrate [<name>]                   adopt pre-existing ~/bin/<name> AppImages
@@ -1337,17 +1337,33 @@ cmd_update() {
     return 0
   fi
 
-  if [ "${1:-}" = "--all" ]; then
+  # Bare `update` means everything, like `brew upgrade` / `mise upgrade`;
+  # --all is kept as an explicit spelling of the same thing.
+  if [ $# -eq 0 ] || { [ $# -eq 1 ] && [ "$1" = "--all" ]; }; then
     mkdir -p "$META_DIR"
     local f names=()
     for f in "$META_DIR"/*.json; do
       [ -e "$f" ] || continue
       names+=("$(jq -r '.name' "$f")")
     done
-    update_many "${names[@]+"${names[@]}"}"
-  else
-    [ -n "${1:-}" ] || usage
+    if [ "${#names[@]}" -eq 0 ]; then
+      echo "(no managed AppImages)" >&2
+      return 0
+    fi
+    update_many "${names[@]}"
+    return 0
+  fi
+
+  # Named apps. Anything flag-shaped here is a typo, not an app name.
+  local n
+  for n in "$@"; do
+    case "$n" in -*) usage ;; esac
+  done
+  # One name keeps the verbose single-app output; several get the table.
+  if [ $# -eq 1 ]; then
     cmd_update_one "$1"
+  else
+    update_many "$@"
   fi
 }
 
@@ -1492,8 +1508,8 @@ case "$cmd" in
   install)   shift; cmd_install "$@" ;;
   list|ls)   shift; cmd_list ;;
   catalog)   shift; cmd_list ;;   # folded into `list`; kept so muscle memory works
-  info)    shift; [ $# -eq 1 ] || usage; cmd_info "$1" ;;
-  update)  shift; cmd_update "$@" ;;
+  info|i)  shift; [ $# -eq 1 ] || usage; cmd_info "$1" ;;
+  update|u) shift; cmd_update "$@" ;;
   remove)  shift; [ $# -eq 1 ] || usage; cmd_remove "$1" ;;
   wrap)    shift; cmd_wrap "${1:-}" ;;
   migrate) shift; cmd_migrate "${1:-}" ;;
