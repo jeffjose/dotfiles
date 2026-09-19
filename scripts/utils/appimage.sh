@@ -366,12 +366,45 @@ resolve_latest_redirect() {
   printf '%s\t%s\t%s\n' "$final" "${version:-$base}" ""
 }
 
-# Resolve any tracked source (GitHub release page, templated download URL, or a
-# latest-redirect URL).
+# Resolve a download *page* that links the current build.
+#
+# For vendors with neither GitHub releases nor a "latest" redirect, but whose
+# download page always links the newest AppImage. Kdenlive is the case here: KDE
+# hosts it at download.kde.org/stable/kdenlive/<major.minor>/linux/..., a path no
+# template can build from a tag, and its GitHub mirror has tags but no releases.
+#
+#   https://kdenlive.org/download/#page
+#
+# Mark such a source with a trailing "#page". We fetch the page, take the first
+# absolute .AppImage link for this machine's architecture, and read the version
+# out of its filename, same as resolve_latest_redirect.
+resolve_page_link() {
+  local url="${1%\#page}" html arch_pat links final base version
+  [ "$RESOLVE_QUIET" = "true" ] || echo "Resolving download page: $url" >&2
+  html=$(curl -sL --max-time 60 "$url") \
+    || { echo "Could not fetch download page: $url" >&2; return 1; }
+
+  case "$(uname -m)" in
+    x86_64|amd64)  arch_pat="x86[_-]?64|amd64" ;;
+    aarch64|arm64) arch_pat="aarch64|arm64" ;;
+    *)             arch_pat="$(uname -m)" ;;
+  esac
+  links=$(grep -oE "https?://[^\"' <>]+\.AppImage" <<<"$html" || true)
+  final=$(grep -iE "$arch_pat" <<<"$links" | head -n1 || true)
+  [ -n "$final" ] || { echo "No $(uname -m) .AppImage link on: $url" >&2; return 1; }
+
+  base="${final##*/}"
+  version=$(printf '%s' "$base" | grep -oE '[0-9]+(\.[0-9]+)+(-[0-9]+)?' | head -n1)
+  printf '%s\t%s\t%s\n' "$final" "${version:-$base}" ""
+}
+
+# Resolve any tracked source (GitHub release page, templated download URL, a
+# latest-redirect URL, or a download page).
 resolve_source() {
   case "$1" in
     *'#github='*) resolve_templated "$1" ;;
     *'#latest')   resolve_latest_redirect "$1" ;;
+    *'#page')     resolve_page_link "$1" ;;
     *)            resolve_github "$1" ;;
   esac
 }
@@ -384,6 +417,7 @@ source_is_resolvable() {
     "")           return 1 ;;
     *'#github='*) return 0 ;;
     *'#latest')   return 0 ;;
+    *'#page')     return 0 ;;
     *)            [ -n "$(github_repo_from_url "$1" || true)" ] ;;
   esac
 }
