@@ -46,3 +46,4 @@ paseo	https://github.com/getpaseo/paseo	-	Paseo (orchestrator for Claude Code / 
 lossless-cut	https://github.com/mifi/lossless-cut	-	LosslessCut (lossless trimming/cutting of video and audio files, ffmpeg front-end)
 kdenlive	https://kdenlive.org/download/#page	-	Kdenlive (full non-linear video editor from KDE: multitrack timeline, effects, titles, proxy editing). KDE hosts the AppImage under a major.minor directory and its GitHub mirror has no releases, so the version comes from the link on the official download page.
 shotcut	https://github.com/mltframework/shotcut	-	Shotcut (open-source video editor on MLT; lighter and quicker to learn than Kdenlive)
+pinta	https://github.com/pkgforge-dev/Pinta-AppImage	-	Pinta (simple Paint.NET-style image editor on GTK4/libadwaita: crop, rotate, resize, adjustments/effects, text, layers). Upstream ships no AppImage, only Flathub, so this is the unofficial pkgforge-dev build.
