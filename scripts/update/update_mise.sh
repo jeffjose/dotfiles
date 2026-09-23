@@ -10,6 +10,16 @@ set -euo pipefail
 export npm_config_ignore_scripts=false
 export npm_config_omit=
 
+MISE_DATA_DIR="${MISE_DATA_DIR:-$HOME/.local/share/mise}"
+MISE_CACHE_DIR="${MISE_CACHE_DIR:-$HOME/.cache/mise}"
+
+# Bytes used by mise's installs + cache, for the before/after report.
+mise_disk_usage() {
+  du -sb "$MISE_DATA_DIR" "$MISE_CACHE_DIR" 2>/dev/null | awk '{s+=$1} END {print s+0}'
+}
+
+size_before=$(mise_disk_usage)
+
 # Update dotfiles first (best-effort — don't abort the mise update if this
 # fails, e.g. offline, merge conflict, or detached HEAD). Run in a subshell so
 # a failed `cd`/`git pull` can't strand us in the wrong directory.
@@ -28,6 +38,12 @@ mise self-update --yes || true
 echo "Upgrading mise tools..."
 mise upgrade
 # mise upgrade --bump  # Commented out to prevent auto-updating config.toml versions
+
+# `mise upgrade` installs new versions alongside the old ones and never removes
+# them, so installs/ grows without bound. Prune every version no tracked config
+# still resolves to (mise reinstalls on demand if a project needs one again).
+echo "Pruning unused tool versions..."
+mise prune --yes || echo "⚠️  mise prune failed; continuing." >&2
 
 which mise
 
@@ -77,5 +93,9 @@ fi
 
 # Self-heal npm: tools whose aube store under ~/.cache was cleared.
 "$HOME/dotfiles/scripts/install/fix-mise-npm-installs.sh"
+
+size_after=$(mise_disk_usage)
+echo "mise disk usage: $(numfmt --to=iec "$size_before") -> $(numfmt --to=iec "$size_after")" \
+  "(saved $(numfmt --to=iec -- $((size_before - size_after))))"
 
 exit 0
