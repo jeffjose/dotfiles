@@ -105,6 +105,24 @@ rclone = "latest"
 [settings]
 experimental = true
 
+# mise quarantines releases younger than `minimum_release_age` (a supply-chain
+# guard: a malicious version that gets yanked within a day never reaches you).
+# The default window is ~24h, and Claude Code ships several times a day -- so
+# `mise install`/`mise upgrade` resolve `latest` to whatever shipped yesterday
+# and the newest build is permanently out of reach. The only clue is one line
+# that `mise install` does not print:
+#
+#   mise WARN  1 newer npm:@anthropic-ai/claude-code release hidden by
+#              minimum_release_age
+#
+# Exempt those two by name rather than setting minimum_release_age = 0, which
+# would drop the guard for every tool here. Same reasoning as
+# AUBE_ALLOWED_UNPOPULAR_PACKAGES below: narrow the exception, keep the check.
+#
+# Both entries are needed -- `claude` (aqua:anthropics/claude-code) is what PATH
+# resolves and the npm: package is the separate install listed under [tools].
+minimum_release_age_excludes = ["claude", "npm:@anthropic-ai/claude-code"]
+
 [env]
 # aube (mise's npm: backend) refuses packages under `lowDownloadThreshold`
 # (1000 weekly downloads) as a typosquat guard, which blocks our own published
