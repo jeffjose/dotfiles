@@ -1,6 +1,14 @@
 #!/usr/bin/env -S bash --noprofile
 #
 # Update mise tools
+#
+# Usage: update_mise.sh [--filter PATTERN]
+#
+#   --filter PATTERN  Only upgrade (and prune) tools whose name contains PATTERN
+#                     (case-insensitive substring). Skips the dotfiles pull,
+#                     mise self-update, cache clears and pnpm health check.
+#                     e.g. `update_mise.sh --filter claude` upgrades both
+#                     `claude` and `npm:@anthropic-ai/claude-code`.
 
 set -euo pipefail
 
@@ -18,7 +26,43 @@ mise_disk_usage() {
   du -sb "$MISE_DATA_DIR" "$MISE_CACHE_DIR" 2>/dev/null | awk '{s+=$1} END {print s+0}'
 }
 
+filter=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -f|--filter) filter="${2:?--filter needs a pattern}"; shift 2 ;;
+    --filter=*)  filter="${1#*=}"; shift ;;
+    -h|--help)   sed -n '2,/^$/s/^# \{0,1\}//p' "$0"; exit 0 ;;
+    *) echo "Unknown argument: $1" >&2; exit 2 ;;
+  esac
+done
+
+report_disk_usage() {
+  local size_after
+  size_after=$(mise_disk_usage)
+  echo "mise disk usage: $(numfmt --to=iec "$size_before") -> $(numfmt --to=iec "$size_after")" \
+    "(saved $(numfmt --to=iec -- $((size_before - size_after))))"
+}
+
 size_before=$(mise_disk_usage)
+
+if [[ -n "$filter" ]]; then
+  mapfile -t tools < <(mise ls --current | awk '{print $1}' | sort -u | grep -iF -- "$filter" || true)
+  if [[ ${#tools[@]} -eq 0 ]]; then
+    echo "No mise tools match '$filter'." >&2
+    exit 1
+  fi
+
+  echo "Upgrading: ${tools[*]}"
+  mise upgrade "${tools[@]}"
+  mise prune --yes "${tools[@]}" || echo "⚠️  mise prune failed; continuing." >&2
+
+  if printf '%s\n' "${tools[@]}" | grep -q '^npm:'; then
+    "$HOME/dotfiles/scripts/install/fix-mise-npm-installs.sh"
+  fi
+
+  report_disk_usage
+  exit 0
+fi
 
 # Update dotfiles first (best-effort — don't abort the mise update if this
 # fails, e.g. offline, merge conflict, or detached HEAD). Run in a subshell so
@@ -94,8 +138,6 @@ fi
 # Self-heal npm: tools whose aube store under ~/.cache was cleared.
 "$HOME/dotfiles/scripts/install/fix-mise-npm-installs.sh"
 
-size_after=$(mise_disk_usage)
-echo "mise disk usage: $(numfmt --to=iec "$size_before") -> $(numfmt --to=iec "$size_after")" \
-  "(saved $(numfmt --to=iec -- $((size_before - size_after))))"
+report_disk_usage
 
 exit 0
