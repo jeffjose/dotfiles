@@ -60,7 +60,9 @@ has_lost_store_links() {
   local root link target
   root="$(realpath -m "$1")"
   while IFS= read -r -d '' link; do
-    target="$(realpath -m "$(dirname "$link")/$(readlink "$link")")"
+    target="$(readlink "$link")"
+    [[ "$target" == /* ]] || target="$(dirname "$link")/$target"
+    target="$(realpath -m "$target")"
     [[ "$target" == "$root"/* ]] || return 0
   done < <(find "$1" -type l -xtype l -print0 2>/dev/null)
   return 1
