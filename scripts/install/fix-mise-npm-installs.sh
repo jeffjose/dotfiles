@@ -52,6 +52,20 @@ mapfile -t entries < <(
              | "\($e.key)\t\(.install_path)"'
 )
 
+# True if $1 has a dangling symlink whose target lies OUTSIDE the install dir,
+# i.e. into the aube store under ~/.cache. Dangling links that stay inside the
+# install dir are optional per-platform deps (foo-darwin-arm64, foo-win32-x64,
+# fsevents, ...) that were deliberately skipped; they are normal, not damage.
+has_lost_store_links() {
+  local root link target
+  root="$(realpath -m "$1")"
+  while IFS= read -r -d '' link; do
+    target="$(realpath -m "$(dirname "$link")/$(readlink "$link")")"
+    [[ "$target" == "$root"/* ]] || return 0
+  done < <(find "$1" -type l -xtype l -print0 2>/dev/null)
+  return 1
+}
+
 broken=()
 for entry in "${entries[@]}"; do
   tool="${entry%%$'\t'*}"
@@ -59,8 +73,7 @@ for entry in "${entries[@]}"; do
 
   [[ -d "$path" ]] || { broken+=("$tool"); continue; }
 
-  # -xtype l == a symlink whose target does not resolve.
-  if [[ -n "$(find "$path" -type l -xtype l -print -quit 2>/dev/null)" ]]; then
+  if has_lost_store_links "$path"; then
     broken+=("$tool")
   fi
 done
@@ -90,7 +103,7 @@ for entry in "${entries[@]}"; do
   tool="${entry%%$'\t'*}"
   path="$(mise where "$tool" 2>/dev/null || true)"
   [[ -n "$path" && -d "$path" ]] || { still_broken+=("$tool"); continue; }
-  if [[ -n "$(find "$path" -type l -xtype l -print -quit 2>/dev/null)" ]]; then
+  if has_lost_store_links "$path"; then
     still_broken+=("$tool")
   fi
 done
