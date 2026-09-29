@@ -36,6 +36,15 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# `mise upgrade` warns twice per branch-pinned tool (the cargo:…jeffjose/* repos
+# on branch:main) on every run — "something weird happened with versioning" and
+# "upgrading non-version tool requests". Both are expected for a branch ref, so
+# drop just those lines from stderr; every other warning still gets through.
+mise_upgrade() {
+  mise upgrade "$@" 2> >(grep -v -e 'something weird happened with versioning' \
+                               -e 'upgrading non-version tool requests' >&2)
+}
+
 report_disk_usage() {
   local size_after
   size_after=$(mise_disk_usage)
@@ -53,7 +62,7 @@ if [[ -n "$filter" ]]; then
   fi
 
   echo "Upgrading: ${tools[*]}"
-  mise upgrade "${tools[@]}"
+  mise_upgrade "${tools[@]}"
   mise prune --yes "${tools[@]}" || echo "⚠️  mise prune failed; continuing." >&2
 
   if printf '%s\n' "${tools[@]}" | grep -q '^npm:'; then
@@ -80,7 +89,7 @@ echo "Updating mise..."
 mise self-update --yes || true
 
 echo "Upgrading mise tools..."
-mise upgrade
+mise_upgrade
 # mise upgrade --bump  # Commented out to prevent auto-updating config.toml versions
 
 # `mise upgrade` installs new versions alongside the old ones and never removes
