@@ -23,7 +23,7 @@ MISE_CACHE_DIR="${MISE_CACHE_DIR:-$HOME/.cache/mise}"
 
 # Bytes used by mise's installs + cache, for the before/after report.
 mise_disk_usage() {
-  du -sb "$MISE_DATA_DIR" "$MISE_CACHE_DIR" 2>/dev/null | awk '{s+=$1} END {print s+0}'
+  du -sb "$MISE_DATA_DIR" "$MISE_CACHE_DIR" 2>/dev/null | awk '{s+=$1} END {printf "%.0f\n", s}'
 }
 
 filter=""
