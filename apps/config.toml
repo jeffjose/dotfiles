@@ -10,7 +10,6 @@ node = "24.14.1"
 # shebang-less placeholder. Same failure as claude and opencode below.
 pnpm = "latest"
 python = "latest"
-yarn = "latest"
 rust = "latest"
 bun = "latest"
 "github:astral-sh/uv" = "latest"
@@ -33,18 +32,18 @@ claude = "latest"
 opencode = "latest"
 
 # JSON utilities
-"go:github.com/tomnomnom/gron" = "latest"
-"go:github.com/josephburnett/jd" = "latest"
+#"go:github.com/tomnomnom/gron" = "latest"
+#"go:github.com/josephburnett/jd" = "latest"
 
 # CLI utilities
 "go:github.com/junegunn/fzf" = "latest"
-"go:github.com/antonmedv/watch" = "latest"
-"go:github.com/monasticacademy/httptap" = "latest"
+#"go:github.com/antonmedv/watch" = "latest"
+#"go:github.com/monasticacademy/httptap" = "latest"
 #"go:github.com/charmbracelet/crush" = "latest"
 
 # File finding utilities
-"cargo:fd-find" = "latest"
-"cargo:find-files" = "latest"
+#"cargo:fd-find" = "latest"
+#"cargo:find-files" = "latest"
 
 # Git utilities
 "cargo:timeago-cli" = "latest"
@@ -52,11 +51,10 @@ opencode = "latest"
 "cargo:git-absorb" = "latest"
 
 # Cargo utilities
-"cargo:cargo-bump" = "latest"
-"cargo:cargo-edit" = "latest"
+#"cargo:cargo-bump" = "latest"
+#"cargo:cargo-edit" = "latest"
 "cargo:cargo-update" = "latest"
 "cargo:cargo-make" = "latest"
-"cargo:cargo-cache" = "latest"
 "cargo:cargo-binstall" = "latest"
 "cargo:kache" = "latest"
 
@@ -68,10 +66,9 @@ opencode = "latest"
 "cargo:xh" = "latest"
 "cargo:gifski" = "latest"
 "cargo:hyperfine" = "latest"
-"cargo:lla" = "latest"
+#"cargo:lla" = "latest"
 "cargo:rustic-rs" = "latest"
-"cargo:tuc" = "latest"
-"cargo:somo" = "latest"
+#"cargo:tuc" = "latest"
 
 # GitHub repositories
 "cargo:https://github.com/jeffjose/mediainfo" = "branch:main"
@@ -93,7 +90,6 @@ opencode = "latest"
 "npm:ts-node" = "latest"
 "npm:oxlint" = "latest"
 "npm:degit" = "latest"
-"npm:@googleworkspace/cli" = "latest"
 ninja = "latest"
 cmake = "latest"
 
