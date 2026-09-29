@@ -5,8 +5,9 @@
 #   A (AppImage) : does not exist. Google ships no AppImage, official or
 #                  otherwise worth trusting, so Chrome is .deb-only. This is
 #                  the difference from `code`, which has both paths.
-#   B (.deb)     : automatic  → scripts/update/update_chrome.sh, run by `uq`
-#                              (ETag-checked, so it no-ops when unchanged)
+#   B (.deb)     : automatic  → scripts/update/update_deb.sh (misc/package.toml),
+#                              run by `uq`; update_chrome.sh, run by `updateall`
+#                              (both ETag-checked, so they no-op when unchanged)
 #                  manual     → this script
 #
 # Use this for a fresh machine or to put Chrome back after an accidental

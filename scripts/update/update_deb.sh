@@ -12,6 +12,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$SCRIPT_DIR/../.."
 CONFIG_FILE="$DOTFILES_DIR/misc/package.toml"
 TMPDIR="${TMPDIR:-/tmp}"
+# Keep downloaded .debs and their ETag metadata somewhere that survives a
+# reboot. deb-downloader defaults to /tmp, so every boot wiped the cache and the
+# next run re-downloaded everything (135 MB for Chrome alone).
+CACHE_DIR="$HOME/.cache/deb-downloader"
 PARALLEL=true
 
 # Parse arguments
@@ -60,9 +64,9 @@ build_command() {
     local install_flag="${5:-}"
 
     if [[ "$pkg_type" == "deb" ]]; then
-        echo "~/scripts/deb-downloader/deb-downloader --deb \"$url\" $install_flag"
+        echo "~/scripts/deb-downloader/deb-downloader --deb \"$url\" --output-dir \"$CACHE_DIR\" $install_flag"
     else
-        echo "~/scripts/deb-downloader/deb-downloader --url \"$url\" --dist \"$dist\" $install_flag"
+        echo "~/scripts/deb-downloader/deb-downloader --url \"$url\" --dist \"$dist\" --output-dir \"$CACHE_DIR\" $install_flag"
     fi
 }
 

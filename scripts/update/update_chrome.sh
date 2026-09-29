@@ -1,7 +1,8 @@
 #!/bin/env bash
 #
-# Keep Google Chrome current from Google's .deb — the automatic half of the B
-# path, run by `uq`. Skips the download when the ETag is unchanged.
+# Keep Google Chrome current from Google's .deb. Skips the download when the
+# ETag is unchanged. Run by `updateall`; `uq` updates Chrome through
+# update_deb.sh (misc/package.toml) instead, so it is not listed there too.
 #
 # Chrome is .deb-only: Google ships no AppImage, so unlike `code` there is no A
 # path. For a fresh install or to restore Chrome after a `dpkg -P`, use the
