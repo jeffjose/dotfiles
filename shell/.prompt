@@ -21,6 +21,7 @@ endif
     set    cyan="%{\033[1;36m%}"
     set   white="%{\033[0;37m%}"
     set  orange="%{\033[1;38;5;208m%}"   # 256-colour
+    set  violet="%{\033[1;38;5;141m%}"   # 256-colour
     set     end="%{\033[0m%}"    # This is needed at the end... :(
 
     #set prompt='[%n@%m %B%c%b]%# '
@@ -45,36 +46,58 @@ set git_clean_color = "${green}"
 set git_cl_color = "${blue}"
 
 # === HOST MAP ===
-# One case per machine (exact hostname) giving its colour.
+# One case per machine giving its colour.
 # A machine that isn't listed is shown in white.
+#
+# Match on the FQDN rather than on $HOST. tcsh sets $HOST from gethostname(),
+# which on the rodete machines is the short name ("jeffjose-glaptop2") — so the
+# fully-qualified cases below never matched and every Google box fell through to
+# white. The short name also can't tell the cloudtop (jeffjose.c.googlers.com)
+# from the workstation (jeffjose.mtv.corp.google.com): both are bare "jeffjose".
+# The personal boxes have no domain, so `hostname -f` echoes the short name
+# there and the single-word cases still match (with a ".*" twin in case a
+# domain ever appears).
+# This file is sourced before every prompt, so resolve it once per shell:
+# `hostname -f` consults the resolver and can block when that is slow.
+if (! $?host_fqdn) then
+    set host_fqdn = `hostname -f`
+    if ("${host_fqdn}" == "") set host_fqdn = "${HOST}"
+endif
+
 set host_name = "${HOST}"
 set host_color = "${white}"
 
-switch ("${HOST}")
+switch ("${host_fqdn}")
     # Google machines
     case "jeffjose2.mtv.corp.google.com":
-        set host_color = "${cyan}";   breaksw
+        set host_color = "${cyan}";     breaksw
     case "jeffjose.c.googlers.com":
-        set host_color = "${orange}";     breaksw
+        set host_color = "${orange}";   breaksw
     case "jeffjose-glaptop.roam.corp.google.com":
     case "jeffjose-glaptop2.roam.corp.google.com":
-        set host_color = "${orange}";   breaksw
+        set host_color = "${violet}";   breaksw
     case "jeffjose-glapstation":
-        set host_color = "${magenta}";   breaksw
+    case "jeffjose-glapstation.*":
+        set host_color = "${magenta}";  breaksw
     case "jeffjose.mtv.corp.google.com":
         set host_color = "${yellow}";   breaksw
 
     # Personal machines
     case "skyfall":
+    case "skyfall.*":
         set host_color = "${yellow}";   breaksw
     case "woodwind":
+    case "woodwind.*":
     case "nomad":
+    case "nomad.*":
         set host_color = "${blue}";     breaksw
 
     # Servers
     case "matterhorn":
+    case "matterhorn.*":
         set host_color = "${red}";      breaksw
     case "basalt":
+    case "basalt.*":
         set host_color = "${magenta}";  breaksw
 endsw
 
@@ -93,7 +116,7 @@ set ip_address = `\ip -o route get 8.8.8.8 | awk -F 'src | uid' '{print $2}'`
 
 # prodaccess status
 #
-if (${HOST} == "jeffjose.mtv.corp.google.com") then
+if ("${host_fqdn}" == "jeffjose.mtv.corp.google.com") then
   if (-d /google/src/files) then
     set prodaccess_status = true
     set prompt_key = "#"
@@ -176,6 +199,12 @@ set use_color_prompt = 0
 if ($?STY) set use_color_prompt = 1
 if ($?VSCODE_IPC_HOOK_CLI) set use_color_prompt = 1
 if ($?REMOTEHOST) set use_color_prompt = 1
+# VSCODE_IPC_HOOK_CLI is only exported when the terminal gets a CLI socket — the
+# AppImage's integrated terminals have TERM_PROGRAM but no hook, and without
+# this they fell back to the all-white prompt.
+if ($?TERM_PROGRAM) then
+    if ("${TERM_PROGRAM}" == "vscode") set use_color_prompt = 1
+endif
 
 if ($use_color_prompt) then
     set prompt = "-(${time_color}%B%P%b${end} ${host_color}${host_name} ${ip_address}${end} ${cwd_color}%B%/%b${end}${git_str})-\n${prompt_key}${end} "
