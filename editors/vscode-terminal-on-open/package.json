@@ -1,0 +1,11 @@
+{
+  "name": "terminal-on-open",
+  "displayName": "Terminal on open",
+  "description": "Show the terminal in the bottom panel whenever a window opens, including folders never opened before.",
+  "publisher": "jeffjose",
+  "version": "0.0.1",
+  "engines": { "vscode": "^1.74.0" },
+  "main": "./extension.js",
+  "activationEvents": ["onStartupFinished"],
+  "extensionKind": ["ui"]
+}
