@@ -2,14 +2,39 @@
 #
 # Open a directory on a remote host in VS Code (Remote-SSH). Run from the laptop.
 #
-#   code-remote <host> [path]      path defaults to "."
+#   code-remote [flags] <host> [path] [flags]      path defaults to "."
 #
 # The path is made absolute locally, so "." and "~" assume the same layout on
 # both machines; pass an absolute path for anything that only exists remotely.
+#
+# Anything starting with "-" is forwarded to `code` untouched, so
+# `code-remote -n host` opens a new window and `code-remote host . -g main.rs:42`
+# jumps to a line. A flag that takes a *separate* value has to come after the
+# host (and path): before them, its value would be read as the host.
 
-if [ $# -lt 1 ] || [ $# -gt 2 ]; then
-  echo "usage: code-remote <host> [path]" >&2
+usage() {
+  echo "usage: code-remote [flags] <host> [path] [flags]" >&2
   exit 2
-fi
+}
 
-exec code --remote "ssh-remote+$1" "$(realpath -ms "${2:-.}")"
+# Rotate leading flags to the back of the argument list, so what is left in
+# front is the host and (maybe) the path. "--" ends flag collection.
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --) shift; break ;;
+    -*) set -- "$@" "$1"; shift ;;
+    *)  break ;;
+  esac
+done
+
+[ $# -gt 0 ] || usage
+host="$1"; shift
+
+# A leading "-" here is a trailing flag, not the path.
+path="."
+case "${1:-}" in
+  ""|-*) ;;
+  *) path="$1"; shift ;;
+esac
+
+exec code --remote "ssh-remote+$host" "$(realpath -ms "$path")" "$@"

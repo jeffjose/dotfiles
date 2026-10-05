@@ -19,6 +19,11 @@
 # so a bare `code` runs the AppImage regardless; use /usr/bin/code for the .deb.
 # Removing the .deb is therefore optional — not a required migration step.
 #
+# The wrapper is installed with --inner-cli: the AppImage's entrypoint is the GUI
+# Electron binary, which ignores every CLI flag and answers `code --version` or
+# `--install-extension` by opening an empty window, so the wrapper mounts the
+# image and runs the real CLI inside it instead.
+#
 # Jeffrey Jose | 2026-07-15
 #
 set -e # Exit on error
@@ -35,9 +40,11 @@ fi
 
 echo "🔄 Checking for VS Code updates..."
 
-# Current version. The AppImage's `code` entrypoint is the GUI Electron binary,
-# which ignores `--version` (the real CLI lives at usr/bin/bin/code inside the
-# image), so read the version the manager recorded in metadata instead.
+# Current version, from the metadata the manager recorded. `code --version`
+# would answer too, now that the wrapper runs the CLI bundled inside the image
+# (the `inner-cli` flag — the image's own entrypoint is the GUI binary, which
+# ignores --version and opens a window instead), but that costs a mount and
+# tells us about the installed image rather than what we are about to replace.
 echo -n "Current version: "
 jq -r '.release_name // .tag // "-"' "$META" 2>/dev/null || echo "not installed"
 
@@ -48,7 +55,7 @@ else
   # First install: repackaged official VS Code AppImage. --name pins the wrapper
   # to `code` (the derived name from the asset filename would be "vscode-x86").
   echo "📥 Installing VS Code AppImage..."
-  "$APPIMAGE" install --name "$NAME" "$SOURCE_URL"
+  "$APPIMAGE" install --name "$NAME" --inner-cli "$SOURCE_URL"
   echo "ℹ️  This is the AppImage. For the .deb too: scripts/install/install-code-deb.sh"
 fi
 

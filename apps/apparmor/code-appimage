@@ -31,3 +31,18 @@ profile code-appimage /home/*/bin/.appimage/bin/code.AppImage flags=(unconfined)
   # Site-specific additions and overrides. See local/README for details.
   include if exists <local/code-appimage>
 }
+
+# The same permission for the binary *inside* the image.
+#
+# ~/bin/code no longer launches the AppImage itself: the image's entrypoint is
+# the GUI binary, which ignores every CLI flag, so the wrapper keeps the image
+# mounted and runs the real CLI bundled at usr/bin/bin/code (see
+# scripts/utils/appimage.sh, the --inner-cli wrapper). That CLI starts the GUI
+# straight from the mountpoint, so it is this path — not the .AppImage above —
+# that asks the kernel for a user namespace, and the profile above does not
+# match it. The mountpoint's suffix is random per launch, hence the glob.
+profile code-appimage-mounted /tmp/.mount_code.*/usr/bin/code flags=(unconfined) {
+  userns,
+
+  include if exists <local/code-appimage>
+}

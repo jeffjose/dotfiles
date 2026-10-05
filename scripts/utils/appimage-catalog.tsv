@@ -8,6 +8,12 @@
 #       cli         the app is a CLI as well as a GUI, so the wrapper runs it in
 #                   the foreground with output on the terminal when given
 #                   arguments and detaches only when launched bare
+#       inner-cli   the app bundles its own CLI at usr/bin/bin/<name> inside the
+#                   image while the image's entrypoint is the GUI, which ignores
+#                   CLI flags (VS Code and its forks). The wrapper keeps the
+#                   image mounted and runs the bundled CLI instead. Detected
+#                   automatically on install and on `appimage wrap`, so this is
+#                   only ever needed to force it
 #       no-sandbox  replay the sandbox switches from the app's own .desktop in
 #                   the wrapper. Only for apps that will not start otherwise —
 #                   it turns Chromium's sandbox off. Plenty of the Electron
@@ -28,13 +34,20 @@
 # Keep columns tab-separated (not spaces). Every field must be non-empty (use
 # "-" for no guard) — adjacent tabs collapse when parsed and would misalign.
 #
-# code — dropped in favour of the apt package. VS Code ships a real .deb, and the
-# AppImage costs ~200MB extra: the squashfuse daemon plus the compressed image
-# sitting in page cache on top of the decompressed pages it serves. AppRun also
-# leaks its mountpoint into PATH/LD_LIBRARY_PATH/XDG_DATA_DIRS, which the
-# integrated terminal then inherits (and the path goes stale on every restart).
-# Kept here for reference only:
-# code	https://github.com/valicm/VSCode-AppImage	-	VS Code (official build, repackaged as an AppImage)
+# code — the AppImage is back, with the `inner-cli` flag. Two things made it look
+# worse than the .deb, and both are the same bug: the image's entrypoint is the
+# GUI binary, so every CLI flag (--version, --install-extension, --remote) was
+# answered with an empty window, and AppRun's PATH export leaked $APPDIR/usr/bin
+# — where that GUI binary is *named* `code` — into every integrated terminal,
+# where it shadowed ~/bin/code and went stale on each restart. `inner-cli` runs
+# the CLI bundled at usr/bin/bin/code off a shared mount instead, which is what
+# a .deb's /usr/share/code/bin/code does, and never goes through AppRun; the
+# shell rc also strips any /tmp/.mount_* that an AppRun-launched app leaked.
+# The flag is spelled out here for the record — appimage.sh detects a bundled CLI
+# by itself now, so a VS Code fork installed from a bare URL gets the same
+# treatment without having to be catalogued first.
+# The .deb is still installable side by side: scripts/install/install-code-deb.sh.
+code	https://github.com/valicm/VSCode-AppImage	-	VS Code (official build, repackaged as an AppImage). The image's entrypoint is the GUI binary, which ignores CLI flags and opens an empty window instead, so this one needs inner-cli to reach the real CLI inside the image.	inner-cli
 claude-desktop	https://github.com/aaddrick/claude-desktop-debian	personal-only	Claude Desktop (community Linux build; personal hosts only)
 lmstudio	https://lmstudio.ai/download/latest/linux/x64?format=AppImage#latest	personal-only	LM Studio (local LLM runner; personal hosts only). Not on GitHub, so the version comes from where the vendor's "latest" URL redirects — the old entry pinned .../0.4.19-2/LM-Studio-0.4.19-2-x64.AppImage and could never update.
 discord	https://github.com/pkgforge-dev/Discord-AppImage	personal-only	Discord (unofficial community build by pkgforge-dev; personal hosts only)
