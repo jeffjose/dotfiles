@@ -64,6 +64,18 @@
         setenv __MY_PATHS_ARE_SET 1
     endif
 
+    # Drop AppImage mountpoints inherited from a parent process.
+    #
+    # An AppImage's AppRun exports PATH="$APPDIR/usr/bin:..." before it execs
+    # the app, and VS Code's integrated terminals inherit that environment. The
+    # guard above is already set by then, so those entries stay ahead of ~/bin —
+    # and $APPDIR/usr/bin holds the GUI Electron binary *named* `code`, which
+    # ignores every CLI flag and just opens a window. They also go stale on
+    # every restart, since the mountpoint is random per launch.
+    if ("${PATH}" =~ *"/tmp/.mount_"*) then
+        setenv PATH `echo "${PATH}" | tr ':' '\n' | grep -v '^/tmp/\.mount_' | paste -sd: -`
+    endif
+
     #setenv PYTHONPATH $HOME/.local/lib/python2.7/site-packages:/usr/local/buildtools/current/sitecustomize
 
     setenv PIPENV_PYTHON $HOME/.pyenv/shims/python

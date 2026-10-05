@@ -56,6 +56,14 @@ if [[ -z "$__MY_PATHS_ARE_SET" ]]; then
     export __MY_PATHS_ARE_SET=1
 fi
 
+# Drop AppImage mountpoints inherited from a parent process. See the matching
+# block in .cshrc: AppRun puts $APPDIR/usr/bin on PATH, VS Code's integrated
+# terminals inherit it, and the GUI Electron binary in there is named `code` and
+# shadows ~/bin/code.
+if [[ "$PATH" == */tmp/.mount_* ]]; then
+    export PATH="$(echo "$PATH" | tr ':' '\n' | grep -v '^/tmp/\.mount_' | paste -sd: -)"
+fi
+
 # PyPI
 export PIP_INDEX_URL=https://pypi.org/simple/
 export UV_INDEX_URL=https://pypi.org/simple/
