@@ -1,7 +1,7 @@
 # Aliases
 
     # Source the aliases.sensitive
-    source ~/.aliases.sensitive.sh
+    if (-f ~/.aliases.sensitive.sh) source ~/.aliases.sensitive.sh
 
     #source ~/.tabletaliases
 
@@ -648,7 +648,7 @@
     #
     #
     if (${HOST} =~ {"*corp.google.com"}) then
-      source ~/.aliases.google.sh
+      if (-f ~/.aliases.google.sh) source ~/.aliases.google.sh
     else
       # nothing
     endif
