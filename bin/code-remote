@@ -1,0 +1,15 @@
+#!/bin/sh
+#
+# Open a directory on a remote host in VS Code (Remote-SSH). Run from the laptop.
+#
+#   code-remote <host> [path]      path defaults to "."
+#
+# The path is made absolute locally, so "." and "~" assume the same layout on
+# both machines; pass an absolute path for anything that only exists remotely.
+
+if [ $# -lt 1 ] || [ $# -gt 2 ]; then
+  echo "usage: code-remote <host> [path]" >&2
+  exit 2
+fi
+
+exec code --remote "ssh-remote+$1" "$(realpath -ms "${2:-.}")"

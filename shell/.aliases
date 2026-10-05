@@ -581,11 +581,7 @@
     alias update_chrome '~/dotfiles/scripts/update/update_chrome.sh'
     alias update_code '~/dotfiles/scripts/update/update_code.sh'
 
-    # Open a directory on a remote host in VS Code (Remote-SSH). Run from the laptop.
-    # The path is resolved locally, so "." assumes the same layout on both machines.
-    #   code-remote <host> .
-    #   code-remote <host> /abs/path/on/host
-    alias code-remote 'code --remote ssh-remote+\!:1 `realpath -ms \!:2`'
+    # code-remote <host> [path] lives in ~/dotfiles/bin; this is just its completion
     complete code-remote 'p/1/`\grep -i "^Host " ~/.ssh/config | cut -d" " -f2- | \grep -v "[*?]"`/' 'p/2/d/'
 
 
