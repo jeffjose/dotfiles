@@ -20,6 +20,8 @@ endif
     set magenta="%{\033[1;35m%}"
     set    cyan="%{\033[1;36m%}"
     set   white="%{\033[0;37m%}"
+    set  orange="%{\033[1;38;5;208m%}"   # 256-colour
+    set  purple="%{\033[1;38;5;141m%}"   # 256-colour
     set     end="%{\033[0m%}"    # This is needed at the end... :(
 
     #set prompt='[%n@%m %B%c%b]%# '
@@ -44,31 +46,28 @@ set git_clean_color = "${green}"
 set git_cl_color = "${blue}"
 
 # === HOST MAP ===
-# One line per machine: the name shown in the prompt and its colour.
-# A machine that isn't listed shows its full hostname in white.
+# One case per machine (glob patterns allowed) giving its colour.
+# A machine that isn't listed is shown in white.
 set host_name = "${HOST}"
 set host_color = "${white}"
 
 switch ("${HOST}")
     # Google machines
-    case "jeffjose2.mtv.corp.google.com":
-        set host_name = "gworkstation2";  set host_color = "${yellow}";   breaksw
-    case "jeffjose.mtv.corp.google.com":
-        set host_name = "gworkstation";   set host_color = "${yellow}";   breaksw
+    case "jeffjose2.*":
+        set host_color = "${yellow}";   breaksw
     case "jeffjose.c.googlers.com":
-        set host_name = "cloudtop";       set host_color = "${cyan}";     breaksw
-    case "jeffjose-glaptop.roam.corp.google.com":
-        set host_name = "glaptop";        set host_color = "${yellow}";   breaksw
-    case "jeffjose-glaptop2.roam.corp.google.com":
-        set host_name = "glaptop2";       set host_color = "${yellow}";   breaksw
-    case "jeffjose-glapstation":
-        set host_name = "glapstation";    set host_color = "${yellow}";   breaksw
+        set host_color = "${cyan}";     breaksw
+    case "jeffjose-glaptop*":
+        set host_color = "${orange}";   breaksw
+    case "jeffjose-glapstation*":
+        set host_color = "${purple}";   breaksw
+    case "jeffjose.mtv.corp.google.com":
+        set host_color = "${yellow}";   breaksw
 
     # Personal machines
     case "skyfall":
         set host_color = "${yellow}";   breaksw
     case "woodwind":
-        set host_color = "${blue}";     breaksw
     case "nomad":
         set host_color = "${blue}";     breaksw
 
