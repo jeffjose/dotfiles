@@ -46,20 +46,21 @@ set git_clean_color = "${green}"
 set git_cl_color = "${blue}"
 
 # === HOST MAP ===
-# One case per machine (glob patterns allowed) giving its colour.
+# One case per machine (exact hostname) giving its colour.
 # A machine that isn't listed is shown in white.
 set host_name = "${HOST}"
 set host_color = "${white}"
 
 switch ("${HOST}")
     # Google machines
-    case "jeffjose2.*":
+    case "jeffjose2.mtv.corp.google.com":
         set host_color = "${yellow}";   breaksw
     case "jeffjose.c.googlers.com":
         set host_color = "${cyan}";     breaksw
-    case "jeffjose-glaptop*":
+    case "jeffjose-glaptop.roam.corp.google.com":
+    case "jeffjose-glaptop2.roam.corp.google.com":
         set host_color = "${orange}";   breaksw
-    case "jeffjose-glapstation*":
+    case "jeffjose-glapstation":
         set host_color = "${purple}";   breaksw
     case "jeffjose.mtv.corp.google.com":
         set host_color = "${yellow}";   breaksw
