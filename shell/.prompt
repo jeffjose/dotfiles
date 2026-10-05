@@ -21,7 +21,6 @@ endif
     set    cyan="%{\033[1;36m%}"
     set   white="%{\033[0;37m%}"
     set  orange="%{\033[1;38;5;208m%}"   # 256-colour
-    set  purple="%{\033[1;38;5;141m%}"   # 256-colour
     set     end="%{\033[0m%}"    # This is needed at the end... :(
 
     #set prompt='[%n@%m %B%c%b]%# '
@@ -54,14 +53,14 @@ set host_color = "${white}"
 switch ("${HOST}")
     # Google machines
     case "jeffjose2.mtv.corp.google.com":
-        set host_color = "${yellow}";   breaksw
+        set host_color = "${cyan}";   breaksw
     case "jeffjose.c.googlers.com":
-        set host_color = "${cyan}";     breaksw
+        set host_color = "${orange}";     breaksw
     case "jeffjose-glaptop.roam.corp.google.com":
     case "jeffjose-glaptop2.roam.corp.google.com":
         set host_color = "${orange}";   breaksw
     case "jeffjose-glapstation":
-        set host_color = "${purple}";   breaksw
+        set host_color = "${magenta}";   breaksw
     case "jeffjose.mtv.corp.google.com":
         set host_color = "${yellow}";   breaksw
 
