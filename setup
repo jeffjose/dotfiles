@@ -49,6 +49,7 @@ declare -A SYMLINKS=(
   ["$DOTFILES_DIR/desktop/.xmodmap"]="$HOME/.xmodmap"
   ["$DOTFILES_DIR/desktop/.xsession"]="$HOME/.xsession"
   ["$DOTFILES_DIR/editors/keybindings.json"]="$HOME/.config/Code/User/keybindings.json"
+  ["$DOTFILES_DIR/editors/tasks.json"]="$HOME/.config/Code/User/tasks.json"
   ["$DOTFILES_DIR/apps/ipython_config.py"]="$HOME/.ipython/profile_default/ipython_config.py"
   ["$DOTFILES_DIR/apps/custom.js"]="$HOME/.jupyter/custom/custom.js"
   ["$DOTFILES_DIR/apps/default.yml"]="$HOME/.config/espanso/default.yml"
