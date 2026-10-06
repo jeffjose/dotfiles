@@ -471,8 +471,11 @@ relative_time() {
 }
 
 derive_name() {
+  # The arch goes first, and on its own: left to the version rule below, the
+  # "_64" of "Some_App-x86_64" reads as a version and leaves "some-app-x86".
   printf '%s' "$1" \
     | sed -E 's/\.[Aa]pp[Ii]mage$//' \
+    | sed -E 's/[-_.](x86[-_]64|amd64|x64|aarch64|arm64|armhf|i[3-6]86)([-_.]|$)/\2/Ig' \
     | sed -E 's/[-_.]v?[0-9].*$//' \
     | sed -E 's/([a-z0-9])([A-Z])/\1-\2/g' \
     | tr '[:upper:]' '[:lower:]' \
