@@ -129,9 +129,10 @@ mise_upgrade() {
   quietly mise upgrade "$@" || status=$?
 
   held=$(log_since "$QUIET_FROM" |
-    sed -nE 's/.*newer (.+) release ([^ ]+) \(.*ignored by minimum_release_age.*/\1 \2/p' | paste -sd, -)
+    sed -nE 's/.*newer (.+) release [^ ]+ \(.*ignored by minimum_release_age.*/\1/p' |
+    sed -E 's|.*[:/]||' | paste -sd, -)
   [[ -z "$held" ]] ||
-    say "$DIM" "Held back" "${DIM}under a day old, next run picks them up: ${held//,/, }$RESET"
+    say "$DIM" "Held back" "$DIM${held//,/, } (under 24h old)$RESET"
   return $status
 }
 
