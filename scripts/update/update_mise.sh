@@ -56,9 +56,16 @@ mise_upgrade() {
 # it built in .crates.toml; compare that to the branch tip and force a reinstall
 # when they differ.
 #
+# A tool that is not installed yet counts as stale too, so this is also what
+# installs a newly listed one — which is why it runs ahead of `mise upgrade`.
+#
+# Each tool mise (re)builds here also loses its copy in ~/.cargo/bin, see
+# drop_dev_copy. A tool whose branch has not moved is left alone, dev copy and
+# all.
+#
 # refresh_branch_tools [tool...]: all such tools, or only the ones named.
 refresh_branch_tools() {
-  local tool path branch url built tip
+  local tool path branch url built tip entry
   local -a stale=()
   while IFS=$'\t' read -r tool path branch; do
     if [[ $# -gt 0 ]] && ! printf '%s\n' "$@" | grep -qxF -- "$tool"; then
@@ -70,19 +77,47 @@ refresh_branch_tools() {
     if [[ -z "$tip" ]]; then
       warn "could not read $branch of $url; leaving it as is"
     elif [[ "$built" != "$tip" ]]; then
-      say "$GREEN" "Rebuilding" "${url##*/} ${built:0:7} → ${tip:0:7}"
-      stale+=("$tool")
+      if [[ -n "$built" ]]; then
+        say "$GREEN" "Rebuilding" "${url##*/} ${built:0:7} → ${tip:0:7}"
+      else
+        say "$GREEN" "Installing" "${url##*/} ${tip:0:7}"
+      fi
+      stale+=("$tool"$'\t'"$path")
     fi
   done < <(mise ls --current --json 2>/dev/null |
     jq -r 'to_entries[] | .key as $k | .value[]
-           | select(.installed and .active)
            | select(($k | startswith("cargo:https://")) and (.version | startswith("branch:")))
            | "\($k)\t\(.install_path)\t\(.version | ltrimstr("branch:"))"' 2>/dev/null || true)
 
   [[ ${#stale[@]} -gt 0 ]] || return 0
-  for tool in "${stale[@]}"; do
-    mise install --force "$tool" || warn "rebuilding $tool failed; continuing"
+  for entry in "${stale[@]}"; do
+    IFS=$'\t' read -r tool path <<<"$entry"
+    if mise install --force "$tool"; then
+      drop_dev_copy "$path"
+    else
+      warn "building $tool failed; continuing"
+    fi
   done
+}
+
+# ~/.cargo/bin sits ahead of the mise shims on PATH, so that a `cargo install
+# --path .` of a tool under development wins over the copy mise built from its
+# branch. The cost is that the dev copy would go on winning after the work is
+# pushed and mise has built something newer. So when mise builds a tool, the
+# copy of the same crate in ~/.cargo/bin goes; the next `cargo install --path .`
+# puts it back.
+#
+# drop_dev_copy <mise install path>
+drop_dev_copy() {
+  local cargo_home="${CARGO_HOME:-$HOME/.cargo}" crate
+  while read -r crate; do
+    grep -q "^\"$crate " "$cargo_home/.crates.toml" 2>/dev/null || continue
+    if cargo uninstall --quiet --root "$cargo_home" "$crate"; then
+      say "$YELLOW" "Removed" "dev copy of $crate from $cargo_home/bin — the mise build is newer"
+    else
+      warn "could not remove the dev copy of $crate from $cargo_home/bin"
+    fi
+  done < <(sed -nE 's/^"([^ "]+) .*/\1/p' "$1/.crates.toml" 2>/dev/null)
 }
 
 report_disk_usage() {
@@ -102,8 +137,8 @@ if [[ -n "$filter" ]]; then
   fi
 
   say "$CYAN" "Upgrading" "${tools[*]}"
-  mise_upgrade "${tools[@]}"
   refresh_branch_tools "${tools[@]}"
+  mise_upgrade "${tools[@]}"
   mise prune --yes "${tools[@]}" || warn "mise prune failed; continuing"
 
   if printf '%s\n' "${tools[@]}" | grep -q '^npm:'; then
@@ -129,12 +164,12 @@ go clean -cache 2>/dev/null || true
 say "$CYAN" "Updating" "mise itself"
 mise self-update --yes || true
 
+say "$CYAN" "Checking" "branch-pinned tools for new commits"
+refresh_branch_tools
+
 say "$CYAN" "Upgrading" "mise tools"
 mise_upgrade
 # mise upgrade --bump  # Commented out to prevent auto-updating config.toml versions
-
-say "$CYAN" "Checking" "branch-pinned tools for new commits"
-refresh_branch_tools
 
 # `mise upgrade` installs new versions alongside the old ones and never removes
 # them, so installs/ grows without bound. Prune every version no tracked config
