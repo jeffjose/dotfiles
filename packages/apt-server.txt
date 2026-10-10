@@ -47,3 +47,9 @@ nmap
 mosh
 sshpass
 nfs-common
+
+# Containers
+podman
+podman-docker
+buildah
+skopeo

@@ -8,7 +8,7 @@
 # Per-machine answers, written by firstrun and kept out of the repo:
 #
 #     profile=desktop          server | desktop
-#     modules="podman"         optional extras, space-separated
+#     modules="claude-remote"  optional extras, space-separated
 #
 # It is read as data, never sourced.
 HOST_CONF="${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles/host.conf"

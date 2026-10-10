@@ -1,5 +1,5 @@
 # The tools every machine gets, servers included: prebuilt binaries plus the
-# rust toolchain, and nothing that has to be compiled. Desktops and laptops add
+# rust toolchain, and one thing that has to be compiled (seal). Desktops and laptops add
 # apps/mise-desktop.toml on top (./setup links it into ~/.config/mise/conf.d),
 # and corp hosts add apps/mise-corp.toml the same way.
 #
@@ -34,6 +34,10 @@ fd = "latest"
 # `update_mise.sh` reporting success for weeks while `claude --version` never
 # moves. Check with `mise which claude`: it must point under installs/claude/.
 claude = "latest"
+
+# Unlocks the sealed files in ~/dotfiles/encrypted, which a server needs too.
+# The one source build here; it is what the rust toolchain above is for.
+"cargo:https://github.com/jeffjose/seal" = "branch:main"
 
 [settings]
 experimental = true

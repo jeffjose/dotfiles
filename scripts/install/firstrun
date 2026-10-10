@@ -102,7 +102,6 @@ ROOT_STEPS="apt shell debs code groups"
 # name | which profiles may have it | what it adds. A module can bring apt
 # packages (packages/apt-<name>.txt), a step above, or both.
 MODULES=(
-  "podman|all|podman, buildah and skopeo"
   "vscode-extensions|desktop|the VS Code extension list in scripts/install/vscode.sh"
   "claude-remote|all|Claude Code remote control as a systemd user service"
 )
@@ -333,7 +332,7 @@ step_mise() {
     return 0
   fi
 
-  # rust first: the cargo: tools on a desktop are built with it.
+  # rust first: the cargo: tools are built with it.
   say "$CYAN" "Installing" "mise tools for a $PROFILE ${DIM}(the first time, a desktop compiles for a while)$RESET"
   mise install --yes rust || status=1
   mise install --yes || status=1
@@ -537,10 +536,8 @@ next_steps() {
   say "$CYAN" "Next" "by hand — none of this can live in a public repo:"
   detail "gh auth login                       GitHub, for gh and for git over https"
   detail "~/.aliases.sensitive.sh             private aliases; ./setup left it empty"
-  if [ "$PROFILE" = desktop ]; then
-    detail "seal                                unlock the sealed files in ~/dotfiles/encrypted"
-    detail "appimage install -i                 pick the other apps from the catalog"
-  fi
+  detail "seal                                unlock the sealed files in ~/dotfiles/encrypted"
+  [ "$PROFILE" != desktop ] || detail "appimage install -i                 pick the other apps from the catalog"
   detail "log out and back in                 for the new login shell and groups"
   if [ -f "$HOME/.ssh/id_ed25519.pub" ] && git -C "$DOTFILES_DIR" remote get-url origin 2>/dev/null | grep -q '^https://'; then
     detail "to push dotfiles from here, add ~/.ssh/id_ed25519.pub to GitHub, then:"
