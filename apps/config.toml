@@ -24,6 +24,13 @@ yt-dlp = "latest"
 # binary. Not the npm package: mise's npm backend (aube) blocks postinstall
 # scripts, and @anthropic-ai/claude-code is a stub whose postinstall is what
 # fetches the real binary, so an npm: install lands broken.
+#
+# Keep this the ONLY claude on the box. A `npm i -g @anthropic-ai/claude-code`
+# lands in node's own prefix (installs/node/<ver>/bin), which sits ahead of
+# installs/claude/latest on PATH -- so it silently shadows this one, and mise
+# cannot upgrade it (it is a package inside a tool, not a tool). The symptom is
+# `update_mise.sh` reporting success for weeks while `claude --version` never
+# moves. Check with `mise which claude`: it must point under installs/claude/.
 claude = "latest"
 
 # Same story for `opencode` (aqua:anomalyco/opencode): the npm package
@@ -83,7 +90,6 @@ opencode = "latest"
 "npm:astro" = "latest"
 "npm:t-get" = "latest"
 "npm:@openai/codex" = "latest"
-"npm:@anthropic-ai/claude-code" = { version = "latest", allow_builds = ["@anthropic-ai/claude-code"] }
 "npm:vercel" = "latest"
 "npm:@qwen-code/qwen-code" = "latest"
 "npm:typescript" = "latest"
@@ -108,16 +114,12 @@ experimental = true
 # and the newest build is permanently out of reach. The only clue is one line
 # that `mise install` does not print:
 #
-#   mise WARN  1 newer npm:@anthropic-ai/claude-code release hidden by
-#              minimum_release_age
+#   mise WARN  1 newer claude release hidden by minimum_release_age
 #
-# Exempt those two by name rather than setting minimum_release_age = 0, which
-# would drop the guard for every tool here. Same reasoning as
+# Exempt it by name rather than setting minimum_release_age = 0, which would
+# drop the guard for every tool here. Same reasoning as
 # AUBE_ALLOWED_UNPOPULAR_PACKAGES below: narrow the exception, keep the check.
-#
-# Both entries are needed -- `claude` (aqua:anthropics/claude-code) is what PATH
-# resolves and the npm: package is the separate install listed under [tools].
-minimum_release_age_excludes = ["claude", "npm:@anthropic-ai/claude-code"]
+minimum_release_age_excludes = ["claude"]
 
 [env]
 # aube (mise's npm: backend) refuses packages under `lowDownloadThreshold`
