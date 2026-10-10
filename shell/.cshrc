@@ -37,8 +37,10 @@
 
         # Add each directory only if it exists
         if (-d ${GRADLEPATH}/bin) set new_path = "${new_path}:${GRADLEPATH}/bin"
-        if (-d ${MISEPATH}) set new_path = "${new_path}:${MISEPATH}"
+        # cargo before the mise shims, so a `cargo install --path .` of a tool
+        # under development wins over the copy mise built from its main branch.
         if (-d ${CARGOPATH}/bin) set new_path = "${new_path}:${CARGOPATH}/bin"
+        if (-d ${MISEPATH}) set new_path = "${new_path}:${MISEPATH}"
         if (-d ${PYENVPATH}/bin) set new_path = "${new_path}:${PYENVPATH}/bin"
         if (-d ${BREWPATH}/bin) set new_path = "${new_path}:${BREWPATH}/bin"
         if (-d ${GOPATH}/bin) set new_path = "${new_path}:${GOPATH}/bin"

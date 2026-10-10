@@ -31,8 +31,10 @@ if [[ -z "$__MY_PATHS_ARE_SET" ]]; then
 
     new_path=""
     [[ -d "$GRADLEPATH/bin" ]] && new_path="$new_path:$GRADLEPATH/bin"
-    [[ -d "$MISEPATH" ]] && new_path="$new_path:$MISEPATH"
+    # cargo before the mise shims, so a `cargo install --path .` of a tool
+    # under development wins over the copy mise built from its main branch.
     [[ -d "$CARGOPATH/bin" ]] && new_path="$new_path:$CARGOPATH/bin"
+    [[ -d "$MISEPATH" ]] && new_path="$new_path:$MISEPATH"
     [[ -d "$PYENVPATH/bin" ]] && new_path="$new_path:$PYENVPATH/bin"
     [[ -d "$BREWPATH/bin" ]] && new_path="$new_path:$BREWPATH/bin"
     [[ -d "$GOPATH/bin" ]] && new_path="$new_path:$GOPATH/bin"
