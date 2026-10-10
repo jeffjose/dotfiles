@@ -129,10 +129,17 @@ mise_upgrade() {
   quietly mise upgrade "$@" || status=$?
 
   held=$(log_since "$QUIET_FROM" |
-    sed -nE 's/.*newer (.+) release [^ ]+ \(.*ignored by minimum_release_age.*/\1/p' |
-    sed -E 's|.*[:/]||' | paste -sd, -)
-  [[ -z "$held" ]] ||
-    say "$DIM" "Held back" "$DIM${held//,/, } (under 24h old)$RESET"
+    sed -nE 's/.*newer (.+) release ([^ ]+) \(.*ignored by minimum_release_age.*/\1 \2/p' |
+    sed -E 's|^[^ ]*[:/]||')
+  n=0
+  while IFS= read -r name; do
+    [[ -n "$name" ]] || continue
+    if ((n++ == 0)); then
+      say "$DIM" "Held back" "$DIM$name  (under 24h old)$RESET"
+    else
+      detail "$DIM$name$RESET"
+    fi
+  done <<<"$held"
   return $status
 }
 
