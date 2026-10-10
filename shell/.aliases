@@ -77,6 +77,7 @@
     alias appimage ~/dotfiles/scripts/utils/appimage.sh
     alias ai appimage
     alias pp ~/scripts/plex-search/plex-search
+    alias ccpace ~/scripts/ccpace/ccpace
 
     # Remove a ppa and all associated packages.
     alias removeppa 'sudo ppa-purge \!*'
