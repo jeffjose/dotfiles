@@ -23,6 +23,11 @@ set -euo pipefail
 
 source "$HOME/dotfiles/scripts/lib/ui.sh"
 
+# mise is in ~/.local/bin (the installer firstrun uses) or ~/.cargo/bin (older
+# machines). The shell rc puts both on PATH, but a shell that has not read it
+# yet — the one firstrun was started from, cron — has neither.
+command -v mise >/dev/null 2>&1 || export PATH="$HOME/.cargo/bin:$HOME/.local/share/mise/shims:$HOME/.local/bin:$PATH"
+
 # Force npm to run postinstall scripts and pull platform-native optional deps
 # even if ~/.npmrc disables them (e.g. corporate hardening). Without this, mise's
 # npm: backend silently produces broken installs of @anthropic-ai/claude-code etc.
