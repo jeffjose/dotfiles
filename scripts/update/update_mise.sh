@@ -47,6 +47,44 @@ mise_upgrade() {
                                -e 'upgrading non-version tool requests' >&2)
 }
 
+# Rebuild the branch-pinned cargo git tools whose branch has moved.
+#
+# To mise, "branch:main" is the version, and it is already installed — so
+# `mise upgrade` never looks at those repos again and a push to one of them
+# reaches no machine. (This is not minimum_release_age: a branch ref has no
+# release date, so the quarantine never applies to it.) cargo records the commit
+# it built in .crates.toml; compare that to the branch tip and force a reinstall
+# when they differ.
+#
+# refresh_branch_tools [tool...]: all such tools, or only the ones named.
+refresh_branch_tools() {
+  local tool path branch url built tip
+  local -a stale=()
+  while IFS=$'\t' read -r tool path branch; do
+    if [[ $# -gt 0 ]] && ! printf '%s\n' "$@" | grep -qxF -- "$tool"; then
+      continue
+    fi
+    url=${tool#cargo:}
+    built=$(grep -oE '#[0-9a-f]{40}' "$path/.crates.toml" 2>/dev/null | head -n1 | tr -d '#') || true
+    tip=$(git ls-remote "$url" "refs/heads/$branch" 2>/dev/null | cut -f1) || true
+    if [[ -z "$tip" ]]; then
+      warn "could not read $branch of $url; leaving it as is"
+    elif [[ "$built" != "$tip" ]]; then
+      say "$GREEN" "Rebuilding" "${url##*/} ${built:0:7} → ${tip:0:7}"
+      stale+=("$tool")
+    fi
+  done < <(mise ls --current --json 2>/dev/null |
+    jq -r 'to_entries[] | .key as $k | .value[]
+           | select(.installed and .active)
+           | select(($k | startswith("cargo:https://")) and (.version | startswith("branch:")))
+           | "\($k)\t\(.install_path)\t\(.version | ltrimstr("branch:"))"' 2>/dev/null || true)
+
+  [[ ${#stale[@]} -gt 0 ]] || return 0
+  for tool in "${stale[@]}"; do
+    mise install --force "$tool" || warn "rebuilding $tool failed; continuing"
+  done
+}
+
 report_disk_usage() {
   local size_after
   size_after=$(mise_disk_usage)
@@ -65,6 +103,7 @@ if [[ -n "$filter" ]]; then
 
   say "$CYAN" "Upgrading" "${tools[*]}"
   mise_upgrade "${tools[@]}"
+  refresh_branch_tools "${tools[@]}"
   mise prune --yes "${tools[@]}" || warn "mise prune failed; continuing"
 
   if printf '%s\n' "${tools[@]}" | grep -q '^npm:'; then
@@ -93,6 +132,9 @@ mise self-update --yes || true
 say "$CYAN" "Upgrading" "mise tools"
 mise_upgrade
 # mise upgrade --bump  # Commented out to prevent auto-updating config.toml versions
+
+say "$CYAN" "Checking" "branch-pinned tools for new commits"
+refresh_branch_tools
 
 # `mise upgrade` installs new versions alongside the old ones and never removes
 # them, so installs/ grows without bound. Prune every version no tracked config
