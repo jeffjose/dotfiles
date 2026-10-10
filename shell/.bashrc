@@ -62,7 +62,7 @@ fi
 # (and the guard above with it) from a long-lived parent. See the matching block
 # in .cshrc.
 if [[ "$PATH" == *"$HOME/.local/share/mise/shims:"*"$HOME/.cargo/bin"* ]]; then
-    export PATH="$HOME/.cargo/bin:$(echo "$PATH" | tr ':' '\n' | grep -vxF "$HOME/.cargo/bin" | paste -sd: -)"
+    export PATH="$HOME/.cargo/bin:$(echo "$PATH" | tr ':' '\n' | command grep -vxF "$HOME/.cargo/bin" | paste -sd: -)"
 fi
 
 # Drop AppImage mountpoints inherited from a parent process. See the matching

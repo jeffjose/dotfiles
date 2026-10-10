@@ -75,7 +75,7 @@
     # out would fix the order. Move cargo to the front when it sits behind the
     # shims; once it does not, this matches nothing and costs nothing.
     if ("${PATH}" =~ *"${MISEPATH}:"*"${CARGOPATH}/bin"*) then
-        setenv PATH ${CARGOPATH}/bin:`echo "${PATH}" | tr ':' '\n' | grep -vxF "${CARGOPATH}/bin" | paste -sd: -`
+        setenv PATH ${CARGOPATH}/bin:`echo "${PATH}" | tr ':' '\n' | \grep -vxF "${CARGOPATH}/bin" | paste -sd: -`
     endif
 
     # Drop AppImage mountpoints inherited from a parent process.
@@ -87,7 +87,7 @@
     # ignores every CLI flag and just opens a window. They also go stale on
     # every restart, since the mountpoint is random per launch.
     if ("${PATH}" =~ *"/tmp/.mount_"*) then
-        setenv PATH `echo "${PATH}" | tr ':' '\n' | grep -v '^/tmp/\.mount_' | paste -sd: -`
+        setenv PATH `echo "${PATH}" | tr ':' '\n' | \grep -v '^/tmp/\.mount_' | paste -sd: -`
     endif
 
     #setenv PYTHONPATH $HOME/.local/lib/python2.7/site-packages:/usr/local/buildtools/current/sitecustomize
