@@ -347,6 +347,18 @@ say "$CYAN" "Checking" "branch-pinned tools for new commits"
 refresh_branch_tools
 
 say "$CYAN" "Checking" "mise tools for new versions"
+# A tool that was added to the config since the last run (or that moved to
+# another backend, which to mise is a new tool) is not an upgrade, so `mise
+# upgrade` leaves it uninstalled.
+install_missing() {
+  local -a missing=()
+  mapfile -t missing < <(mise ls --current --missing 2>/dev/null | awk '{print $1}')
+  [ ${#missing[@]} -gt 0 ] || return 0
+  say "$GREEN" "Installing" "$(printf '%s ' "${missing[@]##*[:/]}")${DIM}(new in the config)$RESET"
+  quietly mise install --yes
+}
+install_missing || upgrade_ok=false
+
 mise_upgrade || upgrade_ok=false
 repair_empty_cargo_installs
 sync_rustup_default
