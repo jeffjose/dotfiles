@@ -33,34 +33,27 @@ SOURCE_URL="https://github.com/valicm/VSCode-AppImage"
 NAME="code"
 META="$HOME/bin/.appimage/meta/$NAME.json"
 
+source "$HOME/dotfiles/scripts/lib/ui.sh"
+
 if [ ! -x "$APPIMAGE" ]; then
-  echo "⚠️  appimage manager not found at $APPIMAGE"
+  err "appimage manager not found at $APPIMAGE"
   exit 1
 fi
 
-echo "🔄 Checking for VS Code updates..."
-
-# Current version, from the metadata the manager recorded. `code --version`
-# would answer too, now that the wrapper runs the CLI bundled inside the image
-# (the `inner-cli` flag — the image's own entrypoint is the GUI binary, which
-# ignores --version and opens a window instead), but that costs a mount and
-# tells us about the installed image rather than what we are about to replace.
-echo -n "Current version: "
-jq -r '.release_name // .tag // "-"' "$META" 2>/dev/null || echo "not installed"
-
 if [ -f "$META" ]; then
-  # Already managed — check the source and upgrade only if newer.
+  # Already managed — check the source and upgrade only if newer. The manager
+  # reports the current version from the metadata it recorded; `code --version`
+  # would answer too, now that the wrapper runs the CLI bundled inside the image
+  # (the `inner-cli` flag — the image's own entrypoint is the GUI binary, which
+  # ignores --version and opens a window instead), but that costs a mount.
   "$APPIMAGE" update "$NAME"
 else
   # First install: repackaged official VS Code AppImage. --name pins the wrapper
   # to `code` (the derived name from the asset filename would be "vscode-x86").
-  echo "📥 Installing VS Code AppImage..."
   "$APPIMAGE" install --name "$NAME" --inner-cli "$SOURCE_URL"
-  echo "ℹ️  This is the AppImage. For the .deb too: scripts/install/install-code-deb.sh"
+  say "$CYAN" "Note" "this is the AppImage; for the .deb too: scripts/install/install-code-deb.sh"
 fi
 
 # The AppImage needs an AppArmor profile granting `userns`, or Chromium's
 # sandbox setup aborts on launch. Idempotent; see the script for why.
 "$HOME/dotfiles/scripts/install/apparmor-appimage.sh"
-
-echo "✅ VS Code update complete!"

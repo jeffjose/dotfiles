@@ -18,6 +18,8 @@ set -euo pipefail
 
 NAME="${APPIMAGE_NAME:-this app}"
 
+source "$HOME/dotfiles/scripts/lib/ui.sh"
+
 # Personal-machine detection. Be defensive — check multiple sources and
 # fail-closed (treat as corp) on any signal of a Google host.
 is_corp_host() {
@@ -75,14 +77,14 @@ confirm() {
 }
 
 if is_corp_host; then
-  echo "🏢 [$NAME] Google corp host detected — should NOT be installed here." >&2
+  warn "$NAME: Google corp host detected — should NOT be installed here"
   if confirm "Override and install $NAME anyway?" "n"; then
-    echo "⚠️  [$NAME] proceeding on corp host (user override)." >&2
+    warn "$NAME: proceeding on corp host (user override)"
     exit 0
   fi
   exit 1
 else
-  echo "🏠 [$NAME] personal host detected — safe to install." >&2
+  say "$CYAN" "Guard" "$NAME: personal host detected — safe to install" >&2
   if confirm "Proceed with install/update of $NAME?" "y"; then
     exit 0
   fi

@@ -22,12 +22,12 @@ APPIMAGE="$HOME/dotfiles/scripts/utils/appimage.sh"
 NAME="claude-desktop"
 META="$HOME/bin/.appimage/meta/$NAME.json"
 
+source "$HOME/dotfiles/scripts/lib/ui.sh"
+
 if [ ! -x "$APPIMAGE" ]; then
-  echo "⚠️  appimage manager not found at $APPIMAGE"
+  err "appimage manager not found at $APPIMAGE"
   exit 1
 fi
-
-echo "🔄 Checking for Claude Desktop updates..."
 
 if [ -f "$META" ]; then
   # Already managed — check the source and upgrade only if newer. The guard
@@ -35,7 +35,6 @@ if [ -f "$META" ]; then
   "$APPIMAGE" update "$NAME"
 else
   # First install: resolve from the catalog (source URL + personal-only guard).
-  echo "📥 Installing Claude Desktop AppImage..."
   "$APPIMAGE" install "$NAME"
 fi
 
@@ -44,5 +43,3 @@ fi
 if [ -f "$META" ] && [ -f "$HOME/bin/.claude-desktop.tag" ]; then
   rm -f "$HOME/bin/.claude-desktop.tag"
 fi
-
-echo "✅ Claude Desktop update complete!"

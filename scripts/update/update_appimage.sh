@@ -9,11 +9,11 @@ set -e # Exit on error
 
 APPIMAGE="$HOME/dotfiles/scripts/utils/appimage.sh"
 
+source "$HOME/dotfiles/scripts/lib/ui.sh"
+
 if [ ! -x "$APPIMAGE" ]; then
-  echo "⚠️  appimage manager not found at $APPIMAGE"
+  err "appimage manager not found at $APPIMAGE"
   exit 1
 fi
 
-echo "🔄 Updating managed AppImages..."
 "$APPIMAGE" update --all
-echo "✅ AppImage update check complete!"

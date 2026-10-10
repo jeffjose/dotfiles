@@ -23,6 +23,8 @@ set -euo pipefail
 SRC_DIR="$HOME/dotfiles/apps/apparmor"
 DEST_DIR="/etc/apparmor.d"
 
+source "$HOME/dotfiles/scripts/lib/ui.sh"
+
 if [ "$#" -gt 0 ]; then
   PROFILES=()
   for arg in "$@"; do
@@ -31,19 +33,19 @@ if [ "$#" -gt 0 ]; then
   [ ${#PROFILES[@]} -eq 0 ] && exit 0
 else
   mapfile -t PROFILES < <(cd "$SRC_DIR" 2>/dev/null && ls 2>/dev/null || true)
-  [ ${#PROFILES[@]} -eq 0 ] && { echo "No AppArmor profiles to install."; exit 0; }
+  [ ${#PROFILES[@]} -eq 0 ] && { say "$DIM" "Skipping" "AppArmor — no profiles to install"; exit 0; }
 fi
 
 # No AppArmor (non-Ubuntu, container, BSD) -> nothing to do.
 if [ ! -d "$DEST_DIR" ] || ! command -v apparmor_parser >/dev/null 2>&1; then
-  echo "AppArmor not present; skipping profile install."
+  say "$DIM" "Skipping" "AppArmor profiles — AppArmor not present"
   exit 0
 fi
 
 # The restriction these profiles work around is off -> they buy nothing.
 restricted="$(sysctl -n kernel.apparmor_restrict_unprivileged_userns 2>/dev/null || echo 0)"
 if [ "$restricted" != "1" ]; then
-  echo "kernel.apparmor_restrict_unprivileged_userns=$restricted; profiles not needed."
+  say "$DIM" "Skipping" "AppArmor profiles — kernel.apparmor_restrict_unprivileged_userns=$restricted"
   exit 0
 fi
 
@@ -60,13 +62,13 @@ for profile in "${PROFILES[@]}"; do
     continue
   fi
 
-  echo "📝 Installing AppArmor profile: $profile"
+  say "$GREEN" "Installing" "AppArmor profile $profile"
   sudo install -m 0644 -o root -g root "$src" "$dest"
   changed+=("$profile")
 done
 
 if [ ${#changed[@]} -eq 0 ]; then
-  echo "✓ AppArmor profiles already current"
+  say "$DIM" "Fresh" "${DIM}AppArmor profiles$RESET"
   exit 0
 fi
 
@@ -74,5 +76,5 @@ for profile in "${changed[@]}"; do
   sudo apparmor_parser -r -W "$DEST_DIR/$profile"
 done
 
-echo "✓ Loaded ${#changed[@]} AppArmor profile(s): ${changed[*]}"
-echo "ℹ️  Restart the app for the new profile to take effect."
+say "$GREEN" "Loaded" "${#changed[@]} AppArmor profile(s): ${changed[*]}"
+say "$CYAN" "Note" "restart the app for the new profile to take effect"

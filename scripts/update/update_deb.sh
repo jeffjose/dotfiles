@@ -8,6 +8,8 @@
 
 set -euo pipefail
 
+source "$HOME/dotfiles/scripts/lib/ui.sh"
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$SCRIPT_DIR/../.."
 CONFIG_FILE="$DOTFILES_DIR/misc/package.toml"
@@ -26,8 +28,8 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         *)
-            echo "Unknown option: $1"
-            echo "Usage: update_deb.sh [--sequential|-s]"
+            err "unknown option: $1"
+            detail "usage: update_deb.sh [--sequential|-s]" >&2
             exit 1
             ;;
     esac
@@ -70,8 +72,6 @@ build_command() {
     fi
 }
 
-echo "Updating deb packages..."
-echo ""
 
 # Read packages into arrays
 declare -a pkg_names=()
@@ -103,7 +103,7 @@ show_progress() {
     local outfile=$2
     local name=$3
 
-    echo "=== $name ==="
+    say "$CYAN" "Checking" "$name"
 
     # Tail the output file, following new content
     tail -f "$outfile" 2>/dev/null &
@@ -118,7 +118,6 @@ show_progress() {
     kill "$tail_pid" 2>/dev/null || true
     wait "$tail_pid" 2>/dev/null || true
 
-    echo ""
     return $exit_code
 }
 
@@ -131,11 +130,10 @@ run_sequential() {
         local url="${pkg_urls[$i]}"
         local dist="${pkg_dists[$i]}"
 
-        echo "=== $name ==="
+        say "$CYAN" "Checking" "$name"
         local cmd
         cmd=$(build_command "$name" "$pkg_type" "$url" "$dist" "--install")
         eval "$cmd" || exit_code=1
-        echo ""
     done
     return $exit_code
 }
@@ -169,11 +167,10 @@ run_parallel() {
     done
 
     # Run first package in foreground with install (real TTY = progress bars + sudo)
-    echo "=== ${pkg_names[0]} ==="
+    say "$CYAN" "Checking" "${pkg_names[0]}"
     local cmd
     cmd=$(build_command "${pkg_names[0]}" "${pkg_types[0]}" "${pkg_urls[0]}" "${pkg_dists[0]}" "--install")
     eval "$cmd" || exit_code=1
-    echo ""
 
     # Show remaining packages' download output, then install in foreground
     for i in "${!pkg_names[@]}"; do
@@ -187,7 +184,7 @@ run_parallel() {
         local dist="${pkg_dists[$i]}"
 
         # Wait for download to finish and show its output
-        echo "=== $name ==="
+        say "$CYAN" "Checking" "$name"
         tail -f "${outfiles[$i]}" 2>/dev/null &
         local tail_pid=$!
         wait "${pids[$i]}" 2>/dev/null || true
@@ -198,7 +195,6 @@ run_parallel() {
         # Now run install in foreground (can prompt for sudo)
         cmd=$(build_command "$name" "$pkg_type" "$url" "$dist" "--install")
         eval "$cmd" || exit_code=1
-        echo ""
     done
     return $exit_code
 }

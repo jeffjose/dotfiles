@@ -52,6 +52,9 @@ _SELF_DIR="$(dirname "$_SELF")"
 GUARD_DIR="$_SELF_DIR/appimage-guards"
 CATALOG_FILE="$_SELF_DIR/appimage-catalog.tsv"
 
+# Cargo-style output (say/warn/err and the colours), shared with `uq` and ./setup.
+source "$_SELF_DIR/../lib/ui.sh"
+
 # --- update output mode ------------------------------------------------------
 # `update --all` used to narrate two lines per app — a "Resolving ..." line and
 # a "[name] ..." line — which buried the three apps that actually needed
@@ -64,23 +67,32 @@ RESOLVE_ERR_FILE=""   # set => resolvers write the failure reason here, not stde
 NAME_W=18             # name column width, sized to the longest name per run
 _UPD_OK=0; _UPD_NEW=0; _UPD_SKIP=0; _UPD_FAIL=0
 
-# Report one app's outcome. Row mode prints a table line and bumps a counter;
-# otherwise the original message goes out on the stream it always used —
-# results on stdout, problems on stderr.
+# Report one app's outcome as a cargo-style line and bump its counter. Row mode
+# pads the name so a batch reads as a table; a single app gets the same line
+# unpadded, plus the optional hint, on the stream it always used — results on
+# stdout, problems on stderr.
 upd_emit() {
-  local kind="$1" name="$2" detail="$3" verbose="$4" mark
+  local kind="$1" name="$2" detail="$3" hint="${4:-}" verb colour
   case "$kind" in
-    ok)   mark="✓"; _UPD_OK=$((_UPD_OK + 1)) ;;
-    new)  mark="↑"; _UPD_NEW=$((_UPD_NEW + 1)) ;;
-    skip) mark="·"; _UPD_SKIP=$((_UPD_SKIP + 1)) ;;
-    *)    mark="✗"; _UPD_FAIL=$((_UPD_FAIL + 1)) ;;
+    ok)   verb="Fresh";    colour="$DIM";    _UPD_OK=$((_UPD_OK + 1)) ;;
+    new)  verb="Updating"; colour="$GREEN";  _UPD_NEW=$((_UPD_NEW + 1)) ;;
+    skip) verb="Skipped";  colour="$YELLOW"; _UPD_SKIP=$((_UPD_SKIP + 1)) ;;
+    *)    verb="Failed";   colour="$RED";    _UPD_FAIL=$((_UPD_FAIL + 1)) ;;
   esac
-  if [ "$UPDATE_ROWS" = "true" ]; then
-    printf '  %s %-*s %s\n' "$mark" "$NAME_W" "$name" "$detail"
+  local width=0 text
+  [ "$UPDATE_ROWS" = "true" ] && width="$NAME_W"
+  if [ "$kind" = "ok" ]; then
+    text=$(printf '%s%-*s  %s%s' "$DIM" "$width" "$name" "$detail" "$RESET")
   else
+    text=$(printf '%s%-*s%s  %s' "$BOLD" "$width" "$name" "$RESET" "$detail")
+  fi
+  if [ "$UPDATE_ROWS" = "true" ]; then
+    say "$colour" "$verb" "$text"
+  else
+    [ -n "$hint" ] && text="$text $DIM($hint)$RESET"
     case "$kind" in
-      ok|new) printf '%s\n' "$verbose" ;;
-      *)      printf '%s\n' "$verbose" >&2 ;;
+      ok|new) say "$colour" "$verb" "$text" ;;
+      *)      say "$colour" "$verb" "$text" >&2 ;;
     esac
   fi
 }
@@ -250,7 +262,7 @@ github_release_json() {
   if [ -n "${RESOLVE_ERR_FILE:-}" ]; then
     printf '%s' "$msg" > "$RESOLVE_ERR_FILE"
   else
-    echo "$msg: $api" >&2
+    err "$msg: $api"
   fi
   return 1
 }
@@ -261,7 +273,7 @@ resolve_github() {
     owner="${BASH_REMATCH[1]}"
     repo="${BASH_REMATCH[2]%.git}"
     tag="${BASH_REMATCH[5]:-}"
-    [ "$RESOLVE_QUIET" = "true" ] || echo "Resolving GitHub release: ${owner}/${repo}${tag:+ @ $tag}" >&2
+    [ "$RESOLVE_QUIET" = "true" ] || say "$CYAN" "Resolving" "${owner}/${repo}${tag:+ @ $tag}" >&2
     local json
     json=$(github_release_json "${owner}/${repo}" "$tag") || return 1
     # Pick the asset for THIS machine's architecture. Some releases ship both
@@ -305,13 +317,13 @@ resolve_templated() {
   local url="$1" template repo json tag release_name arch arch_short out
   template="${url%%#github=*}"
   repo="${url##*#github=}"
-  [ -n "$template" ] && [ -n "$repo" ] || { echo "Malformed templated source: $url" >&2; return 1; }
+  [ -n "$template" ] && [ -n "$repo" ] || { err "Malformed templated source: $url"; return 1; }
 
-  [ "$RESOLVE_QUIET" = "true" ] || echo "Resolving GitHub release: ${repo} (templated download URL)" >&2
+  [ "$RESOLVE_QUIET" = "true" ] || say "$CYAN" "Resolving" "${repo} (templated download URL)" >&2
   json=$(github_release_json "$repo") || return 1
   tag=$(jq -r '.tag_name // ""' <<<"$json")
   release_name=$(jq -r '.name // ""' <<<"$json")
-  [ -n "$tag" ] || { echo "No tag_name in latest release of $repo" >&2; return 1; }
+  [ -n "$tag" ] || { err "No tag_name in latest release of $repo"; return 1; }
 
   case "$(uname -m)" in
     x86_64|amd64)  arch="x86_64";      arch_short="x64" ;;
@@ -348,16 +360,16 @@ resolve_templated() {
 # would look permanently up-to-date.
 resolve_latest_redirect() {
   local url="${1%\#latest}" final base version
-  [ "$RESOLVE_QUIET" = "true" ] || echo "Resolving latest-redirect source: $url" >&2
+  [ "$RESOLVE_QUIET" = "true" ] || say "$CYAN" "Resolving" "$url (latest redirect)" >&2
   final=$(curl -sIL --max-time 60 -o /dev/null -w '%{url_effective}' "$url") \
-    || { echo "Could not follow redirects for: $url" >&2; return 1; }
-  [ -n "$final" ] || { echo "No redirect target for: $url" >&2; return 1; }
+    || { err "Could not follow redirects for: $url"; return 1; }
+  [ -n "$final" ] || { err "No redirect target for: $url"; return 1; }
 
   base="${final%%\?*}"     # drop any query string
   base="${base##*/}"       # basename
   case "$base" in
     *.AppImage|*.appimage|*.APPIMAGE) ;;
-    *) echo "Redirect target is not an .AppImage: $final" >&2; return 1 ;;
+    *) err "Redirect target is not an .AppImage: $final"; return 1 ;;
   esac
 
   # "LM-Studio-0.4.23-1-x64.AppImage" -> "0.4.23-1". Fall back to the whole
@@ -388,9 +400,9 @@ resolve_latest_redirect() {
 # out of its filename, same as resolve_latest_redirect.
 resolve_page_link() {
   local url="${1%\#page}" html arch_pat links final base version
-  [ "$RESOLVE_QUIET" = "true" ] || echo "Resolving download page: $url" >&2
+  [ "$RESOLVE_QUIET" = "true" ] || say "$CYAN" "Resolving" "$url (download page)" >&2
   html=$(curl -sL --max-time 60 "$url") \
-    || { echo "Could not fetch download page: $url" >&2; return 1; }
+    || { err "Could not fetch download page: $url"; return 1; }
 
   case "$(uname -m)" in
     x86_64|amd64)  arch_pat="x86[_-]?64|amd64" ;;
@@ -399,7 +411,7 @@ resolve_page_link() {
   esac
   links=$(grep -oE "https?://[^\"' <>]+\.AppImage" <<<"$html" || true)
   final=$(grep -iE "$arch_pat" <<<"$links" | head -n1 || true)
-  [ -n "$final" ] || { echo "No $(uname -m) .AppImage link on: $url" >&2; return 1; }
+  [ -n "$final" ] || { err "No $(uname -m) .AppImage link on: $url"; return 1; }
 
   base="${final##*/}"
   version=$(printf '%s' "$base" | grep -oE '[0-9]+(\.[0-9]+)+(-[0-9]+)?' | head -n1)
@@ -899,7 +911,7 @@ run_guard() {
   local gpath
   gpath=$(resolve_guard_path "$guard")
   if [ ! -f "$gpath" ]; then
-    echo "⚠️  guard '$guard' not found at $gpath — proceeding without it" >&2
+    warn "guard '$guard' not found at $gpath — proceeding without it"
     return 0
   fi
   [ -x "$gpath" ] || chmod +x "$gpath" 2>/dev/null || true
@@ -973,7 +985,7 @@ pick_multi() {
   # Every backend needs a controlling terminal (stdout here is captured by the
   # caller, so a plain [ -t 1 ] test would wrongly report "no tty").
   if ! { true </dev/tty; } 2>/dev/null; then
-    echo "$header: no terminal available for interactive selection." >&2
+    err "$header: no terminal available for interactive selection."
     return 0
   fi
 
@@ -1078,7 +1090,7 @@ cmd_install() {
       --guard) guard="${2:-}"; shift 2 ;;
       --skip-guard) skip_guard="true"; shift ;;   # internal: guard already ran
       -i|--interactive) interactive="true"; shift ;;
-      -*) echo "Unknown option: $1" >&2; exit 1 ;;
+      -*) err "Unknown option: $1"; exit 1 ;;
       *) arg="$1"; shift ;;
     esac
   done
@@ -1096,12 +1108,12 @@ cmd_install() {
         printf '%s\t%-20s not installed\n' "$n" "$n"
       fi
     done)
-    [ -n "$rows" ] || { echo "Catalog is empty ($CATALOG_FILE)." >&2; return 0; }
+    [ -n "$rows" ] || { say "$DIM" "Nothing" "catalog is empty ($CATALOG_FILE)" >&2; return 0; }
     chosen=$(printf '%s\n' "$rows" | pick_multi "Install")
-    [ -n "$chosen" ] || { echo "Nothing selected." >&2; return 0; }
+    [ -n "$chosen" ] || { say "$DIM" "Nothing" "nothing selected" >&2; return 0; }
     while IFS= read -r sel; do
       [ -n "$sel" ] || continue
-      echo "── $sel ──"
+      say "$CYAN" "Installing" "$sel"
       cmd_install "$sel" || true
     done <<<"$chosen"
     return 0
@@ -1123,8 +1135,8 @@ cmd_install() {
       catalog_has_flag "$c_flags" no-sandbox && no_sandbox="true"
       arg="$c_url"
     else
-      echo "Unknown app '$arg' (not a URL, path, or catalog entry)." >&2
-      echo "Try: $PROG catalog" >&2
+      err "Unknown app '$arg' (not a URL, path, or catalog entry)."
+      detail "try: $PROG list" >&2
       exit 1
     fi
   fi
@@ -1136,11 +1148,11 @@ cmd_install() {
     local resolved
     resolved=$(resolve_source "$arg") || exit 1
     if [ -z "$resolved" ]; then
-      echo "No .AppImage asset found in release" >&2
+      err "No .AppImage asset found in release"
       exit 1
     fi
     IFS=$'\t' read -r asset_url tag release_name <<<"$resolved"
-    echo "Asset: $asset_url"
+    say "$CYAN" "Resolved" "$asset_url"
     arg="$asset_url"
   fi
 
@@ -1154,7 +1166,7 @@ cmd_install() {
     basename_hint="${arg%%\?*}"      # drop any query string
     name=$(derive_name "$(basename "$basename_hint")")
   fi
-  [ -n "$name" ] || { echo "Could not derive name from: $arg" >&2; exit 1; }
+  [ -n "$name" ] || { err "Could not derive name from: $arg"; exit 1; }
 
   # Guard: explicit --guard wins; otherwise auto-discover appimage-guards/<name>.sh.
   if [ -z "$guard" ] && [ -f "$GUARD_DIR/$name.sh" ]; then
@@ -1162,7 +1174,7 @@ cmd_install() {
   fi
   if [ "$skip_guard" != "true" ] && [ -n "$guard" ]; then
     if ! run_guard "$name" "install" "" "$tag" "$guard"; then
-      echo "⏭  [$name] guard '$guard' declined — skipping." >&2
+      say "$YELLOW" "Skipped" "$name — guard '$guard' declined" >&2
       return 0
     fi
   fi
@@ -1172,13 +1184,13 @@ cmd_install() {
   if [[ "$arg" =~ ^https?:// ]]; then
     local dl_dir
     dl_dir=$(mktmp)
-    echo "Downloading $arg ..."
+    say "$CYAN" "Downloading" "$arg"
     ( cd "$dl_dir" && curl -fLOJ --progress-bar "$arg" )
     src=$(find "$dl_dir" -maxdepth 1 -type f | head -n1)
-    [ -n "$src" ] || { echo "Download failed: no file produced" >&2; exit 1; }
+    [ -n "$src" ] || { err "Download failed: no file produced"; exit 1; }
     [ -z "$asset_url" ] && asset_url="$arg"
   else
-    [ -f "$arg" ] || { echo "File not found: $arg" >&2; exit 1; }
+    [ -f "$arg" ] || { err "File not found: $arg"; exit 1; }
     src="$arg"
   fi
   filename=$(basename "$src")
@@ -1203,7 +1215,7 @@ cmd_install() {
   if [ "$inner_cli" = "auto" ]; then
     if [ "$cli" != "true" ] && [ "$INNER_CLI_FOUND" = "true" ]; then
       inner_cli="true"
-      echo "Bundled CLI found inside the image — wrapping usr/bin/bin/$name."
+      say "$CYAN" "Found" "bundled CLI inside the image — wrapping usr/bin/bin/$name"
     else
       inner_cli="false"
     fi
@@ -1214,15 +1226,14 @@ cmd_install() {
                  "$release_name" "$guard" "$EXEC_ARGS" "$cli" "$no_sandbox" \
                  "$inner_cli"
 
-  echo "Installed: $name"
-  echo "  Binary:   $target"
-  echo "  Wrapper:  $BIN_DIR/$name"
-  if [ -n "$tag" ]; then echo "  Version:  $tag"; fi
-  if [ -n "$guard" ]; then echo "  Guard:    $guard"; fi
-  if [ -n "$EXEC_ARGS" ]; then echo "  Args:     $EXEC_ARGS (from the app's own .desktop)"; fi
-  if [ "$cli" = "true" ]; then echo "  Mode:     hybrid CLI/GUI"; fi
-  if [ "$inner_cli" = "true" ]; then echo "  Mode:     bundled CLI (mounted image)"; fi
-  if [ -f "$APP_DIR/$name.desktop" ]; then echo "  Launcher: $APP_DIR/$name.desktop"; fi
+  say "$GREEN" "Installed" "$BOLD$name$RESET${tag:+ $tag}"
+  detail "${DIM}binary  $RESET $target"
+  detail "${DIM}wrapper $RESET $BIN_DIR/$name"
+  if [ -n "$guard" ]; then detail "${DIM}guard   $RESET $guard"; fi
+  if [ -n "$EXEC_ARGS" ]; then detail "${DIM}args    $RESET $EXEC_ARGS (from the app's own .desktop)"; fi
+  if [ "$cli" = "true" ]; then detail "${DIM}mode    $RESET hybrid CLI/GUI"; fi
+  if [ "$inner_cli" = "true" ]; then detail "${DIM}mode    $RESET bundled CLI (mounted image)"; fi
+  if [ -f "$APP_DIR/$name.desktop" ]; then detail "${DIM}launcher$RESET $APP_DIR/$name.desktop"; fi
 }
 
 # --- list --------------------------------------------------------------------
@@ -1281,10 +1292,20 @@ cmd_list() {
   })
 
   if [ -z "$out" ]; then
-    echo "(no AppImages installed, and the catalog is empty: $CATALOG_FILE)" >&2
+    say "$DIM" "Nothing" "no AppImages installed, and the catalog is empty: $CATALOG_FILE" >&2
     return 0
   fi
-  { printf 'NAME\tVERSION\tSOURCE\tSTATUS\n'; printf '%s\n' "$out"; } | column -t -s $'\t'
+  # Colour after `column` has aligned the plain text — escape codes inside the
+  # cells would count towards their width. Bold header, installed names in
+  # green, and the apps we don't have dimmed so the installed ones stand out.
+  { printf 'NAME\tVERSION\tSOURCE\tSTATUS\n'; printf '%s\n' "$out"; } | column -t -s $'\t' |
+    while IFS= read -r line; do
+      case "$line" in
+        NAME*)             printf '%s%s%s\n' "$BOLD" "$line" "$RESET" ;;
+        *"not installed")  printf '%s%s%s\n' "$DIM" "$line" "$RESET" ;;
+        *)                 printf '%s%s%s%s\n' "$GREEN" "${line%% *}" "$RESET" "${line#"${line%% *}"}" ;;
+      esac
+    done
 }
 
 # --- info --------------------------------------------------------------------
@@ -1303,8 +1324,8 @@ cmd_info() {
   else
     meta="$META_DIR/$arg.json"
     if [ ! -f "$meta" ]; then
-      echo "Not a managed name or AppImage path: $arg" >&2
-      echo "Try: $PROG list" >&2
+      err "Not a managed name or AppImage path: $arg"
+      detail "try: $PROG list" >&2
       exit 1
     fi
     name="$arg"
@@ -1312,11 +1333,11 @@ cmd_info() {
     meta_sha=$(jq -r '.sha256 // ""' "$meta")
   fi
 
-  echo "=== $name ==="
+  printf '%s%s%s\n' "$BOLD" "$name" "$RESET"
 
   # --- managed metadata --------------------------------------------------------
   if [ -n "$meta" ]; then
-    echo "Metadata (managed):"
+    printf '%s%s%s\n' "$CYAN" "Metadata (managed)" "$RESET"
     jq -r --arg bindir "$BIN_DIR" '
       (if ((.release_name // "") | test("\\.appimage$"; "i") | not) and (.release_name // "") != ""
        then .release_name
@@ -1336,7 +1357,7 @@ cmd_info() {
   fi
 
   # --- binary facts ------------------------------------------------------------
-  echo "Binary:"
+  printf '%s%s%s\n' "$CYAN" "Binary" "$RESET"
   echo "  path         : $appimage_path"
   if [ ! -f "$appimage_path" ]; then
     echo "  (binary missing!)"
@@ -1379,7 +1400,7 @@ cmd_info() {
   sq="$work/squashfs-root"
   desktop=$(find_desktop_entry "$sq" || true)
   if [ -n "$desktop" ]; then
-    echo "Embedded .desktop ($(basename "$desktop")):"
+    printf '%s%s%s\n' "$CYAN" "Embedded .desktop ($(basename "$desktop"))" "$RESET"
     local k v
     for k in Name GenericName Comment Exec TryExec Icon Categories MimeType StartupWMClass Keywords; do
       v=$(grep -m1 "^$k=" "$desktop" | cut -d= -f2- || true)
@@ -1395,7 +1416,7 @@ cmd_info() {
 cmd_update_one() {
   local name="$1"
   local meta="$META_DIR/$name.json"
-  [ -f "$meta" ] || { echo "Not managed: $name" >&2; return 1; }
+  [ -f "$meta" ] || { err "Not managed: $name"; return 1; }
 
   local source_url github_repo current_tag current_release_name origin unofficial guard cli no_sandbox inner_cli
   cli=$(jq -r 'if .cli then "true" else "false" end' "$meta")
@@ -1419,7 +1440,7 @@ cmd_update_one() {
       IFS=$'\t' read -r c_url c_guard c_flags <<<"$hit"
       c_guard=$(catalog_unset "$c_guard"); c_flags=$(catalog_unset "$c_flags")
       if source_is_resolvable "$c_url"; then
-        [ "$UPDATE_ROWS" = "true" ] || echo "[$name] adopting catalog source: $c_url" >&2
+        [ "$UPDATE_ROWS" = "true" ] || say "$CYAN" "Adopting" "catalog source for $name: $c_url" >&2
         source_url="$c_url"
         github_repo=$(github_repo_from_url "$c_url" || true)
         [ -n "$guard" ] || guard="$c_guard"
@@ -1433,7 +1454,7 @@ cmd_update_one() {
 
   if ! source_is_resolvable "$source_url" || [ "$origin" = "migrated" ]; then
     upd_emit skip "$name" "no tracked source" \
-      "[$name] no tracked source (re-run: appimage install <url> to enable updates)"
+      "re-run: appimage install <url> to enable updates"
     return 0
   fi
 
@@ -1441,12 +1462,11 @@ cmd_update_one() {
   [ -n "${RESOLVE_ERR_FILE:-}" ] && : > "$RESOLVE_ERR_FILE"
   if ! resolved=$(resolve_source "$source_url"); then
     [ -n "${RESOLVE_ERR_FILE:-}" ] && reason=$(cat "$RESOLVE_ERR_FILE" 2>/dev/null || true)
-    upd_emit fail "$name" "${reason:-resolve failed}" "[$name] resolve failed"
+    upd_emit fail "$name" "${reason:-resolve failed}"
     return 1
   fi
   if [ -z "$resolved" ]; then
-    upd_emit fail "$name" "no asset in latest release" \
-      "[$name] no asset found in latest release"
+    upd_emit fail "$name" "no asset in latest release"
     return 1
   fi
   IFS=$'\t' read -r new_asset new_tag new_release_name <<<"$resolved"
@@ -1460,7 +1480,7 @@ cmd_update_one() {
   local cur_label
   cur_label=$(version_label "$current_release_name" "$current_tag")
   if $same_tag && $same_name; then
-    upd_emit ok "$name" "$cur_label" "[$name] up-to-date ($cur_label)"
+    upd_emit ok "$name" "$cur_label"
     return 0
   fi
 
@@ -1470,8 +1490,7 @@ cmd_update_one() {
   new_label=$(version_label "$new_release_name" "$new_tag")
   if [ -n "$guard" ]; then
     if ! run_guard "$name" "update" "$cur_label" "$new_label" "$guard"; then
-      upd_emit skip "$name" "guard '$guard' declined" \
-        "⏭  [$name] guard '$guard' declined — skipping update."
+      upd_emit skip "$name" "guard '$guard' declined"
       return 0
     fi
   fi
@@ -1485,7 +1504,7 @@ cmd_update_one() {
     cur_label="${current_tag:-$cur_label}"
     new_label="${new_tag:-$new_label}"
   fi
-  upd_emit new "$name" "$cur_label  →  $new_label" "[$name] $cur_label -> $new_label"
+  upd_emit new "$name" "$cur_label → $new_label"
   local reinstall_args=()
   [ "$unofficial" = "true" ] && reinstall_args+=(--unofficial)
   [ "$cli" = "true" ] && reinstall_args+=(--cli)
@@ -1508,7 +1527,7 @@ cmd_update_one() {
 # column to the longest name so the versions line up whatever is installed.
 update_many() {
   local n total=$#
-  [ "$total" -gt 0 ] || { echo "(no managed AppImages)" >&2; return 0; }
+  [ "$total" -gt 0 ] || { say "$DIM" "Nothing" "no managed AppImages" >&2; return 0; }
 
   UPDATE_ROWS=true
   RESOLVE_QUIET=true
@@ -1519,13 +1538,17 @@ update_many() {
   NAME_W=0
   for n in "$@"; do [ "${#n}" -gt "$NAME_W" ] && NAME_W="${#n}"; done
 
-  printf 'Checking %d managed AppImage%s…\n\n' "$total" "$([ "$total" -eq 1 ] || echo s)"
+  local started summary
+  started=$(now_us)
+  say "$CYAN" "Checking" "$total managed AppImage$([ "$total" -eq 1 ] || echo s)"
   for n in "$@"; do cmd_update_one "$n" || true; done
 
-  printf '\n  %d checked · %d updated · %d up to date · %d skipped' \
-    "$total" "$_UPD_NEW" "$_UPD_OK" "$_UPD_SKIP"
-  [ "$_UPD_FAIL" -gt 0 ] && printf ' · %d failed' "$_UPD_FAIL"
-  printf '\n'
+  summary="$total checked in $(elapsed "$started"): $_UPD_NEW updated, $_UPD_OK up to date, $_UPD_SKIP skipped"
+  if [ "$_UPD_FAIL" -gt 0 ]; then
+    say "$RED" "Finished" "$summary, $_UPD_FAIL failed"
+  else
+    say "$GREEN" "Finished" "$summary"
+  fi
 
   UPDATE_ROWS=false
   RESOLVE_QUIET=false
@@ -1543,9 +1566,9 @@ cmd_update() {
       ver=$(jq -r '.tag // .release_name // "-"' "$f")
       printf '%s\t%-20s installed %s\n' "$n" "$n" "$ver"
     done)
-    [ -n "$rows" ] || { echo "(no managed AppImages)" >&2; return 0; }
+    [ -n "$rows" ] || { say "$DIM" "Nothing" "no managed AppImages" >&2; return 0; }
     chosen=$(printf '%s\n' "$rows" | pick_multi "Update" "all")
-    [ -n "$chosen" ] || { echo "Nothing selected." >&2; return 0; }
+    [ -n "$chosen" ] || { say "$DIM" "Nothing" "nothing selected" >&2; return 0; }
     local picked=()
     while IFS= read -r n; do
       [ -n "$n" ] && picked+=("$n")
@@ -1564,7 +1587,7 @@ cmd_update() {
       names+=("$(jq -r '.name' "$f")")
     done
     if [ "${#names[@]}" -eq 0 ]; then
-      echo "(no managed AppImages)" >&2
+      say "$DIM" "Nothing" "no managed AppImages" >&2
       return 0
     fi
     update_many "${names[@]}"
@@ -1589,12 +1612,12 @@ cmd_update() {
 cmd_remove() {
   local name="$1"
   local meta="$META_DIR/$name.json"
-  [ -f "$meta" ] || { echo "Not managed: $name" >&2; exit 1; }
+  [ -f "$meta" ] || { err "Not managed: $name"; exit 1; }
   local target
   target=$(jq -r '.target' "$meta")
   rm -f -- "$BIN_DIR/$name" "$target" "$meta"
   remove_desktop_entry "$name"
-  echo "Removed: $name"
+  say "$GREEN" "Removed" "$name"
 }
 
 # --- wrap --------------------------------------------------------------------
@@ -1606,14 +1629,14 @@ cmd_remove() {
 cmd_wrap_one() {
   local name="$1"
   local meta="$META_DIR/$name.json"
-  [ -f "$meta" ] || { echo "Not managed: $name" >&2; return 1; }
+  [ -f "$meta" ] || { err "Not managed: $name"; return 1; }
   local target cli no_sandbox inner_cli
   target=$(jq -r '.target' "$meta")
   cli=$(jq -r 'if .cli then "true" else "false" end' "$meta")
   inner_cli=$(jq -r 'if .inner_cli then "true" else "false" end' "$meta")
   no_sandbox=$(jq -r 'if .no_sandbox then "true" else "false" end' "$meta")
   if [ ! -f "$target" ]; then
-    echo "[$name] binary missing ($target) — skipping" >&2
+    err "$name: binary missing ($target) — skipping"
     return 1
   fi
   # Drop the old entry first: a previously mis-detected one has to go even if
@@ -1629,7 +1652,7 @@ cmd_wrap_one() {
   # from `wrap --all` instead of waiting for its next upstream release.
   if [ "$inner_cli" != "true" ] && [ "$cli" != "true" ] && [ "$INNER_CLI_FOUND" = "true" ]; then
     inner_cli="true"
-    echo "[$name] bundled CLI found inside the image — wrapping usr/bin/bin/$name."
+    say "$CYAN" "Found" "bundled CLI inside the image — wrapping usr/bin/bin/$name"
   fi
   write_wrapper "$name" "$target" "$EXEC_ARGS" "$cli" "$inner_cli"
   # Keep metadata honest about what the wrapper now replays.
@@ -1642,9 +1665,9 @@ cmd_wrap_one() {
     rm -f -- "$tmp_meta"
   fi
   if [ -f "$APP_DIR/$name.desktop" ]; then
-    echo "Wrapped: $name (wrapper + launcher)"
+    say "$GREEN" "Wrapped" "$name $DIM(wrapper + launcher)$RESET"
   else
-    echo "Wrapped: $name (wrapper; no .desktop entry inside the AppImage)"
+    say "$GREEN" "Wrapped" "$name $DIM(wrapper; no .desktop entry inside the AppImage)$RESET"
   fi
 }
 
@@ -1657,7 +1680,7 @@ cmd_wrap() {
       found=1
       cmd_wrap_one "$(jq -r '.name' "$f")" || true
     done
-    [ "$found" -eq 1 ] || echo "(no managed AppImages)" >&2
+    [ "$found" -eq 1 ] || say "$DIM" "Nothing" "no managed AppImages" >&2
   else
     [ -n "${1:-}" ] || usage
     cmd_wrap_one "$1"
@@ -1674,7 +1697,7 @@ migrate_one() {
   target="$APPIMAGE_BIN_DIR/$name.AppImage"
 
   if [ -f "$META_DIR/$name.json" ]; then
-    echo "[$name] already managed, skipping"
+    say "$DIM" "Fresh" "$DIM$name already managed$RESET"
     return 0
   fi
 
@@ -1702,15 +1725,15 @@ migrate_one() {
       installed_at:$installed_at}' \
     > "$META_DIR/$name.json"
 
-  echo "Migrated: $name"
+  say "$GREEN" "Migrated" "$name"
 }
 
 cmd_migrate() {
   mkdir -p "$BIN_DIR" "$APPIMAGE_BIN_DIR"
   if [ -n "${1:-}" ]; then
     local p="$BIN_DIR/$1"
-    [ -f "$p" ] || { echo "Not found: $p" >&2; exit 1; }
-    is_appimage "$p" || { echo "Not an AppImage: $p" >&2; exit 1; }
+    [ -f "$p" ] || { err "Not found: $p"; exit 1; }
+    is_appimage "$p" || { err "Not an AppImage: $p"; exit 1; }
     migrate_one "$p"
     return
   fi
@@ -1722,7 +1745,7 @@ cmd_migrate() {
     found=1
     migrate_one "$f"
   done
-  if [ "$found" -eq 0 ]; then echo "No AppImages to migrate in $BIN_DIR" >&2; fi
+  if [ "$found" -eq 0 ]; then say "$DIM" "Nothing" "no AppImages to migrate in $BIN_DIR" >&2; fi
 }
 
 # --- dispatch ----------------------------------------------------------------

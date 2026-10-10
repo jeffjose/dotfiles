@@ -30,17 +30,19 @@ set -euo pipefail
 export npm_config_ignore_scripts=false
 export npm_config_omit=
 
+source "$HOME/dotfiles/scripts/lib/ui.sh"
+
 if ! command -v mise >/dev/null 2>&1; then
-  echo "mise not on PATH; nothing to repair."
+  say "$DIM" "Skipping" "npm: tool check — mise not on PATH"
   exit 0
 fi
 
 if ! command -v jq >/dev/null 2>&1; then
-  echo "⚠️  jq not found; skipping npm: backend health check." >&2
+  warn "jq not found; skipping npm: backend health check"
   exit 0
 fi
 
-echo "Checking mise npm: tools for a lost aube store..."
+say "$CYAN" "Checking" "mise npm: tools for a lost aube store"
 
 # tool<TAB>install_path for every active npm:-backend tool.
 mapfile -t entries < <(
@@ -81,19 +83,19 @@ for entry in "${entries[@]}"; do
 done
 
 if [[ ${#broken[@]} -eq 0 ]]; then
-  echo "✓ all ${#entries[@]} npm: tools intact"
+  say "$DIM" "Fresh" "${DIM}all ${#entries[@]} npm: tools intact$RESET"
   exit 0
 fi
 
-echo "Found ${#broken[@]} npm: tool(s) with dangling links (aube store was cleared):"
-printf '  - %s\n' "${broken[@]}"
+say "$YELLOW" "Repairing" "${#broken[@]} npm: tool(s) with dangling links (aube store was cleared)"
+for tool in "${broken[@]}"; do detail "$tool"; done
 
 # One `mise install --force` for the lot: aube dedupes the shared store, so a
 # single batch is much faster than one invocation per tool.
 if ! mise install --force "${broken[@]}"; then
-  echo "⚠️  batch reinstall reported errors; retrying individually..." >&2
+  warn "batch reinstall reported errors; retrying individually"
   for tool in "${broken[@]}"; do
-    mise install --force "$tool" || echo "  ✗ $tool" >&2
+    mise install --force "$tool" || say "$RED" "Failed" "$tool" >&2
   done
 fi
 
@@ -111,11 +113,10 @@ for entry in "${entries[@]}"; do
 done
 
 if [[ ${#still_broken[@]} -gt 0 ]]; then
-  echo "✗ still broken after reinstall:" >&2
-  printf '  - %s\n' "${still_broken[@]}" >&2
-  echo "  Check ~/.npmrc and \`mise install --force <tool>\` output by hand." >&2
+  err "still broken after reinstall: ${still_broken[*]}"
+  detail "check ~/.npmrc and \`mise install --force <tool>\` output by hand" >&2
   exit 1
 fi
 
-echo "✓ repaired ${#broken[@]} npm: tool(s)"
+say "$GREEN" "Repaired" "${#broken[@]} npm: tool(s)"
 exit 0
