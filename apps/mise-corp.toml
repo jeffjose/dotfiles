@@ -1,0 +1,21 @@
+# mise settings for corp hosts only.
+#
+# ./setup links this to ~/.config/mise/conf.d/corp.toml on a corp host (see
+# is_corp_host in scripts/lib/host.sh) and removes the link everywhere else.
+# The tools named here are dropped from the toolset there: `mise install` and
+# `mise upgrade` skip them, they get no shim, and `mise prune` removes a copy
+# that an earlier run installed. config.toml stays one file for every machine.
+#
+# List every name a tool can be asked for by. `claude` is how config.toml spells
+# it; the aqua: and npm: forms are the same program by its other routes, so that
+# adding either to config.toml later cannot bring it back on a corp host.
+#
+# This is also where uq gets the names for its "corp machine" notice, and where
+# update_mise.sh gets them to set MISE_DISABLE_TOOLS, so the block holds even on
+# a host where ./setup has not linked this file yet.
+#
+# The AppImage side of the same rule (claude-desktop, ...) is the
+# `personal-only` guard in scripts/utils/appimage-catalog.tsv.
+
+[settings]
+disable_tools = ["claude", "aqua:anthropics/claude-code", "npm:@anthropic-ai/claude-code"]

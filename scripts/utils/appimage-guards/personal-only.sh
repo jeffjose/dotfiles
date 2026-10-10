@@ -20,38 +20,8 @@ NAME="${APPIMAGE_NAME:-this app}"
 
 source "$HOME/dotfiles/scripts/lib/ui.sh"
 
-# Personal-machine detection. Be defensive — check multiple sources and
-# fail-closed (treat as corp) on any signal of a Google host.
-is_corp_host() {
-  local fqdn shortname domain
-
-  fqdn=$(hostname -f 2>/dev/null || true)
-  [ -z "$fqdn" ] && fqdn=$(hostname --fqdn 2>/dev/null || true)
-  [ -z "$fqdn" ] && fqdn=$(hostname 2>/dev/null || true)
-  shortname=$(hostname -s 2>/dev/null || hostname 2>/dev/null || true)
-  domain=$(hostname -d 2>/dev/null || true)
-
-  fqdn=$(echo "$fqdn" | tr '[:upper:]' '[:lower:]')
-  domain=$(echo "$domain" | tr '[:upper:]' '[:lower:]')
-  shortname=$(echo "$shortname" | tr '[:upper:]' '[:lower:]')
-
-  case "$fqdn" in
-    *.google.com|*.corp.google.com|*.c.googlers.com) return 0 ;;
-  esac
-  case "$domain" in
-    google.com|corp.google.com|c.googlers.com) return 0 ;;
-  esac
-
-  # Belt and suspenders: glinux-only markers.
-  if [ -f /etc/lsb-release ] && grep -qi 'glinux\|goobuntu' /etc/lsb-release 2>/dev/null; then
-    return 0
-  fi
-  if [ -d /google ] || [ -d /usr/local/google ]; then
-    return 0
-  fi
-
-  return 1
-}
+# Personal-machine detection (is_corp_host) is shared with uq and ./setup.
+source "$HOME/dotfiles/scripts/lib/host.sh"
 
 # Interactive confirm with a smart default and a 10s timeout. Non-interactive
 # runs fall back to the default.

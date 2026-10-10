@@ -162,6 +162,18 @@ while IFS=$'\t' read -r target src; do
   link "$src" "$target"
 done < <(for src in "${!SYMLINKS[@]}"; do printf '%s\t%s\n' "${SYMLINKS[$src]}" "$src"; done | sort)
 
+# Corp hosts get an extra mise config that keeps some tools off them (see
+# apps/mise-corp.toml). Everywhere else the link is taken away again, so a
+# machine that stops being corp, or was once misdetected, is not left with it.
+source "$DOTFILES_DIR/scripts/lib/host.sh"
+corp_link="$HOME/.config/mise/conf.d/corp.toml"
+if is_corp_host; then
+  [ -d "${corp_link%/*}" ] || run "$GREEN" "Creating" "$(short "${corp_link%/*}")" mkdir -p "${corp_link%/*}"
+  link "$CORP_MISE_CONFIG" "$corp_link"
+elif [ -L "$corp_link" ] && [ "$(readlink "$corp_link")" = "$CORP_MISE_CONFIG" ]; then
+  run "$YELLOW" "Unlinking" "$(short "$corp_link") — not a corp host" rm "$corp_link"
+fi
+
 elapsed_ms=$(((${EPOCHREALTIME//[^0-9]/} - start_us) / 1000))
 summary="$changed changed, $fresh up to date in ${elapsed_ms}ms"
 

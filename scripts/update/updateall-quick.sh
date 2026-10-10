@@ -26,6 +26,7 @@ UPDATE_SCRIPTS=(
 # detail. The update scripts print their own progress in between; the summary at
 # the end lists only what changed.
 source "$HOME/dotfiles/scripts/lib/ui.sh"
+source "$HOME/dotfiles/scripts/lib/host.sh"
 
 VERBOSE=0
 case "${1:-}" in
@@ -163,6 +164,20 @@ check_sudo() {
   trap stop_sudo_keepalive EXIT
 }
 
+# On a corp host, say first thing what this run will leave alone — before the
+# sudo prompt, so it is the line on screen when the run starts.
+corp_notice() {
+  is_corp_host || return 0
+  local -a apps=() tools=()
+  mapfile -t apps < <(corp_blocked_appimages)
+  mapfile -t tools < <(corp_blocked_mise_tools)
+
+  say "$YELLOW" "CORP MACHINE" "${BOLD}the following will NOT be installed or updated here$RESET"
+  [ ${#apps[@]} -eq 0 ] || detail "appimages   ${apps[*]}"
+  [ ${#tools[@]} -eq 0 ] || detail "mise tools  ${tools[*]}"
+  echo
+}
+
 declare -a failed_updates=()
 
 # run_update_script <script> <n>: run one update script and report how it went
@@ -245,6 +260,7 @@ print_summary() {
 main() {
   start_us=$(now_us)
 
+  corp_notice
   check_sudo
 
   # Update dotfiles first (best-effort — don't abort the whole update run if the

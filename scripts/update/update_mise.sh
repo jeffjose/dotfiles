@@ -20,6 +20,19 @@ source "$HOME/dotfiles/scripts/lib/ui.sh"
 export npm_config_ignore_scripts=false
 export npm_config_omit=
 
+# On a corp host, keep the tools listed in apps/mise-corp.toml out of every mise
+# call below. ./setup links that file into mise's config, which covers mise run
+# by hand too — but setup is best-effort in a uq run, and this must not depend
+# on it having worked.
+source "$HOME/dotfiles/scripts/lib/host.sh"
+if is_corp_host; then
+  corp_blocked=$(corp_blocked_mise_tools | paste -sd, -)
+  if [[ -n "$corp_blocked" ]]; then
+    export MISE_DISABLE_TOOLS="$corp_blocked"
+    say "$YELLOW" "Corp host" "mise will not install or upgrade: ${corp_blocked//,/, }"
+  fi
+fi
+
 MISE_DATA_DIR="${MISE_DATA_DIR:-$HOME/.local/share/mise}"
 MISE_CACHE_DIR="${MISE_CACHE_DIR:-$HOME/.cache/mise}"
 
