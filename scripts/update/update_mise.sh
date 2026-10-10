@@ -131,13 +131,14 @@ mise_upgrade() {
   held=$(log_since "$QUIET_FROM" |
     sed -nE 's/.*newer (.+) release ([^ ]+) \(.*ignored by minimum_release_age.*/\1 \2/p' |
     sed -E 's|^[^ ]*[:/]||')
-  local width=0
+  local width=0 vwidth=0
   while read -r name new; do
     ((${#name} > width)) && width=${#name}
+    ((${#new} > vwidth)) && vwidth=${#new}
   done <<<"$held"
   while read -r name new; do
     [[ -n "$name" ]] || continue
-    say "$DIM" "Held back" "$(printf '%s%-*s  %s  (under 24h old)%s' "$DIM" "$width" "$name" "$new" "$RESET")"
+    say "$DIM" "Held back" "$(printf '%s%-*s  %-*s  (under 24h old)%s' "$DIM" "$width" "$name" "$vwidth" "$new" "$RESET")"
   done <<<"$held"
   return $status
 }
