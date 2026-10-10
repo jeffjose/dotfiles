@@ -120,6 +120,29 @@ drop_dev_copy() {
   done < <(sed -nE 's/^"([^ "]+) .*/\1/p' "$1/.crates.toml" 2>/dev/null)
 }
 
+# Point rustup's default toolchain at the rust mise resolved.
+#
+# mise's rust is a numbered rustup toolchain, picked by the RUSTUP_TOOLCHAIN the
+# mise shim sets. But ~/.cargo/bin is ahead of the shims on PATH, so a plain
+# `cargo` is the rustup proxy and builds with rustup's own default instead —
+# "stable", which nothing here updates. That one sits at whatever `rustup
+# update` last left on each machine, so the same checkout builds on one box and
+# dies with "rustc 1.85.1 is not supported by the following packages" on the
+# next. Making mise's toolchain the default leaves one rust, and `mise upgrade`
+# already keeps it current.
+sync_rustup_default() {
+  local want
+  command -v rustup >/dev/null 2>&1 || return 0
+  want=$(mise current rust 2>/dev/null) || return 0
+  [[ -n "$want" ]] || return 0
+  [[ "$(rustup default 2>/dev/null)" == "$want-"* ]] && return 0
+  if rustup default "$want" >/dev/null 2>&1; then
+    say "$GREEN" "Switched" "rustup default to $want, the rust mise manages"
+  else
+    warn "could not make $want the rustup default; plain \`cargo\` may use an older rust"
+  fi
+}
+
 report_disk_usage() {
   local size_after
   size_after=$(mise_disk_usage)
@@ -128,6 +151,11 @@ $DIM(saved $(numfmt --to=iec -- $((size_before - size_after))))$RESET"
 }
 
 size_before=$(mise_disk_usage)
+
+# One tool that will not build must not take the rest of the run with it: the
+# upgrade is allowed to fail, everything after it still runs, and the failure is
+# reported (and the exit status set) at the end.
+upgrade_ok=true
 
 if [[ -n "$filter" ]]; then
   mapfile -t tools < <(mise ls --current | awk '{print $1}' | sort -u | grep -iF -- "$filter" || true)
@@ -138,7 +166,8 @@ if [[ -n "$filter" ]]; then
 
   say "$CYAN" "Upgrading" "${tools[*]}"
   refresh_branch_tools "${tools[@]}"
-  mise_upgrade "${tools[@]}"
+  mise_upgrade "${tools[@]}" || upgrade_ok=false
+  sync_rustup_default
   mise prune --yes "${tools[@]}" || warn "mise prune failed; continuing"
 
   if printf '%s\n' "${tools[@]}" | grep -q '^npm:'; then
@@ -146,6 +175,10 @@ if [[ -n "$filter" ]]; then
   fi
 
   report_disk_usage
+  if ! $upgrade_ok; then
+    err "mise upgrade failed for at least one tool, see above"
+    exit 1
+  fi
   exit 0
 fi
 
@@ -168,7 +201,8 @@ say "$CYAN" "Checking" "branch-pinned tools for new commits"
 refresh_branch_tools
 
 say "$CYAN" "Upgrading" "mise tools"
-mise_upgrade
+mise_upgrade || upgrade_ok=false
+sync_rustup_default
 # mise upgrade --bump  # Commented out to prevent auto-updating config.toml versions
 
 # `mise upgrade` installs new versions alongside the old ones and never removes
@@ -225,5 +259,10 @@ fi
 "$HOME/dotfiles/scripts/install/fix-mise-npm-installs.sh"
 
 report_disk_usage
+
+if ! $upgrade_ok; then
+  err "mise upgrade failed for at least one tool, see above"
+  exit 1
+fi
 
 exit 0
