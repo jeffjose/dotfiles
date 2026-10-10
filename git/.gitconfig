@@ -123,12 +123,18 @@
 [credential "https://gist.github.com"]
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
-[safe]
-	directory = /home/jeffjose/github-actions-runner/graphprix/_work/graphprix/graphprix
-	directory = /home/jeffjose/github-actions-runner/graphprix/_work/graphprix/graphprix
-	directory = /home/jeffjose/github-actions-runner/server/_work/homelab/homelab
-	directory = /home/jeffjose/github-actions-runner/server/_work/homelab/homelab
-	directory = /home/jeffjose/github-actions-runner/graphprix/_work/graphprix/graphprix
-	directory = /home/jeffjose/github-actions-runner/server/_work/homelab/homelab
-	directory = /home/jeffjose/github-actions-runner/server/_work/homelab/homelab
-	directory = /home/jeffjose/github-actions-runner/graphprix/_work/graphprix/graphprix
+# No [safe] section here on purpose. actions/checkout runs
+# `git config --global --add safe.directory <workspace>` on every checkout
+# (set-safe-directory defaults to true) and does not check for an existing
+# entry, so with ~/.gitconfig symlinked into ~/dotfiles each CI run appended
+# another duplicate line and left this repo permanently dirty -- which also
+# fouled the `git pull` in scripts/update/update_mise.sh.
+#
+# The runners now write to ~/.gitconfig.runner instead, via GIT_CONFIG_GLOBAL
+# set in each runner's .env and in a systemd drop-in at
+# /etc/systemd/system/actions.runner.*.service.d/git-config-global.conf.
+# That file includes this one, so jobs keep this identity and credential
+# helper; it is deliberately untracked and safe to delete.
+#
+# The 12 entries removed here were never needed anyway: _work is owned by
+# jeffjose and the runners run as jeffjose, so git had nothing to object to.
