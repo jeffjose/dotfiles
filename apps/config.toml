@@ -49,7 +49,9 @@ opencode = "latest"
 #"go:github.com/charmbracelet/crush" = "latest"
 
 # File finding utilities
-#"cargo:fd-find" = "latest"
+# `fd` resolves to aqua:sharkdp/fd -- the prebuilt binary, named `fd` (Debian's
+# apt package calls it `fdfind`). `find` is aliased to it in the shell rc.
+fd = "latest"
 #"cargo:find-files" = "latest"
 
 # Git utilities
