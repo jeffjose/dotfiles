@@ -75,34 +75,44 @@ build_command() {
 
 # Reword deb-downloader's output to match the rest of uq.
 #
-# For a package that is already current it prints three lines — the URL, then
-# "→ name version", then "✓ Already installed" — which become the single
+# It prints the URL, "→ name version", and then either "✓ Already installed" or
+# a progress bar, "✓ Downloaded: file", "↑ Upgrading from old" and
+# "✓ Installed". Those become one line each way:
 #        Fresh name version
-# Anything else it says is passed through as it is. Read a byte at a time so
-# that a download's progress bar, which redraws with \r and no newline, still
-# moves instead of sitting in a line buffer until the download is over.
+#     Updating name old → version
+# with the progress bar shown while it moves and wiped once the download is
+# done. Lines it does not know (errors, mostly) pass through as they are.
+#
+# Read a byte at a time: the bar redraws with \r and no newline, and would
+# otherwise sit in a line buffer until the download was over.
 deb_lines() {
-    DIM="$DIM" RESET="$RESET" perl -e '
+    DIM="$DIM" GREEN="$GREEN" RESET="$RESET" perl -e '
         $| = 1; $/ = \1;
-        my ($line, $pending) = ("", "");
-        sub flush_pending { print $pending if length $pending; $pending = ""; }
+        my ($line, $name, $bar, $old) = ("", "", 0);
+        sub verb { printf "%s%12s%s %s\n", $_[0], $_[1], $ENV{RESET}, $_[2]; }
         while (my $c = <STDIN>) {
-            if ($c eq "\r") { flush_pending(); print "$line\r"; $line = ""; next; }
+            if ($c eq "\r") { print "$line\r"; $line = ""; $bar = 1; next; }
             if ($c ne "\n") { $line .= $c; next; }
             (my $plain = $line) =~ s/\e\[[0-9;]*m//g;
-            if ($plain =~ m{^https?://\S+$}) {
-                # the URL being checked: nothing the "Checking" line did not say
+            if ($bar) { print "\r\e[K"; $bar = 0; $line = ""; next; } # the last frame: wipe the bar
+            if ($plain =~ m{^https?://\S+$} || $plain =~ /^✓ (Downloaded|Cached): / || $plain =~ /^\s*$/) {
+                # nothing the lines around it do not say
             } elsif ($plain =~ /^→ (.+)$/) {
-                flush_pending(); $pending = "$line\n"; $name = $1;
-            } elsif ($plain =~ /Already installed$/ && length $pending) {
-                printf "%s%12s%s %s%s%s\n", $ENV{DIM}, "Fresh", $ENV{RESET}, $ENV{DIM}, $name, $ENV{RESET};
-                $pending = "";
+                $name = $1;
+            } elsif ($plain =~ /^✓ Already installed$/ && length $name) {
+                verb($ENV{DIM}, "Fresh", "$ENV{DIM}$name$ENV{RESET}");
+            } elsif ($plain =~ /^↑ Upgrading from (\S+)$/ && length $name) {
+                $old = $1;
+                my ($pkg, $ver) = split / /, $name, 2;
+                verb($ENV{GREEN}, "Updating", "$pkg $old → $ver");
+            } elsif ($plain =~ /^✓ Installed/ && length $name) {
+                verb($ENV{GREEN}, "Installed", $name) unless defined $old;
             } else {
-                flush_pending(); print "$line\n";
+                print "$line\n";
             }
             $line = "";
         }
-        flush_pending(); print $line;
+        print $line;
     '
 }
 

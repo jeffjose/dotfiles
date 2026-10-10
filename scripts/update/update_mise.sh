@@ -118,20 +118,28 @@ mise_upgrade() {
     return
   fi
 
-  local name cur new status=0 n=0 held
+  # Tools are named the short way in both lists below: "codex", not
+  # "npm:@openai/codex".
+  local name cur new status=0 held outdated width=0 cwidth=0
+  outdated=$(mise outdated --json "$@" 2>/dev/null |
+    jq -r 'to_entries[] | "\(.key | sub(".*[:/]"; ""))\t\(.value.current // "-")\t\(.value.latest // "?")"' 2>/dev/null || true)
   while IFS=$'\t' read -r name cur new; do
-    say "$GREEN" "Upgrading" "$name $cur → $new"
-    ((n++)) || true
-  done < <(mise outdated --json "$@" 2>/dev/null |
-    jq -r 'to_entries[] | "\(.key)\t\(.value.current // "-")\t\(.value.latest // "?")"' 2>/dev/null || true)
-  [[ $n -gt 0 ]] || say "$DIM" "Fresh" "${DIM}nothing to upgrade$RESET"
+    ((${#name} > width)) && width=${#name}
+    ((${#cur} > cwidth)) && cwidth=${#cur}
+  done <<<"$outdated"
+  while IFS=$'\t' read -r name cur new; do
+    [[ -n "$name" ]] || continue
+    say "$GREEN" "Upgrading" "$(printf '%-*s  %-*s → %s' "$width" "$name" "$cwidth" "$cur" "$new")"
+  done <<<"$outdated"
+  [[ -n "$outdated" ]] || say "$DIM" "Fresh" "${DIM}nothing to upgrade$RESET"
 
   quietly mise upgrade "$@" || status=$?
 
   held=$(log_since "$QUIET_FROM" |
     sed -nE 's/.*newer (.+) release ([^ ]+) \(.*ignored by minimum_release_age.*/\1 \2/p' |
     sed -E 's|^[^ ]*[:/]||')
-  local width=0 vwidth=0
+  local vwidth=0
+  width=0
   while read -r name new; do
     ((${#name} > width)) && width=${#name}
     ((${#new} > vwidth)) && vwidth=${#new}
