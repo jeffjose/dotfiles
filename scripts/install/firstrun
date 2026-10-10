@@ -24,8 +24,8 @@
 # runs use it without asking.
 #
 # Every step is safe to repeat, so the fix for a failed run is to run it again
-# (or just the step: `firstrun --only mise`). Each step's full output is kept
-# under ~/.local/state/firstrun/.
+# (or just the step: `firstrun --only mise`). apt and mise are kept quiet; what
+# they printed is under ~/.local/state/firstrun/, one .full.log per step.
 #
 # On a machine with nothing on it yet, this file can be run straight off GitHub;
 # it clones the dotfiles and carries on from the clone:
@@ -244,6 +244,48 @@ has_module() {
 # Each prints what it changed and returns non-zero if it could not finish. They
 # run in a subshell, with their output copied to a log.
 
+# quietly <command...>: run a command without its output on screen. All of it
+# goes to the step's .full.log; if the command fails, the end of that is shown.
+quietly() {
+  local log="$LOG_DIR/$STEP.full.log" status=0
+  "$@" >>"$log" 2>&1 || status=$?
+  [ "$status" -eq 0 ] && return 0
+  err "$1 ${2:-} failed (exit $status); the last of what it said:"
+  sed -e 's/\x1b\[[0-9;?]*[A-Za-z]//g' -e 's/\r/\n/g' "$log" | grep -v '^[[:space:]]*$' | tail -n 8 |
+    while IFS= read -r line; do detail "$DIM$line$RESET" >&2; done
+  detail "full output in ${log/#$HOME/\~}" >&2
+  return "$status"
+}
+
+# mise_install [tool...]: `mise install` with one line per tool as it lands, in
+# place of mise's progress display. The rest goes to the step's .full.log.
+mise_install() {
+  local log="$LOG_DIR/$STEP.full.log" status
+  mise install --yes "$@" 2>&1 | tee -a "$log" |
+    sed -u -e 's/\x1b\[[0-9;?]*[A-Za-z]//g' -e 's/\r/\n/g' |
+    awk -v green="$GREEN" -v reset="$RESET" '
+      /^mise ✓ [^ ]+@[^ ]+/ {
+        tool = $3
+        at = match(tool, /@[^@]*$/)
+        name = substr(tool, 1, at - 1); version = substr(tool, at + 1)
+        sub(/.*[:\/]/, "", name)
+        if (!seen[name]++) { printf "%s%12s%s %s %s\n", green, "Installed", reset, name, version; fflush() }
+      }'
+  status=${PIPESTATUS[0]}
+  [ "$status" -eq 0 ] && return 0
+  err "mise install failed (exit $status); the last of what it said:"
+  sed -e 's/\x1b\[[0-9;?]*[A-Za-z]//g' -e 's/\r/\n/g' "$log" | grep -i -E 'error|fail|not found|denied' | awk '!seen[$0]++' | tail -n 8 |
+    while IFS= read -r line; do detail "$DIM$line$RESET" >&2; done
+  detail "full output in ${log/#$HOME/\~}" >&2
+  # Most of the tools are GitHub releases, and GitHub allows an address 60
+  # anonymous API requests an hour.
+  if grep -q -E '403 Forbidden|rate limit' "$log"; then
+    detail "GitHub is rate-limiting this address. Wait an hour, or give mise a token" >&2
+    detail "(export GITHUB_TOKEN=...), then: firstrun --only mise" >&2
+  fi
+  return "$status"
+}
+
 # The package names in a packages/*.txt file, comments and blanks dropped.
 package_names() { sed -e 's/#.*//' -e 's/[[:space:]]//g' -e '/^$/d' "$@"; }
 
@@ -273,7 +315,7 @@ step_apt() {
     return 0
   fi
 
-  sudo apt-get update -qq || warn "apt-get update failed; carrying on with the package lists there are"
+  quietly sudo apt-get update || warn "carrying on with the package lists there are"
   for pkg in "${missing[@]}"; do
     if apt-cache show "$pkg" 2>/dev/null | grep -q '^Package:'; then
       installable+=("$pkg")
@@ -284,8 +326,9 @@ step_apt() {
   [ ${#unknown[@]} -eq 0 ] || say "$DIM" "Skipped" "${DIM}not in this distro's repos: ${unknown[*]}$RESET"
   [ ${#installable[@]} -gt 0 ] || return 0
 
-  say "$GREEN" "Installing" "${installable[*]}"
-  sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y -q "${installable[@]}"
+  say "$GREEN" "Installing" "${#installable[@]} apt packages"
+  fold -s -w 76 <<<"${installable[*]}" | while IFS= read -r line; do detail "$DIM$line$RESET"; done
+  quietly sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y "${installable[@]}"
 }
 
 step_shell() {
@@ -313,7 +356,7 @@ step_mise() {
     # The prebuilt binary, into ~/.local/bin. (This used to be `cargo install
     # mise`, a ten-minute compile that needed rust before mise could provide it.)
     say "$GREEN" "Installing" "mise"
-    curl -fsSL https://mise.run | sh || return 1
+    quietly sh -c 'curl -fsSL https://mise.run | sh' || return 1
     command -v mise >/dev/null 2>&1 || {
       err "mise installed, but it is not at ~/.local/bin/mise"
       return 1
@@ -333,9 +376,9 @@ step_mise() {
   fi
 
   # rust first: the cargo: tools are built with it.
-  say "$CYAN" "Installing" "mise tools for a $PROFILE ${DIM}(the first time, a desktop compiles for a while)$RESET"
-  mise install --yes rust || status=1
-  mise install --yes || status=1
+  say "$CYAN" "Installing" "mise tools ${DIM}(the ones built from source take a few minutes each)$RESET"
+  mise_install rust || status=1
+  mise_install || status=1
 
   missing=$(mise ls --current --missing 2>/dev/null | awk '{print $1}' | paste -sd' ' -)
   if [ -n "$missing" ]; then
@@ -520,6 +563,7 @@ run_step() {
   started=$(now_us)
   echo
   say "$CYAN" "Setting up" "$name $DIM[$n/${#planned[@]}] $what$RESET"
+  STEP="$name"
   ("step_${name//-/_}") 2>&1 | tee "$LOG_DIR/$name.log"
   status=${PIPESTATUS[0]}
   if [ "$status" -eq 0 ]; then
@@ -584,7 +628,7 @@ main() {
   echo
   if [ ${#failed_steps[@]} -gt 0 ]; then
     for row in "${failed_steps[@]}"; do
-      say "$RED" "Failed" "$row — full output in ${LOG_DIR/#$HOME/\~}/$row.log"
+      say "$RED" "Failed" "$row — output in ${LOG_DIR/#$HOME/\~}/$row.log"
     done
     say "$RED" "Finished" "${#failed_steps[@]} failed, ${#done_steps[@]} done in $(elapsed "$start_us"); fix and run: firstrun --only $(
       IFS=,
