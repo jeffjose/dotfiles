@@ -2,14 +2,23 @@
 #
 # Update mise tools
 #
-# Usage: update_mise.sh [--filter PATTERN]
+# Usage: update_mise.sh [-v|--verbose] [--filter PATTERN]
 #
+#   -v, --verbose     Show everything mise prints, live. By default only what
+#                     changed and what went wrong is shown; the rest goes to a
+#                     log, whose path is printed when something fails.
 #   --filter PATTERN  Only upgrade (and prune) tools whose name contains PATTERN
 #                     (case-insensitive substring). Skips the dotfiles pull,
-#                     mise self-update, cache clears and pnpm health check.
+#                     mise self-update and pnpm health check.
 #                     e.g. `update_mise.sh --filter claude` upgrades both
 #                     `claude` and `npm:@anthropic-ai/claude-code`.
 
+# The whole script sits inside one { ... } so that bash has read all of it before
+# it runs any of it. Bash otherwise reads a script a piece at a time as it goes,
+# and this one runs for many minutes: edit the file meanwhile and the running
+# copy carries on from the same byte offset in the new text, which lands
+# mid-line and fails with something like "line 219: prevent: command not found".
+{
 set -euo pipefail
 
 source "$HOME/dotfiles/scripts/lib/ui.sh"
@@ -42,8 +51,10 @@ mise_disk_usage() {
 }
 
 filter=""
+verbose=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    -v|--verbose) verbose=1; shift ;;
     -f|--filter) filter="${2:?--filter needs a pattern}"; shift 2 ;;
     --filter=*)  filter="${1#*=}"; shift ;;
     -h|--help)   sed -n '2,/^$/s/^# \{0,1\}//p' "$0"; exit 0 ;;
@@ -51,13 +62,77 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# mise prints a line for every tool it looks at, 120-odd on a run that changes
+# nothing, and the one line that matters scrolls away among them. So unless -v
+# was given its output goes to a log instead, and this script says what changed.
+# Under uq the log sits with the other step logs of that run.
+MISE_LOG="${UQ_LOG_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/uq}/mise-detail.log"
+if [[ $verbose -eq 0 ]]; then
+  mkdir -p "${MISE_LOG%/*}" 2>/dev/null && : >"$MISE_LOG" 2>/dev/null || verbose=1
+fi
+
+# The part of the log written since byte offset $1, as plain text: no escape
+# sequences, progress-bar redraws split into lines, repeats dropped.
+log_since() {
+  tail -c +"$(($1 + 1))" "$MISE_LOG" 2>/dev/null |
+    sed -e 's/\x1b\[[0-9;?]*[A-Za-z]//g' -e 's/\r/\n/g' | awk 'NF && !seen[$0]++'
+}
+
+# quietly <command...>: run a command with its output in the log, not on screen
+#
+# If it fails, the lines of its output that say why are printed, with the path
+# of the log for the rest. QUIET_FROM is left at the offset where the command's
+# output starts, for callers that want to read more out of it.
+QUIET_FROM=0
+quietly() {
+  if [[ $verbose -eq 1 ]]; then
+    "$@"
+    return
+  fi
+  local status=0 line
+  QUIET_FROM=$(stat -c %s "$MISE_LOG" 2>/dev/null || echo 0)
+  printf '\n$ %s\n' "$*" >>"$MISE_LOG"
+  "$@" >>"$MISE_LOG" 2>&1 || status=$?
+  if [[ $status -ne 0 ]]; then
+    err "\`$*\` failed (exit $status)"
+    while IFS= read -r line; do
+      detail "$line" >&2
+    done < <(log_since "$QUIET_FROM" | grep -E 'ERROR|✗|error(:|\[)|[Ff]ailed|not supported|No such file' | tail -n 10)
+    detail "${DIM}full output: ${MISE_LOG/#$HOME/\~}$RESET" >&2
+  fi
+  return $status
+}
+
 # `mise upgrade` warns twice per branch-pinned tool (the cargo:…jeffjose/* repos
 # on branch:main) on every run — "something weird happened with versioning" and
 # "upgrading non-version tool requests". Both are expected for a branch ref, so
 # drop just those lines from stderr; every other warning still gets through.
+#
+# Without -v none of that is on screen anyway: the tools about to change are
+# listed first, the upgrade itself runs quietly, and the releases mise held back
+# for being under a day old (minimum_release_age) are summed up in one line.
 mise_upgrade() {
-  mise upgrade "$@" 2> >(grep -v -e 'something weird happened with versioning' \
-                               -e 'upgrading non-version tool requests' >&2)
+  if [[ $verbose -eq 1 ]]; then
+    mise upgrade "$@" 2> >(grep -v -e 'something weird happened with versioning' \
+                                 -e 'upgrading non-version tool requests' >&2)
+    return
+  fi
+
+  local name cur new status=0 n=0 held
+  while IFS=$'\t' read -r name cur new; do
+    say "$GREEN" "Upgrading" "$name $cur → $new"
+    ((n++)) || true
+  done < <(mise outdated --json "$@" 2>/dev/null |
+    jq -r 'to_entries[] | "\(.key)\t\(.value.current // "-")\t\(.value.latest // "?")"' 2>/dev/null || true)
+  [[ $n -gt 0 ]] || say "$DIM" "Fresh" "${DIM}nothing to upgrade$RESET"
+
+  quietly mise upgrade "$@" || status=$?
+
+  held=$(log_since "$QUIET_FROM" |
+    sed -nE 's/.*newer (.+) release ([^ ]+) \(.*ignored by minimum_release_age.*/\1 \2/p' | paste -sd, -)
+  [[ -z "$held" ]] ||
+    say "$DIM" "Held back" "${DIM}under a day old, next run picks them up: ${held//,/, }$RESET"
+  return $status
 }
 
 # Rebuild the branch-pinned cargo git tools whose branch has moved.
@@ -105,7 +180,7 @@ refresh_branch_tools() {
   [[ ${#stale[@]} -gt 0 ]] || return 0
   for entry in "${stale[@]}"; do
     IFS=$'\t' read -r tool path <<<"$entry"
-    if mise install --force "$tool"; then
+    if quietly mise install --force "$tool"; then
       drop_dev_copy "$path"
     else
       warn "building $tool failed; continuing"
@@ -131,6 +206,40 @@ drop_dev_copy() {
       warn "could not remove the dev copy of $crate from $cargo_home/bin"
     fi
   done < <(sed -nE 's/^"([^ "]+) .*/\1/p' "$1/.crates.toml" 2>/dev/null)
+}
+
+# Reinstall cargo tools that mise counts as installed but that have no binary.
+#
+# An install can finish "successfully" with an empty bin/ — seen with gifski,
+# cargo-update and tzupdate, each sitting empty for weeks. mise lists the
+# version as installed and current, so `mise upgrade` has nothing to do and no
+# number of re-runs fixes it; the tool just is not there (or an old copy in
+# ~/.cargo/bin answers in its place and hides the hole). Only a forced
+# reinstall fills it in.
+#
+# Limited to the cargo: backend, where the layout is known: `cargo install
+# --root` always puts the binaries in <install>/bin.
+#
+# repair_empty_cargo_installs [tool...]: all cargo tools, or only the ones named.
+repair_empty_cargo_installs() {
+  local tool path
+  local -a empty=()
+  while IFS=$'\t' read -r tool path; do
+    if [[ $# -gt 0 ]] && ! printf '%s\n' "$@" | grep -qxF -- "$tool"; then
+      continue
+    fi
+    [[ -n "$(find -L "$path/bin" -maxdepth 1 -type f -perm -u+x -print -quit 2>/dev/null)" ]] ||
+      empty+=("$tool")
+  done < <(mise ls --current --json 2>/dev/null |
+    jq -r 'to_entries[] | .key as $k | .value[]
+           | select(($k | startswith("cargo:")) and .installed and .active)
+           | "\($k)\t\(.install_path)"' 2>/dev/null || true)
+
+  [[ ${#empty[@]} -gt 0 ]] || return 0
+  for tool in "${empty[@]}"; do
+    say "$YELLOW" "Repairing" "$tool is installed but has no binary; reinstalling"
+    quietly mise install --force "$tool" || { warn "reinstalling $tool failed"; upgrade_ok=false; }
+  done
 }
 
 # Point rustup's default toolchain at the rust mise resolved.
@@ -180,8 +289,9 @@ if [[ -n "$filter" ]]; then
   say "$CYAN" "Upgrading" "${tools[*]}"
   refresh_branch_tools "${tools[@]}"
   mise_upgrade "${tools[@]}" || upgrade_ok=false
+  repair_empty_cargo_installs "${tools[@]}"
   sync_rustup_default
-  mise prune --yes "${tools[@]}" || warn "mise prune failed; continuing"
+  quietly mise prune --yes "${tools[@]}" || warn "mise prune failed; continuing"
 
   if printf '%s\n' "${tools[@]}" | grep -q '^npm:'; then
     "$HOME/dotfiles/scripts/install/fix-mise-npm-installs.sh"
@@ -203,18 +313,18 @@ if ! ( cd ~/dotfiles && git pull && ./setup ); then
   warn "dotfiles update failed; continuing with mise update"
 fi
 
-# Clear caches to prevent corruption from interrupted downloads
-mise cache clear
-go clean -cache 2>/dev/null || true
-
 say "$CYAN" "Updating" "mise itself"
-mise self-update --yes || true
+mise_was=$(mise --version 2>/dev/null | awk 'NR==1 {print $1}')
+quietly mise self-update --yes || true
+mise_now=$(mise --version 2>/dev/null | awk 'NR==1 {print $1}')
+[[ "$mise_was" == "$mise_now" ]] || say "$GREEN" "Updated" "mise $mise_was → $mise_now"
 
 say "$CYAN" "Checking" "branch-pinned tools for new commits"
 refresh_branch_tools
 
-say "$CYAN" "Upgrading" "mise tools"
+say "$CYAN" "Checking" "mise tools for new versions"
 mise_upgrade || upgrade_ok=false
+repair_empty_cargo_installs
 sync_rustup_default
 # mise upgrade --bump  # Commented out to prevent auto-updating config.toml versions
 
@@ -222,7 +332,7 @@ sync_rustup_default
 # them, so installs/ grows without bound. Prune every version no tracked config
 # still resolves to (mise reinstalls on demand if a project needs one again).
 say "$CYAN" "Pruning" "unused tool versions"
-mise prune --yes || warn "mise prune failed; continuing"
+quietly mise prune --yes || warn "mise prune failed; continuing"
 
 # Get the actual mise binary location (not the shim)
 MISE_BINARY=$(which mise)
@@ -256,9 +366,9 @@ for i in {1..5}; do
 
   say "$YELLOW" "Repairing" "pnpm does not run (attempt $i of 5)"
   rm -rf "$HOME/.local/share/mise/shims"
-  "$MISE_BINARY" reshim
-  "$MISE_BINARY" install
-  "$MISE_BINARY" reshim
+  quietly "$MISE_BINARY" reshim
+  quietly "$MISE_BINARY" install
+  quietly "$MISE_BINARY" reshim
   hash -r 2>/dev/null || true
   sleep 1 # Give it a moment to settle
 done
@@ -279,3 +389,4 @@ if ! $upgrade_ok; then
 fi
 
 exit 0
+}

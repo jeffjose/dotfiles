@@ -73,7 +73,7 @@
     alias remove 'sudo apt -y purge \!*; sudo apt -y autoremove --purge \!*'
 
     alias rfiles ~/dotfiles/scripts/utils/rfiles.sh
-    alias up ~/dotfiles/scripts/update/update_mise.sh
+    alias up '~/dotfiles/scripts/update/update_mise.sh \!*; rehash'
     alias appimage ~/dotfiles/scripts/utils/appimage.sh
     alias ai appimage
     alias pp ~/scripts/plex-search/plex-search
@@ -185,11 +185,13 @@
     alias so 'echo "Sourcing ~/.cshrc .."; source ~/.cshrc'
     alias SO so
     alias firstrun  ~/dotfiles/scripts/install/firstrun
-    alias uq ~/dotfiles/scripts/update/updateall-quick.sh
+    # rehash: tcsh caches the list of commands on PATH, so a tool these install
+    # is "Command not found" in the shell that ran them until it looks again.
+    alias uq '~/dotfiles/scripts/update/updateall-quick.sh \!*; rehash'
     alias setup     '~/dotfiles/setup; so'
-    alias updateall ~/dotfiles/scripts/update/updateall.sh
+    alias updateall '~/dotfiles/scripts/update/updateall.sh \!*; rehash'
 
-    alias updateall-quick ~/dotfiles/scripts/update/updateall-quick.sh
+    alias updateall-quick '~/dotfiles/scripts/update/updateall-quick.sh \!*; rehash'
 
     alias gift ~/dotfiles/scripts/utils/gift.sh
 

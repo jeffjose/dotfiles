@@ -178,6 +178,57 @@ corp_notice() {
   echo
 }
 
+# Every step's output is kept, one file per step, so that a failure can be read
+# after the fact instead of scrolled back to — and so the summary can quote the
+# lines that matter. The last few runs are kept; older ones are removed.
+LOG_ROOT="${XDG_STATE_HOME:-$HOME/.local/state}/uq"
+LOG_DIR="$LOG_ROOT/$(date +%Y%m%d-%H%M%S)"
+LOG_KEEP=10
+
+start_logs() {
+  mkdir -p "$LOG_DIR" 2>/dev/null || return 0
+  export UQ_LOG_DIR="$LOG_DIR" # update_mise.sh keeps mise's full output here
+  local old
+  while IFS= read -r old; do
+    rm -rf -- "$old"
+  done < <(find "$LOG_ROOT" -mindepth 1 -maxdepth 1 -type d | sort -r | tail -n +$((LOG_KEEP + 1)))
+}
+
+# run_logged <log> <command...>: run a command, keeping a copy of what it prints
+#
+# On a terminal the command runs under script(1), which gives it a terminal of
+# its own: colours, mise's progress bars and the sudo prompt behave exactly as
+# they do unlogged. A plain pipe to tee would turn all of that off. Without a
+# terminal there is nothing to preserve, so tee does.
+run_logged() {
+  local log="$1"
+  shift
+  if [ ! -d "$LOG_DIR" ]; then
+    "$@"
+  elif [ -t 1 ] && command -v script >/dev/null 2>&1; then
+    script -qefc "$(printf '%q ' "$@")" "$log"
+  else
+    "$@" 2>&1 | tee "$log"
+    return "${PIPESTATUS[0]}"
+  fi
+}
+
+# failure_excerpt <log>: the lines of a log that say what went wrong
+#
+# Escape sequences and progress-bar redraws are stripped first. If nothing in
+# the log reads like an error, the last few lines are the best there is.
+failure_excerpt() {
+  local text hits
+  text=$(sed -e 's/\x1b\[[0-9;?]*[A-Za-z]//g' -e 's/\r/\n/g' "$1" 2>/dev/null |
+    grep -v -E '^(Script (started|done)|[[:space:]]*$)' | awk '!seen[$0]++')
+  hits=$(grep -i -E 'error|fail|fatal|✗|denied|not found|no such file|not supported' <<<"$text" | tail -n 8)
+  if [[ -n "$hits" ]]; then
+    printf '%s\n' "$hits"
+  else
+    tail -n 8 <<<"$text"
+  fi
+}
+
 declare -a failed_updates=()
 
 # run_update_script <script> <n>: run one update script and report how it went
@@ -198,7 +249,7 @@ run_update_script() {
     return 1
   fi
 
-  "$SCRIPTS_DIR/$script" || status=$?
+  run_logged "$LOG_DIR/$step.log" "$SCRIPTS_DIR/$script" || status=$?
   if [ $status -eq 0 ]; then
     say "$GREEN" "Done" "$step ${DIM}in $(elapsed "$started")$RESET"
   else
@@ -251,6 +302,17 @@ print_summary() {
     local failed
     failed=$(printf ', %s' "${failed_updates[@]}")
     say "$RED" "Finished" "$summary, ${#failed_updates[@]} failed (${failed#, })"
+
+    # Why each one failed, so there is no scrolling back to find out.
+    local step line
+    for step in "${failed_updates[@]}"; do
+      [[ -f "$LOG_DIR/$step.log" ]] || continue
+      echo
+      say "$RED" "Failed" "$BOLD$step$RESET ${DIM}— full output in ${LOG_DIR/#$HOME/\~}/$step.log$RESET"
+      while IFS= read -r line; do
+        detail "$line"
+      done < <(failure_excerpt "$LOG_DIR/$step.log")
+    done
     return 1
   fi
   say "$GREEN" "Finished" "$summary"
@@ -261,6 +323,7 @@ main() {
   start_us=$(now_us)
 
   corp_notice
+  start_logs
   check_sudo
 
   # Update dotfiles first (best-effort — don't abort the whole update run if the
