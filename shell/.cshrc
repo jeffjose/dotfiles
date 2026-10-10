@@ -66,6 +66,18 @@
         setenv __MY_PATHS_ARE_SET 1
     endif
 
+    # Keep ~/.cargo/bin ahead of the mise shims in shells that inherited a PATH.
+    #
+    # The guard above is an environment variable, so a shell started from a
+    # long-lived parent (VS Code, tmux, the desktop session) inherits it along
+    # with whatever PATH that parent built, possibly from an older version of
+    # this file with the two the other way round — and nothing short of logging
+    # out would fix the order. Move cargo to the front when it sits behind the
+    # shims; once it does not, this matches nothing and costs nothing.
+    if ("${PATH}" =~ *"${MISEPATH}:"*"${CARGOPATH}/bin"*) then
+        setenv PATH ${CARGOPATH}/bin:`echo "${PATH}" | tr ':' '\n' | grep -vxF "${CARGOPATH}/bin" | paste -sd: -`
+    endif
+
     # Drop AppImage mountpoints inherited from a parent process.
     #
     # An AppImage's AppRun exports PATH="$APPDIR/usr/bin:..." before it execs

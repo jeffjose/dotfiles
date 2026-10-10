@@ -58,6 +58,13 @@ if [[ -z "$__MY_PATHS_ARE_SET" ]]; then
     export __MY_PATHS_ARE_SET=1
 fi
 
+# Keep ~/.cargo/bin ahead of the mise shims in shells that inherited a PATH
+# (and the guard above with it) from a long-lived parent. See the matching block
+# in .cshrc.
+if [[ "$PATH" == *"$HOME/.local/share/mise/shims:"*"$HOME/.cargo/bin"* ]]; then
+    export PATH="$HOME/.cargo/bin:$(echo "$PATH" | tr ':' '\n' | grep -vxF "$HOME/.cargo/bin" | paste -sd: -)"
+fi
+
 # Drop AppImage mountpoints inherited from a parent process. See the matching
 # block in .cshrc: AppRun puts $APPDIR/usr/bin on PATH, VS Code's integrated
 # terminals inherit it, and the GUI Electron binary in there is named `code` and
