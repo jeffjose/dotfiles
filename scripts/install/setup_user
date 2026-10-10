@@ -1,27 +1,44 @@
-#!/bin/bash
+#!/bin/sh
 #
-# Jeffrey Jose
+# setup_user — create the account that firstrun will then be run from.
 #
-# Jan 17, 2021
+# Usage: setup_user NAME        (as root, or with sudo)
+#
+# For a machine that comes with only root, or only a vendor account: it makes
+# NAME, asks for a password, and lets NAME use sudo. Log in as NAME and run
+# firstrun, which does the rest — the login shell included.
+#
+# Plain sh on purpose: this runs before anything has been installed.
+#
+# Jeffrey Jose | Jan 17, 2021
 
-usage() {
-  echo "Usage: setup_user USER PASSWORD"
-  exit 1
-}
-
-if [ "$1" ]; then
-  :
-else
-  usage
+name="${1:-}"
+if [ -z "$name" ] || [ "$name" = "-h" ] || [ "$name" = "--help" ]; then
+  echo "Usage: setup_user NAME" >&2
   exit 1
 fi
 
-sudo apt install -y tcsh
-
-if [ "$2" ]; then
-  grep -q $1 /etc/passwd && echo "$1 exists." || sudo useradd -s /bin/tcsh -m $1 -p $(openssl passwd -1 $2)
-else
-  grep -q $1 /etc/passwd && echo "$1 exists." || (sudo useradd -s /bin/tcsh -m $1 && sudo passwd $1)
+if [ "$(id -u)" -ne 0 ]; then
+  exec sudo "$0" "$@"
 fi
 
-sudo usermod -aG sudo $1
+if ! command -v sudo >/dev/null 2>&1 && command -v apt-get >/dev/null 2>&1; then
+  apt-get update -qq && apt-get install -y sudo || exit 1
+fi
+
+if id "$name" >/dev/null 2>&1; then
+  echo "$name exists."
+else
+  useradd -m -s /bin/bash "$name" || exit 1
+  # The password is asked for here, never taken as an argument: an argument
+  # shows up in the process list and the shell history.
+  passwd "$name" || exit 1
+fi
+
+# The group that may use sudo: `sudo` on Debian and Ubuntu, `wheel` elsewhere.
+for group in sudo wheel; do
+  if getent group "$group" >/dev/null 2>&1; then
+    usermod -aG "$group" "$name" && echo "$name added to $group."
+    break
+  fi
+done

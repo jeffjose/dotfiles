@@ -368,15 +368,22 @@ fi
 # for the native binary, aube blocks postinstall, and every `pnpm` invocation
 # died in node's ESM loader. The shim was fine; what it pointed at was not.
 #
-# pnpm now comes from aqua (see apps/config.toml), so this failure mode is gone
+# pnpm now comes from aqua (see apps/mise-desktop.toml), so this failure mode is gone
 # -- but a check that cannot observe the failure it exists to catch is worse
 # than no check, so it runs the binary.
 check_pnpm() {
   pnpm --version >/dev/null 2>&1
 }
 
+# Only where pnpm is one of this machine's tools: it is in the desktop list
+# (apps/mise-desktop.toml), so a server has none to check.
+wants_pnpm=false
+mise ls --current 2>/dev/null | awk '{print $1}' | grep -qx pnpm && wants_pnpm=true
+
 pnpm_ok=false
+$wants_pnpm || pnpm_ok=true
 for i in {1..5}; do
+  $wants_pnpm || break
   if check_pnpm; then
     say "$DIM" "Fresh" "${DIM}pnpm $(pnpm --version) runs$RESET"
     pnpm_ok=true

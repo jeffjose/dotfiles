@@ -1,31 +1,103 @@
-#!/bin/tcsh
+#!/bin/sh
+#
+# firstrun-bsd — firstrun for FreeBSD. Server profile only.
+#
+# Usage: firstrun-bsd
+#
+# Run it as yourself. If sudo is not there yet, as root first:
+#
+#   pkg install -y sudo git
+#   pw groupmod wheel -m <you>
+#   visudo                      # uncomment the `%wheel ALL=(ALL:ALL) ALL` line
+#
+# It does what `firstrun server` does on Linux: packages, the login shell, the
+# dotfiles, an ssh key and the neovim plugins. The difference is where the tools
+# come from. On Linux mise installs the core set (apps/config.toml) as prebuilt
+# binaries; hardly any of those are published for FreeBSD, so here they are
+# pkg packages and mise is not used. `pkg upgrade` keeps them current, not `uq`.
+#
+# Plain sh on purpose: a new FreeBSD has no bash until the first step here.
+#
+# NOTE: rewritten alongside firstrun without a FreeBSD machine to try it on.
 #
 # Jeffrey Jose | 15 Jul, 2021
 
-# Run as root (su). If you cant, make sure jeffjose is in `wheel` group
-#   Fix that by `pw usermod jeffjose -G wheel`
+DOTFILES_DIR="$HOME/dotfiles"
+REPO_URL="https://github.com/jeffjose/dotfiles.git"
 
-#
-#   $ pkg update
-#   $ pkg install -y sudo
-#
-#   Add jeffjose to `sudo'ers`. First make sure, jeffjose is in `wheel` group
-#   $ visudo # Uncomment the `%wheel ALL=(ALL) ALL` line
+# The apt-server.txt list, by its FreeBSD names, plus what mise provides on
+# Linux (rust, neovim, ripgrep, fd, fzf, uv, rclone).
+PACKAGES="
+  bash tcsh sudo git gh curl wget rsync unzip ca_root_nss
+  screen tmux htop ncdu tree jq moreutils p5-ack colordiff pwgen python3
+  bind-tools mtr-nox11 nmap mosh sshpass
+  rust neovim ripgrep fd-find fzf uv rclone
+"
 
-echo "If you cant become sudo, make sure you run "
-echo " 1. su"
-echo " 2. pkg update"
-echo " 3. pkg install -y sudo"
-echo " 4. Enable sudo for wheel group in visudo"
+failed=""
+step() { printf '\n==> %s\n' "$1"; }
+fail() {
+  printf '!!  %s failed\n' "$1" >&2
+  failed="$failed $1"
+}
 
-sudo pkg install -y git rust bash screen neovim vim moreutils
+if [ "$(uname -s)" != FreeBSD ]; then
+  echo "firstrun-bsd is for FreeBSD; on Linux use firstrun." >&2
+  exit 1
+fi
+if [ "$(id -u)" -eq 0 ]; then
+  echo "Run firstrun-bsd as yourself, not as root; it uses sudo where it needs to." >&2
+  exit 1
+fi
+if ! command -v sudo >/dev/null 2>&1; then
+  echo "sudo is not installed. As root: pkg install -y sudo git, then add yourself to wheel." >&2
+  exit 1
+fi
 
-# Hacks
-#
-sudo ln -s /usr/local/bin/bash /bin/bash
-sudo ln -s /usr/bin/true /usr/local/bin/ip
+step "packages"
+sudo pkg update -q || fail "pkg update"
+# One at a time, so a name this FreeBSD release does not carry costs only itself.
+for pkg in $PACKAGES; do
+  pkg info -e "$pkg" && continue
+  sudo pkg install -y "$pkg" || fail "pkg:$pkg"
+done
 
+# The scripts in the dotfiles start with #!/bin/bash, and the prompt calls
+# `ip`, which FreeBSD does not have.
+step "compatibility links"
+[ -e /bin/bash ] || sudo ln -s /usr/local/bin/bash /bin/bash || fail "/bin/bash"
+[ -e /usr/local/bin/ip ] || sudo ln -s /usr/bin/true /usr/local/bin/ip || fail "ip"
 
-cargo install timeago-cli
+step "dotfiles"
+if [ ! -d "$DOTFILES_DIR/.git" ]; then
+  git clone "$REPO_URL" "$DOTFILES_DIR" || fail "clone"
+fi
+# Record the profile where ./setup and the other scripts look for it.
+mkdir -p "$HOME/.config/dotfiles"
+[ -f "$HOME/.config/dotfiles/host.conf" ] || printf 'profile=server\nmodules=""\n' >"$HOME/.config/dotfiles/host.conf"
+"$DOTFILES_DIR/setup" || fail "setup"
 
-./vim.sh
+step "login shell"
+tcsh_path=$(command -v tcsh)
+if [ -n "$tcsh_path" ] && [ "$(getent passwd "$USER" | cut -d: -f7)" != "$tcsh_path" ]; then
+  sudo chsh -s "$tcsh_path" "$USER" || fail "chsh"
+fi
+
+step "ssh key"
+if [ ! -f "$HOME/.ssh/id_ed25519" ] && [ ! -f "$HOME/.ssh/id_rsa" ]; then
+  mkdir -p "$HOME/.ssh" && chmod 700 "$HOME/.ssh"
+  ssh-keygen -q -t ed25519 -N "" -C "$USER@$(hostname -s)" -f "$HOME/.ssh/id_ed25519" || fail "ssh-keygen"
+fi
+
+step "neovim plugins"
+plug="$HOME/.local/share/nvim/site/autoload/plug.vim"
+[ -f "$plug" ] || curl -fsSLo "$plug" --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim || fail "vim-plug"
+nvim --headless +PlugInstall +qall >/dev/null 2>&1 || fail "PlugInstall"
+
+echo
+echo "Next, by hand: gh auth login; fill ~/.aliases.sensitive.sh; log out and back in."
+if [ -n "$failed" ]; then
+  echo "Failed:$failed" >&2
+  exit 1
+fi
+echo "Done."

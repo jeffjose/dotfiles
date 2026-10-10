@@ -1,0 +1,5 @@
+# The optional `podman` module (firstrun asks). Same format as apt-server.txt.
+podman
+podman-docker
+buildah
+skopeo

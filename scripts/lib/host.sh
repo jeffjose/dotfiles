@@ -1,8 +1,59 @@
 # What kind of machine this is, and what a corp machine must not get.
 #
-# Source this file; it only defines functions. Shared by ./setup, uq, the mise
-# update and the appimage `personal-only` guard, so they all agree on what
-# "corp" means and on the list of things kept off such a host.
+# Source this file; it only defines functions. Shared by firstrun, ./setup, uq,
+# the mise update and the appimage `personal-only` guard, so they all agree on
+# the machine's profile, on what "corp" means, and on the list of things kept
+# off a corp host.
+
+# Per-machine answers, written by firstrun and kept out of the repo:
+#
+#     profile=desktop          server | desktop
+#     modules="podman"         optional extras, space-separated
+#
+# It is read as data, never sourced.
+HOST_CONF="${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles/host.conf"
+DESKTOP_MISE_CONFIG="$HOME/dotfiles/apps/mise-desktop.toml"
+
+# host_conf_get <key>: the value recorded for this machine, or nothing
+host_conf_get() {
+  [ -f "$HOST_CONF" ] || return 0
+  sed -n "s/^[[:space:]]*$1[[:space:]]*=[[:space:]]*//p" "$HOST_CONF" | tail -n 1 | tr -d "\"'"
+}
+
+# A guess for a machine nobody has asked about yet: it is a desktop if a
+# graphical session is installed. (Not `systemctl get-default`: Ubuntu Server
+# answers graphical.target too.)
+detect_profile() {
+  if compgen -G '/usr/share/xsessions/*.desktop' >/dev/null ||
+    compgen -G '/usr/share/wayland-sessions/*.desktop' >/dev/null; then
+    echo desktop
+  else
+    echo server
+  fi
+}
+
+# server or desktop. A server never runs anything graphical and gets the small
+# set of everything; a desktop or laptop gets the server set plus the rest.
+#
+# DOTFILES_PROFILE=server|desktop overrides what host.conf says.
+host_profile() {
+  local profile="${DOTFILES_PROFILE:-}"
+  [ -n "$profile" ] || profile=$(host_conf_get profile)
+  case "$profile" in
+    server | desktop) echo "$profile" ;;
+    *) detect_profile ;;
+  esac
+}
+
+is_desktop_host() { [ "$(host_profile)" = desktop ]; }
+
+# host_has_module <name>: was this optional extra chosen for this machine
+host_has_module() {
+  case " $(host_conf_get modules) " in
+    *" $1 "*) return 0 ;;
+  esac
+  return 1
+}
 
 # The mise settings linked into ~/.config/mise/conf.d on a corp host, and the
 # appimage catalog whose `personal-only` rows are skipped there.

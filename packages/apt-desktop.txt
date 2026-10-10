@@ -1,0 +1,54 @@
+# apt packages a desktop or laptop gets on top of apt-server.txt. Same format.
+#
+# Apps that ship an AppImage are not here: they come from the appimage catalog
+# (scripts/utils/appimage-catalog.tsv). Chrome is a .deb from Google
+# (misc/package.toml).
+
+# Git
+gitk
+git-gui
+meld
+
+# Terminal and desktop
+tilix
+dconf-cli
+xclip
+xdotool
+flameshot
+gpick
+gparted
+numix-gtk-theme
+
+# Viewers and editors
+gedit
+evince
+feh
+vlc
+
+# Fonts
+fonts-firacode
+fonts-inter
+fonts-noto-color-emoji
+
+# Media
+ffmpeg
+mediainfo
+unrar
+detox
+
+# Terminal tools that are not worth having on a server
+ranger
+ipython3
+neofetch
+hardinfo
+wavemon
+tshark
+bluez-tools
+d-feet
+
+# Android (udev rules for adb; firstrun also adds you to plugdev)
+android-sdk-platform-tools-common
+
+# AppImages need FUSE 2 (libfuse2t64 from Ubuntu 24.04 on, libfuse2 before)
+libfuse2t64
+libfuse2

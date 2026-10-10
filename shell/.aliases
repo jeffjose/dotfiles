@@ -189,8 +189,6 @@
     # is "Command not found" in the shell that ran them until it looks again.
     alias uq '~/dotfiles/scripts/update/updateall-quick.sh \!*; rehash'
     alias setup     '~/dotfiles/setup; so'
-    alias updateall '~/dotfiles/scripts/update/updateall.sh \!*; rehash'
-
     alias updateall-quick '~/dotfiles/scripts/update/updateall-quick.sh \!*; rehash'
 
     alias gift ~/dotfiles/scripts/utils/gift.sh
@@ -295,7 +293,7 @@
 
     alias df 'df --total -T'
 
-    alias update-ubuntu 'updateall; install dist-upgrade; sudo do-release-upgrade -d'
+    alias update-ubuntu 'sudo apt update; sudo apt -y upgrade; install dist-upgrade; sudo do-release-upgrade -d'
 
     alias rsync 'rsync --stats --progress'
     alias rsync-cp 'rsync --exclude "*.partial" -avzh \!*'
@@ -579,9 +577,6 @@
     alias sshfix 'ssh-keygen -f ~/.ssh/known_hosts -R \!*; ssh \!*'
 
 
-    alias update_rust '~/dotfiles/scripts/update/update_rust.sh'
-    alias update_vim '~/dotfiles/scripts/update/update_vim.sh'
-    alias update_chrome '~/dotfiles/scripts/update/update_chrome.sh'
     alias update_code '~/dotfiles/scripts/update/update_code.sh'
 
     # code-remote [flags] <host> [path] lives in ~/dotfiles/bin; this is just its

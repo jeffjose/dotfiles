@@ -1,0 +1,103 @@
+# The tools only a desktop or laptop gets, on top of apps/config.toml. ./setup
+# links this file to ~/.config/mise/conf.d/desktop.toml when the machine's
+# profile is `desktop` (see scripts/lib/host.sh) and takes the link away on a
+# server.
+
+[tools]
+go = "latest"
+java = "latest"
+node = "24.14.1"
+# `pnpm` resolves to aqua:pnpm/pnpm -- the prebuilt native binary. Not npm:pnpm:
+# since pnpm 11 the npm package ships a placeholder whose postinstall swaps in
+# the real binary from @pnpm/exe.<platform>, and mise's npm backend (aube)
+# blocks postinstall scripts. The @pnpm/exe payload lands on disk but nothing
+# puts it in place, so `pnpm --version` dies in node's ESM loader on the
+# shebang-less placeholder. Same failure as claude and opencode below.
+pnpm = "latest"
+python = "latest"
+bun = "latest"
+zig = "0.14.0"
+# Static Rust binary (aqua:typst/typst). There is an npm package, but it is a
+# wrapper that downloads this same binary, so take it straight.
+typst = "latest"
+yt-dlp = "latest"
+"github:endevco/aube" = "latest"
+"aqua:schollz/croc" = "latest"
+
+# Same story for `opencode` (aqua:anomalyco/opencode): the npm package
+# opencode-ai is a stub whose postinstall fetches the real binary, so an npm:
+# install exits with "postinstall script was not run".
+opencode = "latest"
+
+# JSON utilities
+#"go:github.com/tomnomnom/gron" = "latest"
+#"go:github.com/josephburnett/jd" = "latest"
+
+# CLI utilities
+#"go:github.com/antonmedv/watch" = "latest"
+#"go:github.com/monasticacademy/httptap" = "latest"
+#"go:github.com/charmbracelet/crush" = "latest"
+
+
+# Git utilities
+"cargo:timeago-cli" = "latest"
+"cargo:onefetch" = "latest"
+"cargo:git-absorb" = "latest"
+
+# Cargo utilities
+#"cargo:cargo-bump" = "latest"
+#"cargo:cargo-edit" = "latest"
+"cargo:cargo-update" = "latest"
+"cargo:cargo-make" = "latest"
+"cargo:cargo-binstall" = "latest"
+"cargo:kache" = "latest"
+
+# CLI utilities
+"cargo:rargs" = "latest"
+"cargo:names" = "latest"
+"cargo:tzupdate" = "latest"
+"cargo:xh" = "latest"
+"cargo:gifski" = "latest"
+"cargo:hyperfine" = "latest"
+#"cargo:lla" = "latest"
+"cargo:rustic-rs" = "latest"
+#"cargo:tuc" = "latest"
+
+# GitHub repositories
+"cargo:https://github.com/jeffjose/mediainfo" = "branch:main"
+"cargo:https://github.com/jeffjose/safeclean" = "branch:main"
+"cargo:https://github.com/jeffjose/git-cal" = "branch:main"
+"cargo:https://github.com/jeffjose/loc" = "branch:main"
+"cargo:https://github.com/jeffjose/wat" = "branch:main"
+"cargo:https://github.com/jeffjose/seal" = "branch:main"
+"cargo:https://github.com/jeffjose/magicfs" = "branch:main"
+"cargo:https://github.com/jeffjose/jog" = "branch:main"
+
+# npm
+"npm:astro" = "latest"
+"npm:t-get" = "latest"
+"npm:@openai/codex" = "latest"
+"npm:vercel" = "latest"
+"npm:@qwen-code/qwen-code" = "latest"
+"npm:typescript" = "latest"
+"npm:ts-node" = "latest"
+"npm:oxlint" = "latest"
+"npm:degit" = "latest"
+ninja = "latest"
+cmake = "latest"
+
+# Python CLI tools
+"pipx:yt-dlp" = "latest"
+"pipx:speedtest-cli" = "latest"
+
+[env]
+# aube (mise's npm: backend) refuses packages under `lowDownloadThreshold`
+# (1000 weekly downloads) as a typosquat guard, which blocks our own published
+# low-traffic packages -- `mise install npm:t-get` dies with
+# ERR_AUBE_LOW_DOWNLOAD_PACKAGE. Exempt those by name rather than setting
+# lowDownloadThreshold=0, which would drop the guard for everything.
+#
+# Set here rather than in ~/.npmrc: npm reads ~/.npmrc too, does not know this
+# key, and warns "Unknown user config" once per package on every `mise upgrade`.
+# The OSV MAL-* advisory check is separate and still applies.
+AUBE_ALLOWED_UNPOPULAR_PACKAGES = "t-get"

@@ -1,200 +1,606 @@
 #!/bin/bash
 #
-# Jeffrey Jose | Jan 17, 2021
+# firstrun — bring a freshly installed machine up to speed.
 #
+# Usage: firstrun [server|desktop] [options]
+#
+#   server              a machine that never runs anything graphical: the small
+#                       set of packages, the shell and editor config, mise with
+#                       its core tools
+#   desktop             a desktop or laptop: everything a server gets, plus the
+#                       graphical apps, fonts and the full set of mise tools
+#
+#   -y, --yes           ask nothing: take the recorded answers, or the defaults
+#   -n, --dry-run       show what would run, and change nothing
+#       --only STEPS    run only these steps (comma-separated)
+#       --with MODS     turn on these optional modules (comma-separated)
+#       --reconfigure   ask the questions again, even if they are answered
+#       --list          list the steps and optional modules, then exit
+#   -h, --help          show this help
+#
+# The first run asks which profile this machine is and which optional modules it
+# wants, and records the answers in ~/.config/dotfiles/host.conf. That file is
+# per-machine and stays out of the repo; ./setup and `uq` read it too. Later
+# runs use it without asking.
+#
+# Every step is safe to repeat, so the fix for a failed run is to run it again
+# (or just the step: `firstrun --only mise`). Each step's full output is kept
+# under ~/.local/state/firstrun/.
+#
+# On a machine with nothing on it yet, this file can be run straight off GitHub;
+# it clones the dotfiles and carries on from the clone:
+#
+#   curl -fsSL https://raw.githubusercontent.com/jeffjose/dotfiles/master/scripts/install/firstrun | bash -s -- server
+#
+# Nothing here handles a secret: this repo is public. What needs one (GitHub
+# login, the sealed files) is listed at the end for you to do by hand.
+#
+# FreeBSD has its own, smaller script: firstrun-bsd.
+#
+# Jeffrey Jose | Jan 17, 2021
 
-# Constants
+# bash reads a script as it goes, so one that is edited or replaced mid-run goes
+# on from the same byte offset in the new text. Wrapping the whole script in a
+# group makes bash read all of it before running any of it — which is also what
+# makes `curl ... | bash` safe against a download cut off half way.
+{
+
+set -u
+
 DOTFILES_DIR="$HOME/dotfiles"
-DEFAULT_USER="jeffjose"
-DEFAULT_EMAIL="jeffjosejeff@gmail.com"
-SSH_KEY_PATH="$HOME/.ssh/id_rsa"
+REPO_URL="https://github.com/jeffjose/dotfiles.git"
+DEB_DOWNLOADER_URL="https://github.com/jeffjose/deb-downloader.git"
 
-# Track task status
-declare -a failed_tasks=()
-declare -a warning_tasks=()
-declare -i total_tasks=0
-
-# Function to run a task and track its success/failure
-run_task() {
-  local task_name="$1"
-  shift
-  ((total_tasks++))
-  echo -e "\n📦 $task_name..."
-  if "$@" 2>/tmp/task_error; then
-    echo "✅ $task_name completed successfully"
-    return 0
-  else
-    local exit_code=$?
-    if [ $exit_code -eq 1 ]; then
-      echo "⚠️  $task_name completed with warnings"
-      warning_tasks+=("$task_name ($(cat /tmp/task_error))")
+# --- Bootstrap ---------------------------------------------------------------
+# Nothing below this block works without the repo, so get it first. This part
+# cannot use anything from the repo.
+if [ ! -d "$DOTFILES_DIR/.git" ]; then
+  echo "firstrun: no dotfiles at $DOTFILES_DIR yet — cloning $REPO_URL"
+  if ! command -v git >/dev/null 2>&1; then
+    if command -v apt-get >/dev/null 2>&1; then
+      sudo apt-get update -qq && sudo apt-get install -y git || exit 1
     else
-      echo "❌ $task_name failed"
-      failed_tasks+=("$task_name ($(cat /tmp/task_error))")
+      echo "firstrun: git is not installed, and this is not an apt system. Install git and run this again." >&2
+      exit 1
     fi
-    return $exit_code
   fi
-}
+  git clone "$REPO_URL" "$DOTFILES_DIR" || exit 1
+  # Piped from curl, stdin is the script. The questions need the terminal.
+  if [ ! -t 0 ] && (: </dev/tty) 2>/dev/null; then
+    exec "$DOTFILES_DIR/scripts/install/firstrun" "$@" </dev/tty
+  fi
+  exec "$DOTFILES_DIR/scripts/install/firstrun" "$@"
+fi
 
-# Print usage information
-usage() {
-  echo "Usage: firstrun [base|server|gui]"
-  echo "  base   - Basic system setup"
-  echo "  server - Server setup (includes base)"
-  echo "  gui    - GUI setup (includes server)"
+source "$DOTFILES_DIR/scripts/lib/ui.sh"
+source "$DOTFILES_DIR/scripts/lib/host.sh"
+
+# --- Steps and modules -------------------------------------------------------
+# name | who gets it | what it does. Each has a step_<name> function below, with
+# dashes as underscores. `all` is every machine, `desktop` only that profile,
+# and `module:<name>` only a machine that chose that optional module.
+STEPS=(
+  "apt|all|apt packages (packages/apt-*.txt)"
+  "shell|all|tcsh as the login shell"
+  "dotfiles|all|directories and symlinks (./setup)"
+  "mise|all|mise and the tools it manages"
+  "ssh-key|all|an ssh key, if there is none"
+  "nvim|all|neovim plugins"
+  "fonts|desktop|fonts kept in the repo"
+  "debs|desktop|Chrome and the other debs in misc/package.toml"
+  "code|desktop|VS Code (AppImage)"
+  "terminal|desktop|tilix settings and the drop-down terminal shortcut"
+  "groups|desktop|plugdev membership, for adb"
+  "vscode-extensions|module:vscode-extensions|VS Code extensions"
+  "claude-remote|module:claude-remote|Claude Code remote-control service"
+)
+
+# The steps that use sudo. If none of them is going to run, nobody is asked for
+# a password.
+ROOT_STEPS="apt shell debs code groups"
+
+# name | which profiles may have it | what it adds. A module can bring apt
+# packages (packages/apt-<name>.txt), a step above, or both.
+MODULES=(
+  "podman|all|podman, buildah and skopeo"
+  "vscode-extensions|desktop|the VS Code extension list in scripts/install/vscode.sh"
+  "claude-remote|all|Claude Code remote control as a systemd user service"
+)
+
+# --- Arguments ---------------------------------------------------------------
+PROFILE_ARG="" ASSUME_YES=0 DRY_RUN=0 RECONFIGURE=0 LIST=0 ONLY="" WITH="" WITH_SET=0
+
+usage() { sed -n '3,/^$/s/^# \{0,1\}//p' "$0"; }
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    server | desktop) PROFILE_ARG="$1" ;;
+    gui) PROFILE_ARG=desktop ;; # the old name
+    -y | --yes) ASSUME_YES=1 ;;
+    -n | --dry-run) DRY_RUN=1 ;;
+    --reconfigure) RECONFIGURE=1 ;;
+    --list) LIST=1 ;;
+    --only)
+      ONLY="${2:-}"
+      shift
+      ;;
+    --only=*) ONLY="${1#*=}" ;;
+    --with)
+      WITH="${2:-}" WITH_SET=1
+      shift
+      ;;
+    --with=*) WITH="${1#*=}" WITH_SET=1 ;;
+    -h | --help)
+      usage
+      exit 0
+      ;;
+    *)
+      err "unknown argument: $1"
+      detail "see: firstrun --help" >&2
+      exit 2
+      ;;
+  esac
+  shift
+done
+
+if [ "$LIST" -eq 1 ]; then
+  say "$CYAN" "Steps" ""
+  for row in "${STEPS[@]}"; do
+    IFS='|' read -r name who what <<<"$row"
+    printf '%12s %-18s %-26s %s\n' '' "$name" "$DIM$who$RESET" "$what"
+  done
+  say "$CYAN" "Modules" ""
+  for row in "${MODULES[@]}"; do
+    IFS='|' read -r name who what <<<"$row"
+    printf '%12s %-18s %-26s %s\n' '' "$name" "$DIM$who$RESET" "$what"
+  done
+  exit 0
+fi
+
+if [ "$(id -u)" -eq 0 ]; then
+  err "run firstrun as yourself, not as root; it uses sudo where it needs to"
+  detail "no user yet? create one first, then log in as them:" >&2
+  detail "  $DOTFILES_DIR/scripts/install/setup_user <name>" >&2
   exit 1
-}
+fi
 
-# Run common setup tasks
-run_setup() {
-  echo -e "\n🔄 Running Common Setup"
-  echo "-----------------------------------"
-  run_task "Running setup script" "$DOTFILES_DIR/setup"
-}
-
-# Base setup tasks
-run_base() {
-  echo -e "\n🔄 Running Base Setup"
-  echo "-----------------------------------"
-
-  run_task "Setting up user" "$DOTFILES_DIR/scripts/install/setup_user" "$DEFAULT_USER"
-  run_task "Installing base packages" "$DOTFILES_DIR/scripts/install/apt-base.sh"
-  run_task "Setting up base PPAs" "$DOTFILES_DIR/scripts/install/ppa-base.sh"
-  run_task "Patching NTP config" sudo patch -f /etc/ntp.conf "$DOTFILES_DIR/services/ntp.patch"
-  run_task "Cleaning packages" sudo apt autoremove
-  run_task "Setting up Vim" "$DOTFILES_DIR/scripts/install/vim.sh"
-
-  # Install Rust and cargo packages
-  echo -e "\n📦 Installing Rust..."
-  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-  run_task "Installing timeago-cli" "$HOME/.cargo/bin/cargo" install timeago-cli
-
-  # Setup SSH
-  echo -e "\n📦 Setting up SSH..."
-  if [ ! -f "$SSH_KEY_PATH" ]; then
-    run_task "Generating SSH key" ssh-keygen -t rsa -b 4096 -C "$DEFAULT_EMAIL" -f "$SSH_KEY_PATH" -q -N ""
+# --- Questions ---------------------------------------------------------------
+# ask <question> <default>: read one line from the terminal
+ask() {
+  local reply=""
+  if [ "$ASSUME_YES" -eq 0 ] && (: </dev/tty) 2>/dev/null; then
+    printf '%s%12s%s %s %s[%s]%s ' "$CYAN" "?" "$RESET" "$1" "$DIM" "$2" "$RESET" >/dev/tty
+    read -r reply </dev/tty || reply=""
   fi
-  run_task "Adding SSH key" ssh-add "$SSH_KEY_PATH"
-
-  # Set default shell
-  run_task "Setting default shell" sudo chsh -s /bin/tcsh "$DEFAULT_USER"
+  printf '%s' "${reply:-$2}"
 }
 
-# Common server and GUI tasks
-run_common_server_gui() {
-  echo -e "\n🔄 Running Common Server/GUI Setup"
-  echo "-----------------------------------"
+module_names() { printf '%s\n' "${MODULES[@]}" | cut -d'|' -f1; }
 
-  # Install Linuxbrew
-  echo -e "\n📦 Installing Linuxbrew..."
-  yes | sh -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+# Settle PROFILE and MODULE_LIST: the command line wins, then what host.conf
+# already says, then a question, with a guess as its default.
+configure() {
+  local recorded_profile recorded_modules have_conf=0
+  [ -f "$HOST_CONF" ] && have_conf=1
+  recorded_profile=$(host_conf_get profile)
+  recorded_modules=$(host_conf_get modules)
+  [ "$RECONFIGURE" -eq 1 ] && have_conf=0
 
-  # Install various packages
-  run_task "Setting up Cargo packages" "$DOTFILES_DIR/scripts/install/cargo.sh"
-  run_task "Setting up Go packages" "$DOTFILES_DIR/scripts/install/go.sh"
-  run_task "Setting up fonts" "$DOTFILES_DIR/scripts/install/fonts.sh"
-  run_task "Setting up Podman" "$DOTFILES_DIR/scripts/install/podman.sh"
-  run_task "Setting up pip packages" "$DOTFILES_DIR/scripts/install/pip.sh"
+  PROFILE="$PROFILE_ARG"
+  if [ -z "$PROFILE" ] && [ "$have_conf" -eq 1 ]; then
+    PROFILE="$recorded_profile"
+  fi
+  while [ "$PROFILE" != server ] && [ "$PROFILE" != desktop ]; do
+    PROFILE=$(ask "Is this a server or a desktop?" "${recorded_profile:-$(detect_profile)}")
+    case "$PROFILE" in
+      s | srv) PROFILE=server ;;
+      d | gui | laptop) PROFILE=desktop ;;
+    esac
+  done
+
+  local row name who what answer default
+  MODULE_LIST=""
+  if [ "$WITH_SET" -eq 1 ]; then
+    for name in ${WITH//,/ }; do
+      if ! module_names | grep -qxF -- "$name"; then
+        err "no such module: $name"
+        detail "see: firstrun --list" >&2
+        exit 2
+      fi
+      MODULE_LIST+="$name "
+    done
+  elif [ "$have_conf" -eq 1 ]; then
+    MODULE_LIST="$recorded_modules"
+  else
+    for row in "${MODULES[@]}"; do
+      IFS='|' read -r name who what <<<"$row"
+      [ "$who" = all ] || [ "$who" = "$PROFILE" ] || continue
+      default=n
+      case " $recorded_modules " in *" $name "*) default=y ;; esac
+      answer=$(ask "Add $name — $what?" "$default")
+      case "$answer" in y | Y | yes) MODULE_LIST+="$name " ;; esac
+    done
+  fi
+  MODULE_LIST="${MODULE_LIST% }"
+
+  export DOTFILES_PROFILE="$PROFILE"
+  [ "$DRY_RUN" -eq 1 ] && return 0
+  if [ "$recorded_profile" != "$PROFILE" ] || [ "$recorded_modules" != "$MODULE_LIST" ] || [ ! -f "$HOST_CONF" ]; then
+    mkdir -p "${HOST_CONF%/*}"
+    {
+      echo "# This machine's answers to firstrun. Per-machine; not part of the dotfiles."
+      echo "profile=$PROFILE"
+      echo "modules=\"$MODULE_LIST\""
+    } >"$HOST_CONF"
+    say "$GREEN" "Recorded" "${HOST_CONF/#$HOME/\~}"
+  fi
 }
 
-# Server setup tasks
-run_server() {
-  echo -e "\n🔄 Running Server Setup"
-  echo "-----------------------------------"
-
-  run_base
-  run_task "Installing server packages" "$DOTFILES_DIR/scripts/install/apt-server.sh"
-  run_task "Setting up server PPAs" "$DOTFILES_DIR/scripts/install/ppa-server.sh"
-  run_common_server_gui
+has_module() {
+  case " $MODULE_LIST " in *" $1 "*) return 0 ;; esac
+  return 1
 }
 
-# GUI setup tasks
-run_gui() {
-  echo -e "\n🔄 Running GUI Setup"
-  echo "-----------------------------------"
+# --- Steps -------------------------------------------------------------------
+# Each prints what it changed and returns non-zero if it could not finish. They
+# run in a subshell, with their output copied to a log.
 
-  run_server
+# The package names in a packages/*.txt file, comments and blanks dropped.
+package_names() { sed -e 's/#.*//' -e 's/[[:space:]]//g' -e '/^$/d' "$@"; }
 
-  run_task "Installing GUI packages" "$DOTFILES_DIR/scripts/install/apt-gui.sh"
-  run_task "Setting up GUI PPAs" "$DOTFILES_DIR/scripts/install/ppa-gui.sh"
+step_apt() {
+  local -a lists=("$DOTFILES_DIR/packages/apt-server.txt")
+  [ "$PROFILE" = desktop ] && lists+=("$DOTFILES_DIR/packages/apt-desktop.txt")
+  local module
+  for module in $MODULE_LIST; do
+    [ -f "$DOTFILES_DIR/packages/apt-$module.txt" ] && lists+=("$DOTFILES_DIR/packages/apt-$module.txt")
+  done
 
-  # Install and setup Espanso
-  run_task "Installing Espanso" sudo snap install espanso --classic
-  run_task "Setting up Espanso" "$DOTFILES_DIR/scripts/install/espanso.sh"
+  if ! command -v apt-get >/dev/null 2>&1; then
+    warn "no apt-get here; install these by hand:"
+    detail "$(package_names "${lists[@]}" | paste -sd' ' -)" >&2
+    return 0
+  fi
 
-  # Android setup
-  run_task "Setting up Android" sudo usermod -aG plugdev "$DEFAULT_USER"
-  run_task "Installing Android tools" sudo apt install android-sdk-platform-tools-common
+  local pkg total=0
+  local -a missing=() installable=() unknown=()
+  while IFS= read -r pkg; do
+    ((total++)) || true
+    dpkg-query -W -f='${Status}' "$pkg" 2>/dev/null | grep -q 'ok installed' || missing+=("$pkg")
+  done < <(package_names "${lists[@]}")
 
-  # VS Code theme setup
-  echo -e "\n📦 Setting up VS Code theme..."
-  rm -rf "$HOME/.vscode/extensions/material-theme-jeffjose"
-  mkdir -p "$HOME/.vscode/extensions"
-  run_task "Installing VS Code theme" cp -r "$DOTFILES_DIR/themes/material-theme-jeffjose" "$HOME/.vscode/extensions/material-theme-jeffjose"
+  if [ ${#missing[@]} -eq 0 ]; then
+    say "$DIM" "Fresh" "$DIM$total apt packages$RESET"
+    return 0
+  fi
 
-  # Terminal setup
-  run_task "Setting up Tilix" dconf load /com/gexperts/Tilix/ <"$DOTFILES_DIR/desktop/tilix.dconf"
-  run_task "Setting up XFCE" "$DOTFILES_DIR/scripts/install/xfce.sh"
+  sudo apt-get update -qq || warn "apt-get update failed; carrying on with the package lists there are"
+  for pkg in "${missing[@]}"; do
+    if apt-cache show "$pkg" 2>/dev/null | grep -q '^Package:'; then
+      installable+=("$pkg")
+    else
+      unknown+=("$pkg")
+    fi
+  done
+  [ ${#unknown[@]} -eq 0 ] || say "$DIM" "Skipped" "${DIM}not in this distro's repos: ${unknown[*]}$RESET"
+  [ ${#installable[@]} -gt 0 ] || return 0
 
-  # Print manual steps
-  echo -e "\n📋 Manual Steps Required:"
-  echo "1. Install Chrome (run 'update_chrome')"
-  echo "2. Install VS Code (run 'update_code')"
-  echo "3. Install Neovim (run 'update_vim')"
-  echo "4. Install Android Studio:"
-  echo "   a. Set correct Java alternative:"
-  echo "      sudo update-alternatives --config java"
-  echo "      Select: /usr/lib/jvm/java-13-openjdk-amd64/bin/java"
-  echo "   b. Use Java 8, set JAVA_HOME and accept licenses:"
-  echo "      yes | sdkmanager --licenses"
+  say "$GREEN" "Installing" "${installable[*]}"
+  sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y -q "${installable[@]}"
 }
 
-# Main script execution
-case "$1" in
-base)
-  echo "🚀 Starting Base Setup"
-  echo "-----------------------------------"
-  run_base || true
-  run_setup || true
-  ;;
-server)
-  echo "🚀 Starting Server Setup"
-  echo "-----------------------------------"
-  run_server || true
-  run_setup || true
-  ;;
-gui)
-  echo "🚀 Starting GUI Setup"
-  echo "-----------------------------------"
-  run_gui || true
-  run_setup || true
-  ;;
-*)
-  usage
-  ;;
-esac
+step_shell() {
+  local want have
+  want=$(command -v tcsh) || {
+    err "tcsh is not installed (the apt step installs it)"
+    return 1
+  }
+  have=$(getent passwd "$USER" | cut -d: -f7)
+  if [ "$have" = "$want" ] || [ "$have" = /bin/tcsh ] || [ "$have" = /usr/bin/tcsh ]; then
+    say "$DIM" "Fresh" "${DIM}login shell is $have$RESET"
+    return 0
+  fi
+  sudo chsh -s "$want" "$USER" || return 1
+  say "$GREEN" "Changed" "login shell ${have:-?} → $want (from the next login)"
+}
 
-# Print summary
-echo -e "\n-----------------------------------"
-echo "📋 Setup Summary:"
-echo "Total tasks: $total_tasks"
-echo "Successful: $((total_tasks - ${#warning_tasks[@]} - ${#failed_tasks[@]}))"
+step_dotfiles() { "$DOTFILES_DIR/setup"; }
 
-if [ ${#warning_tasks[@]} -gt 0 ]; then
-  echo -e "\n⚠️  Tasks with warnings (${#warning_tasks[@]}):"
-  printf '%s\n' "${warning_tasks[@]}"
-fi
+step_mise() {
+  export PATH="$HOME/.cargo/bin:$HOME/.local/share/mise/shims:$HOME/.local/bin:$PATH"
+  if command -v mise >/dev/null 2>&1; then
+    say "$DIM" "Fresh" "${DIM}mise $(mise --version 2>/dev/null | awk '{print $1}')$RESET"
+  else
+    # The prebuilt binary, into ~/.local/bin. (This used to be `cargo install
+    # mise`, a ten-minute compile that needed rust before mise could provide it.)
+    say "$GREEN" "Installing" "mise"
+    curl -fsSL https://mise.run | sh || return 1
+    command -v mise >/dev/null 2>&1 || {
+      err "mise installed, but it is not at ~/.local/bin/mise"
+      return 1
+    }
+  fi
 
-if [ ${#failed_tasks[@]} -gt 0 ]; then
-  echo -e "\n❌ Failed tasks (${#failed_tasks[@]}):"
-  printf '%s\n' "${failed_tasks[@]}"
-fi
+  if [ ! -e "$HOME/.config/mise/config.toml" ]; then
+    err "~/.config/mise/config.toml is missing (the dotfiles step links it)"
+    return 1
+  fi
 
-if [ ${#failed_tasks[@]} -eq 0 ] && [ ${#warning_tasks[@]} -eq 0 ]; then
-  echo -e "\n✨ All tasks completed successfully!"
-else
-  echo -e "\n🔄 Setup completed with some issues"
-fi
+  local status=0 missing
+  missing=$(mise ls --current --missing 2>/dev/null | awk '{print $1}')
+  if [ -z "$missing" ]; then
+    say "$DIM" "Fresh" "$DIM$(mise ls --current 2>/dev/null | wc -l) mise tools$RESET"
+    return 0
+  fi
 
-# Always exit with success
-exit 0
+  # rust first: the cargo: tools on a desktop are built with it.
+  say "$CYAN" "Installing" "mise tools for a $PROFILE ${DIM}(the first time, a desktop compiles for a while)$RESET"
+  mise install --yes rust || status=1
+  mise install --yes || status=1
+
+  missing=$(mise ls --current --missing 2>/dev/null | awk '{print $1}' | paste -sd' ' -)
+  if [ -n "$missing" ]; then
+    err "not installed: $missing"
+    status=1
+  fi
+  return $status
+}
+
+step_ssh_key() {
+  local key
+  for key in id_ed25519 id_ecdsa id_rsa; do
+    if [ -f "$HOME/.ssh/$key" ]; then
+      say "$DIM" "Fresh" "$DIM~/.ssh/$key$RESET"
+      return 0
+    fi
+  done
+  mkdir -p "$HOME/.ssh" && chmod 700 "$HOME/.ssh"
+  ssh-keygen -q -t ed25519 -N "" -C "$USER@$(hostname -s 2>/dev/null || hostname)" -f "$HOME/.ssh/id_ed25519" || return 1
+  say "$GREEN" "Created" "~/.ssh/id_ed25519 (no passphrase)"
+}
+
+step_nvim() {
+  export PATH="$HOME/.local/share/mise/shims:$PATH"
+  command -v nvim >/dev/null 2>&1 || {
+    err "nvim is not installed (the mise step installs it)"
+    return 1
+  }
+  local plug="$HOME/.local/share/nvim/site/autoload/plug.vim"
+  if [ ! -f "$plug" ]; then
+    say "$GREEN" "Installing" "vim-plug"
+    curl -fsSLo "$plug" --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim || return 1
+  fi
+  # Quietly: on a new machine init.vim complains about the very plugins this is
+  # about to install. What counts is that they are there afterwards.
+  local plugged="$HOME/.local/share/nvim/plugged" before after
+  before=$(find "$plugged" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)
+  nvim --headless +PlugInstall +qall >/dev/null 2>&1
+  after=$(find "$plugged" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)
+  if [ "$after" -eq 0 ]; then
+    err "no neovim plugins were installed; try :PlugInstall in nvim"
+    return 1
+  elif [ "$after" -gt "$before" ]; then
+    say "$GREEN" "Installed" "$((after - before)) neovim plugins"
+  else
+    say "$DIM" "Fresh" "$DIM$after neovim plugins$RESET"
+  fi
+}
+
+step_fonts() {
+  local dir="$HOME/.local/share/fonts" font copied=0
+  mkdir -p "$dir"
+  for font in "$DOTFILES_DIR"/themes/apple-system/*.otf; do
+    [ -f "$dir/${font##*/}" ] && continue
+    cp "$font" "$dir/" || return 1
+    ((copied++)) || true
+  done
+  if [ "$copied" -eq 0 ]; then
+    say "$DIM" "Fresh" "${DIM}fonts in ~/.local/share/fonts$RESET"
+    return 0
+  fi
+  command -v fc-cache >/dev/null 2>&1 && fc-cache -f
+  say "$GREEN" "Installed" "$copied fonts into ~/.local/share/fonts"
+}
+
+step_debs() {
+  # update_deb.sh drives deb-downloader, which lives in its own repo and runs
+  # under uv (one of the core mise tools).
+  export PATH="$HOME/.local/share/mise/shims:$PATH"
+  if [ ! -x "$HOME/scripts/deb-downloader/deb-downloader" ]; then
+    say "$GREEN" "Cloning" "deb-downloader into ~/scripts"
+    mkdir -p "$HOME/scripts"
+    git clone --quiet "$DEB_DOWNLOADER_URL" "$HOME/scripts/deb-downloader" || return 1
+  fi
+  "$DOTFILES_DIR/scripts/update/update_deb.sh"
+}
+
+step_code() { "$DOTFILES_DIR/scripts/update/update_code.sh"; }
+
+step_terminal() {
+  if [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ] || [ -z "${XDG_CURRENT_DESKTOP:-}" ]; then
+    say "$YELLOW" "Skipped" "not in a desktop session; run \`firstrun --only terminal\` from one"
+    return 0
+  fi
+  if command -v tilix >/dev/null 2>&1 && command -v dconf >/dev/null 2>&1; then
+    dconf load /com/gexperts/Tilix/ <"$DOTFILES_DIR/desktop/tilix.dconf" || return 1
+    say "$GREEN" "Loaded" "tilix settings"
+  fi
+  # Ctrl+Space drops a terminal down: tilix's quake mode on XFCE, the ddterm
+  # extension under GNOME Shell.
+  case "$XDG_CURRENT_DESKTOP" in
+    *XFCE*)
+      xfconf-query -c xfce4-keyboard-shortcuts -p '/commands/custom/<Primary>space' -n -t string -s 'tilix --quake' || return 1
+      say "$GREEN" "Bound" "Ctrl+Space → tilix --quake"
+      ;;
+    *GNOME*) "$DOTFILES_DIR/scripts/install/ddterm.sh" ;;
+    *) say "$DIM" "Skipped" "${DIM}no drop-down terminal setup for $XDG_CURRENT_DESKTOP$RESET" ;;
+  esac
+}
+
+step_groups() {
+  if id -nG "$USER" | tr ' ' '\n' | grep -qx plugdev; then
+    say "$DIM" "Fresh" "$DIM$USER is in plugdev$RESET"
+    return 0
+  fi
+  getent group plugdev >/dev/null || {
+    say "$DIM" "Skipped" "${DIM}no plugdev group here$RESET"
+    return 0
+  }
+  sudo usermod -aG plugdev "$USER" || return 1
+  say "$GREEN" "Added" "$USER to plugdev (from the next login)"
+}
+
+step_vscode_extensions() {
+  export PATH="$HOME/bin:$PATH"
+  "$DOTFILES_DIR/scripts/install/vscode.sh"
+}
+
+step_claude_remote() {
+  if is_corp_host; then
+    say "$YELLOW" "Skipped" "claude is kept off corp hosts"
+    return 0
+  fi
+  export PATH="$HOME/.local/share/mise/shims:$PATH"
+  "$DOTFILES_DIR/scripts/install/claude-remote-control.sh"
+}
+
+# --- Running -----------------------------------------------------------------
+LOG_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/firstrun/$(date +%Y%m%d-%H%M%S)"
+declare -a planned=() done_steps=() failed_steps=()
+
+# The steps this run is for, in order: the profile's and the chosen modules',
+# narrowed by --only.
+plan() {
+  local row name who what
+  for row in "${STEPS[@]}"; do
+    IFS='|' read -r name who what <<<"$row"
+    case "$who" in
+      all) ;;
+      desktop) [ "$PROFILE" = desktop ] || continue ;;
+      module:*) has_module "${who#module:}" || continue ;;
+    esac
+    if [ -n "$ONLY" ]; then
+      case ",$ONLY," in *",$name,"*) ;; *) continue ;; esac
+    fi
+    planned+=("$name|$what")
+  done
+
+  local wanted
+  for wanted in ${ONLY//,/ }; do
+    if ! printf '%s\n' "${STEPS[@]}" | cut -d'|' -f1 | grep -qxF -- "$wanted"; then
+      err "no such step: $wanted"
+      detail "see: firstrun --list" >&2
+      exit 2
+    elif ! printf '%s\n' "${planned[@]}" | cut -d'|' -f1 | grep -qxF -- "$wanted"; then
+      warn "$wanted is not a step for this machine ($PROFILE${MODULE_LIST:+, with $MODULE_LIST}); skipping it"
+    fi
+  done
+}
+
+# sudo asks once, here, rather than at whichever step first needs it; then the
+# credential is kept warm, since the mise step can outlast its timeout.
+warm_sudo() {
+  command -v sudo >/dev/null 2>&1 || {
+    warn "sudo is not installed; the steps that need root will fail"
+    return 0
+  }
+  sudo -n true 2>/dev/null || sudo -v || {
+    warn "could not authorise sudo; the steps that need root may fail or ask again"
+    return 0
+  }
+  (while sleep 50; do
+    kill -0 "$$" 2>/dev/null || exit 0
+    sudo -n true 2>/dev/null || exit 0
+  done) &
+  SUDO_KEEPALIVE_PID=$!
+  trap 'kill "$SUDO_KEEPALIVE_PID" 2>/dev/null' EXIT
+}
+
+run_step() {
+  local name="$1" what="$2" n="$3" started status
+  started=$(now_us)
+  echo
+  say "$CYAN" "Setting up" "$name $DIM[$n/${#planned[@]}] $what$RESET"
+  ("step_${name//-/_}") 2>&1 | tee "$LOG_DIR/$name.log"
+  status=${PIPESTATUS[0]}
+  if [ "$status" -eq 0 ]; then
+    say "$GREEN" "Done" "$name ${DIM}in $(elapsed "$started")$RESET"
+    done_steps+=("$name")
+  else
+    say "$RED" "Failed" "$name (exit $status) ${DIM}after $(elapsed "$started")$RESET"
+    failed_steps+=("$name")
+  fi
+}
+
+next_steps() {
+  echo
+  say "$CYAN" "Next" "by hand — none of this can live in a public repo:"
+  detail "gh auth login                       GitHub, for gh and for git over https"
+  detail "~/.aliases.sensitive.sh             private aliases; ./setup left it empty"
+  if [ "$PROFILE" = desktop ]; then
+    detail "seal                                unlock the sealed files in ~/dotfiles/encrypted"
+    detail "appimage install -i                 pick the other apps from the catalog"
+  fi
+  detail "log out and back in                 for the new login shell and groups"
+  if [ -f "$HOME/.ssh/id_ed25519.pub" ] && git -C "$DOTFILES_DIR" remote get-url origin 2>/dev/null | grep -q '^https://'; then
+    detail "to push dotfiles from here, add ~/.ssh/id_ed25519.pub to GitHub, then:"
+    detail "  git -C ~/dotfiles remote set-url origin git@github.com:jeffjose/dotfiles.git"
+  fi
+}
+
+main() {
+  local start_us row n=0
+  start_us=$(now_us)
+
+  configure
+  plan
+
+  say "$CYAN" "Profile" "$BOLD$PROFILE$RESET${MODULE_LIST:+ with $MODULE_LIST}$(is_corp_host && printf ' %s(corp host)%s' "$YELLOW" "$RESET")"
+
+  if [ "$DRY_RUN" -eq 1 ]; then
+    for row in "${planned[@]}"; do
+      say "$DIM" "Would run" "${row%%|*}  $DIM${row#*|}$RESET"
+    done
+    say "$GREEN" "Finished" "dry run: ${#planned[@]} steps, nothing changed"
+    exit 0
+  fi
+  [ ${#planned[@]} -gt 0 ] || {
+    err "nothing to run"
+    exit 2
+  }
+
+  mkdir -p "$LOG_DIR"
+  for row in "${planned[@]}"; do
+    case " $ROOT_STEPS " in *" ${row%%|*} "*)
+      warm_sudo
+      break
+      ;;
+    esac
+  done
+  for row in "${planned[@]}"; do
+    ((n++)) || true
+    run_step "${row%%|*}" "${row#*|}" "$n"
+  done
+
+  [ -n "$ONLY" ] || next_steps
+
+  echo
+  if [ ${#failed_steps[@]} -gt 0 ]; then
+    for row in "${failed_steps[@]}"; do
+      say "$RED" "Failed" "$row — full output in ${LOG_DIR/#$HOME/\~}/$row.log"
+    done
+    say "$RED" "Finished" "${#failed_steps[@]} failed, ${#done_steps[@]} done in $(elapsed "$start_us"); fix and run: firstrun --only $(
+      IFS=,
+      echo "${failed_steps[*]}"
+    )"
+    exit 1
+  fi
+  local noun=steps
+  [ ${#done_steps[@]} -eq 1 ] && noun=step
+  say "$GREEN" "Finished" "${#done_steps[@]} $noun in $(elapsed "$start_us")"
+  exit 0
+}
+
+main
+
+}

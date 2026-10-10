@@ -1,5 +1,12 @@
 #!/bin/bash
 #
+# setup — create the directories and symlinks that put these dotfiles in place.
+#
+# Usage: setup [-v|--verbose]
+#
+# Safe to run any number of times; `uq` runs it after every pull. What a machine
+# gets depends on its profile (scripts/lib/host.sh): a server gets the shell,
+# git and editor config, a desktop gets the graphical apps' config as well.
 #
 set -e # Exit on error
 
@@ -11,22 +18,25 @@ BACKUP_SUFFIX=".bak.$(date +%Y%m%d_%H%M%S)"
 DIRECTORIES=(
   "$HOME/bin"
   "$HOME/scripts"
-  "$HOME/Downloads"
   "$HOME/.screen"
   "$HOME/.config/nvim"
   "$HOME/.local/share/nvim/backup"
-  "$HOME/.config/espanso"
   "$HOME/.config/containers"
-  "$HOME/.config/Code/User"
-  "$HOME/.vscode/extensions"
-  "$HOME/.ipython/profile_default"
-  "$HOME/.screenlayout"
-  "$HOME/.jupyter/custom"
   "$HOME/.config/mise"
   "$HOME/.config/uv"
   "$HOME/.pnpm"
   "$HOME/.config/ranger"
   "$HOME/.config"
+)
+
+# ... and the ones only a desktop needs
+DESKTOP_DIRECTORIES=(
+  "$HOME/Downloads"
+  "$HOME/.config/Code/User"
+  "$HOME/.vscode/extensions"
+  "$HOME/.ipython/profile_default"
+  "$HOME/.screenlayout"
+  "$HOME/.jupyter/custom"
 )
 
 # Files to symlink (source:target)
@@ -46,6 +56,19 @@ declare -A SYMLINKS=(
   ["$DOTFILES_DIR/editors/nvim/init.vim"]="$HOME/.vimrc"
   ["$DOTFILES_DIR/editors/nvim/init.vim"]="$HOME/.config/nvim/init.vim"
   ["$DOTFILES_DIR/editors/nvim/plugins.vim"]="$HOME/.config/nvim/plugins.vim"
+  ["$DOTFILES_DIR/apps/containers.conf"]="$HOME/.config/containers/containers.conf"
+  ["$DOTFILES_DIR/apps/.jq"]="$HOME/.jq"
+  ["$DOTFILES_DIR/apps/config.toml"]="$HOME/.config/mise/config.toml"
+  ["$DOTFILES_DIR/apps/uv/uv.toml"]="$HOME/.config/uv/uv.toml"
+  ["$DOTFILES_DIR/apps/ranger/rc.conf"]="$HOME/.config/ranger/rc.conf"
+  ["$DOTFILES_DIR/apps/ranger/rifle.conf"]="$HOME/.config/ranger/rifle.conf"
+  ["$DOTFILES_DIR/shell/.tmux.conf"]="$HOME/.tmux.conf"
+  ["$DOTFILES_DIR/shell/.bashrc"]="$HOME/.bashrc"
+  ["$DOTFILES_DIR/shell/starship.toml"]="$HOME/.config/starship.toml"
+)
+
+# ... and the ones only a desktop needs
+declare -A DESKTOP_SYMLINKS=(
   ["$DOTFILES_DIR/desktop/.XResources"]="$HOME/.XResources"
   ["$DOTFILES_DIR/desktop/.xmodmap"]="$HOME/.xmodmap"
   ["$DOTFILES_DIR/desktop/.xsession"]="$HOME/.xsession"
@@ -53,18 +76,24 @@ declare -A SYMLINKS=(
   ["$DOTFILES_DIR/editors/vscode-terminal-on-open"]="$HOME/.vscode/extensions/jeffjose.terminal-on-open-0.0.1"
   ["$DOTFILES_DIR/apps/ipython_config.py"]="$HOME/.ipython/profile_default/ipython_config.py"
   ["$DOTFILES_DIR/apps/custom.js"]="$HOME/.jupyter/custom/custom.js"
-  ["$DOTFILES_DIR/apps/default.yml"]="$HOME/.config/espanso/default.yml"
-  ["$DOTFILES_DIR/apps/containers.conf"]="$HOME/.config/containers/containers.conf"
-  ["$DOTFILES_DIR/apps/.jq"]="$HOME/.jq"
-  ["$DOTFILES_DIR/apps/config.toml"]="$HOME/.config/mise/config.toml"
-  ["$DOTFILES_DIR/apps/uv/uv.toml"]="$HOME/.config/uv/uv.toml"
   ["$DOTFILES_DIR/apps/audtag.yaml"]="$HOME/audtag.yaml"
-  ["$DOTFILES_DIR/apps/ranger/rc.conf"]="$HOME/.config/ranger/rc.conf"
-  ["$DOTFILES_DIR/apps/ranger/rifle.conf"]="$HOME/.config/ranger/rifle.conf"
-  ["$DOTFILES_DIR/shell/.tmux.conf"]="$HOME/.tmux.conf"
-  ["$DOTFILES_DIR/shell/.bashrc"]="$HOME/.bashrc"
-  ["$DOTFILES_DIR/shell/starship.toml"]="$HOME/.config/starship.toml"
+  ["$DOTFILES_DIR/themes/material-theme-jeffjose"]="$HOME/.vscode/extensions/material-theme-jeffjose"
 )
+
+# Links this script used to make to files that have since left the repo. One
+# that still points here is removed; anything else at that path is not ours.
+RETIRED_LINKS=(
+  "$HOME/.config/espanso/default.yml"
+)
+
+source "$DOTFILES_DIR/scripts/lib/host.sh"
+PROFILE=$(host_profile)
+if [ "$PROFILE" = desktop ]; then
+  DIRECTORIES+=("${DESKTOP_DIRECTORIES[@]}")
+  for src in "${!DESKTOP_SYMLINKS[@]}"; do
+    SYMLINKS[$src]="${DESKTOP_SYMLINKS[$src]}"
+  done
+fi
 
 # Output is cargo-style: a right-aligned coloured verb, then the detail.
 # Only changes are printed; pass -v to also list what was already in place.
@@ -162,20 +191,38 @@ while IFS=$'\t' read -r target src; do
   link "$src" "$target"
 done < <(for src in "${!SYMLINKS[@]}"; do printf '%s\t%s\n' "${SYMLINKS[$src]}" "$src"; done | sort)
 
-# Corp hosts get an extra mise config that keeps some tools off them (see
-# apps/mise-corp.toml). Everywhere else the link is taken away again, so a
-# machine that stops being corp, or was once misdetected, is not left with it.
-source "$DOTFILES_DIR/scripts/lib/host.sh"
-corp_link="$HOME/.config/mise/conf.d/corp.toml"
-if is_corp_host; then
-  [ -d "${corp_link%/*}" ] || run "$GREEN" "Creating" "$(short "${corp_link%/*}")" mkdir -p "${corp_link%/*}"
-  link "$CORP_MISE_CONFIG" "$corp_link"
-elif [ -L "$corp_link" ] && [ "$(readlink "$corp_link")" = "$CORP_MISE_CONFIG" ]; then
-  run "$YELLOW" "Unlinking" "$(short "$corp_link") — not a corp host" rm "$corp_link"
-fi
+for target in "${RETIRED_LINKS[@]}"; do
+  if [ -L "$target" ] && [[ "$(readlink "$target")" == "$DOTFILES_DIR/"* ]]; then
+    run "$YELLOW" "Unlinking" "$(short "$target") — no longer in the dotfiles" rm "$target"
+  fi
+done
+
+# mise reads every file in ~/.config/mise/conf.d on top of config.toml, which is
+# how one tool list becomes three: a desktop adds the bulk of the tools (see
+# apps/mise-desktop.toml), and a corp host adds settings that keep some tools
+# off it (see apps/mise-corp.toml). Where a file does not apply its link is
+# taken away again, so a machine that changes profile, or was once misdetected,
+# is not left with it.
+#
+# conf_d <wanted: 0|1> <name> <source> <why it is unlinked>
+conf_d() {
+  local wanted="$1" target="$HOME/.config/mise/conf.d/$2.toml" src="$3" why="$4"
+  if [ "$wanted" -eq 1 ]; then
+    [ -d "${target%/*}" ] || run "$GREEN" "Creating" "$(short "${target%/*}")" mkdir -p "${target%/*}"
+    link "$src" "$target"
+  elif [ -L "$target" ] && [ "$(readlink "$target")" = "$src" ]; then
+    run "$YELLOW" "Unlinking" "$(short "$target") — $why" rm "$target"
+  fi
+}
+
+desktop=0 corp=0
+[ "$PROFILE" = desktop ] && desktop=1
+is_corp_host && corp=1
+conf_d "$desktop" desktop "$DESKTOP_MISE_CONFIG" "not a desktop"
+conf_d "$corp" corp "$CORP_MISE_CONFIG" "not a corp host"
 
 elapsed_ms=$(((${EPOCHREALTIME//[^0-9]/} - start_us) / 1000))
-summary="$changed changed, $fresh up to date in ${elapsed_ms}ms"
+summary="$PROFILE profile, $changed changed, $fresh up to date in ${elapsed_ms}ms"
 
 if [ ${#failed_tasks[@]} -gt 0 ]; then
   say "$RED" "Finished" "${#failed_tasks[@]} failed, $summary"

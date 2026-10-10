@@ -8,7 +8,7 @@
 #   - no panel menu icon
 #
 # ddterm is a GNOME Shell extension, so this only runs under GNOME Shell.
-# (On XFCE we use tilix --quake instead; see xfce.sh.)
+# (On XFCE we use tilix --quake instead; see the terminal step in firstrun.)
 #
 # Jul 11, 2026
 #

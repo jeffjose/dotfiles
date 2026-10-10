@@ -1,0 +1,49 @@
+# apt packages every machine gets, servers included. One per line; a # starts a
+# comment. firstrun installs what is missing and skips a name the distro does
+# not carry, so a package that Ubuntu has and Debian lacks is fine to list.
+#
+# Keep this small: a tool belongs here only if a headless server wants it.
+# Anything that mise can provide (apps/config.toml) goes there instead — it is
+# newer and `uq` keeps it current.
+
+# Essentials
+ca-certificates
+curl
+wget
+sudo
+tcsh
+openssh-server
+unzip
+rsync
+
+# Needed by the rust toolchain (a linker, and the headers most crates want)
+build-essential
+pkg-config
+libssl-dev
+
+# Git
+git
+gh
+
+# Terminal
+screen
+tmux
+htop
+ncdu
+tree
+jq
+moreutils
+ack
+colordiff
+pwgen
+python3
+python-is-python3
+
+# Network
+dnsutils
+traceroute
+mtr-tiny
+nmap
+mosh
+sshpass
+nfs-common

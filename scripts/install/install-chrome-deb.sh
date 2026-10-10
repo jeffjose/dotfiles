@@ -6,14 +6,14 @@
 #                  otherwise worth trusting, so Chrome is .deb-only. This is
 #                  the difference from `code`, which has both paths.
 #   B (.deb)     : automatic  → scripts/update/update_deb.sh (misc/package.toml),
-#                              run by `uq`; update_chrome.sh, run by `updateall`
-#                              (both ETag-checked, so they no-op when unchanged)
+#                              run by `uq` and by firstrun (ETag-checked, so it
+#                              no-ops when unchanged)
 #                  manual     → this script
 #
 # Use this for a fresh machine or to put Chrome back after an accidental
 # `dpkg -P`. Day-to-day updates need no action: `uq` handles them.
 #
-# Unlike update_chrome.sh this always downloads and installs, with no ETag
+# Unlike update_deb.sh this always downloads and installs, with no ETag
 # short-circuit — a reinstall has to work even when the version is unchanged.
 #
 # Jeffrey Jose | 2026-08-01
@@ -48,9 +48,3 @@ sudo dpkg -i "$DEB" || {
 
 echo -n "✅ Installed (.deb): "
 dpkg-query -W -f='${Version}\n' google-chrome-stable
-
-# update_chrome.sh caches the download ETag to skip unchanged builds. We just
-# replaced the package outside that flow, so drop the cache — otherwise the next
-# `uq` may believe it is current when it is not.
-rm -f "$HOME/Downloads/chrome.etag"
-echo "ℹ️  Cleared the update_chrome.sh ETag cache so \`uq\` re-checks next run."

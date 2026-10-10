@@ -12,14 +12,17 @@ set -e # Exit on error
 
 # Constants
 SCRIPTS_DIR="$HOME/dotfiles/scripts/update"
+# What a desktop or laptop updates. A server (see host_profile in
+# scripts/lib/host.sh) has no graphical apps, so it runs the mise step alone.
 UPDATE_SCRIPTS=(
   "update_code.sh"
-  #"update_cursor.sh"
   "update_mise.sh"
   "update_deb.sh"
   "update_claude_desktop.sh"
   "update_appimage.sh"
-  #"update_rust.sh"  # Currently disabled
+)
+SERVER_UPDATE_SCRIPTS=(
+  "update_mise.sh"
 )
 
 # Output is cargo-style, like ./setup: a right-aligned coloured verb, then the
@@ -321,6 +324,8 @@ print_summary() {
 # Main execution
 main() {
   start_us=$(now_us)
+
+  is_desktop_host || UPDATE_SCRIPTS=("${SERVER_UPDATE_SCRIPTS[@]}")
 
   corp_notice
   start_logs
