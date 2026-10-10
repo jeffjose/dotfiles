@@ -316,9 +316,12 @@ fi
 # Update dotfiles first (best-effort — don't abort the mise update if this
 # fails, e.g. offline, merge conflict, or detached HEAD). Run in a subshell so
 # a failed `cd`/`git pull` can't strand us in the wrong directory.
-say "$CYAN" "Updating" "dotfiles"
-if ! ( cd ~/dotfiles && git pull && ./setup ); then
-  warn "dotfiles update failed; continuing with mise update"
+# uq has just done this itself (it sets UQ_LOG_DIR); only a run on its own pulls.
+if [[ -z "${UQ_LOG_DIR:-}" ]]; then
+  say "$CYAN" "Updating" "dotfiles"
+  if ! pull_dotfiles; then
+    warn "dotfiles update failed; continuing with mise update"
+  fi
 fi
 
 say "$CYAN" "Updating" "mise itself"

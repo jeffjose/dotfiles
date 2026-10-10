@@ -25,6 +25,18 @@ detail() { printf '%12s %s\n' '' "$*"; }
 warn() { say "$YELLOW" "Warning" "$*" >&2; }
 err() { say "$RED" "Error" "$*" >&2; }
 
+# Pull ~/dotfiles and re-run ./setup, saying only what changed. git's own
+# "Current branch master is up to date." is noise on every run; its errors
+# still come through. Returns non-zero if the pull or setup failed.
+pull_dotfiles() (
+  cd "$HOME/dotfiles" || exit 1
+  was=$(git rev-parse --short HEAD 2>/dev/null)
+  git pull --quiet || exit 1
+  now=$(git rev-parse --short HEAD 2>/dev/null)
+  [ "$was" = "$now" ] || say "$GREEN" "Updated" "dotfiles $was → $now"
+  ./setup
+)
+
 # Microseconds since the epoch, for timing a run.
 now_us() { printf '%s' "${EPOCHREALTIME//[^0-9]/}"; }
 

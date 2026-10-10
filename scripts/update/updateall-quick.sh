@@ -330,7 +330,7 @@ main() {
   # pull fails, e.g. offline, merge conflict, or detached HEAD). Subshell keeps a
   # failed cd/pull from stranding us in the wrong directory.
   say "$CYAN" "Updating" "dotfiles"
-  if ! (cd ~/dotfiles && git pull && ./setup); then
+  if ! pull_dotfiles; then
     warn "dotfiles update failed; continuing with the rest of the updates"
   fi
 

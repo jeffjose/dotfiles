@@ -73,6 +73,39 @@ build_command() {
 }
 
 
+# Reword deb-downloader's output to match the rest of uq.
+#
+# For a package that is already current it prints three lines — the URL, then
+# "→ name version", then "✓ Already installed" — which become the single
+#        Fresh name version
+# Anything else it says is passed through as it is. Read a byte at a time so
+# that a download's progress bar, which redraws with \r and no newline, still
+# moves instead of sitting in a line buffer until the download is over.
+deb_lines() {
+    DIM="$DIM" RESET="$RESET" perl -e '
+        $| = 1; $/ = \1;
+        my ($line, $pending) = ("", "");
+        sub flush_pending { print $pending if length $pending; $pending = ""; }
+        while (my $c = <STDIN>) {
+            if ($c eq "\r") { flush_pending(); print "$line\r"; $line = ""; next; }
+            if ($c ne "\n") { $line .= $c; next; }
+            (my $plain = $line) =~ s/\e\[[0-9;]*m//g;
+            if ($plain =~ m{^https?://\S+$}) {
+                # the URL being checked: nothing the "Checking" line did not say
+            } elsif ($plain =~ /^→ (.+)$/) {
+                flush_pending(); $pending = "$line\n"; $name = $1;
+            } elsif ($plain =~ /Already installed$/ && length $pending) {
+                printf "%s%12s%s %s%s%s\n", $ENV{DIM}, "Fresh", $ENV{RESET}, $ENV{DIM}, $name, $ENV{RESET};
+                $pending = "";
+            } else {
+                flush_pending(); print "$line\n";
+            }
+            $line = "";
+        }
+        flush_pending(); print $line;
+    '
+}
+
 # Read packages into arrays
 declare -a pkg_names=()
 declare -a pkg_types=()
@@ -133,7 +166,7 @@ run_sequential() {
         say "$CYAN" "Checking" "$name"
         local cmd
         cmd=$(build_command "$name" "$pkg_type" "$url" "$dist" "--install")
-        eval "$cmd" || exit_code=1
+        eval "$cmd" | deb_lines || exit_code=1
     done
     return $exit_code
 }
@@ -170,7 +203,7 @@ run_parallel() {
     say "$CYAN" "Checking" "${pkg_names[0]}"
     local cmd
     cmd=$(build_command "${pkg_names[0]}" "${pkg_types[0]}" "${pkg_urls[0]}" "${pkg_dists[0]}" "--install")
-    eval "$cmd" || exit_code=1
+    eval "$cmd" | deb_lines || exit_code=1
 
     # Show remaining packages' download output, then install in foreground
     for i in "${!pkg_names[@]}"; do
@@ -183,18 +216,14 @@ run_parallel() {
         local url="${pkg_urls[$i]}"
         local dist="${pkg_dists[$i]}"
 
-        # Wait for download to finish and show its output
+        # Wait for the download to finish. Its output is only worth showing if it
+        # failed: the install below reports on the same package again.
         say "$CYAN" "Checking" "$name"
-        tail -f "${outfiles[$i]}" 2>/dev/null &
-        local tail_pid=$!
-        wait "${pids[$i]}" 2>/dev/null || true
-        sleep 0.2
-        kill "$tail_pid" 2>/dev/null || true
-        wait "$tail_pid" 2>/dev/null || true
+        wait "${pids[$i]}" 2>/dev/null || cat "${outfiles[$i]}"
 
         # Now run install in foreground (can prompt for sudo)
         cmd=$(build_command "$name" "$pkg_type" "$url" "$dist" "--install")
-        eval "$cmd" || exit_code=1
+        eval "$cmd" | deb_lines || exit_code=1
     done
     return $exit_code
 }
