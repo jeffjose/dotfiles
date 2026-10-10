@@ -209,7 +209,7 @@ drop_dev_copy() {
   while read -r crate; do
     grep -q "^\"$crate " "$cargo_home/.crates.toml" 2>/dev/null || continue
     if cargo uninstall --quiet --root "$cargo_home" "$crate"; then
-      say "$YELLOW" "Removed" "dev copy of $crate"
+      say "$YELLOW" "Removed" "dev copy of $crate, in favor of mise"
     else
       warn "could not remove the dev copy of $crate from $cargo_home/bin"
     fi
