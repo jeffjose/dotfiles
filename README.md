@@ -40,3 +40,7 @@ has [`firstrun-bsd`](scripts/install/firstrun-bsd).
 
 `uq` pulls this repo, re-runs `setup`, and updates everything above that the
 machine's profile has.
+
+The three scripts that get run by hand are at the root of the repo:
+[`./setup`](setup), [`./firstrun`](firstrun) and [`./update_mise`](update_mise)
+— the last two are links into `scripts/`.
