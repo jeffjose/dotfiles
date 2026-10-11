@@ -40,10 +40,14 @@
     alias x 'echo "Running ~/.xsession .."; ~/.xsession'
     alias xk 'pkill xfce4-screen; pkill light-locker'
 
+    # `m` puts mise right: reinstalls what is missing, then rebuilds any tool
+    # built from one of my own repos whose branch has moved on GitHub.
+    # `mc` only looks.
+    #
     # Are the tools built from my own repos at their branch's latest commit?
     # (`mise install` cannot say: to it "branch:main" is installed, full stop.)
     alias mc '~/dotfiles/scripts/update/update_mise.sh --check \!*'
-    alias m 'rm -rf $HOME/.local/share/mise/shims; mise reshim; mise install; mise reshim; where pnpm; pnpm --version >& /dev/null && echo "Shims verified" || echo "Shims broken — pnpm not resolving"'
+    alias m 'rm -rf $HOME/.local/share/mise/shims; mise reshim; mise install; ~/dotfiles/scripts/update/update_mise.sh --branches; mise reshim; where pnpm; pnpm --version >& /dev/null && echo "Shims verified" || echo "Shims broken — pnpm not resolving"'
     alias mup 'mise upgrade; m'
 
     alias grep grep -iE --color=always

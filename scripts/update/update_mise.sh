@@ -4,12 +4,16 @@
 #
 # Usage: update_mise.sh [-v|--verbose] [--filter PATTERN | PATTERN]
 #        update_mise.sh -c|--check [PATTERN...]
+#        update_mise.sh -b|--branches
 #
 #   -c, --check       Change nothing: list the tools built from a git branch
 #                     (the cargo:https://... = "branch:..." ones) and say for
 #                     each whether the installed build is the branch's latest
 #                     commit. mise itself cannot tell: to it "branch:main" is
 #                     the version, and that is installed.
+#   -b, --branches    Only the branch-built tools: check each against its
+#                     branch on GitHub and rebuild the ones that are behind.
+#                     Nothing else is upgraded. This is what `m` runs.
 #   -v, --verbose     Show everything mise prints, live. By default only what
 #                     changed and what went wrong is shown; the rest goes to a
 #                     log, whose path is printed when something fails.
@@ -64,11 +68,13 @@ mise_disk_usage() {
 filter=""
 verbose=0
 check=0
+branches=0
 names=() # bare words: the same as --filter, and --check takes several
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -v|--verbose) verbose=1; shift ;;
     -c|--check) check=1; shift ;;
+    -b|--branches) branches=1; shift ;;
     -f|--filter) filter="${2:?--filter needs a pattern}"; shift 2 ;;
     --filter=*)  filter="${1#*=}"; shift ;;
     -h|--help)   sed -n '2,/^$/s/^# \{0,1\}//p' "$0"; exit 0 ;;
@@ -217,6 +223,7 @@ refresh_branch_tools() {
            | select(($k | startswith("cargo:https://")) and (.version | startswith("branch:")))
            | "\($k)\t\(.install_path)\t\(.version | ltrimstr("branch:"))"' 2>/dev/null || true)
 
+  BRANCH_TOOLS_STALE=${#stale[@]}
   [[ ${#stale[@]} -gt 0 ]] || return 0
   for entry in "${stale[@]}"; do
     IFS=$'\t' read -r tool path <<<"$entry"
@@ -375,6 +382,14 @@ branch_status() {
 
 if [[ $check -eq 1 ]]; then
   branch_status
+  exit 0
+fi
+
+if [[ $branches -eq 1 ]]; then
+  say "$CYAN" "Checking" "branch-built tools against GitHub"
+  BRANCH_TOOLS_STALE=0
+  refresh_branch_tools
+  [[ $BRANCH_TOOLS_STALE -gt 0 ]] || say "$DIM" "Fresh" "${DIM}all at their branch's latest commit$RESET"
   exit 0
 fi
 
