@@ -1,31 +1,32 @@
 #!/bin/bash
 #
-# firstrun — bring a freshly installed machine up to speed.
+# firstrun — bring a freshly installed machine up to speed
 #
 # Usage: firstrun [server|desktop] [options]
 #
-#   server              a machine that never runs anything graphical: the small
-#                       set of packages, the shell and editor config, mise with
-#                       its core tools
-#   desktop             a desktop or laptop: everything a server gets, plus the
-#                       graphical apps, fonts and the full set of mise tools
+#   server             packages, shell, editor, core tools
+#   desktop            server, plus apps, fonts and every tool
 #
-#   -y, --yes           ask nothing: take the recorded answers, or the defaults
-#   -n, --dry-run       show what would run, and change nothing
-#       --only STEPS    run only these steps (comma-separated)
-#       --with MODS     turn on these optional modules (comma-separated)
-#       --reconfigure   ask the questions again, even if they are answered
-#       --list          list the steps and optional modules, then exit
-#   -h, --help          show this help
+#   -y, --yes          don't ask; use saved answers
+#   -n, --dry-run      show the plan, change nothing
+#       --only STEPS   run only these steps
+#       --with MODS    add optional modules
+#       --reconfigure  ask again
+#       --list         list steps and modules
+#   -h, --help         show this
+#
+# Safe to re-run. Logs: ~/.local/state/firstrun/
+
+# Everything above, up to the blank line, is what -h prints. The rest is for
+# whoever reads the file.
 #
 # The first run asks which profile this machine is and which optional modules it
 # wants, and records the answers in ~/.config/dotfiles/host.conf. That file is
 # per-machine and stays out of the repo; ./setup and `uq` read it too. Later
 # runs use it without asking.
 #
-# Every step is safe to repeat, so the fix for a failed run is to run it again
-# (or just the step: `firstrun --only mise`). apt and mise are kept quiet; what
-# they printed is under ~/.local/state/firstrun/, one .full.log per step.
+# The noisy steps are kept quiet; what they printed is under
+# ~/.local/state/firstrun/, one .full.log per step.
 #
 # On a machine with nothing on it yet, this file can be run straight off GitHub;
 # it clones the dotfiles and carries on from the clone:
