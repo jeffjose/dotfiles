@@ -13,7 +13,7 @@
 #
 #   class   code-<path with dashes>, e.g. code-home-jeffjose-scripts-project1
 #   icon    <folder>/.icon.png, if there is one. Without it an icon is drawn: a
-#           tile in a Radix colour with a Solar bold-duotone glyph, both worked
+#           Solar bold-duotone glyph in a Radix colour, edge to edge, both worked
 #           out from the folder's path, so a project keeps its look from one
 #           launch and one machine to the next. A drawn icon lives in
 #           ~/.cache/code-icons/<path with dashes>.png, not in the project, so
@@ -83,19 +83,13 @@ seed=$(printf '%s' "${dir/#$HOME/\~}" | cksum | cut -d' ' -f1)
 slug=$(printf '%s' "$dir" | tr -c 'A-Za-z0-9._-' '-')
 class="code$slug"
 
-# Radix Colors, light theme: "scale step-9 foreground". Step 9 is the solid
-# background of each scale. White goes on top of it, except on the five bright
-# scales at the end, which Radix pairs with dark text — their own step 12.
-PALETTE=(
-  'tomato #e54d2e #ffffff' 'red #e5484d #ffffff' 'ruby #e54666 #ffffff'
-  'crimson #e93d82 #ffffff' 'pink #d6409f #ffffff' 'plum #ab4aba #ffffff'
-  'purple #8e4ec6 #ffffff' 'violet #6e56cf #ffffff' 'iris #5b5bd6 #ffffff'
-  'indigo #3e63dd #ffffff' 'blue #0090ff #ffffff' 'cyan #00a2c7 #ffffff'
-  'teal #12a594 #ffffff' 'jade #29a383 #ffffff' 'green #30a46c #ffffff'
-  'grass #46a758 #ffffff' 'brown #ad7f58 #ffffff' 'orange #f76b15 #ffffff'
-  'bronze #a18072 #ffffff' 'gold #978365 #ffffff'
-  'sky #7ce2fe #1d3e56' 'mint #86ead4 #16433c' 'lime #bdee63 #37401c'
-  'yellow #ffe629 #473b1f' 'amber #ffc53d #4f3422'
+# Radix Colors, step 9 of each scale — the solid, most saturated step.
+COLOURS=(
+  '#e54d2e' '#e5484d' '#e54666' '#e93d82' '#d6409f' # tomato red ruby crimson pink
+  '#ab4aba' '#8e4ec6' '#6e56cf' '#5b5bd6' '#3e63dd' # plum purple violet iris indigo
+  '#0090ff' '#00a2c7' '#12a594' '#29a383' '#30a46c' # blue cyan teal jade green
+  '#46a758' '#ad7f58' '#f76b15' '#a18072' '#978365' # grass brown orange bronze gold
+  '#7ce2fe' '#86ead4' '#bdee63' '#ffe629' '#ffc53d' # sky mint lime yellow amber
 )
 
 # Solar (CC BY 4.0), bold duotone: solar:<glyph>-bold-duotone on Iconify.
@@ -110,43 +104,46 @@ GLYPHS=(
   wheel wind
 )
 
-# draw_icon <file>: a rounded tile in a Radix colour with a Solar glyph on it.
+# draw_icon <file>: a Solar glyph in a Radix colour, on nothing — no tile behind
+# it, and trimmed and scaled until it all but touches the edges, because at
+# taskbar size every pixel spent on a background or a margin is one the glyph
+# does not get.
+#
 # Both are picked by the project's checksum — pseudo-random, but the same every
 # time for the same project — from separate slices of it, so that two projects
 # landing on one colour still get different glyphs.
 #
 # The glyph comes from the Iconify API, already tinted. That is one short
 # request the first time a project is opened; offline, or with the API down,
-# the tile gets the first letter of the folder's name instead.
+# the icon is the first letter of the folder's name instead.
 draw_icon() {
-  local scale bg fg glyph svg initial
-  read -r scale bg fg <<<"${PALETTE[$((seed % ${#PALETTE[@]}))]}"
-  glyph=${GLYPHS[$((seed / ${#PALETTE[@]} % ${#GLYPHS[@]}))]}
+  local colour glyph svg initial
+  colour=${COLOURS[$((seed % ${#COLOURS[@]}))]}
+  glyph=${GLYPHS[$((seed / ${#COLOURS[@]} % ${#GLYPHS[@]}))]}
   svg=$(mktemp --suffix=.svg) || return 1
 
   if curl -fsL --max-time 3 -o "$svg" \
-    "https://api.iconify.design/solar/$glyph-bold-duotone.svg?color=%23${fg#\#}&width=160&height=160" &&
+    "https://api.iconify.design/solar/$glyph-bold-duotone.svg?color=%23${colour#\#}&width=512&height=512" &&
     command grep -q '<svg' "$svg"; then
     # A duotone glyph marks its lighter half with opacity=".5", on single
     # shapes or on a group of them, and ImageMagick's SVG reader ignores that —
     # everything comes out solid. So build the two tones by hand: the whole
     # glyph at half strength, and on top of it the glyph with the lighter
     # shapes cut out.
-    #
-    # Each layer is rendered in a command of its own: a -size meant for the
-    # tile would also squeeze an SVG read in the same command.
     sed -E 's/<g opacity="[^"]*">(<[a-z]+[^>]*\/>)*<\/g>//g; s/<[a-z]+[^>]* opacity="[^"]*"[^>]*\/>//g' \
       "$svg" >"$svg.solid.svg" &&
       convert -background none "$svg" -channel A -evaluate multiply 0.5 +channel \
-        \( -background none "$svg.solid.svg" \) -composite "$svg.png" &&
-      convert -size 256x256 xc:none -fill "$bg" -draw 'roundrectangle 8,8 247,247 48,48' \
-        "$svg.png" -gravity center -composite "$1"
+        \( -background none "$svg.solid.svg" \) -composite "$svg.png"
   else
     initial=$(printf '%s' "$name" | tr -cd '[:alnum:]' | cut -c1 | tr '[:lower:]' '[:upper:]')
-    convert -size 256x256 xc:none -fill "$bg" -draw 'roundrectangle 8,8 247,247 48,48' \
-      -fill "$fg" -font DejaVu-Sans-Bold -pointsize 180 -gravity center \
-      -annotate +0+8 "${initial:-?}" "$1"
-  fi
+    convert -background none -fill "$colour" -font DejaVu-Sans-Bold -pointsize 400 \
+      label:"${initial:-?}" "$svg.png"
+  fi &&
+    # Cut the empty border off, scale the longer side to just short of the full
+    # 256 — flush against the edge it crowds its neighbours in the taskbar —
+    # and centre it.
+    convert "$svg.png" -trim +repage -resize 232x232 -background none \
+      -gravity center -extent 256x256 "$1"
   local status=$?
   rm -f "$svg" "$svg.png" "$svg.solid.svg"
   return $status
