@@ -77,6 +77,7 @@
 
     alias rfiles ~/dotfiles/scripts/utils/rfiles.sh
     alias up '~/dotfiles/scripts/update/update_mise.sh \!*; rehash'
+    alias update_mise '~/dotfiles/scripts/update/update_mise.sh \!*; rehash'
     alias appimage ~/dotfiles/scripts/utils/appimage.sh
     alias ai appimage
     alias pp ~/scripts/plex-search/plex-search
