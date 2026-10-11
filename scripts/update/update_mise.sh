@@ -3,7 +3,13 @@
 # Update mise tools
 #
 # Usage: update_mise.sh [-v|--verbose] [--filter PATTERN]
+#        update_mise.sh -c|--check [--filter PATTERN]
 #
+#   -c, --check       Change nothing: list the tools built from a git branch
+#                     (the cargo:https://... = "branch:..." ones) and say for
+#                     each whether the installed build is the branch's latest
+#                     commit. mise itself cannot tell: to it "branch:main" is
+#                     the version, and that is installed.
 #   -v, --verbose     Show everything mise prints, live. By default only what
 #                     changed and what went wrong is shown; the rest goes to a
 #                     log, whose path is printed when something fails.
@@ -57,9 +63,11 @@ mise_disk_usage() {
 
 filter=""
 verbose=0
+check=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -v|--verbose) verbose=1; shift ;;
+    -c|--check) check=1; shift ;;
     -f|--filter) filter="${2:?--filter needs a pattern}"; shift 2 ;;
     --filter=*)  filter="${1#*=}"; shift ;;
     -h|--help)   sed -n '2,/^$/s/^# \{0,1\}//p' "$0"; exit 0 ;;
@@ -299,6 +307,63 @@ size_before=$(mise_disk_usage)
 # upgrade is allowed to fail, everything after it still runs, and the failure is
 # reported (and the exit status set) at the end.
 upgrade_ok=true
+
+# --check: where each branch-built tool stands, without touching anything.
+#
+# Same comparison as refresh_branch_tools: the commit cargo recorded in
+# .crates.toml against the tip of the branch. It also says when the copy that
+# actually runs is not mise's — a `cargo install --path .` build in ~/.cargo/bin
+# is ahead of the shims on PATH, and that one is whatever was in the working
+# tree when it was built.
+branch_status() {
+  local tool path branch url name built tip bin note behind=0
+  local -a rows=()
+  while IFS=$'\t' read -r tool path branch; do
+    url=${tool#cargo:}
+    name=${url##*/}
+    [[ -z "$filter" ]] || grep -qiF -- "$filter" <<<"$name" || continue
+    built=$(grep -oE '#[0-9a-f]{40}' "$path/.crates.toml" 2>/dev/null | head -n1 | tr -d '#') || true
+    tip=$(git ls-remote "$url" "refs/heads/$branch" 2>/dev/null | cut -f1) || true
+    note=""
+    while read -r bin; do
+      [[ -n "$bin" && -x "${CARGO_HOME:-$HOME/.cargo}/bin/$bin" ]] && note="  ${YELLOW}but ~/.cargo/bin/$bin (a dev build) is what runs$RESET"
+    done < <(sed -n 's/.*= \[\(.*\)\]/\1/p' "$path/.crates.toml" 2>/dev/null | tr -d '" ' | tr ',' '\n')
+    if [[ -z "$tip" ]]; then
+      rows+=("$YELLOW"$'\x1f'"Unknown"$'\x1f'"$name"$'\x1f'"${built:0:7}"$'\x1f'"could not read $branch of $url")
+    elif [[ -z "$built" ]]; then
+      rows+=("$RED"$'\x1f'"Not built"$'\x1f'"$name"$'\x1f'"-"$'\x1f'"$branch is at ${tip:0:7}")
+      ((behind++)) || true
+    elif [[ "$built" == "$tip" ]]; then
+      rows+=("$GREEN"$'\x1f'"Latest"$'\x1f'"$name"$'\x1f'"${built:0:7}"$'\x1f'"${DIM}the tip of $branch$RESET$note")
+    else
+      rows+=("$YELLOW"$'\x1f'"Behind"$'\x1f'"$name"$'\x1f'"${built:0:7}"$'\x1f'"$branch is at ${tip:0:7}$note")
+      ((behind++)) || true
+    fi
+  done < <(mise ls --current --json 2>/dev/null |
+    jq -r 'to_entries[] | .key as $k | .value[]
+           | select(($k | startswith("cargo:https://")) and (.version | startswith("branch:")))
+           | "\($k)\t\(.install_path)\t\(.version | ltrimstr("branch:"))"' 2>/dev/null || true)
+
+  if [[ ${#rows[@]} -eq 0 ]]; then
+    say "$DIM" "Checked" "${DIM}no branch-built tools${filter:+ matching \"$filter\"}$RESET"
+    return 0
+  fi
+  local width=0 row colour verb state
+  for row in "${rows[@]}"; do
+    IFS=$'\x1f' read -r colour verb name built state <<<"$row"
+    ((${#name} > width)) && width=${#name}
+  done
+  for row in "${rows[@]}"; do
+    IFS=$'\x1f' read -r colour verb name built state <<<"$row"
+    say "$colour" "$verb" "$(printf '%-*s  %-7s  %s' "$width" "$name" "$built" "$state")"
+  done
+  [[ $behind -eq 0 ]] || detail "${DIM}bring them up to date with: uq   (or: update_mise.sh --filter NAME)$RESET"
+}
+
+if [[ $check -eq 1 ]]; then
+  branch_status
+  exit 0
+fi
 
 if [[ -n "$filter" ]]; then
   mapfile -t tools < <(mise ls --current | awk '{print $1}' | sort -u | grep -iF -- "$filter" || true)
