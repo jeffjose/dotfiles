@@ -50,6 +50,9 @@ PROG="appimage"
 _SELF="$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || echo "${BASH_SOURCE[0]}")"
 _SELF_DIR="$(dirname "$_SELF")"
 GUARD_DIR="$_SELF_DIR/appimage-guards"
+# appimage-hooks/<name>.sh, if there is one, wraps every launch of an inner-cli
+# app: the generated wrapper hands it the bundled CLI and the arguments.
+HOOK_DIR="$_SELF_DIR/appimage-hooks"
 CATALOG_FILE="$_SELF_DIR/appimage-catalog.tsv"
 
 # Cargo-style output (say/warn/err and the colours), shared with `uq` and ./setup.
@@ -657,6 +660,11 @@ if [ -z "\$cli" ]; then
   echo "$name: could not mount \$APPIMAGE (is fuse available?)" >&2
   exit 1
 fi
+
+# A launch hook takes over the last step: it is handed the CLI and the caller's
+# arguments, does whatever it is there for, and ends by exec'ing that CLI.
+HOOK="$HOOK_DIR/$name.sh"
+if [ -x "\$HOOK" ]; then exec "\$HOOK" "\$cli"$pre "\$@"; fi
 
 exec "\$cli"$pre "\$@"
 EOF
