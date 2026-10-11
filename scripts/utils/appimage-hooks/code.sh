@@ -83,13 +83,20 @@ seed=$(printf '%s' "${dir/#$HOME/\~}" | cksum | cut -d' ' -f1)
 slug=$(printf '%s' "$dir" | tr -c 'A-Za-z0-9._-' '-')
 class="code$slug"
 
-# Radix Colors, step 9 of each scale — the solid, most saturated step.
+# Radix Colors, as "body accent" pairs from one scale. The body is step 9, the
+# solid and most saturated step; the accent is the same hue made lighter — the
+# dark theme's step 11, or its step 10 for the five scales at the end, whose
+# step 9 is already brighter than their step 11. Brown, bronze and gold are
+# left out: they turn to mud at taskbar size.
 COLOURS=(
-  '#e54d2e' '#e5484d' '#e54666' '#e93d82' '#d6409f' # tomato red ruby crimson pink
-  '#ab4aba' '#8e4ec6' '#6e56cf' '#5b5bd6' '#3e63dd' # plum purple violet iris indigo
-  '#0090ff' '#00a2c7' '#12a594' '#29a383' '#30a46c' # blue cyan teal jade green
-  '#46a758' '#ad7f58' '#f76b15' '#a18072' '#978365' # grass brown orange bronze gold
-  '#7ce2fe' '#86ead4' '#bdee63' '#ffe629' '#ffc53d' # sky mint lime yellow amber
+  '#e54d2e #ff977d' '#e5484d #ff9592' '#e54666 #ff949d' # tomato red ruby
+  '#e93d82 #ff92ad' '#d6409f #ff8dcc' '#ab4aba #e796f3' # crimson pink plum
+  '#8e4ec6 #d19dff' '#6e56cf #baa7ff' '#5b5bd6 #b1a9ff' # purple violet iris
+  '#3e63dd #9eb1ff' '#0090ff #70b8ff' '#00a2c7 #4ccce6' # indigo blue cyan
+  '#12a594 #0bd8b6' '#29a383 #1fd8a4' '#30a46c #3dd68c' # teal jade green
+  '#46a758 #71d083' '#f76b15 #ffa057'                   # grass orange
+  '#7ce2fe #a8eeff' '#86ead4 #a8f5e5' '#bdee63 #d4ff70' # sky mint lime
+  '#ffe629 #ffff57' '#ffc53d #ffd60a'                   # yellow amber
 )
 
 # Solar (CC BY 4.0), bold duotone: solar:<glyph>-bold-duotone on Iconify.
@@ -104,39 +111,39 @@ GLYPHS=(
   wheel wind
 )
 
-# draw_icon <file>: a Solar glyph in a Radix colour, on nothing — no tile behind
-# it, and trimmed and scaled until it all but touches the edges, because at
-# taskbar size every pixel spent on a background or a margin is one the glyph
-# does not get.
+# draw_icon <file>: a Solar glyph in two tones of a Radix colour, on nothing —
+# no tile behind it, and trimmed and scaled until it all but touches the edges,
+# because at taskbar size every pixel spent on a background or a margin is one
+# the glyph does not get.
 #
-# Both are picked by the project's checksum — pseudo-random, but the same every
-# time for the same project — from separate slices of it, so that two projects
-# landing on one colour still get different glyphs.
+# Colour and glyph are picked by the project's checksum — pseudo-random, but
+# the same every time for the same project — from separate slices of it, so
+# that two projects landing on one colour still get different glyphs.
 #
 # The glyph comes from the Iconify API, already tinted. That is one short
 # request the first time a project is opened; offline, or with the API down,
 # the icon is the first letter of the folder's name instead.
 draw_icon() {
-  local colour glyph svg initial
-  colour=${COLOURS[$((seed % ${#COLOURS[@]}))]}
+  local body accent glyph svg initial
+  read -r body accent <<<"${COLOURS[$((seed % ${#COLOURS[@]}))]}"
   glyph=${GLYPHS[$((seed / ${#COLOURS[@]} % ${#GLYPHS[@]}))]}
   svg=$(mktemp --suffix=.svg) || return 1
 
   if curl -fsL --max-time 3 -o "$svg" \
-    "https://api.iconify.design/solar/$glyph-bold-duotone.svg?color=%23${colour#\#}&width=512&height=512" &&
+    "https://api.iconify.design/solar/$glyph-bold-duotone.svg?color=%23${body#\#}&width=512&height=512" &&
     command grep -q '<svg' "$svg"; then
-    # A duotone glyph marks its lighter half with opacity=".5", on single
-    # shapes or on a group of them, and ImageMagick's SVG reader ignores that —
-    # everything comes out solid. So build the two tones by hand: the whole
-    # glyph at half strength, and on top of it the glyph with the lighter
-    # shapes cut out.
+    # A duotone glyph is one colour, with opacity=".5" on the shapes (or the
+    # group of shapes) that make up its second tone. That is meant to sit on a
+    # background: on a dark panel the half-transparent part just goes dim, and
+    # ImageMagick's SVG reader ignores the attribute anyway. So make both tones
+    # solid instead — the whole glyph in the body colour, and over it the
+    # full-strength shapes alone, repainted in the accent.
     sed -E 's/<g opacity="[^"]*">(<[a-z]+[^>]*\/>)*<\/g>//g; s/<[a-z]+[^>]* opacity="[^"]*"[^>]*\/>//g' \
-      "$svg" >"$svg.solid.svg" &&
-      convert -background none "$svg" -channel A -evaluate multiply 0.5 +channel \
-        \( -background none "$svg.solid.svg" \) -composite "$svg.png"
+      "$svg" | sed "s/$body/$accent/g" >"$svg.accent.svg" &&
+      convert -background none "$svg" \( -background none "$svg.accent.svg" \) -composite "$svg.png"
   else
     initial=$(printf '%s' "$name" | tr -cd '[:alnum:]' | cut -c1 | tr '[:lower:]' '[:upper:]')
-    convert -background none -fill "$colour" -font DejaVu-Sans-Bold -pointsize 400 \
+    convert -background none -fill "$body" -font DejaVu-Sans-Bold -pointsize 400 \
       label:"${initial:-?}" "$svg.png"
   fi &&
     # Cut the empty border off, scale the longer side to just short of the full
@@ -145,7 +152,7 @@ draw_icon() {
     convert "$svg.png" -trim +repage -resize 232x232 -background none \
       -gravity center -extent 256x256 "$1"
   local status=$?
-  rm -f "$svg" "$svg.png" "$svg.solid.svg"
+  rm -f "$svg" "$svg.png" "$svg.accent.svg"
   return $status
 }
 
