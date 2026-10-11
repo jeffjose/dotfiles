@@ -13,10 +13,11 @@
 # retagged in the background:
 #
 #   class   code-<path with dashes>, e.g. code-home-jeffjose-scripts-project1
-#   icon    <folder>/.icon.png, if there is one. Without it an icon is drawn: a
-#           Solar bold-duotone glyph in a Radix colour, edge to edge, both worked
-#           out from the folder's path, so a project keeps its look from one
-#           launch and one machine to the next. A drawn icon lives in
+#   icon    <folder>/.icon.png, if there is one. Without it, the project's
+#           favicon, if it has one. Without that an icon is drawn: a Solar
+#           bold-duotone glyph in a Radix colour, edge to edge, both worked out
+#           from the folder's path, so a project keeps its look from one launch
+#           and one machine to the next. A found or drawn icon lives in
 #           ~/.cache/code-icons/<path with dashes>.png, not in the project, so
 #           it never shows up as an untracked file — drop a .icon.png in and
 #           the next `code <folder>` uses that instead.
@@ -101,32 +102,31 @@ seed=$(printf '%s' "${dir/#$HOME/\~}" | cksum | cut -d' ' -f1)
 slug=$(printf '%s' "$dir" | tr -c 'A-Za-z0-9._-' '-')
 class="code$slug"
 
-# Radix Colors, as "body accent" pairs from one scale. The body is step 9, the
-# solid and most saturated step; the accent is the same hue made lighter — the
-# dark theme's step 11, or its step 10 for the five scales at the end, whose
-# step 9 is already brighter than their step 11. Brown, bronze and gold are
-# left out: they turn to mud at taskbar size.
-COLOURS=(
-  '#e54d2e #ff977d' '#e5484d #ff9592' '#e54666 #ff949d' # tomato red ruby
-  '#e93d82 #ff92ad' '#d6409f #ff8dcc' '#ab4aba #e796f3' # crimson pink plum
-  '#8e4ec6 #d19dff' '#6e56cf #baa7ff' '#5b5bd6 #b1a9ff' # purple violet iris
-  '#3e63dd #9eb1ff' '#0090ff #70b8ff' '#00a2c7 #4ccce6' # indigo blue cyan
-  '#12a594 #0bd8b6' '#29a383 #1fd8a4' '#30a46c #3dd68c' # teal jade green
-  '#46a758 #71d083' '#f76b15 #ffa057'                   # grass orange
-  '#7ce2fe #a8eeff' '#86ead4 #a8f5e5' '#bdee63 #d4ff70' # sky mint lime
-  '#ffe629 #ffff57' '#ffc53d #ffd60a'                   # yellow amber
-)
+# Solar (CC BY 4.0), bold duotone, as "name<TAB>svg body" lines: the whole set
+# cut down to one glyph per family — of the forty chat bubbles, one — and
+# without the arrows, list and text formatting marks, which all look alike at
+# this size. The shapes are kept in the repo rather than fetched when needed:
+# the glyph a project gets is its line number in this file, so it has to be the
+# same file on every machine, and an icon API that is down or rate-limiting
+# should not decide what a window looks like.
+GLYPH_FILE="${BASH_SOURCE[0]%/*}/code-glyphs.tsv"
 
-# Solar (CC BY 4.0), bold duotone: solar:<glyph>-bold-duotone on Iconify.
-GLYPHS=(
-  atom balloon basketball bell bicycling bolt bone bookmark bowling bug camera
-  cat chef-hat cloud compass cpu-bolt crown cup-hot cup-star database donut
-  dumbbell earth fire flag flame folder gamepad ghost gift glasses global hanger
-  headphones-round heart home infinity key ladle leaf lightbulb magic-stick-3
-  magnet map medal-ribbon-star moon music-note notebook paint-roller palette
-  paw plain planet rocket rugby running shield skateboard sledgehammer snowflake
-  star suitcase sun target tea-cup telescope test-tube ufo-3 umbrella waterdrop
-  wheel wind
+# Radix Colors, dark theme, as "body accent" pairs from one scale. These sit on
+# a dark panel with nothing behind them, so what makes them stand out is how
+# light they are, more than how saturated: the body is step 11, the light text
+# colour of the scale, and the accent step 12, lighter again and close to white.
+# (For the five at the end the body is step 10, which is the lighter one there.)
+#
+# Scales that come out nearly the same at these steps are in once only — red
+# and ruby next to tomato and crimson, iris next to violet, jade next to teal —
+# and brown, bronze and gold are out for turning to mud at taskbar size.
+COLOURS=(
+  '#ff977d #fbd3cb' '#ff92ad #fdd3e8' '#ff8dcc #fdd1ea' # tomato crimson pink
+  '#e796f3 #f4d4f4' '#d19dff #ecd9fa' '#baa7ff #e2ddfe' # plum purple violet
+  '#9eb1ff #d6e1ff' '#70b8ff #c2e6ff' '#4ccce6 #b6ecf7' # indigo blue cyan
+  '#0bd8b6 #adf0dd' '#3dd68c #b1f1cb' '#71d083 #c2f0c2' # teal green grass
+  '#ffa057 #ffe0c2' '#a8eeff #c2f3ff' '#a8f5e5 #c4f5e1' # orange sky mint
+  '#d4ff70 #e3f7ba' '#ffff57 #f6eeb4' '#ffd60a #ffe7b3' # lime yellow amber
 )
 
 # draw_icon <file>: a Solar glyph in two tones of a Radix colour, on nothing —
@@ -137,29 +137,32 @@ GLYPHS=(
 # Colour and glyph are picked by the project's checksum — pseudo-random, but
 # the same every time for the same project — from separate slices of it, so
 # that two projects landing on one colour still get different glyphs.
-#
-# The glyph comes from the Iconify API, already tinted. That is one short
-# request the first time a project is opened; offline, or with the API down,
-# the icon is the first letter of the folder's name instead.
 draw_icon() {
-  local body accent glyph svg initial
+  local body accent count shape svg initial
   read -r body accent <<<"${COLOURS[$((seed % ${#COLOURS[@]}))]}"
-  glyph=${GLYPHS[$((seed / ${#COLOURS[@]} % ${#GLYPHS[@]}))]}
+  count=$(wc -l <"$GLYPH_FILE" 2>/dev/null) || count=0
+  shape=""
+  if [ "${count:-0}" -gt 0 ]; then
+    shape=$(sed -n "$((seed / ${#COLOURS[@]} % count + 1))p" "$GLYPH_FILE" | cut -f2)
+  fi
   svg=$(mktemp --suffix=.svg) || return 1
 
-  if curl -fsL --max-time 3 -o "$svg" \
-    "https://api.iconify.design/solar/$glyph-bold-duotone.svg?color=%23${body#\#}&width=512&height=512" &&
-    command grep -q '<svg' "$svg"; then
+  if [ -n "$shape" ]; then
     # A duotone glyph is one colour, with opacity=".5" on the shapes (or the
     # group of shapes) that make up its second tone. That is meant to sit on a
     # background: on a dark panel the half-transparent part just goes dim, and
     # ImageMagick's SVG reader ignores the attribute anyway. So make both tones
     # solid instead — the whole glyph in the body colour, and over it the
-    # full-strength shapes alone, repainted in the accent.
-    sed -E 's/<g opacity="[^"]*">(<[a-z]+[^>]*\/>)*<\/g>//g; s/<[a-z]+[^>]* opacity="[^"]*"[^>]*\/>//g' \
-      "$svg" | sed "s/$body/$accent/g" >"$svg.accent.svg" &&
+    # full-strength shapes alone, in the accent.
+    printf '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 24 24">%s</svg>' \
+      "${shape//currentColor/$body}" >"$svg"
+    printf '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 24 24">%s</svg>' \
+      "${shape//currentColor/$accent}" |
+      sed -E 's/<g opacity="[^"]*">(<[a-z]+[^>]*\/>)*<\/g>//g; s/<[a-z]+[^>]* opacity="[^"]*"[^>]*\/>//g' \
+        >"$svg.accent.svg" &&
       convert -background none "$svg" \( -background none "$svg.accent.svg" \) -composite "$svg.png"
   else
+    # No glyph file: the first letter of the folder's name.
     initial=$(printf '%s' "$name" | tr -cd '[:alnum:]' | cut -c1 | tr '[:lower:]' '[:upper:]')
     convert -background none -fill "$body" -font DejaVu-Sans-Bold -pointsize 400 \
       label:"${initial:-?}" "$svg.png"
@@ -174,12 +177,152 @@ draw_icon() {
   return $status
 }
 
-# The project's own icon wins; otherwise draw one, once, into the cache.
+# find_favicon: print the project's favicon, if it has one worth using.
+#
+# Only where a site keeps the one it serves — the project root or a public/,
+# static/ or app/ folder directly inside it — which leaves out the
+# copies under node_modules and build output, and the framework's own logo that
+# a template drops into src/lib/assets.
+#
+# A project often has several. In order: favicon.png, favicon.svg, the largest
+# of the other PNGs (favicon-512.png over favicon-32.png), any other SVG, and
+# last a .ico, which is the smallest thing in the folder.
+find_favicon() {
+  local f best="" best_rank=99 rank px best_px=0
+  while IFS= read -r f; do
+    case "$(basename "$(dirname "$f")")" in
+      "$name" | public | static | app) ;;
+      *) [ "$(dirname "$f")" = "$dir" ] || continue ;;
+    esac
+    case "$(basename "$f" | tr '[:upper:]' '[:lower:]')" in
+      favicon.png) rank=1 ;;
+      favicon.svg) rank=2 ;;
+      *.png) rank=3 ;;
+      *.svg) rank=4 ;;
+      *) rank=5 ;;
+    esac
+    px=0
+    if [ $rank -eq 3 ]; then px=$(identify -format '%w' "$f" 2>/dev/null | head -c 6) || px=0; fi
+    if [ $rank -lt $best_rank ] || { [ $rank -eq $best_rank ] && [ "${px:-0}" -gt "$best_px" ]; }; then
+      best="$f" best_rank=$rank best_px=${px:-0}
+    fi
+  done < <(find "$dir" -maxdepth 2 \
+    \( -name node_modules -o -name .git -o -name dist -o -name build -o -name target \
+    -o -name .next -o -name .svelte-kit -o -name .venv -o -name vendor \) -prune -o \
+    -type f \( -iname 'favicon*.png' -o -iname 'favicon*.svg' -o -iname 'favicon*.ico' \) \
+    -print 2>/dev/null)
+  [ -n "$best" ] && printf '%s' "$best"
+}
+
+# render_svg <svg> <png>: rasterise an SVG with a browser, when one is installed.
+#
+# ImageMagick's SVG reader is not up to a favicon: it ignores opacity, so a mark
+# drawn in four strengths of one colour comes out as four identical blocks, and
+# it knows nothing of CSS. Headless Chrome draws it as a browser tab would — and
+# in dark mode, so an SVG that carries a light variant for dark colour schemes
+# shows that one, which is the right one for a dark panel.
+#
+# The <img> wrapper is what makes the size predictable: loaded on its own, an
+# SVG with a fixed width and height would sit small in a corner of the shot.
+render_svg() {
+  local chrome page profile
+  chrome=$(command -v google-chrome google-chrome-stable chromium chromium-browser 2>/dev/null | head -n1)
+  [ -n "$chrome" ] || return 1
+  page=$(mktemp --suffix=.html) && profile=$(mktemp -d) || return 1
+  cat >"$page" <<EOF
+<!doctype html><meta name="color-scheme" content="dark">
+<style>html,body{margin:0;background:transparent}img{display:block;width:512px;height:512px}</style>
+<img src="file://$1">
+EOF
+  timeout 20 "$chrome" --headless=new --disable-gpu --hide-scrollbars --force-dark-mode \
+    --no-first-run --user-data-dir="$profile" --default-background-color=00000000 \
+    --window-size=512,512 --screenshot="$2" "file://$page" >/dev/null 2>&1
+  rm -rf "$page" "$profile"
+  [ -s "$2" ]
+}
+
+# favicon_icon <file>: turn the project's favicon into its icon, the same size
+# and margin as a drawn one. Fails — and a glyph is drawn instead — when there
+# is no favicon. One that is too dark to see is repainted: a black mark made
+# for a white browser tab disappears on a dark panel.
+favicon_icon() {
+  local src frame="" tmp alpha lit shot=""
+  src=$(find_favicon) || return 1
+  case "$src" in
+    # A .ico is several sizes in one file; take the widest.
+    *.[iI][cC][oO])
+      frame="[$(identify -format '%w %p\n' "$src" 2>/dev/null | sort -rn | head -n1 | cut -d' ' -f2)]" ;;
+    *.[sS][vV][gG])
+      shot=$(mktemp --suffix=.png) && render_svg "$src" "$shot" && src="$shot" ;;
+  esac
+  tmp=$(mktemp --suffix=.png) || return 1
+  # -density is for an SVG that render_svg could not do: at the default it is
+  # rendered at its own tiny size and then blown up.
+  convert -background none -density 600 "$src$frame" -trim +repage "$tmp" 2>/dev/null
+  local status=$?
+  [ -n "$shot" ] && rm -f "$shot"
+
+  # A favicon's second tone is often the first at half opacity. That is drawn
+  # for a white tab, where it comes out as a tint; on a dark panel it comes out
+  # as a murky shade instead — pink turns maroon. For a coloured mark with such
+  # parts, give them the tint they were meant to have: paint the mark as it
+  # looks on white, and make the see-through parts solid. (Not for a white or
+  # grey mark, whose tones would all turn white together; those are fine as
+  # they are.) The one-pixel soft edge gets the same treatment, which is why
+  # this happens here, at full size, where one pixel is nothing.
+  if [ $status -eq 0 ]; then
+    local covered solid colour
+    covered=$(convert "$tmp" -alpha extract -threshold 10% -format '%[fx:mean]' info: 2>/dev/null)
+    solid=$(convert "$tmp" -alpha extract -threshold 90% -format '%[fx:mean]' info: 2>/dev/null)
+    colour=$(convert "$tmp" -background black -alpha remove -colorspace HSL -channel G -separate \
+      -format '%[fx:mean]' info: 2>/dev/null)
+    if awk -v c="${covered:-0}" -v s="${solid:-0}" -v k="${colour:-0}" \
+      'BEGIN { exit !(c > 0.02 && (c - s) / c > 0.1 && k / c > 0.2) }'; then
+      convert \( "$tmp" -background white -alpha remove -alpha off \) \
+        \( "$tmp" -alpha extract -level 0,34% \) -compose CopyOpacity -composite "$tmp.tint.png" 2>/dev/null &&
+        mv "$tmp.tint.png" "$tmp"
+      rm -f "$tmp.tint.png"
+    fi
+    convert "$tmp" -resize 232x232 -background none -gravity center -extent 256x256 "$tmp" 2>/dev/null
+    status=$?
+  fi
+  if [ $status -eq 0 ]; then
+    # Brightness of what is actually painted: the mean over the whole canvas on
+    # black, divided by how much of the canvas is covered.
+    alpha=$(convert "$tmp" -alpha extract -format '%[fx:mean]' info: 2>/dev/null)
+    lit=$(convert "$tmp" -background black -alpha remove -colorspace Gray -format '%[fx:mean]' info: 2>/dev/null)
+    case "$(awk -v a="${alpha:-0}" -v l="${lit:-0}" \
+      'BEGIN { if (a <= 0.02) print "empty"; else if (l / a > 0.25) print "ok"; else print "dark" }')" in
+      ok)
+        mv "$tmp" "$1"
+        return 0
+        ;;
+      dark)
+        # Keep its shape and its own colour, only lighter: squeeze every channel
+        # into the upper half of the range. Black comes out a mid grey, a dark
+        # blue a soft blue. No further than half — pushed nearly to white, the
+        # tones of a two-tone mark end up indistinguishable.
+        if convert "$tmp" -channel RGB +level 50%,100% +channel "$1" 2>/dev/null; then
+          rm -f "$tmp"
+          return 0
+        fi
+        ;;
+    esac
+  fi
+  rm -f "$tmp"
+  return 1
+}
+
+# Which icon the window gets. The project's own .icon.png wins, and is looked
+# at every time. Otherwise it is whatever is in the cache, and filling the cache
+# is the one slow step, paid once per project: look for a favicon, and failing
+# that draw a glyph. (Delete the cached file to have it worked out again.)
 icon="$dir/.icon.png"
 if [ ! -f "$icon" ]; then
   icon="${XDG_CACHE_HOME:-$HOME/.cache}/code-icons/$slug.png"
   if [ ! -f "$icon" ] && command -v convert >/dev/null 2>&1; then
-    mkdir -p "${icon%/*}" 2>/dev/null && draw_icon "$icon" 2>/dev/null
+    mkdir -p "${icon%/*}" 2>/dev/null &&
+      { favicon_icon "$icon" || draw_icon "$icon"; } 2>/dev/null
   fi
 fi
 
