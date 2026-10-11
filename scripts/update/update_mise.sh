@@ -2,8 +2,8 @@
 #
 # Update mise tools
 #
-# Usage: update_mise.sh [-v|--verbose] [--filter PATTERN]
-#        update_mise.sh -c|--check [--filter PATTERN]
+# Usage: update_mise.sh [-v|--verbose] [--filter PATTERN | PATTERN]
+#        update_mise.sh -c|--check [PATTERN...]
 #
 #   -c, --check       Change nothing: list the tools built from a git branch
 #                     (the cargo:https://... = "branch:..." ones) and say for
@@ -64,6 +64,7 @@ mise_disk_usage() {
 filter=""
 verbose=0
 check=0
+names=() # bare words: the same as --filter, and --check takes several
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -v|--verbose) verbose=1; shift ;;
@@ -71,9 +72,19 @@ while [[ $# -gt 0 ]]; do
     -f|--filter) filter="${2:?--filter needs a pattern}"; shift 2 ;;
     --filter=*)  filter="${1#*=}"; shift ;;
     -h|--help)   sed -n '2,/^$/s/^# \{0,1\}//p' "$0"; exit 0 ;;
-    *) err "unknown argument: $1"; exit 2 ;;
+    -*) err "unknown argument: $1"; exit 2 ;;
+    *) names+=("$1"); shift ;;
   esac
 done
+
+# --filter X and a bare X are the same thing. Updating takes one pattern;
+# --check takes any number.
+[[ -z "$filter" ]] || names+=("$filter")
+if [[ $check -eq 0 && ${#names[@]} -gt 1 ]]; then
+  err "one pattern at a time when updating: ${names[*]}"
+  exit 2
+fi
+[[ ${#names[@]} -eq 0 ]] || filter="${names[0]}"
 
 # mise prints a line for every tool it looks at, 120-odd on a run that changes
 # nothing, and the one line that matters scrolls away among them. So unless -v
@@ -321,7 +332,9 @@ branch_status() {
   while IFS=$'\t' read -r tool path branch; do
     url=${tool#cargo:}
     name=${url##*/}
-    [[ -z "$filter" ]] || grep -qiF -- "$filter" <<<"$name" || continue
+    if [[ ${#names[@]} -gt 0 ]]; then
+      grep -qiF -f <(printf '%s\n' "${names[@]}") <<<"$name" || continue
+    fi
     built=$(grep -oE '#[0-9a-f]{40}' "$path/.crates.toml" 2>/dev/null | head -n1 | tr -d '#') || true
     tip=$(git ls-remote "$url" "refs/heads/$branch" 2>/dev/null | cut -f1) || true
     note=""
@@ -345,7 +358,7 @@ branch_status() {
            | "\($k)\t\(.install_path)\t\(.version | ltrimstr("branch:"))"' 2>/dev/null || true)
 
   if [[ ${#rows[@]} -eq 0 ]]; then
-    say "$DIM" "Checked" "${DIM}no branch-built tools${filter:+ matching \"$filter\"}$RESET"
+    say "$DIM" "Checked" "${DIM}no branch-built tools${names[*]:+ matching ${names[*]}}$RESET"
     return 0
   fi
   local width=0 row colour verb state
@@ -357,7 +370,7 @@ branch_status() {
     IFS=$'\x1f' read -r colour verb name built state <<<"$row"
     say "$colour" "$verb" "$(printf '%-*s  %-7s  %s' "$width" "$name" "$built" "$state")"
   done
-  [[ $behind -eq 0 ]] || detail "${DIM}bring them up to date with: uq   (or: update_mise.sh --filter NAME)$RESET"
+  [[ $behind -eq 0 ]] || detail "${DIM}bring them up to date with: uq   (or just one: update_mise NAME)$RESET"
 }
 
 if [[ $check -eq 1 ]]; then
