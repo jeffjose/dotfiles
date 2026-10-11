@@ -91,7 +91,6 @@ STEPS=(
   "code|desktop|VS Code (AppImage)"
   "terminal|desktop|tilix settings and the drop-down terminal shortcut"
   "groups|desktop|plugdev membership, for adb"
-  "vscode-extensions|module:vscode-extensions|VS Code extensions"
   "claude-remote|module:claude-remote|Claude Code remote-control service"
 )
 
@@ -102,7 +101,6 @@ ROOT_STEPS="apt shell debs code groups"
 # name | which profiles may have it | what it adds. A module can bring apt
 # packages (packages/apt-<name>.txt), a step above, or both.
 MODULES=(
-  "vscode-extensions|desktop|the VS Code extension list in scripts/install/vscode.sh"
   "claude-remote|all|Claude Code remote control as a systemd user service"
 )
 
@@ -490,11 +488,6 @@ step_groups() {
   }
   sudo usermod -aG plugdev "$USER" || return 1
   say "$GREEN" "Added" "$USER to plugdev (from the next login)"
-}
-
-step_vscode_extensions() {
-  export PATH="$HOME/bin:$PATH"
-  "$DOTFILES_DIR/scripts/install/vscode.sh"
 }
 
 step_claude_remote() {
