@@ -587,10 +587,11 @@
 
     alias update_code '~/dotfiles/scripts/update/update_code.sh'
 
-    # code-remote [flags] <host> [path] lives in ~/dotfiles/bin; this is just its
-    # completion: ssh hosts in the host slot, directories in the path slot
+    # code-remote [flags] <host>[:path] lives in ~/dotfiles/bin; this is just its
+    # completion: ssh hosts up to the colon, and after it the directories here,
+    # which is what a relative path there is read against
     # (@ as the delimiter: the command itself contains slashes)
-    complete code-remote 'p@1@`\grep -i "^Host " ~/.ssh/config | cut -d" " -f2- | \grep -v "[*?]"`@' 'p/2/d/'
+    complete code-remote 'c@*:@d@' 'p@1@`\grep -i "^Host " ~/.ssh/config | cut -d" " -f2- | \grep -v "[*?]"`@:@'
 
 
     alias install_deb 'wget -O /tmp/install-package.deb "\!*"; gdebi /tmp/install-package.deb'

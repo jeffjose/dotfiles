@@ -2,23 +2,31 @@
 #
 # Open a directory on a remote host in VS Code (Remote-SSH). Run from the laptop.
 #
-#   code-remote [flags] <host> [path] [flags]      path defaults to "."
+#   code-remote [flags] <host>[:path] [flags]      a bare host is host:.
 #
-# The path is made absolute locally, so "." and "~" assume the same layout on
-# both machines; pass an absolute path for anything that only exists remotely.
+# The path is read as it would be without the host in front, then opened on
+# the other machine — the same reading `magicfs host:path` gives it:
+#
+#   host:. host:          this directory, over there (same layout assumed)
+#   host:src host:../x    relative to this directory, likewise
+#   host:/etc/nginx       absolute
+#   host:~ host:~/x       the home directory *there* (costs one ssh to ask)
+#
+# The old two-word form, `code-remote host path`, still works and means
+# host:path.
 #
 # Anything starting with "-" is forwarded to `code` untouched, so
-# `code-remote -n host` opens a new window and `code-remote host . -g main.rs:42`
+# `code-remote -n host:.` opens a new window and `code-remote host:. -g main.rs:42`
 # jumps to a line. A flag that takes a *separate* value has to come after the
-# host (and path): before them, its value would be read as the host.
+# host: before it, its value would be read as the host.
 
 usage() {
-  echo "usage: code-remote [flags] <host> [path] [flags]" >&2
+  echo "usage: code-remote [flags] <host>[:path] [flags]" >&2
   exit 2
 }
 
 # Rotate leading flags to the back of the argument list, so what is left in
-# front is the host and (maybe) the path. "--" ends flag collection.
+# front is the host. "--" ends flag collection.
 while [ $# -gt 0 ]; do
   case "$1" in
     --) shift; break ;;
@@ -28,13 +36,34 @@ while [ $# -gt 0 ]; do
 done
 
 [ $# -gt 0 ] || usage
-host="$1"; shift
 
-# A leading "-" here is a trailing flag, not the path.
-path="."
-case "${1:-}" in
-  ""|-*) ;;
-  *) path="$1"; shift ;;
+case "$1" in
+  *:*)
+    host="${1%%:*}"; path="${1#*:}"; shift
+    ;;
+  *)
+    host="$1"; shift
+    # A leading "-" here is a trailing flag, not the path.
+    path="."
+    case "${1:-}" in
+      ""|-*) ;;
+      *) path="$1"; shift ;;
+    esac
+    ;;
 esac
 
-exec code --remote "ssh-remote+$host" "$(realpath -ms "$path")" "$@"
+[ -n "$host" ] || usage
+
+case "$path" in
+  "~"|"~/"*)
+    # The last line: an rc file that prints a greeting must not become a path.
+    home="$(ssh -o ConnectTimeout=10 "$host" pwd | tail -n 1)"
+    case "$home" in
+      /*) ;;
+      *) echo "code-remote: cannot find the home directory on $host" >&2; exit 1 ;;
+    esac
+    path="${home%/}/${path#"~"}"
+    ;;
+esac
+
+exec code --remote "ssh-remote+$host" "$(realpath -ms "${path:-.}")" "$@"
