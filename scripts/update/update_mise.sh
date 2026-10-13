@@ -2,8 +2,8 @@
 #
 # Update mise tools
 #
-# Usage: update_mise.sh [-v|--verbose] [--filter PATTERN | PATTERN]
-#        update_mise.sh -c|--check [PATTERN...]
+# Usage: update_mise.sh [-v|--verbose] [--filter PATTERN | PATTERN...]
+#        update_mise.sh -c|--check [-u|--update] [PATTERN...]
 #        update_mise.sh -b|--branches
 #
 #   -c, --check       Change nothing: list the tools built from a git branch
@@ -11,6 +11,9 @@
 #                     each whether the installed build is the branch's latest
 #                     commit. mise itself cannot tell: to it "branch:main" is
 #                     the version, and that is installed.
+#   -u, --update      With --check (which it implies): after the list, update
+#                     the tools in it that are behind, as `update_mise.sh
+#                     NAME...` would.
 #   -b, --branches    Only the branch-built tools: check each against its
 #                     branch on GitHub and rebuild the ones that are behind.
 #                     Nothing else is upgraded. This is what `m` runs.
@@ -22,6 +25,8 @@
 #                     mise self-update and pnpm health check.
 #                     e.g. `update_mise.sh --filter claude` upgrades both
 #                     `claude` and `npm:@anthropic-ai/claude-code`.
+#                     A bare PATTERN is the same thing, and there can be
+#                     several: `update_mise.sh safeclean magicfs`.
 
 # The whole script sits inside one { ... } so that bash has read all of it before
 # it runs any of it. Bash otherwise reads a script a piece at a time as it goes,
@@ -69,11 +74,13 @@ filter=""
 verbose=0
 check=0
 branches=0
-names=() # bare words: the same as --filter, and --check takes several
+update=0
+names=() # bare words: the same as --filter, any number of them
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -v|--verbose) verbose=1; shift ;;
     -c|--check) check=1; shift ;;
+    -u|--update) update=1; check=1; shift ;;
     -b|--branches) branches=1; shift ;;
     -f|--filter) filter="${2:?--filter needs a pattern}"; shift 2 ;;
     --filter=*)  filter="${1#*=}"; shift ;;
@@ -83,14 +90,8 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# --filter X and a bare X are the same thing. Updating takes one pattern;
-# --check takes any number.
+# --filter X and a bare X are the same thing.
 [[ -z "$filter" ]] || names+=("$filter")
-if [[ $check -eq 0 && ${#names[@]} -gt 1 ]]; then
-  err "one pattern at a time when updating: ${names[*]}"
-  exit 2
-fi
-[[ ${#names[@]} -eq 0 ]] || filter="${names[0]}"
 
 # mise prints a line for every tool it looks at, 120-odd on a run that changes
 # nothing, and the one line that matters scrolls away among them. So unless -v
@@ -352,11 +353,13 @@ branch_status() {
       rows+=("$YELLOW"$'\x1f'"Unknown"$'\x1f'"$name"$'\x1f'"${built:0:7}"$'\x1f'"could not read $branch of $url")
     elif [[ -z "$built" ]]; then
       rows+=("$RED"$'\x1f'"Not built"$'\x1f'"$name"$'\x1f'"-"$'\x1f'"$branch is at ${tip:0:7}")
+      BEHIND_TOOLS+=("$tool")
       ((behind++)) || true
     elif [[ "$built" == "$tip" ]]; then
       rows+=("$GREEN"$'\x1f'"Latest"$'\x1f'"$name"$'\x1f'"${built:0:7}"$'\x1f'"${DIM}the tip of $branch$RESET$note")
     else
       rows+=("$YELLOW"$'\x1f'"Behind"$'\x1f'"$name"$'\x1f'"${built:0:7}"$'\x1f'"$branch is at ${tip:0:7}$note")
+      BEHIND_TOOLS+=("$tool")
       ((behind++)) || true
     fi
   done < <(mise ls --current --json 2>/dev/null |
@@ -377,12 +380,19 @@ branch_status() {
     IFS=$'\x1f' read -r colour verb name built state <<<"$row"
     say "$colour" "$verb" "$(printf '%-*s  %-7s  %s' "$width" "$name" "$built" "$state")"
   done
-  [[ $behind -eq 0 ]] || detail "${DIM}bring them up to date with: uq   (or just one: update_mise NAME)$RESET"
+  [[ $behind -eq 0 || $update -eq 1 ]] ||
+    detail "${DIM}bring them up to date with: mc --update   (or just some: up NAME...)$RESET"
 }
+
+# The tools to update, when it is not all of them: the ones the patterns match,
+# or with --check --update the ones branch_status found behind.
+tools=()
+BEHIND_TOOLS=()
 
 if [[ $check -eq 1 ]]; then
   branch_status
-  exit 0
+  [[ $update -eq 1 && ${#BEHIND_TOOLS[@]} -gt 0 ]] || exit 0
+  tools=("${BEHIND_TOOLS[@]}")
 fi
 
 if [[ $branches -eq 1 ]]; then
@@ -393,13 +403,22 @@ if [[ $branches -eq 1 ]]; then
   exit 0
 fi
 
-if [[ -n "$filter" ]]; then
-  mapfile -t tools < <(mise ls --current | awk '{print $1}' | sort -u | grep -iF -- "$filter" || true)
-  if [[ ${#tools[@]} -eq 0 ]]; then
-    err "no mise tools match '$filter'"
+if [[ $check -eq 0 && ${#names[@]} -gt 0 ]]; then
+  all_tools=$(mise ls --current | awk '{print $1}' | sort -u)
+  unmatched=()
+  for name in "${names[@]}"; do
+    grep -qiF -- "$name" <<<"$all_tools" || unmatched+=("$name")
+  done
+  # All the names are checked before any work starts: a typo in the third one
+  # should not be found out after the first two have been rebuilt.
+  if [[ ${#unmatched[@]} -gt 0 ]]; then
+    err "no mise tools match: ${unmatched[*]}"
     exit 1
   fi
+  mapfile -t tools < <(grep -iF -f <(printf '%s\n' "${names[@]}") <<<"$all_tools")
+fi
 
+if [[ ${#tools[@]} -gt 0 ]]; then
   say "$CYAN" "Upgrading" "${tools[*]}"
   refresh_branch_tools "${tools[@]}"
   mise_upgrade "${tools[@]}" || upgrade_ok=false
