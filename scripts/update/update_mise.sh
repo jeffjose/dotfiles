@@ -342,6 +342,26 @@ check_mise_tools() {
     say "$GREEN" "Repaired" "${again[*]##*[:/]}"
     return 0
   fi
+
+  # Still broken after the reshim: reinstall it, whatever the reason. A
+  # missing shim is not always the reshim's to fix -- seen on skyfall, where
+  # cargo:names had its binary but no backend marker (.mise.backend[.toml])
+  # in its install dir, so `mise reshim`, even --force, never made it a
+  # shim. A forced install writes the marker. (Installs from older mise
+  # versions lack it; once every machine has been through here this is
+  # rarely reached, but it costs nothing when it is not.)
+  mapfile -t again < <(printf '%s\n' "${SCAN_PROBLEMS[@]}" | cut -f1 | awk '!seen[$0]++')
+  for tool in "${again[@]}"; do
+    say "$YELLOW" "Repairing" "${tool##*[:/]}: still broken, reinstalling"
+    quietly mise install --yes --force "$tool" || true
+  done
+  quietly mise reshim || true
+  hash -r
+  scan_mise_tools "${again[@]}"
+  if [[ ${#SCAN_PROBLEMS[@]} -eq 0 ]]; then
+    say "$GREEN" "Repaired" "${again[*]##*[:/]}"
+    return 0
+  fi
   while IFS= read -r line; do
     IFS=$'\t' read -r tool why <<<"$line"
     err "${tool##*[:/]} is still broken ($why)"
