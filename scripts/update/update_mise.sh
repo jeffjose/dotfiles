@@ -15,14 +15,16 @@
 #                     the tools in it that are behind, as `update_mise.sh
 #                     NAME...` would.
 #   -b, --branches    Only the branch-built tools: check each against its
-#                     branch on GitHub and rebuild the ones that are behind.
+#                     branch on GitHub and rebuild the ones that are behind,
+#                     then check that every mise tool is installed, shimmed
+#                     and executable (reinstalling the ones that are not).
 #                     Nothing else is upgraded. This is what `m` runs.
 #   -v, --verbose     Show everything mise prints, live. By default only what
 #                     changed and what went wrong is shown; the rest goes to a
 #                     log, whose path is printed when something fails.
-#   --filter PATTERN  Only upgrade (and prune) tools whose name contains PATTERN
-#                     (case-insensitive substring). Skips the dotfiles pull,
-#                     mise self-update and pnpm health check.
+#   --filter PATTERN  Only upgrade, prune and check the tools whose name contains
+#                     PATTERN (case-insensitive substring). Skips the dotfiles
+#                     pull and mise self-update.
 #                     e.g. `update_mise.sh --filter claude` upgrades both
 #                     `claude` and `npm:@anthropic-ai/claude-code`.
 #                     A bare PATTERN is the same thing, and there can be
@@ -256,40 +258,6 @@ drop_dev_copy() {
   done < <(sed -nE 's/^"([^ "]+) .*/\1/p' "$1/.crates.toml" 2>/dev/null)
 }
 
-# Reinstall cargo tools that mise counts as installed but that have no binary.
-#
-# An install can finish "successfully" with an empty bin/ — seen with gifski,
-# cargo-update and tzupdate, each sitting empty for weeks. mise lists the
-# version as installed and current, so `mise upgrade` has nothing to do and no
-# number of re-runs fixes it; the tool just is not there (or an old copy in
-# ~/.cargo/bin answers in its place and hides the hole). Only a forced
-# reinstall fills it in.
-#
-# Limited to the cargo: backend, where the layout is known: `cargo install
-# --root` always puts the binaries in <install>/bin.
-#
-# repair_empty_cargo_installs [tool...]: all cargo tools, or only the ones named.
-repair_empty_cargo_installs() {
-  local tool path
-  local -a empty=()
-  while IFS=$'\t' read -r tool path; do
-    if [[ $# -gt 0 ]] && ! printf '%s\n' "$@" | grep -qxF -- "$tool"; then
-      continue
-    fi
-    [[ -n "$(find -L "$path/bin" -maxdepth 1 -type f -perm -u+x -print -quit 2>/dev/null)" ]] ||
-      empty+=("$tool")
-  done < <(mise ls --current --json 2>/dev/null |
-    jq -r 'to_entries[] | .key as $k | .value[]
-           | select(($k | startswith("cargo:")) and .installed and .active)
-           | "\($k)\t\(.install_path)"' 2>/dev/null || true)
-
-  [[ ${#empty[@]} -gt 0 ]] || return 0
-  for tool in "${empty[@]}"; do
-    say "$YELLOW" "Repairing" "$tool is installed but has no binary; reinstalling"
-    quietly mise install --force "$tool" || { warn "reinstalling $tool failed"; upgrade_ok=false; }
-  done
-}
-
 # Point rustup's default toolchain at the rust mise resolved.
 #
 # mise's rust is a numbered rustup toolchain, picked by the RUSTUP_TOOLCHAIN the
@@ -310,6 +278,169 @@ sync_rustup_default() {
     say "$GREEN" "Switched" "rustup default to $want, the rust mise manages"
   else
     warn "could not make $want the rustup default; plain \`cargo\` may use an older rust"
+  fi
+}
+
+# Is every mise tool actually there to run?
+#
+# mise's own word for it is not enough. Each of these has happened, with mise
+# listing the tool installed and current, so that `mise upgrade` had nothing to
+# do and no number of re-runs fixed it:
+#
+#   - an empty bin/: cargo installs of gifski, cargo-update and tzupdate sat
+#     empty for weeks (or an old copy in ~/.cargo/bin answered in their place)
+#   - a placeholder: npm:pnpm ships a shebang-less stub that its postinstall
+#     swaps for the native binary; aube blocks postinstall, so the stub stayed
+#     and pnpm died in node's ESM loader
+#   - dangling links: npm: tools link into the aube store under ~/.cache, which
+#     anything clearing ~/.cache takes away
+#   - a lost interpreter: pipx tools start with #!<venv>/bin/python, a link to a
+#     python that `mise prune` can remove
+#   - no shim: what `m` exists to fix
+#
+# So each command in each tool's bin paths is looked at: it must resolve, be a
+# binary or a #! script whose interpreter exists, and have a shim. Nothing is
+# run -- 150-odd commands, some of which would do something when started with
+# no arguments, or with --version.
+#
+# A tool with a problem is reinstalled (forced: to mise it is installed
+# already), then the shims are rebuilt and the tool looked at again.
+#
+# check_mise_tools [tool...]: all tools, or only the ones named.
+check_mise_tools() {
+  local line tool why
+  local -a broken=() again=()
+
+  scan_mise_tools "$@"
+  if [[ ${#SCAN_PROBLEMS[@]} -eq 0 ]]; then
+    local cmds="$SCAN_COMMANDS commands" tools="$SCAN_TOOLS tools"
+    [[ $SCAN_COMMANDS -ne 1 ]] || cmds="1 command"
+    [[ $SCAN_TOOLS -ne 1 ]] || tools="1 tool"
+    say "$DIM" "Healthy" "${DIM}$cmds from $tools: all installed, shimmed and executable$RESET"
+    return 0
+  fi
+
+  while IFS= read -r line; do
+    IFS=$'\t' read -r tool why <<<"$line"
+    say "$YELLOW" "Broken" "${tool##*[:/]} ${DIM}($why)$RESET"
+    # A missing shim is fixed by the reshim below; anything else is the tool.
+    [[ "$why" == *": no shim" ]] || broken+=("$tool")
+  done < <(grouped_problems)
+  mapfile -t broken < <(printf '%s\n' "${broken[@]}" | awk 'NF && !seen[$0]++')
+  mapfile -t again < <(printf '%s\n' "${SCAN_PROBLEMS[@]}" | cut -f1 | awk '!seen[$0]++')
+
+  for tool in "${broken[@]}"; do
+    say "$YELLOW" "Repairing" "${tool##*[:/]}: reinstalling"
+    quietly mise install --yes --force "$tool" || true
+  done
+  say "$YELLOW" "Repairing" "rebuilding the shims"
+  quietly mise reshim || true
+  hash -r
+
+  scan_mise_tools "${again[@]}"
+  if [[ ${#SCAN_PROBLEMS[@]} -eq 0 ]]; then
+    say "$GREEN" "Repaired" "${again[*]##*[:/]}"
+    return 0
+  fi
+  while IFS= read -r line; do
+    IFS=$'\t' read -r tool why <<<"$line"
+    err "${tool##*[:/]} is still broken ($why)"
+  done < <(grouped_problems)
+  detail "${DIM}full output: ${MISE_LOG/#$HOME/\~}$RESET" >&2
+  return 1
+}
+
+# SCAN_PROBLEMS with the commands of one tool that are wrong in the same way on
+# one line: "pnpm<TAB>pn, pnpm, pnpx: no shim", not three.
+grouped_problems() {
+  [[ ${#SCAN_PROBLEMS[@]} -gt 0 ]] || return 0
+  printf '%s\n' "${SCAN_PROBLEMS[@]}" | awk -F'\t' '
+    {
+      name = ""; why = $2
+      if (match($2, /^[^ ]+: /)) { name = substr($2, 1, RLENGTH - 2); why = substr($2, RLENGTH + 1) }
+      key = $1 "\t" why
+      if (!(key in names)) { order[++n] = key; names[key] = name }
+      else if (name != "") names[key] = names[key] ", " name
+    }
+    END {
+      for (i = 1; i <= n; i++) {
+        split(order[i], k, "\t")
+        print k[1] "\t" (names[order[i]] != "" ? names[order[i]] ": " : "") k[2]
+      }
+    }'
+}
+
+# scan_mise_tools [tool...]: look at all tools, or only the ones named. Leaves
+# "tool<TAB>what is wrong" lines in SCAN_PROBLEMS, and how many commands and
+# tools it looked at in SCAN_COMMANDS and SCAN_TOOLS.
+SCAN_PROBLEMS=()
+SCAN_COMMANDS=0
+SCAN_TOOLS=0
+scan_mise_tools() {
+  local tool installed path dir file name why mine found
+  local installs="$MISE_DATA_DIR/installs" shims="$MISE_DATA_DIR/shims"
+  SCAN_PROBLEMS=()
+  SCAN_COMMANDS=0
+  SCAN_TOOLS=0
+
+  while IFS=$'\t' read -r tool installed path; do
+    if [[ $# -gt 0 ]] && ! printf '%s\n' "$@" | grep -qxF -- "$tool"; then
+      continue
+    fi
+    if [[ "$installed" != true ]]; then
+      SCAN_PROBLEMS+=("$tool"$'\t'"not installed")
+      continue
+    fi
+    mine=0 found=0
+    while IFS= read -r dir; do
+      # rust's bin path is ~/.cargo/bin, which holds `cargo install` builds of
+      # my own as well; those are not rust's, and not mise's to reinstall.
+      [[ "$dir" == "$installs"/* ]] || continue
+      mine=1
+      for file in "$dir"/*; do
+        [[ -L "$file" || (-f "$file" && -x "$file") ]] || continue
+        found=1
+        ((SCAN_COMMANDS++)) || true
+        name=${file##*/}
+        why=$(exec_problem "$file")
+        [[ -e "$shims/$name" ]] || why=${why:-"no shim"}
+        [[ -z "$why" ]] || SCAN_PROBLEMS+=("$tool"$'\t'"$name: $why")
+      done
+    done < <(mise bin-paths "$tool" 2>/dev/null)
+    ((mine)) || continue
+    ((SCAN_TOOLS++)) || true
+    ((found)) || SCAN_PROBLEMS+=("$tool"$'\t'"no commands in ${path/#$HOME/\~}")
+  done < <(mise ls --current --json 2>/dev/null |
+    jq -r 'to_entries[] | .key as $k | .value[] | "\($k)\t\(.installed)\t\(.install_path)"' 2>/dev/null || true)
+}
+
+# exec_problem <file>: why <file> could not be run, or nothing if it could.
+exec_problem() {
+  local file=$1 magic line cmd i
+  local -a words
+  if [[ ! -e "$file" ]]; then
+    echo "dangling link to $(readlink "$file")"
+    return
+  fi
+  [[ -s "$file" ]] || { echo "empty file"; return; }
+  magic=$(head -c 4 "$file" | od -An -tx1 | tr -d ' \n')
+  case $magic in
+    7f454c46 | cffaedfe | cefaedfe | cafebabe) return ;; # ELF, Mach-O
+    2321*) ;;                                           # #!
+    *) echo "neither a binary nor a #! script"; return ;;
+  esac
+  IFS= read -r line <"$file" || true
+  read -ra words <<<"${line#\#!}"
+  cmd=${words[0]:-}
+  if [[ "$cmd" == */env ]]; then
+    # #!/usr/bin/env [-S] [VAR=value...] command: the command is on PATH.
+    for ((i = 1; i < ${#words[@]}; i++)); do
+      [[ "${words[i]}" == -* || "${words[i]}" == *=* ]] || break
+    done
+    cmd=${words[i]:-}
+    command -v "$cmd" >/dev/null 2>&1 || echo "its interpreter, $cmd, is not on PATH"
+  elif [[ ! -x "$cmd" ]]; then
+    echo "its interpreter, ${cmd/#$HOME/\~}, is gone"
   fi
 }
 
@@ -400,6 +531,8 @@ if [[ $branches -eq 1 ]]; then
   BRANCH_TOOLS_STALE=0
   refresh_branch_tools
   [[ $BRANCH_TOOLS_STALE -gt 0 ]] || say "$DIM" "Fresh" "${DIM}all at their branch's latest commit$RESET"
+  quietly mise reshim || true
+  check_mise_tools || exit 1
   exit 0
 fi
 
@@ -422,13 +555,13 @@ if [[ ${#tools[@]} -gt 0 ]]; then
   say "$CYAN" "Upgrading" "${tools[*]}"
   refresh_branch_tools "${tools[@]}"
   mise_upgrade "${tools[@]}" || upgrade_ok=false
-  repair_empty_cargo_installs "${tools[@]}"
   sync_rustup_default
   quietly mise prune --yes "${tools[@]}" || warn "mise prune failed; continuing"
 
   if printf '%s\n' "${tools[@]}" | grep -q '^npm:'; then
     "$HOME/dotfiles/scripts/install/fix-mise-npm-installs.sh"
   fi
+  check_mise_tools "${tools[@]}" || upgrade_ok=false
 
   report_disk_usage
   if ! $upgrade_ok; then
@@ -472,7 +605,6 @@ install_missing() {
 install_missing || upgrade_ok=false
 
 mise_upgrade || upgrade_ok=false
-repair_empty_cargo_installs
 sync_rustup_default
 # mise upgrade --bump  # Commented out to prevent auto-updating config.toml versions
 
@@ -482,59 +614,11 @@ sync_rustup_default
 say "$CYAN" "Pruning" "unused tool versions"
 quietly mise prune --yes || warn "mise prune failed; continuing"
 
-# Get the actual mise binary location (not the shim)
-MISE_BINARY=$(which mise)
-if [[ -L "$MISE_BINARY" ]]; then
-  # If it's a symlink, follow it to get the real binary
-  MISE_BINARY=$(readlink -f "$MISE_BINARY")
-fi
-
-# Health-check pnpm by running it, not by stat-ing the shim.
-#
-# The old check only asserted that ~/.local/share/mise/shims/pnpm was a live
-# symlink. That stayed true for weeks while pnpm was entirely unusable: the
-# npm:pnpm package ships a shebang-less placeholder that its postinstall swaps
-# for the native binary, aube blocks postinstall, and every `pnpm` invocation
-# died in node's ESM loader. The shim was fine; what it pointed at was not.
-#
-# pnpm now comes from aqua (see apps/mise-desktop.toml), so this failure mode is gone
-# -- but a check that cannot observe the failure it exists to catch is worse
-# than no check, so it runs the binary.
-check_pnpm() {
-  pnpm --version >/dev/null 2>&1
-}
-
-# Only where pnpm is one of this machine's tools: it is in the desktop list
-# (apps/mise-desktop.toml), so a server has none to check.
-wants_pnpm=false
-mise ls --current 2>/dev/null | awk '{print $1}' | grep -qx pnpm && wants_pnpm=true
-
-pnpm_ok=false
-$wants_pnpm || pnpm_ok=true
-for i in {1..5}; do
-  $wants_pnpm || break
-  if check_pnpm; then
-    say "$DIM" "Fresh" "${DIM}pnpm $(pnpm --version) runs$RESET"
-    pnpm_ok=true
-    break
-  fi
-
-  say "$YELLOW" "Repairing" "pnpm does not run (attempt $i of 5)"
-  rm -rf "$HOME/.local/share/mise/shims"
-  quietly "$MISE_BINARY" reshim
-  quietly "$MISE_BINARY" install
-  quietly "$MISE_BINARY" reshim
-  hash -r 2>/dev/null || true
-  sleep 1 # Give it a moment to settle
-done
-
-if ! $pnpm_ok; then
-  err "pnpm still does not run after 5 attempts"
-  exit 1
-fi
-
 # Self-heal npm: tools whose aube store under ~/.cache was cleared.
 "$HOME/dotfiles/scripts/install/fix-mise-npm-installs.sh"
+
+# Last, so that it sees what the upgrade, the prune and the npm repair left.
+check_mise_tools || upgrade_ok=false
 
 report_disk_usage
 
