@@ -72,6 +72,7 @@ opencode = "latest"
 "cargo:https://github.com/jeffjose/magicfs" = "branch:main"
 "cargo:https://github.com/jeffjose/jog" = "branch:main"
 "cargo:https://github.com/jeffjose/hotshot" = "branch:main"
+"cargo:https://github.com/jeffjose/clutch" = "branch:main"
 
 # npm
 "npm:astro" = "latest"

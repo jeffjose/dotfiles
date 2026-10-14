@@ -220,6 +220,10 @@ refresh_branch_tools() {
         say "$GREEN" "Installing" "${url##*/} ${tip:0:7}"
       fi
       stale+=("$tool"$'\t'"$path")
+    else
+      # Up to date: a dev copy older than this build is one left behind by a
+      # rebuild on another day, or on this machine before mise had built it.
+      drop_stale_dev_copy "$path"
     fi
   done < <(mise ls --current --json 2>/dev/null |
     jq -r 'to_entries[] | .key as $k | .value[]
@@ -256,6 +260,24 @@ drop_dev_copy() {
       warn "could not remove the dev copy of $crate from $cargo_home/bin"
     fi
   done < <(sed -nE 's/^"([^ "]+) .*/\1/p' "$1/.crates.toml" 2>/dev/null)
+}
+
+# The dev copy goes too when mise's build is up to date and the dev copy is
+# older than it: work since pushed and built by mise, not work in progress.
+# Only rebuilds dropped it before, so a machine where mise's build was
+# already current kept running an old `cargo install` from ~/.cargo/bin (seen
+# with clutch on skyfall). A dev copy newer than mise's build is kept.
+#
+# drop_stale_dev_copy <mise install path>
+drop_stale_dev_copy() {
+  local cargo_bin="${CARGO_HOME:-$HOME/.cargo}/bin" bin
+  while read -r bin; do
+    [[ -n "$bin" && -x "$cargo_bin/$bin" && -x "$1/bin/$bin" ]] || continue
+    if [[ "$cargo_bin/$bin" -ot "$1/bin/$bin" ]]; then
+      drop_dev_copy "$1"
+      return
+    fi
+  done < <(sed -n 's/.*= \[\(.*\)\]/\1/p' "$1/.crates.toml" 2>/dev/null | tr -d '" ' | tr ',' '\n')
 }
 
 # Point rustup's default toolchain at the rust mise resolved.
