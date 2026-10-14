@@ -1,46 +1,66 @@
 # twig: the tcsh prompt (~/scripts/twig). Linked to ~/.config/twig/config.toml.
 # Saved changes show at the next prompt; `twig check` says what is wrong.
+#
+# The same prompt as .prompt and git/gitstatus.sh made:
+#
+#   -(14:02:51 woodwind 192.168.3.134 /home/jeffjose/scripts/twig main.:+1+2✔:3h)-
+#   #
+#
+# git: branch, "." when even with upstream (or "(ahead.2", " (behind.1"),
+# then untracked (red), changed (yellow), staged (blue) and stashed (cyan)
+# counts, ✔ when there is nothing at all, and the time since the last commit.
+# After the closing )- come twig's jobs and notices; on the right, how long
+# the last command took and how it failed.
 
 [prompt]
 format = """
--({time:cyan} {host:host} {ip:host} {cwd:green,bold}[ {git_branch:magenta}[ {git}]])-[ {jobs}][ {notice}]
-{symbol} """
+-({time:cyan,bold} {host:host} {ip:host} {pwd:green,bold}[ {git_branch:magenta,bold}{git_remote:magenta,bold}:{git_untracked:red,bold}{git_changed:yellow,bold}{git_staged:blue,bold}{git_stash:cyan,bold}{git_clean:green}:{git_age:blue,bold}])-[ {jobs}][ {notice}]
+[{prodaccess} ]{symbol} """
 
+# When that doesn't fit the terminal.
 narrow = """
--({cwd:green,bold}[ {git_branch:magenta}[ {git}]])-[ {notice}]
-{symbol} """
+-({pwd:green,bold}[ {git_branch:magenta,bold}{git_remote:magenta,bold}:{git_untracked:red,bold}{git_changed:yellow,bold}{git_staged:blue,bold}{git_stash:cyan,bold}{git_clean:green}])-[ {notice}]
+[{prodaccess} ]{symbol} """
 
 right = "[{duration}][ {status}]"
 
-time = "%H:%M:%S"
+time = "%-H:%M:%S"           # like tcsh's %P: no leading zero
 symbol = "#"
-symbol_style = "white,bold"
-symbol_error_style = "red,bold"
+symbol_style = "plain"
+symbol_error_style = "plain"     # "red,bold" to see failures in the #
 duration_min = "3s"
 
-# One color per machine; a machine not listed is plain. The full name is
-# tried first, so the cloudtop and the workstation (both "jeffjose" for
-# short) get their own colors.
+# One color per machine, bold as .prompt had them; a machine not listed is
+# plain. The full name is tried first, so the cloudtop and the workstation
+# (both "jeffjose" for short) get their own colors.
 [hosts]
 # Google machines
-"jeffjose2.mtv.corp.google.com" = "cyan"
-"jeffjose.c.googlers.com" = "orange"
-"jeffjose-glaptop.roam.corp.google.com" = "violet"
-"jeffjose-glaptop2.roam.corp.google.com" = "violet"
-"jeffjose-glapstation*" = "magenta"
-"jeffjose.mtv.corp.google.com" = "yellow"
+"jeffjose2.mtv.corp.google.com" = "cyan,bold"
+"jeffjose.c.googlers.com" = "orange,bold"
+"jeffjose-glaptop.roam.corp.google.com" = "violet,bold"
+"jeffjose-glaptop2.roam.corp.google.com" = "violet,bold"
+"jeffjose-glapstation*" = "magenta,bold"
+"jeffjose.mtv.corp.google.com" = "yellow,bold"
 # Personal machines
-"skyfall*" = "yellow"
-"woodwind*" = "blue"
-"nomad*" = "blue"
+"skyfall*" = "yellow,bold"
+"woodwind*" = "blue,bold"
+"nomad*" = "blue,bold"
 # Servers
-"matterhorn*" = "red"
-"basalt*" = "magenta"
+"matterhorn*" = "red,bold"
+"basalt*" = "magenta,bold"
 
 [git]
 wait = "80ms"
 fetch = "15m"
 poll = "1m"
+
+# gitstatus.sh put + before every count.
+[git.marks]
+staged = "+"
+changed = "+"
+untracked = "+"
+stash = "+"
+clean = "✔"
 
 [live]
 enabled = true
@@ -56,10 +76,9 @@ key = "^R"
 [jobs]
 desktop_after = "30s"
 
+# On the workstation, without prodaccess the prompt reads "(run prodaccess) #".
 [[probe]]
 name = "prodaccess"
-run = "test -d /google/src/files"
+run = "test -d /google/src/files || echo '(run prodaccess)'"
 every = "30s"
 hosts = ["jeffjose.mtv.corp.google.com"]
-notice = "run prodaccess"
-level = "error"
