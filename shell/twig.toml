@@ -9,12 +9,14 @@
 # git: branch, "." when even with upstream (or "(ahead.2", " (behind.1"),
 # then untracked (red), changed (yellow), staged (blue) and stashed (cyan)
 # counts, ✔ when there is nothing at all, and the time since the last commit.
+# The battery shows on a laptop when it is not full on power: 85% on battery,
+# 85%⚡ charging.
 # After the closing )- come twig's jobs and notices; on the right, how long
 # the last command took and how it failed.
 
 [prompt]
 format = """
--({time:cyan,bold} {host:host} {ip:host} {pwd:green,bold}[ {git_branch:magenta,bold}{git_remote:magenta,bold}:{git_untracked:red,bold}{git_changed:yellow,bold}{git_staged:blue,bold}{git_stash:cyan,bold}{git_clean:green}:{git_age:blue,bold}])-[ {jobs}][ {notice}]
+-({time:cyan,bold} {host:host} {ip:host}[ {battery:yellow,bold}] {pwd:green,bold}[ {git_branch:magenta,bold}{git_remote:magenta,bold}:{git_untracked:red,bold}{git_changed:yellow,bold}{git_staged:blue,bold}{git_stash:cyan,bold}{git_clean:green}:{git_age:blue,bold}])-[ {jobs}][ {notice}]
 [{prodaccess} ]{symbol} """
 
 # When that doesn't fit the terminal.
