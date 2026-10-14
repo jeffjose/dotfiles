@@ -20,9 +20,13 @@ format = """
 -({time:cyan,bold} {host:host} {ip:host}[ {battery}] {pwd:green,bold}[ {git_branch:magenta,bold}{git_remote:magenta,bold}:{git_untracked:red,bold}{git_changed:yellow,bold}{git_staged:blue,bold}{git_stash:cyan,bold}{git_clean:green}:{git_age:blue,bold}])-[ {jobs}][ {notice}]
 [{prodaccess} ]{symbol} """
 
-# When that doesn't fit the terminal.
+# When that doesn't fit the terminal: all of it still, over more lines.
+# Jobs and the notice get a line each, only when there is one.
 narrow = """
--({pwd:green,bold}[ {git_branch:magenta,bold}{git_remote:magenta,bold}:{git_untracked:red,bold}{git_changed:yellow,bold}{git_staged:blue,bold}{git_stash:cyan,bold}{git_clean:green}])-[ {notice}]
+-({time:cyan,bold} {host:host} {ip:host}[ {battery}]
+ {pwd:green,bold}[ {git_branch:magenta,bold}{git_remote:magenta,bold}:{git_untracked:red,bold}{git_changed:yellow,bold}{git_staged:blue,bold}{git_stash:cyan,bold}{git_clean:green}:{git_age:blue,bold}])-[
+ {jobs}][
+ {notice}]
 [{prodaccess} ]{symbol} """
 
 right = "[{duration}][ {status}]"
