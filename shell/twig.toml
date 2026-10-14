@@ -1,5 +1,5 @@
 # twig: the tcsh prompt (~/scripts/twig). Linked to ~/.config/twig/config.toml.
-# Saved changes show at the next prompt; `twig check` says what is wrong.
+# Saved changes show at the next prompt; `twig info` says what is wrong.
 #
 # The same prompt as .prompt and git/gitstatus.sh made:
 #
