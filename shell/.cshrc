@@ -207,10 +207,17 @@ if ( ! $?prompt ) exit
 
 #eval `starship init tcsh`
 
-source ~/.prompt
+# The prompt, history and z come from twig (~/scripts/twig) where it is
+# installed; elsewhere, the shell-script prompt.
+if ( -X twig && ! $?TWIG_OFF ) then
+    eval "`twig init tcsh`"
+    alias recent 'twig dirs'
+else
+    source ~/.prompt
 
-# Setup our precmd; this gets executed before every prompt
-alias precmd 'source ~/.precmd'
+    # Setup our precmd; this gets executed before every prompt
+    alias precmd 'source ~/.precmd'
 
-# cwdcmd gets executed after every cd
-alias cwdcmd 'source ~/.cwdcmd'
+    # cwdcmd gets executed after every cd
+    alias cwdcmd 'source ~/.cwdcmd'
+endif

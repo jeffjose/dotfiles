@@ -26,6 +26,7 @@ DIRECTORIES=(
   "$HOME/.config/uv"
   "$HOME/.pnpm"
   "$HOME/.config/ranger"
+  "$HOME/.config/twig"
   "$HOME/.config"
 )
 
@@ -65,6 +66,7 @@ declare -A SYMLINKS=(
   ["$DOTFILES_DIR/shell/.tmux.conf"]="$HOME/.tmux.conf"
   ["$DOTFILES_DIR/shell/.bashrc"]="$HOME/.bashrc"
   ["$DOTFILES_DIR/shell/starship.toml"]="$HOME/.config/starship.toml"
+  ["$DOTFILES_DIR/shell/twig.toml"]="$HOME/.config/twig/config.toml"
 )
 
 # ... and the ones only a desktop needs

@@ -1,0 +1,65 @@
+# twig: the tcsh prompt (~/scripts/twig). Linked to ~/.config/twig/config.toml.
+# Saved changes show at the next prompt; `twig check` says what is wrong.
+
+[prompt]
+format = """
+-({time:cyan} {host:host} {ip:host} {cwd:green,bold}[ {git_branch:magenta}[ {git}]])-[ {jobs}][ {notice}]
+{symbol} """
+
+narrow = """
+-({cwd:green,bold}[ {git_branch:magenta}[ {git}]])-[ {notice}]
+{symbol} """
+
+right = "[{duration}][ {status}]"
+
+time = "%H:%M:%S"
+symbol = "#"
+symbol_style = "white,bold"
+symbol_error_style = "red,bold"
+duration_min = "3s"
+
+# One color per machine; a machine not listed is plain. The full name is
+# tried first, so the cloudtop and the workstation (both "jeffjose" for
+# short) get their own colors.
+[hosts]
+# Google machines
+"jeffjose2.mtv.corp.google.com" = "cyan"
+"jeffjose.c.googlers.com" = "orange"
+"jeffjose-glaptop.roam.corp.google.com" = "violet"
+"jeffjose-glaptop2.roam.corp.google.com" = "violet"
+"jeffjose-glapstation*" = "magenta"
+"jeffjose.mtv.corp.google.com" = "yellow"
+# Personal machines
+"skyfall*" = "yellow"
+"woodwind*" = "blue"
+"nomad*" = "blue"
+# Servers
+"matterhorn*" = "red"
+"basalt*" = "magenta"
+
+[git]
+wait = "80ms"
+fetch = "15m"
+poll = "1m"
+
+[live]
+enabled = true
+
+[disk]
+paths = ["/", "~"]
+warn = 90
+
+[history]
+size = 10000
+key = "^R"
+
+[jobs]
+desktop_after = "30s"
+
+[[probe]]
+name = "prodaccess"
+run = "test -d /google/src/files"
+every = "30s"
+hosts = ["jeffjose.mtv.corp.google.com"]
+notice = "run prodaccess"
+level = "error"
