@@ -9,7 +9,7 @@
 # git: branch, "." when even with upstream (or "(ahead.2", " (behind.1"),
 # then untracked (red), changed (yellow), staged (blue) and stashed (cyan)
 # counts, ✔ when there is nothing at all, and the time since the last commit.
-# Over ssh the host reads "host2 (ssh)", in pink.
+# Over ssh the host reads "host2 (ssh)", in pink; as root, "(root)" in red.
 # The battery, on a laptop, is small and always there: 85% +12W charging
 # (green), 85% -8.4W on battery (orange), 100% full on power (muted), red when
 # it runs low, when a notice also says how long is left.
@@ -18,13 +18,13 @@
 
 [prompt]
 format = """
--({time:cyan,bold} {host:host}[ ({ssh:pink,bold})] {ip:host}[ {battery}] {pwd:green,bold}[ {git_branch:magenta,bold}{git_remote:magenta,bold}:{git_untracked:red,bold}{git_changed:yellow,bold}{git_staged:blue,bold}{git_stash:cyan,bold}{git_clean:green}:{git_age:blue,bold}])-[ {jobs}][ {notice}]
+-({time:cyan,bold} {host:host}[ ({ssh:pink,bold})][ ({root:white,bg:red,bold})] {ip:host}[ {battery}] {pwd:green,bold}[ {git_branch:magenta,bold}{git_remote:magenta,bold}:{git_untracked:red,bold}{git_changed:yellow,bold}{git_staged:blue,bold}{git_stash:cyan,bold}{git_clean:green}:{git_age:blue,bold}])-[ {jobs}][ {notice}]
 [{prodaccess} ]{symbol} """
 
 # When that doesn't fit the terminal: all of it still, over more lines.
 # Jobs and the notice get a line each, only when there is one.
 narrow = """
--({time:cyan,bold} {host:host}[ ({ssh:pink,bold})] {ip:host}[ {battery}]
+-({time:cyan,bold} {host:host}[ ({ssh:pink,bold})][ ({root:white,bg:red,bold})] {ip:host}[ {battery}]
  {pwd:green,bold}[ {git_branch:magenta,bold}{git_remote:magenta,bold}:{git_untracked:red,bold}{git_changed:yellow,bold}{git_staged:blue,bold}{git_stash:cyan,bold}{git_clean:green}:{git_age:blue,bold}])-[
  {jobs}][
  {notice}]
