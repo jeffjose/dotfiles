@@ -81,6 +81,10 @@ warn = 90
 size = 10000
 key = "^R"
 
+# Units that fail on the corp laptops by policy, and stay failed.
+[units]
+ignore = ["racc-attest", "rtkit-daemon"]
+
 [jobs]
 desktop_after = "30s"
 
