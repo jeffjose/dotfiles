@@ -21,6 +21,12 @@ zig = "0.14.0"
 # wrapper that downloads this same binary, so take it straight.
 typst = "latest"
 yt-dlp = "latest"
+# ffmpeg from BtbN's static GPL builds: x264, x265, SVT-AV1, libaom, Opus and
+# NVENC all built in, which jog's video Convert uses. Not mise's `ffmpeg`
+# (conda-forge): its default build is LGPL, without x264 or x265. Ubuntu's
+# ffmpeg is 4.4, with no SVT-AV1, so AV1 there is libaom and crawls. The n9.0
+# line is the 9.0 release with fixes, rebuilt daily; master is dev snapshots.
+"github:BtbN/FFmpeg-Builds" = { version = "latest", asset_pattern = "ffmpeg-n9.0*-linux64-gpl-9.0.tar.xz", strip_components = 1, bin_path = "bin" }
 "github:endevco/aube" = "latest"
 "aqua:schollz/croc" = "latest"
 
