@@ -16,7 +16,7 @@ node = "24.14.1"
 pnpm = "latest"
 python = "latest"
 bun = "latest"
-zig = "0.14.0"
+zig = "latest"
 # Static Rust binary (aqua:typst/typst). There is an npm package, but it is a
 # wrapper that downloads this same binary, so take it straight.
 typst = "latest"
