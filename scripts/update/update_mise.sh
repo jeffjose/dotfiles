@@ -127,6 +127,7 @@ quietly() {
   printf '\n$ %s\n' "$*" >>"$MISE_LOG"
   "$@" >>"$MISE_LOG" 2>&1 || status=$?
   if [[ $status -ne 0 ]]; then
+    close_step
     err "\`$*\` failed (exit $status)"
     while IFS= read -r line; do
       detail "$line" >&2
@@ -136,14 +137,51 @@ quietly() {
   return $status
 }
 
+# begin_step <colour> <verb> <detail> ... end_step: the step's line, with how
+# long it took on the end: "Upgrading codex 0.1 → 0.2 (1m 12s)".
+#
+# Without -v nothing else is printed while the step runs, so the line is left
+# open and the time goes on the end of it. If something does print meanwhile
+# (quietly reporting a failure, -v's live output), the time goes on a line of
+# its own under it.
+STEP_START=0
+STEP_OPEN=0
+begin_step() {
+  STEP_START=$(now_us)
+  if [[ $verbose -eq 1 ]]; then
+    say "$@"
+  else
+    printf '%s%12s%s %s' "$1" "$2" "$RESET" "$3"
+    STEP_OPEN=1
+  fi
+}
+end_step() {
+  local took
+  took=$(elapsed "$STEP_START")
+  if [[ $STEP_OPEN -eq 1 ]]; then
+    printf ' %s(%s)%s\n' "$DIM" "$took" "$RESET"
+    STEP_OPEN=0
+  else
+    detail "${DIM}($took)$RESET"
+  fi
+}
+# Close an open step line before anything else is printed.
+close_step() {
+  [[ $STEP_OPEN -eq 1 ]] || return 0
+  printf '\n'
+  STEP_OPEN=0
+}
+
 # `mise upgrade` warns twice per branch-pinned tool (the cargo:…jeffjose/* repos
 # on branch:main) on every run — "something weird happened with versioning" and
 # "upgrading non-version tool requests". Both are expected for a branch ref, so
 # drop just those lines from stderr; every other warning still gets through.
 #
-# Without -v none of that is on screen anyway: the tools about to change are
-# listed first, the upgrade itself runs quietly, and the releases mise held back
-# for being under a day old (minimum_release_age) are summed up in one line.
+# Without -v none of that is on screen anyway: the tools are upgraded quietly
+# one at a time, each on a line with how long it took, and the releases mise
+# held back for being under a day old (minimum_release_age) are summed up in a
+# line each. One at a time costs mise's parallel jobs, but a slow cargo build
+# is then a line with its own time rather than part of one long wait.
 mise_upgrade() {
   if [[ $verbose -eq 1 ]]; then
     mise upgrade "$@" 2> >(grep -v -e 'something weird happened with versioning' \
@@ -153,22 +191,28 @@ mise_upgrade() {
 
   # Tools are named the short way in both lists below: "codex", not
   # "npm:@openai/codex".
-  local name cur new status=0 held outdated width=0 cwidth=0
+  local tool name cur new status=0 held outdated width=0 cwidth=0
   outdated=$(mise outdated --json "$@" 2>/dev/null |
-    jq -r 'to_entries[] | "\(.key | sub(".*[:/]"; ""))\t\(.value.current // "-")\t\(.value.latest // "?")"' 2>/dev/null || true)
-  while IFS=$'\t' read -r name cur new; do
+    jq -r 'to_entries[] | "\(.key)\t\(.key | sub(".*[:/]"; ""))\t\(.value.current // "-")\t\(.value.latest // "?")"' 2>/dev/null || true)
+  while IFS=$'\t' read -r tool name cur new; do
     ((${#name} > width)) && width=${#name}
     ((${#cur} > cwidth)) && cwidth=${#cur}
   done <<<"$outdated"
-  while IFS=$'\t' read -r name cur new; do
-    [[ -n "$name" ]] || continue
-    say "$GREEN" "Upgrading" "$(printf '%-*s  %-*s → %s' "$width" "$name" "$cwidth" "$cur" "$new")"
+
+  # The held-back releases are only in what mise prints while upgrading; a dry
+  # run prints them too, for all the tools, in a fraction of a second.
+  quietly mise upgrade --dry-run "$@" || true
+  local held_from=$QUIET_FROM
+
+  while IFS=$'\t' read -r tool name cur new; do
+    [[ -n "$tool" ]] || continue
+    begin_step "$GREEN" "Upgrading" "$(printf '%-*s  %-*s → %s' "$width" "$name" "$cwidth" "$cur" "$new")"
+    quietly mise upgrade "$tool" || status=$?
+    end_step
   done <<<"$outdated"
   [[ -n "$outdated" ]] || say "$DIM" "Fresh" "${DIM}nothing to upgrade$RESET"
 
-  quietly mise upgrade "$@" || status=$?
-
-  held=$(log_since "$QUIET_FROM" |
+  held=$(log_since "$held_from" |
     sed -nE 's/.*newer (.+) release ([^ ]+) \(.*ignored by minimum_release_age.*/\1 \2/p' |
     sed -E 's|^[^ ]*[:/]||')
   local vwidth=0
@@ -215,11 +259,10 @@ refresh_branch_tools() {
       warn "could not read $branch of $url; leaving it as is"
     elif [[ "$built" != "$tip" ]]; then
       if [[ -n "$built" ]]; then
-        say "$GREEN" "Rebuilding" "${url##*/} ${built:0:7} → ${tip:0:7}"
+        stale+=("$tool"$'\t'"$path"$'\t'"Rebuilding"$'\t'"${url##*/} ${built:0:7} → ${tip:0:7}")
       else
-        say "$GREEN" "Installing" "${url##*/} ${tip:0:7}"
+        stale+=("$tool"$'\t'"$path"$'\t'"Installing"$'\t'"${url##*/} ${tip:0:7}")
       fi
-      stale+=("$tool"$'\t'"$path")
     else
       # Up to date: a dev copy older than this build is one left behind by a
       # rebuild on another day, or on this machine before mise had built it.
@@ -232,11 +275,15 @@ refresh_branch_tools() {
 
   BRANCH_TOOLS_STALE=${#stale[@]}
   [[ ${#stale[@]} -gt 0 ]] || return 0
+  local verb what
   for entry in "${stale[@]}"; do
-    IFS=$'\t' read -r tool path <<<"$entry"
+    IFS=$'\t' read -r tool path verb what <<<"$entry"
+    begin_step "$GREEN" "$verb" "$what"
     if quietly mise install --force "$tool"; then
+      end_step
       drop_dev_copy "$path"
     else
+      end_step
       warn "building $tool failed; continuing"
     fi
   done
@@ -624,9 +671,10 @@ if [[ -z "${UQ_LOG_DIR:-}" ]]; then
   fi
 fi
 
-say "$CYAN" "Updating" "mise itself"
 mise_was=$(mise --version 2>/dev/null | awk 'NR==1 {print $1}')
+begin_step "$CYAN" "Updating" "mise itself"
 quietly mise self-update --yes || true
+end_step
 mise_now=$(mise --version 2>/dev/null | awk 'NR==1 {print $1}')
 [[ "$mise_was" == "$mise_now" ]] || say "$GREEN" "Updated" "mise $mise_was → $mise_now"
 
@@ -641,8 +689,11 @@ install_missing() {
   local -a missing=()
   mapfile -t missing < <(mise ls --current --missing 2>/dev/null | awk '{print $1}')
   [ ${#missing[@]} -gt 0 ] || return 0
-  say "$GREEN" "Installing" "$(printf '%s ' "${missing[@]##*[:/]}")${DIM}(new in the config)$RESET"
-  quietly mise install --yes
+  local status=0
+  begin_step "$GREEN" "Installing" "$(printf '%s ' "${missing[@]##*[:/]}")${DIM}(new in the config)$RESET"
+  quietly mise install --yes || status=$?
+  end_step
+  return $status
 }
 install_missing || upgrade_ok=false
 
@@ -653,8 +704,11 @@ sync_rustup_default
 # `mise upgrade` installs new versions alongside the old ones and never removes
 # them, so installs/ grows without bound. Prune every version no tracked config
 # still resolves to (mise reinstalls on demand if a project needs one again).
-say "$CYAN" "Pruning" "unused tool versions"
-quietly mise prune --yes || warn "mise prune failed; continuing"
+begin_step "$CYAN" "Pruning" "unused tool versions"
+prune_ok=true
+quietly mise prune --yes || prune_ok=false
+end_step
+$prune_ok || warn "mise prune failed; continuing"
 
 # Self-heal npm: tools whose aube store under ~/.cache was cleared.
 "$HOME/dotfiles/scripts/install/fix-mise-npm-installs.sh"
