@@ -26,6 +26,17 @@ yt-dlp = "latest"
 # line is the 9.0 release with fixes, rebuilt daily; master is dev snapshots.
 "github:BtbN/FFmpeg-Builds" = { version = "latest", asset_pattern = "ffmpeg-n9.0*-linux64-gpl-9.0.tar.xz", strip_components = 1, bin_path = "bin" }
 "github:endevco/aube" = "latest"
+# tsrs, the Rust port of the TypeScript 7 checker (oxc-project/tsrs): a drop-in
+# `tsc`. npm: is right for this one, unlike claude and opencode: the binary
+# comes in a per-platform optional dependency (@tsrs/linux-x64-gnu and the
+# like), with no postinstall to be blocked. The releases on GitHub carry no
+# binaries, so there is no github: or aqua: to take instead.
+#
+# Pinned, not "latest": every real release is a prerelease version on npm
+# (0.18.0-ts7.1.0-dev.20260929), and mise's npm backend lists only stable ones,
+# so "latest" lands on the squatted 0.0.0 placeholder whose binaries do not
+# exist. Bump this by hand: `npm view tsrs dist-tags.latest`.
+"npm:tsrs" = "0.18.0-ts7.1.0-dev.20260929"
 "aqua:schollz/croc" = "latest"
 
 # Same story for `opencode` (aqua:anomalyco/opencode): the npm package
