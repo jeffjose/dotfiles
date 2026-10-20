@@ -618,6 +618,7 @@ fi
 if [[ $branches -eq 1 ]]; then
   say "$CYAN" "Checking" "branch-built tools against GitHub"
   BRANCH_TOOLS_STALE=0
+  sync_rustup_default
   refresh_branch_tools
   [[ $BRANCH_TOOLS_STALE -gt 0 ]] || say "$DIM" "Fresh" "${DIM}all at their branch's latest commit$RESET"
   quietly mise reshim || true
@@ -642,6 +643,7 @@ fi
 
 if [[ ${#tools[@]} -gt 0 ]]; then
   say "$CYAN" "Upgrading" "${tools[*]}"
+  sync_rustup_default
   refresh_branch_tools "${tools[@]}"
   mise_upgrade "${tools[@]}" || upgrade_ok=false
   sync_rustup_default
@@ -677,6 +679,12 @@ quietly mise self-update --yes || true
 end_step
 mise_now=$(mise --version 2>/dev/null | awk 'NR==1 {print $1}')
 [[ "$mise_was" == "$mise_now" ]] || say "$GREEN" "Updated" "mise $mise_was → $mise_now"
+
+# Before anything is compiled, not only after the upgrade: the branch rebuilds
+# and a cargo: tool new in the config both build with rustup's default, and a
+# box whose default is an old "stable" fails them all ("rustc 1.85.0 is not
+# supported") even though mise's rust is current.
+sync_rustup_default
 
 say "$CYAN" "Checking" "branch-pinned tools for new commits"
 refresh_branch_tools
