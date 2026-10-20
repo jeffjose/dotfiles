@@ -1,5 +1,5 @@
-# The tools every machine gets, servers included: prebuilt binaries plus the
-# rust toolchain, and the two things that have to be compiled (seal, twig). Desktops and laptops add
+# The tools every machine gets, servers included: the language toolchains,
+# prebuilt binaries, and my own tools built from source. Desktops and laptops add
 # apps/mise-desktop.toml on top (./setup links it into ~/.config/mise/conf.d),
 # and corp hosts add apps/mise-corp.toml the same way.
 #
@@ -7,6 +7,11 @@
 
 [tools]
 rust = "latest"
+go = "latest"
+node = "24.14.1"
+python = "latest"
+bun = "latest"
+zig = "latest"
 "github:astral-sh/uv" = "latest"
 rclone = "latest"
 
@@ -14,7 +19,7 @@ rclone = "latest"
 neovim = "latest"
 
 # Prebuilt (aqua:junegunn/fzf, aqua:BurntSushi/ripgrep) rather than the go: and
-# cargo: builds, so a server needs no go and no compile to have them.
+# cargo: builds, so there is nothing to compile to have them.
 fzf = "latest"
 ripgrep = "latest"
 
@@ -35,11 +40,14 @@ fd = "latest"
 # moves. Check with `mise which claude`: it must point under installs/claude/.
 claude = "latest"
 
-# The source builds here; they are what the rust toolchain above is for.
+# My own tools, built from their main branch with the rust above.
 # seal unlocks the sealed files in ~/dotfiles/encrypted, which a server needs too.
 "cargo:https://github.com/jeffjose/seal" = "branch:main"
 # twig draws the shell prompt, so every machine needs it, corp included.
 "cargo:https://github.com/jeffjose/twig" = "branch:main"
+"cargo:https://github.com/jeffjose/mediainfo" = "branch:main"
+"cargo:https://github.com/jeffjose/safeclean" = "branch:main"
+"cargo:https://github.com/jeffjose/magicfs" = "branch:main"
 
 [settings]
 experimental = true

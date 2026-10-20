@@ -4,9 +4,7 @@
 # server.
 
 [tools]
-go = "latest"
 java = "latest"
-node = "24.14.1"
 # `pnpm` resolves to aqua:pnpm/pnpm -- the prebuilt native binary. Not npm:pnpm:
 # since pnpm 11 the npm package ships a placeholder whose postinstall swaps in
 # the real binary from @pnpm/exe.<platform>, and mise's npm backend (aube)
@@ -14,12 +12,12 @@ node = "24.14.1"
 # puts it in place, so `pnpm --version` dies in node's ESM loader on the
 # shebang-less placeholder. Same failure as claude and opencode below.
 pnpm = "latest"
-python = "latest"
-bun = "latest"
-zig = "latest"
 # Static Rust binary (aqua:typst/typst). There is an npm package, but it is a
 # wrapper that downloads this same binary, so take it straight.
 typst = "latest"
+# `yt-dlp` resolves to github:yt-dlp/yt-dlp -- the project's standalone build,
+# which bundles its own python. Not pipx:yt-dlp as well: that second copy sat
+# behind this one on PATH and never ran.
 yt-dlp = "latest"
 # ffmpeg from BtbN's static GPL builds: x264, x265, SVT-AV1, libaom, Opus and
 # NVENC all built in, which jog's video Convert uses. Not mise's `ffmpeg`
@@ -70,12 +68,9 @@ opencode = "latest"
 #"cargo:tuc" = "latest"
 
 # GitHub repositories
-"cargo:https://github.com/jeffjose/mediainfo" = "branch:main"
-"cargo:https://github.com/jeffjose/safeclean" = "branch:main"
 "cargo:https://github.com/jeffjose/git-cal" = "branch:main"
 "cargo:https://github.com/jeffjose/loc" = "branch:main"
 "cargo:https://github.com/jeffjose/wat" = "branch:main"
-"cargo:https://github.com/jeffjose/magicfs" = "branch:main"
 "cargo:https://github.com/jeffjose/jog" = "branch:main"
 "cargo:https://github.com/jeffjose/hotshot" = "branch:main"
 "cargo:https://github.com/jeffjose/clutch" = "branch:main"
@@ -95,7 +90,6 @@ ninja = "latest"
 cmake = "latest"
 
 # Python CLI tools
-"pipx:yt-dlp" = "latest"
 "pipx:speedtest-cli" = "latest"
 
 [env]
