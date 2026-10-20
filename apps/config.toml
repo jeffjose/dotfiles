@@ -1,5 +1,5 @@
 # The tools every machine gets, servers included: prebuilt binaries plus the
-# rust toolchain, and one thing that has to be compiled (seal). Desktops and laptops add
+# rust toolchain, and the two things that have to be compiled (seal, twig). Desktops and laptops add
 # apps/mise-desktop.toml on top (./setup links it into ~/.config/mise/conf.d),
 # and corp hosts add apps/mise-corp.toml the same way.
 #
@@ -35,9 +35,11 @@ fd = "latest"
 # moves. Check with `mise which claude`: it must point under installs/claude/.
 claude = "latest"
 
-# Unlocks the sealed files in ~/dotfiles/encrypted, which a server needs too.
-# The one source build here; it is what the rust toolchain above is for.
+# The source builds here; they are what the rust toolchain above is for.
+# seal unlocks the sealed files in ~/dotfiles/encrypted, which a server needs too.
 "cargo:https://github.com/jeffjose/seal" = "branch:main"
+# twig draws the shell prompt, so every machine needs it, corp included.
+"cargo:https://github.com/jeffjose/twig" = "branch:main"
 
 [settings]
 experimental = true
