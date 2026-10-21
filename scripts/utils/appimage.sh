@@ -62,8 +62,9 @@ source "$_SELF_DIR/../lib/ui.sh"
 # `update --all` used to narrate two lines per app — a "Resolving ..." line and
 # a "[name] ..." line — which buried the three apps that actually needed
 # attention under twelve that did not. In row mode the chatter is suppressed and
-# each app gets one aligned line plus a summary. A single `update <name>` keeps
-# the original verbose form, where the detail is the point.
+# each app gets one aligned line plus a summary. A single `update <name>` is the
+# same one line, without the summary: under uq the code and claude-desktop steps
+# are exactly that, and five lines of resolving and paths for each was too much.
 UPDATE_ROWS=false     # true => one aligned row per app, and count the outcomes
 RESOLVE_QUIET=false   # true => resolvers do not announce what they are fetching
 RESOLVE_ERR_FILE=""   # set => resolvers write the failure reason here, not stderr
@@ -90,7 +91,12 @@ upd_emit() {
     text=$(printf '%s%-*s%s  %s' "$BOLD" "$width" "$name" "$RESET" "$detail")
   fi
   if [ "$UPDATE_ROWS" = "true" ]; then
-    say "$colour" "$verb" "$text"
+    if [ "$kind" = "new" ]; then
+      # Left open: cmd_update_one puts the install's time on the end of it.
+      printf '%s%12s%s %s' "$colour" "$verb" "$RESET" "$text"
+    else
+      say "$colour" "$verb" "$text"
+    fi
   else
     [ -n "$hint" ] && text="$text $DIM($hint)$RESET"
     case "$kind" in
@@ -100,22 +106,17 @@ upd_emit() {
   fi
 }
 
-_TMPDIRS=()
+# Every temp dir of a run lives under one root, removed on exit. mktmp is called
+# as d=$(mktmp), in a subshell, so it can't keep a list of what it made: when it
+# did, the list never reached the trap and each download stayed in /tmp.
+_TMP_ROOT=$(mktemp -d)
 _cleanup_tmpdirs() {
-  local d
-  for d in "${_TMPDIRS[@]+"${_TMPDIRS[@]}"}"; do
-    if [ -n "$d" ] && [ -d "$d" ]; then rm -rf "$d"; fi
-  done
+  rm -rf -- "$_TMP_ROOT"
   return 0
 }
 trap _cleanup_tmpdirs EXIT
 
-mktmp() {
-  local d
-  d=$(mktemp -d)
-  _TMPDIRS+=("$d")
-  echo "$d"
-}
+mktmp() { mktemp -d -p "$_TMP_ROOT"; }
 
 usage() {
   cat >&2 <<EOF
@@ -1192,8 +1193,17 @@ cmd_install() {
   if [[ "$arg" =~ ^https?:// ]]; then
     local dl_dir
     dl_dir=$(mktmp)
-    say "$CYAN" "Downloading" "$arg"
-    ( cd "$dl_dir" && curl -fLOJ --progress-bar "$arg" )
+    # No progress bar: the line is left open and gets how long the download
+    # took on the end of it, as `up` does with each step.
+    local dl_started dl_err
+    dl_started=$(now_us)
+    printf '%s%12s%s %s' "$CYAN" "Downloading" "$RESET" "$arg"
+    if ! dl_err=$(cd "$dl_dir" && curl -fsSLOJ "$arg" 2>&1); then
+      printf '\n'
+      err "Download failed: ${dl_err:-curl exited non-zero}"
+      exit 1
+    fi
+    printf ' %s(%s)%s\n' "$DIM" "$(elapsed "$dl_started")" "$RESET"
     src=$(find "$dl_dir" -maxdepth 1 -type f | head -n1)
     [ -n "$src" ] || { err "Download failed: no file produced"; exit 1; }
     [ -z "$asset_url" ] && asset_url="$arg"
@@ -1520,23 +1530,30 @@ cmd_update_one() {
   [ "$no_sandbox" = "true" ] && reinstall_args+=(--no-sandbox)
   [ -n "$guard" ] && reinstall_args+=(--guard "$guard" --skip-guard)
   reinstall_args+=(--name "$name" "$source_url")
-  # In row mode the install's own "Asset/Downloading/Installed" block would tear
-  # the table apart, so drop its stdout — the row above already says what is
-  # happening. curl's progress bar is on stderr and survives, which is the one
-  # bit of feedback worth keeping while a few hundred MB come down.
+  # In row mode the install's own "Resolved/Downloading/Installed" block would
+  # tear the table apart, so drop its stdout — the row above already says what
+  # is happening — and hold its stderr until the row is finished with how long
+  # the install took, like `up` does: "Updating kdenlive 26.08.1 → 26.08.2 (9.8s)".
+  # A subshell, because cmd_install exits on failure; it would otherwise end the
+  # whole batch, with the row left open.
   if [ "$UPDATE_ROWS" = "true" ]; then
-    cmd_install "${reinstall_args[@]}" >/dev/null
-  else
-    cmd_install "${reinstall_args[@]}"
+    local started errf status=0
+    started=$(now_us)
+    errf="$(mktmp)/install-err"
+    ( cmd_install "${reinstall_args[@]}" ) >/dev/null 2>"$errf" || status=$?
+    printf ' %s(%s)%s\n' "$DIM" "$(elapsed "$started")" "$RESET"
+    cat "$errf" >&2
+    if [ $status -ne 0 ]; then
+      _UPD_NEW=$((_UPD_NEW - 1)); _UPD_FAIL=$((_UPD_FAIL + 1))
+    fi
+    return $status
   fi
+  cmd_install "${reinstall_args[@]}"
 }
 
-# Update a batch of apps as a table: one row each, then a tally. Sizes the name
-# column to the longest name so the versions line up whatever is installed.
-update_many() {
-  local n total=$#
-  [ "$total" -gt 0 ] || { say "$DIM" "Nothing" "no managed AppImages" >&2; return 0; }
-
+# rows_begin <names...> ... rows_end: one aligned row per app between the two,
+# the name column sized to the longest name so the versions line up.
+rows_begin() {
   UPDATE_ROWS=true
   RESOLVE_QUIET=true
   # Collect each failure's reason so it lands in that app's row rather than as a
@@ -1544,8 +1561,22 @@ update_many() {
   RESOLVE_ERR_FILE="$(mktmp)/resolve-err"
   _UPD_OK=0; _UPD_NEW=0; _UPD_SKIP=0; _UPD_FAIL=0
   NAME_W=0
+  local n
   for n in "$@"; do [ "${#n}" -gt "$NAME_W" ] && NAME_W="${#n}"; done
+  return 0
+}
+rows_end() {
+  UPDATE_ROWS=false
+  RESOLVE_QUIET=false
+  RESOLVE_ERR_FILE=""
+}
 
+# Update a batch of apps as a table: one row each, then a tally.
+update_many() {
+  local n total=$#
+  [ "$total" -gt 0 ] || { say "$DIM" "Nothing" "no managed AppImages" >&2; return 0; }
+
+  rows_begin "$@"
   local started summary
   started=$(now_us)
   say "$CYAN" "Checking" "$total managed AppImage$([ "$total" -eq 1 ] || echo s)"
@@ -1557,10 +1588,7 @@ update_many() {
   else
     say "$GREEN" "Finished" "$summary"
   fi
-
-  UPDATE_ROWS=false
-  RESOLVE_QUIET=false
-  RESOLVE_ERR_FILE=""
+  rows_end
 }
 
 cmd_update() {
@@ -1607,9 +1635,14 @@ cmd_update() {
   for n in "$@"; do
     case "$n" in -*) usage ;; esac
   done
-  # One name keeps the verbose single-app output; several get the table.
+  # One name is its row alone, without the table's header and tally; several
+  # get the table.
   if [ $# -eq 1 ]; then
-    cmd_update_one "$1"
+    local status=0
+    rows_begin "$1"
+    cmd_update_one "$1" || status=$?
+    rows_end
+    return $status
   else
     update_many "$@"
   fi
