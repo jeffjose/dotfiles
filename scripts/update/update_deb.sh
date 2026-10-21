@@ -77,41 +77,55 @@ build_command() {
 #
 # It prints the URL, "→ name version", and then either "✓ Already installed" or
 # a progress bar, "✓ Downloaded: file", "↑ Upgrading from old" and
-# "✓ Installed". Those become one line each way:
+# "✓ Installed". Those become one line each way, the way `up` reports a step,
+# with how long it took on the end:
 #        Fresh name version
-#     Updating name old → version
-# with the progress bar shown while it moves and wiped once the download is
-# done. Lines it does not know (errors, mostly) pass through as they are.
+#     Updating name old → version (8.2s)
+# The progress bar is dropped. Lines it does not know (errors, mostly) pass
+# through as they are, on a line of their own.
 #
 # Read a byte at a time: the bar redraws with \r and no newline, and would
 # otherwise sit in a line buffer until the download was over.
 deb_lines() {
-    DIM="$DIM" GREEN="$GREEN" RESET="$RESET" perl -e '
+    DIM="$DIM" GREEN="$GREEN" RESET="$RESET" perl -MTime::HiRes=time -e '
         $| = 1; $/ = \1;
-        my ($line, $name, $bar, $old) = ("", "", 0);
+        my ($line, $name, $bar, $old, $open, $t0) = ("", "", 0, undef, 0, time);
         sub verb { printf "%s%12s%s %s\n", $_[0], $_[1], $ENV{RESET}, $_[2]; }
+        # Same form as elapsed in ui.sh: 840ms, 12.3s, 1m 32s.
+        sub took {
+            my $ms = int((time - $t0) * 1000);
+            my $t = $ms < 1000 ? "${ms}ms"
+                  : $ms < 60000 ? sprintf("%d.%ds", $ms / 1000, $ms % 1000 / 100)
+                  : sprintf("%dm %ds", $ms / 60000, $ms % 60000 / 1000);
+            return "$ENV{DIM}($t)$ENV{RESET}";
+        }
+        sub close_open { print "\n" if $open; $open = 0; }
         while (my $c = <STDIN>) {
-            if ($c eq "\r") { print "$line\r"; $line = ""; $bar = 1; next; }
+            if ($c eq "\r") { $line = ""; $bar = 1; next; }
             if ($c ne "\n") { $line .= $c; next; }
             (my $plain = $line) =~ s/\e\[[0-9;]*m//g;
-            if ($bar) { print "\r\e[K"; $bar = 0; $line = ""; next; } # the last frame: wipe the bar
+            if ($bar) { $bar = 0; $line = ""; next; } # the last frame of the bar
             if ($plain =~ m{^https?://\S+$} || $plain =~ /^✓ (Downloaded|Cached): / || $plain =~ /^\s*$/) {
                 # nothing the lines around it do not say
             } elsif ($plain =~ /^→ (.+)$/) {
-                $name = $1;
+                ($name, $old, $t0) = ($1, undef, time);
             } elsif ($plain =~ /^✓ Already installed$/ && length $name) {
                 verb($ENV{DIM}, "Fresh", "$ENV{DIM}$name$ENV{RESET}");
             } elsif ($plain =~ /^↑ Upgrading from (\S+)$/ && length $name) {
                 $old = $1;
                 my ($pkg, $ver) = split / /, $name, 2;
-                verb($ENV{GREEN}, "Updating", "$pkg $old → $ver");
+                printf "%s%12s%s %s", $ENV{GREEN}, "Updating", $ENV{RESET}, "$pkg $old → $ver";
+                $open = 1;
             } elsif ($plain =~ /^✓ Installed/ && length $name) {
-                verb($ENV{GREEN}, "Installed", $name) unless defined $old;
+                if ($open) { print " ", took(), "\n"; $open = 0; }
+                else { verb($ENV{GREEN}, "Installed", "$name " . took()) unless defined $old; }
             } else {
+                close_open();
                 print "$line\n";
             }
             $line = "";
         }
+        close_open();
         print $line;
     '
 }
