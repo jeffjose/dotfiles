@@ -185,8 +185,30 @@ corp_notice() {
 # after the fact instead of scrolled back to — and so the summary can quote the
 # lines that matter. The last few runs are kept; older ones are removed.
 LOG_ROOT="${XDG_STATE_HOME:-$HOME/.local/state}/uq"
-LOG_DIR="$LOG_ROOT/$(date +%Y%m%d-%H%M%S)"
+LOG_DIR="${UQ_RUN_DIR:-$LOG_ROOT/$(date +%Y%m%d-%H%M%S)}"
+RUN_LOG="$LOG_DIR/run.log"
 LOG_KEEP=10
+
+# in_one_terminal <args...>: re-run uq under script(1), once, for the whole run
+#
+# script(1) keeps a copy of everything printed while the steps still see a
+# terminal — colours, progress bars and prompts as they are unlogged. It has to
+# be one script(1) around the run, not one per step: each gives its command a
+# new terminal, and sudo caches a password per terminal, so a step in a
+# terminal of its own asked for the password all over again. Under one, the
+# sudo -v in check_sudo, its refresh loop and every step share a terminal.
+#
+# The re-run finds UQ_RUN_DIR set and carries on in place. script(1) runs the
+# command with $SHELL -c, and the quoting below is bash's, so SHELL is bash for
+# that one hop and put back on the other side.
+in_one_terminal() {
+  [[ -z "${UQ_RUN_DIR:-}" ]] || return 0
+  [ -t 1 ] && command -v script >/dev/null 2>&1 || return 0
+  mkdir -p "$LOG_DIR" 2>/dev/null || return 0
+  UQ_RUN_DIR="$LOG_DIR" UQ_SHELL="${SHELL:-}" SHELL=/bin/bash \
+    exec script -qefc "$(printf '%q ' "$0" "$@")" "$RUN_LOG"
+}
+[[ -z "${UQ_SHELL+set}" ]] || export SHELL="$UQ_SHELL"
 
 start_logs() {
   mkdir -p "$LOG_DIR" 2>/dev/null || return 0
@@ -199,21 +221,53 @@ start_logs() {
 
 # run_logged <log> <command...>: run a command, keeping a copy of what it prints
 #
-# On a terminal the command runs under script(1), which gives it a terminal of
-# its own: colours, mise's progress bars and the sudo prompt behave exactly as
-# they do unlogged. A plain pipe to tee would turn all of that off. Without a
-# terminal there is nothing to preserve, so tee does.
+# Under in_one_terminal the command just runs; what it prints is already going
+# to run.log, and split_logs cuts its part out into <log> afterwards. A plain
+# pipe to tee would take the terminal away from it, so that is only for when
+# there is no terminal to begin with.
+declare -a step_logs=() step_starts=() step_ends=()
+
+log_offset() { stat -c %s "$RUN_LOG" 2>/dev/null || echo 0; }
+
+# The size of run.log once script(1) has caught up with what was printed: it
+# copies the terminal's output to the file a moment after it is written.
+settled_offset() {
+  local was now tries=0
+  now=$(log_offset)
+  while ((tries++ < 10)); do
+    was=$now
+    sleep 0.05
+    now=$(log_offset)
+    [[ "$now" != "$was" ]] || break
+  done
+  printf '%s' "$now"
+}
+
 run_logged() {
   local log="$1"
   shift
-  if [ ! -d "$LOG_DIR" ]; then
+  if [[ -n "${UQ_RUN_DIR:-}" ]]; then
+    local status=0
+    step_logs+=("$log")
+    step_starts+=("$(settled_offset)")
+    "$@" || status=$?
+    step_ends+=("$(settled_offset)")
+    return $status
+  elif [ ! -d "$LOG_DIR" ]; then
     "$@"
-  elif [ -t 1 ] && command -v script >/dev/null 2>&1; then
-    script -qefc "$(printf '%q ' "$@")" "$log"
   else
     "$@" 2>&1 | tee "$log"
     return "${PIPESTATUS[0]}"
   fi
+}
+
+# split_logs: write each step's slice of run.log to its own log
+split_logs() {
+  local i
+  for i in "${!step_logs[@]}"; do
+    tail -c +"$((step_starts[i] + 1))" "$RUN_LOG" 2>/dev/null |
+      head -c "$((step_ends[i] - step_starts[i]))" >"${step_logs[i]}"
+  done
 }
 
 # failure_excerpt <log>: the lines of a log that say what went wrong
@@ -350,8 +404,10 @@ main() {
   done
 
   record after
+  split_logs
   print_summary
 }
 
 # Run main function
+in_one_terminal "$@"
 main "$@"
