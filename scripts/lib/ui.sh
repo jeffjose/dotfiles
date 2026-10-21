@@ -6,9 +6,10 @@
 #     Finished 5 steps in 1m 12s
 #
 # Source this file; it only defines colours and a few helpers. Colours are empty
-# when stdout is not a terminal or NO_COLOR is set, so piped output stays plain.
+# when stdout is not a terminal or NO_COLOR is set, so piped output stays plain —
+# unless CLICOLOR_FORCE is set, as uq does for the steps it pipes to their logs.
 
-if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
+if { [ -t 1 ] || [ -n "${CLICOLOR_FORCE:-}" ]; } && [ -z "${NO_COLOR:-}" ]; then
   GREEN=$'\e[1;32m' YELLOW=$'\e[1;33m' RED=$'\e[1;31m' CYAN=$'\e[1;36m'
   BOLD=$'\e[1m' DIM=$'\e[2m' RESET=$'\e[0m'
 else
