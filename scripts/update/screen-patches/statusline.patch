@@ -1,12 +1,16 @@
-remote-rendition: show windows whose title starts with @ in their own colour.
+statusline: what the dotfiles' status line needs that stock screen lacks.
 
-shell/screen-title.tcsh names a window "@host" while it is ssh'd somewhere.
-Stock screen can't colour a window by its title, so this adds two things:
+shell/screen-title.tcsh names a window "@host" while it is ssh'd somewhere,
+and screen can't colour a window by its title, so this adds:
 
   rendition remote <attr> <color>   how %w, %-w and %+w draw such a window,
                                     after the bell, monitor and silence ones
   %R                                true when the window's title starts with @,
                                     for %?%R...%:...%? (like %F for focus)
+
+And with every window monitored for activity, the "Activity in window" message
+popped up all the time. An empty one (activity "") now shows no message; the
+window still gets its @ flag and the monitor rendition.
 
 Applied by update_screen.sh with patch -p1 from inside the source tree.
 
@@ -42,6 +46,19 @@ diff -ru screen-5.0.2.orig/process.c screen-5.0.2/process.c
  		if (rend != 0)
  			AddWinMsgRend(wmbc->buf, s, rend);
  		sprintf(s, "%d", win->w_number);
+diff -ru screen-5.0.2.orig/screen.c screen-5.0.2/screen.c
+--- screen-5.0.2.orig/screen.c
++++ screen-5.0.2/screen.c
+@@ -1752,7 +1752,8 @@
+ 					continue;	/* user already sees window */
+ 				if (!(ACLBYTE(p->w_mon_notify, D_user->u_id) & ACLBIT(D_user->u_id)))
+ 					continue;	/* user doesn't care */
+-				Msg(0, "%s", MakeWinMsg(ActivityString, p, '%'));
++				if (*ActivityString)
++					Msg(0, "%s", MakeWinMsg(ActivityString, p, '%'));
+ 				p->w_monitor = MON_DONE;
+ 			}
+ 			WindowChanged(p, WINESC_WFLAGS);
 diff -ru screen-5.0.2.orig/winmsg.c screen-5.0.2/winmsg.c
 --- screen-5.0.2.orig/winmsg.c
 +++ screen-5.0.2/winmsg.c

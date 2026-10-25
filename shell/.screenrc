@@ -126,7 +126,10 @@ term screen.xterm-256color
     rendition so "#EEEEEE;#3A3A3A"
 
 # Messages
-    activity "Someone's tinkering in %t(%n)"
+    # No message when a watched window prints: the amber @ in the window list
+    # says it. The patch makes an empty one mean none (stock screen would still
+    # blank the status line for a moment).
+    activity ""
 
 # hardcopy - C-a h
     hardcopydir ~/.screen-hardcopy
