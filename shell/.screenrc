@@ -115,6 +115,10 @@ term screen.xterm-256color
     defmonitor on
     rendition monitor "b #FFCA16;#111111"
     rendition bell "b #FF9592;#111111"
+    # A window ssh'd elsewhere, titled "@host", is cyan. "remote" comes from the
+    # patch update_screen.sh applies (scripts/update/screen-patches); a screen
+    # without it skips this line with a message.
+    rendition remote "#4CCCE6;#111111"
 
 # Vertical bar, messages and the copy-mode selection
     rendition so "#EEEEEE;#3A3A3A"

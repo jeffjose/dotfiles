@@ -1,0 +1,41 @@
+remote-rendition: colour windows whose title starts with @ in the window list.
+
+Adds "rendition remote <attr> <color>". shell/screen-title.tcsh names a window
+"@host" while it is ssh'd somewhere; with this, %w and %-w/%+w draw such a
+window in that rendition, after the bell, monitor and silence ones. Stock screen
+has no way to colour a window by its title.
+
+Applied by update_screen.sh with patch -p1 from inside the source tree.
+
+diff -ru screen-5.0.2.orig/image.h screen-5.0.2/image.h
+--- screen-5.0.2.orig/image.h	2026-07-11 05:23:46.000000000 -0700
++++ screen-5.0.2/image.h	2026-10-25 16:23:12.489525749 -0700
+@@ -121,6 +121,7 @@
+ 	REND_BELL = 0,
+ 	REND_MONITOR,
+ 	REND_SILENCE,
++	REND_REMOTE,
+ 	NUM_RENDS
+ };
+ 
+diff -ru screen-5.0.2.orig/process.c screen-5.0.2/process.c
+--- screen-5.0.2.orig/process.c	2026-07-11 05:23:46.000000000 -0700
++++ screen-5.0.2/process.c	2026-10-25 16:23:17.724653763 -0700
+@@ -4091,6 +4091,8 @@
+ 		i = REND_BELL;
+ 	} else if (strcmp(args[0], "monitor") == 0) {
+ 		i = REND_MONITOR;
++	} else if (strcmp(args[0], "remote") == 0) {
++		i = REND_REMOTE;
+ 	} else if (strcmp(args[0], "silence") == 0) {
+ 		i = REND_SILENCE;
+ 	} else if (strcmp(args[0], "so") != 0) {
+@@ -6041,6 +6043,8 @@
+ 		else if ((win->w_silence == SILENCE_FOUND || win->w_silence == SILENCE_DONE)
+ 			 && renditions[REND_SILENCE] != 0)
+ 			rend = renditions[REND_SILENCE];
++		else if (cmd[0] == '@' && renditions[REND_REMOTE] != 0)
++			rend = renditions[REND_REMOTE];
+ 		if (rend != 0)
+ 			AddWinMsgRend(wmbc->buf, s, rend);
+ 		sprintf(s, "%d", win->w_number);

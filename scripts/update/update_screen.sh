@@ -13,9 +13,12 @@
 # system screenrc is written for screen 4 and screen 5 complains about it on
 # every start. Nothing has to be in that file.
 #
+# Every patch in screen-patches/ next to this script is applied first (each one
+# says what it is for); a release one no longer applies to is not built.
+#
 # Nothing is rebuilt when ~/.local/bin/screen already reports the newest
-# version and was built with the options below (a stamp file next to its
-# share/screen records them). The tarball's signature must come from Alexander Naumov, screen's
+# version and was built with the options and patches below (a stamp file next
+# to its share/screen records them). The tarball's signature must come from Alexander Naumov, screen's
 # maintainer, or nothing is built. The build's output goes to a log, whose path
 # is printed if it fails; under uq the log sits with that run's step logs.
 #
@@ -42,6 +45,8 @@ ARCH_LIB="usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null || echo x
 # The configure options beyond --prefix. Changing them rebuilds screen on the
 # next run, even at the same version.
 CONFIG=(--with-system_screenrc="$PREFIX/etc/screenrc")
+PATCHES=("${BASH_SOURCE[0]%/*}"/screen-patches/*.patch)
+[[ -e "${PATCHES[0]}" ]] || PATCHES=()
 STAMP="$PREFIX/share/screen/uq-build"
 
 LOG="${UQ_LOG_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/uq}/screen-detail.log"
@@ -93,6 +98,7 @@ if [[ -x "$PREFIX/bin/screen" ]]; then
 fi
 
 build="$latest ${CONFIG[*]}"
+[[ ${#PATCHES[@]} -eq 0 ]] || build+=" patches:$(cat "${PATCHES[@]}" | sha256sum | cut -c1-12)"
 if [[ "$current" == "$latest" && "$(cat "$STAMP" 2>/dev/null)" == "$build" ]]; then
   say "$DIM" "Fresh" "${DIM}screen $current$RESET"
   exit 0
@@ -100,7 +106,7 @@ fi
 
 started=$(now_us)
 if [[ "$current" == "$latest" ]]; then
-  printf '%s%12s%s %s' "$GREEN" "Rebuilding" "$RESET" "screen $latest (new build options)"
+  printf '%s%12s%s %s' "$GREEN" "Rebuilding" "$RESET" "screen $latest (new build options or patches)"
 elif [[ -n "$current" ]]; then
   printf '%s%12s%s %s' "$GREEN" "Updating" "$RESET" "screen $current → $latest"
 else
@@ -144,6 +150,9 @@ fi
 # Build and install.
 quietly tar -xzf "$WORK/src/$tarball" -C "$WORK/src" || exit 1
 cd "$WORK/src/screen-$latest"
+for p in "${PATCHES[@]}"; do
+  quietly patch -p1 --forward -i "$p" || exit 1
+done
 quietly ./configure --prefix="$PREFIX" "${CONFIG[@]}" CPPFLAGS="$cppflags" LDFLAGS="$ldflags" || exit 1
 quietly make -j"$(nproc)" || exit 1
 quietly make install || exit 1
