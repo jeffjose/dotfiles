@@ -179,10 +179,7 @@ link() {
   run "$GREEN" "Linking" "$detail" ln -sfn "$src" "$target"
 }
 
-# Screen
-link /usr/bin/screen "$HOME/bin/scrn"
-
-# Bin scripts
+# Bin scripts (scrn among them: it picks the newest screen installed)
 for script in "$DOTFILES_DIR/bin/"*; do
   [ -f "$script" ] || continue
   link "$script" "$HOME/bin/$(basename "$script")"

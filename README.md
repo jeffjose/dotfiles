@@ -34,6 +34,7 @@ has [`firstrun-bsd`](scripts/install/firstrun-bsd).
 | kept off corp hosts          | [`apps/mise-corp.toml`](apps/mise-corp.toml)                 |
 | AppImages                    | [`scripts/utils/appimage-catalog.tsv`](scripts/utils/appimage-catalog.tsv) |
 | debs from outside apt        | [`misc/package.toml`](misc/package.toml)                     |
+| screen 5, built from source  | [`scripts/update/update_screen.sh`](scripts/update/update_screen.sh) |
 | directories and symlinks     | [`setup`](setup)                                             |
 
 ## Day to day

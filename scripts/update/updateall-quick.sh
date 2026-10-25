@@ -13,16 +13,19 @@ set -e # Exit on error
 # Constants
 SCRIPTS_DIR="$HOME/dotfiles/scripts/update"
 # What a desktop or laptop updates. A server (see host_profile in
-# scripts/lib/host.sh) has no graphical apps, so it runs the mise step alone.
+# scripts/lib/host.sh) has no graphical apps, so it runs only the terminal
+# steps: mise, and screen 5 built from source.
 UPDATE_SCRIPTS=(
   "update_code.sh"
   "update_mise.sh"
+  "update_screen.sh"
   "update_deb.sh"
   "update_claude_desktop.sh"
   "update_appimage.sh"
 )
 SERVER_UPDATE_SCRIPTS=(
   "update_mise.sh"
+  "update_screen.sh"
 )
 
 # Output is cargo-style, like ./setup: a right-aligned coloured verb, then the
@@ -41,7 +44,8 @@ case "${1:-}" in
 esac
 
 # Everything a run can change, as "kind<TAB>name<TAB>version<TAB>id" lines: mise
-# and its tools, the debs in misc/package.toml, and every managed AppImage.
+# and its tools, screen built from source, the debs in misc/package.toml, and
+# every managed AppImage.
 # Taken before and after the run, the difference is the summary.
 #
 # `id` is "-" except for AppImages, where it is the release tag. Rolling repos
@@ -55,6 +59,11 @@ snapshot() {
              | select(.installed and .active)
              | "mise\t\($k)\t\(.version)\t-"' 2>/dev/null || true
   fi
+
+  # update_screen.sh's build in ~/.local, not the distro's /usr/bin/screen.
+  local screen_ver
+  screen_ver=$("$HOME/.local/bin/screen" -v 2>/dev/null | sed -n 's/^Screen version \([0-9.]*\).*/\1/p') || true
+  [[ -z "$screen_ver" ]] || printf 'source\tscreen\t%s\t-\n' "$screen_ver"
 
   # update_deb.sh installs whatever misc/package.toml lists — read the names
   # from the toml rather than hardcoding them so the summary tracks the config.
