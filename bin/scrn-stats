@@ -1,0 +1,144 @@
+#!/bin/bash
+#
+# scrn-stats — the system half of screen's status line.
+#
+# .screenrc runs this as a long-lived backtick (`backtick 1 0 0 scrn-stats`):
+# screen starts it once and redraws the status line every time it prints a line.
+# A line is cpu, load, memory, disk, network down/up, ip and uptime, coloured
+# with screen's string escapes. In backtick output screen reads ^E where a
+# .screenrc string has %, so a colour is ^E{fg;bg} and a plain % is just text.
+#
+# One process for the whole session, so the cpu and network graphs can keep
+# their last few samples in memory instead of in a file.
+#
+#   scrn-stats [interval]     seconds between lines, default 2
+#
+
+interval="${1:-2}"
+
+# Radix gray: labels dim, values bright, both on the status line's segment.
+BG="#2A2A2A"
+LABEL=$'\005'"{#7B7B7B;$BG}"
+VALUE=$'\005'"{#EEEEEE;$BG}"
+
+# A value is white while normal, orange when it is getting high, red when high.
+WARN=$'\005'"{#FFA057;$BG}"
+CRIT=$'\005'"{#EC5D5E;$BG}"
+
+# level <percent> <orange at> <red at>: the value colour for a reading.
+level() {
+  if (($1 >= $3)); then
+    printf '%s' "$CRIT"
+  elif (($1 >= $2)); then
+    printf '%s' "$WARN"
+  else
+    printf '%s' "$VALUE"
+  fi
+}
+
+BARS=(▁ ▂ ▃ ▄ ▅ ▆ ▇ █)
+
+# spark <max> <samples...>: one bar per sample, scaled to max.
+spark() {
+  local max=$1 v out=""
+  shift
+  ((max > 0)) || max=1
+  for v in "$@"; do
+    out+="${BARS[v * 7 / max]}"
+  done
+  printf '%s' "$out"
+}
+
+# rate <bytes per second>: "820B/s", "1.2K/s", "48M/s", always 6 wide. A unit
+# turns over at 1000, not 1024, so its number never needs a fourth digit.
+rate() {
+  awk -v b="$1" 'BEGIN {
+    split("B K M G", u); i = 1
+    while (b >= 1000 && i < 4) { b /= 1024; i++ }
+    s = sprintf((b < 10 && i > 1) ? "%.1f%s/s" : "%d%s/s", b, u[i])
+    printf "%6s", s
+  }'
+}
+
+# Total jiffies and idle jiffies across all cpus, from the first line of /proc/stat.
+cpu_times() {
+  local _ user nice system idle iowait irq softirq steal
+  read -r _ user nice system idle iowait irq softirq steal _ </proc/stat
+  echo "$((user + nice + system + idle + iowait + irq + softirq + steal)) $((idle + iowait))"
+}
+
+# Received and sent bytes, summed over every interface but loopback.
+net_bytes() {
+  awk 'NR > 2 && $1 != "lo:" { rx += $2; tx += $10 } END { printf "%.0f %.0f\n", rx, tx }' /proc/net/dev
+}
+
+# The address the default route leaves from and its interface's speed in bytes
+# per second (wifi and some virtual links don't say; those count as gigabit).
+# Looked up every 30s, they rarely move.
+lookup_route() {
+  local dev speed
+  read -r addr dev < <(ip -4 route get 1.1.1.1 2>/dev/null |
+    awk '{ for (i = 1; i < NF; i++) { if ($i == "src") s = $(i + 1); if ($i == "dev") d = $(i + 1) } }
+         END { print s, d }')
+  speed=$(cat "/sys/class/net/$dev/speed" 2>/dev/null) || speed=""
+  ((speed > 0)) 2>/dev/null || speed=1000
+  link=$((speed * 125000))
+}
+
+uptime_short() {
+  local secs
+  read -r secs _ </proc/uptime
+  secs=${secs%.*}
+  if ((secs >= 86400)); then
+    printf '%-7s' "$((secs / 86400))d $((secs % 86400 / 3600))h"
+  else
+    printf '%-7s' "$((secs / 3600))h $((secs % 3600 / 60))m"
+  fi
+}
+
+# Every field keeps one width, so the line doesn't shift as numbers change:
+# the graphs start full of empty bars, and numbers are padded.
+cpu_hist=(0 0) rx_hist=(0 0 0) tx_hist=(0 0 0)
+read -r cpu_total cpu_idle < <(cpu_times)
+read -r rx tx < <(net_bytes)
+cores=$(nproc)
+lookup_route
+tick=0
+
+while sleep "$interval"; do
+  read -r total idle < <(cpu_times)
+  dt=$((total - cpu_total)) di=$((idle - cpu_idle))
+  cpu=$((dt > 0 ? (dt - di) * 100 / dt : 0))
+  cpu_total=$total cpu_idle=$idle
+  cpu_hist+=("$cpu")
+  ((${#cpu_hist[@]} <= 3)) || cpu_hist=("${cpu_hist[@]:1}")
+
+  read -r new_rx new_tx < <(net_bytes)
+  down=$(((new_rx - rx) / interval)) up=$(((new_tx - tx) / interval))
+  rx=$new_rx tx=$new_tx
+  rx_hist+=("$down") tx_hist+=("$up")
+  ((${#rx_hist[@]} <= 4)) || rx_hist=("${rx_hist[@]:1}") tx_hist=("${tx_hist[@]:1}")
+  rx_max=$(printf '%s\n' "${rx_hist[@]}" | sort -n | tail -1)
+  tx_max=$(printf '%s\n' "${tx_hist[@]}" | sort -n | tail -1)
+
+  read -r l1 l5 l15 _ </proc/loadavg
+  # The 1-minute load as a share of the cores: 100 means every core is busy.
+  load_pct=$(awk -v l="$l1" -v c="$cores" 'BEGIN { printf "%d", l * 100 / c }')
+  read -r mem mem_pct < <(awk '/^MemTotal:/ { t = $2 } /^MemAvailable:/ { a = $2 }
+             END { printf "%4.1f/%.0fG %d\n", (t - a) / 1048576, t / 1048576, (t - a) * 100 / t }' /proc/meminfo)
+  disk=$(df -P / | awk 'NR == 2 { print $5 }')
+  disk=${disk%\%}
+
+  ((tick++ % 15)) || lookup_route
+
+  printf ' %s\n' "$(
+    printf '%scpu %s%s %3d%%  ' "$LABEL" "$(level "$cpu" 70 90)" "$(spark 100 "${cpu_hist[@]}")" "$cpu"
+    printf '%sload %s%5s %5s %5s  ' "$LABEL" "$(level "$load_pct" 70 100)" "$l1" "$l5" "$l15"
+    printf '%smem %s%s  ' "$LABEL" "$(level "$mem_pct" 70 90)" "$mem"
+    printf '%sdisk %s%3d%%  ' "$LABEL" "$(level "$disk" 80 90)" "$disk"
+    printf '%s↓ %s%s %s  ' "$LABEL" "$(level $((down * 100 / link)) 50 80)" "$(spark "$rx_max" "${rx_hist[@]}")" "$(rate "$down")"
+    printf '%s↑ %s%s %s  ' "$LABEL" "$(level $((up * 100 / link)) 50 80)" "$(spark "$tx_max" "${tx_hist[@]}")" "$(rate "$up")"
+    [[ -n "$addr" ]] && printf '%sip %s%s  ' "$LABEL" "$VALUE" "$addr"
+    printf '%sup %s%s ' "$LABEL" "$VALUE" "$(uptime_short)"
+  )"
+done

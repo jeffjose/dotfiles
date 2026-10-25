@@ -221,3 +221,15 @@ else
     # cwdcmd gets executed after every cd
     alias cwdcmd 'source ~/.cwdcmd'
 endif
+
+# Inside screen, name each window after its folder and what it is running, for
+# the status line. It adds to the precmd and postcmd set above, so it goes last.
+# Over ssh from inside screen (TERM is screen's) the remote shell does the same,
+# with its host in front: "@basalt:logs".
+set _scrn_remote = 0
+if ( $?SSH_CONNECTION ) then
+    if ( "$TERM" =~ screen* ) set _scrn_remote = 1
+endif
+if ( ( $?STY || $_scrn_remote ) && -r ~/dotfiles/shell/screen-title.tcsh ) then
+    source ~/dotfiles/shell/screen-title.tcsh
+endif

@@ -86,26 +86,38 @@ term screen.xterm-256color
 
     #backtick 0 30 30 sh -c 'iwgetid -r'
 
-# Status bar (bottom bar, one per screen session)
-    # Screen 5.0 color syntax: %{fg;bg} where colors are numeric (0-7 for basic ANSI)
-    # Colors: 0=black 1=red 2=green 3=yellow 4=blue 5=magenta 6=cyan 7=white
-    # Original: "%{= Bk} %H %{= kw} %-Lw%{KG}%25> %n:%t %{= kw}%+w %-= %{= KW} %l %{= kG} %{= Bk} %D, %d %M %{= kw} %{= Bk}%C:%s%A "
-    # Fix: %l doesn't work in Screen 5.0, using backtick for load average
-    backtick 1 1 1 date '+%I:%M:%S %p'
-    backtick 2 5 5 cut -d" " -f1-3 /proc/loadavg
-    attrcolor b ".I"
-    hardstatus alwayslastline "%{0;4} %H %{7;0} %-Lw%{0;2}%25> %n:%t %{7;0}%+w %-= %{0;245} %2` %{7;0} %{0;4} %D, %d %M %{7;0} %{0;4} %1` "
+# Colours are Radix (radix-ui.com/colors), as truecolor %{fg;bg} hex pairs:
+#   red 10   #EC5D5E  active caption, C-a badge     gray 1  #111111  status line
+#   green 9  #30A46C  current window                gray 4  #2A2A2A  stats
+#   gray 9   #8D8D8D  inactive caption, as light as red 10 so the captions read as one line
+#   blue 7   #8EC8F6  hostname, date and time       gray 6  #3A3A3A  divider
+#   amber    #FFCA16  window with new output (@)    red 11  #FF9592  window that rang the bell (!)
+# Old screen 4 can't read these and shows the bars uncoloured; scrn runs screen 5.
 
-# Caption bar (per-window bar for splits)
-    # Original: "%{= wk}%?%F%{= Mk}%? -%n- %t %= %t -%n- "
-    # Using 256-color gray (245) instead of white (7) for inactive windows
-    # Active: black on magenta (0;5), Inactive: black on gray (0;245)
-    caption always "%?%F%{0;5}%:%{0;245}%? -%n- %t %= %t -%n- "
+# Status bar (bottom line, one per session)
+    # C-a badge while the prefix is pressed (%E), host, the windows before the
+    # current one, the current one, the ones after; then the stats from
+    # scrn-stats and the date. Window titles are folder names, set by
+    # shell/screen-title.tcsh.
+    # Screen doesn't expand $HOME in a backtick command, so sh does it.
+    backtick 1 0 0 sh -c 'exec "$HOME/dotfiles/bin/scrn-stats"'
+    hardstatus alwayslastline "%?%E%{#191111;#EC5D5E} C-a %?%{#113264;#8EC8F6} %H %{#B4B4B4;#111111} %-Lw%{#0E1512;#30A46C} %n %t %{#B4B4B4;#111111}%+Lw %=%1`%{#113264;#8EC8F6} %d %M %c "
 
+# Caption bar (one per region)
+    # Red for the region you're in, gray for the rest. It shows the window's
+    # hardstatus: "folder: command" while one runs, "folder exit 1 0.2s" after a failure.
+    # A window that hasn't set one yet shows its title. COPY in copy mode (%P).
+    caption always "%?%F%{#191111;#EC5D5E}%:%{#191919;#8D8D8D}%? %n %?%h%:%t%? %=%?%P%{#191111;#FFC53D} COPY %?"
 
-# Vertical bar
-    # Limited to basic 8 colors (can't use gray 245), keeping white as closest option
-    sorendition wr
+# Alerts in the window list
+    # Every window is watched for output; one that prints while you're
+    # elsewhere gets @ and turns amber, one that rings the bell gets ! and red.
+    defmonitor on
+    rendition monitor "b #FFCA16;#111111"
+    rendition bell "b #FF9592;#111111"
+
+# Vertical bar, messages and the copy-mode selection
+    rendition so "#EEEEEE;#3A3A3A"
 
 # Messages
     activity "Someone's tinkering in %t(%n)"

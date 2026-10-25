@@ -1,0 +1,86 @@
+#!/bin/sh
+#
+# scrn-title — name the current screen window after its folder.
+#
+#   scrn-title <cwd> [status] [start-ms]     at the prompt
+#   scrn-title -r <cwd> <command>            as a command starts
+#
+# Prints two escapes screen reads off the terminal: ESC k … ESC \ sets the
+# window's title (the window list shows it) and ESC _ … ESC \ its hardstatus
+# (the pane's caption shows it). Given the last command's exit status and its
+# start time in ms, a failure gets an "exit N" badge and how long it took; a
+# success shows only its time, and only if it took 5s or more.
+#
+# Both strings must be ASCII: screen 5 keeps them a byte per character, so a
+# ✓ or · arrives mangled.
+#
+# tcsh's precmd runs it before each prompt; see shell/screen-title.tcsh.
+#
+
+running=""
+if [ "$1" = -r ]; then
+  running=1
+  shift
+fi
+
+dir=${1##*/}
+[ "$1" = "$HOME" ] && dir="~"
+[ "$1" = / ] && dir=/
+
+# A shell reached over ssh (not one screen started here) names its host too:
+# "@basalt:logs". .cshrc runs these hooks on such a host when TERM says the
+# terminal at the other end is screen. The @ marks a remote window in the list;
+# it can't be a colour, as screen prints window titles as they are.
+if [ -n "$SSH_CONNECTION" ] && [ -z "$STY" ]; then
+  dir="@$(hostname -s):$dir"
+fi
+
+# ssh_host <ssh args...>: the host an ssh command line goes to, without user@.
+ssh_host() {
+  while [ $# -gt 0 ]; do
+    case $1 in
+      -[BbcDEeFIiJLlmOoPpQRSWw]) shift ;;  # these options take a value
+      -*) ;;
+      *) echo "${1#*@}"; return ;;
+    esac
+    shift
+  done
+}
+
+# While a command runs the hardstatus is "folder: command". An ssh or mosh
+# renames the window "@host" after where it goes, until the next prompt.
+if [ -n "$running" ]; then
+  set -f
+  # shellcheck disable=SC2086
+  set -- $2
+  set +f
+  case $1 in
+    ssh | mosh | autossh) host=$(shift; ssh_host "$@") ;;
+    *) host="" ;;
+  esac
+  [ -n "$host" ] && printf '\033k@%s\033\\' "$host"
+  printf '\033_%s: %.60s\033\\' "$dir" "$*"
+  exit 0
+fi
+
+info=""
+if [ -n "$2" ] && [ -n "$3" ]; then
+  ms=$(($(date +%s%3N) - $3))
+  if [ "$ms" -lt 60000 ]; then
+    took="$((ms / 1000)).$((ms % 1000 / 100))s"
+  else
+    took="$((ms / 60000))m $((ms % 60000 / 1000))s"
+  fi
+
+  # In a hardstatus screen reads ^E as %, so ^E{fg;bg} colours the badge and
+  # ^E{-} returns to the caption's colours.
+  E=$(printf '\005')
+  if [ "$2" = 0 ]; then
+    # A success says nothing, unless it took long enough to be worth knowing.
+    [ "$ms" -ge 5000 ] && info="  $took"
+  else
+    info=" $E{#FF9592;#191111} exit $2 $E{-} $took"
+  fi
+fi
+
+printf '\033k%s\033\\\033_%s%s\033\\' "$dir" "$dir" "$info"
