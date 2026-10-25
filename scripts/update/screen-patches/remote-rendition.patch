@@ -1,15 +1,18 @@
-remote-rendition: colour windows whose title starts with @ in the window list.
+remote-rendition: show windows whose title starts with @ in their own colour.
 
-Adds "rendition remote <attr> <color>". shell/screen-title.tcsh names a window
-"@host" while it is ssh'd somewhere; with this, %w and %-w/%+w draw such a
-window in that rendition, after the bell, monitor and silence ones. Stock screen
-has no way to colour a window by its title.
+shell/screen-title.tcsh names a window "@host" while it is ssh'd somewhere.
+Stock screen can't colour a window by its title, so this adds two things:
+
+  rendition remote <attr> <color>   how %w, %-w and %+w draw such a window,
+                                    after the bell, monitor and silence ones
+  %R                                true when the window's title starts with @,
+                                    for %?%R...%:...%? (like %F for focus)
 
 Applied by update_screen.sh with patch -p1 from inside the source tree.
 
 diff -ru screen-5.0.2.orig/image.h screen-5.0.2/image.h
---- screen-5.0.2.orig/image.h	2026-07-11 05:23:46.000000000 -0700
-+++ screen-5.0.2/image.h	2026-10-25 16:23:12.489525749 -0700
+--- screen-5.0.2.orig/image.h
++++ screen-5.0.2/image.h
 @@ -121,6 +121,7 @@
  	REND_BELL = 0,
  	REND_MONITOR,
@@ -19,8 +22,8 @@ diff -ru screen-5.0.2.orig/image.h screen-5.0.2/image.h
  };
  
 diff -ru screen-5.0.2.orig/process.c screen-5.0.2/process.c
---- screen-5.0.2.orig/process.c	2026-07-11 05:23:46.000000000 -0700
-+++ screen-5.0.2/process.c	2026-10-25 16:23:17.724653763 -0700
+--- screen-5.0.2.orig/process.c
++++ screen-5.0.2/process.c
 @@ -4091,6 +4091,8 @@
  		i = REND_BELL;
  	} else if (strcmp(args[0], "monitor") == 0) {
@@ -39,3 +42,40 @@ diff -ru screen-5.0.2.orig/process.c screen-5.0.2/process.c
  		if (rend != 0)
  			AddWinMsgRend(wmbc->buf, s, rend);
  		sprintf(s, "%d", win->w_number);
+diff -ru screen-5.0.2.orig/winmsg.c screen-5.0.2/winmsg.c
+--- screen-5.0.2.orig/winmsg.c
++++ screen-5.0.2/winmsg.c
+@@ -181,6 +181,12 @@
+ 		wmc_set(cond);
+ }
+ 
++winmsg_esc_ex(Remote, Window *win)
++{
++	if (win && win->w_title && win->w_title[0] == '@')
++		wmc_set(cond);
++}
++
+ winmsg_esc(HostName)
+ {
+ 	if (*wmbc_strcpy(wmbc, HostName))
+@@ -788,6 +794,9 @@
+ 		case WINESC_COPY_MODE:
+ 			WinMsgDoEscEx(CopyMode, ev);
+ 			break;
++		case WINESC_REMOTE:
++			WinMsgDoEscEx(Remote, win);
++			break;
+ 		case WINESC_ESC_SEEN:
+ 			WinMsgDoEsc(EscSeen);
+ 			break;
+diff -ru screen-5.0.2.orig/winmsg.h screen-5.0.2/winmsg.h
+--- screen-5.0.2.orig/winmsg.h
++++ screen-5.0.2/winmsg.h
+@@ -67,6 +67,7 @@
+ 	WINESC_WIN_COUNT       = 'O',
+ 	WINESC_PID             = 'p',
+ 	WINESC_COPY_MODE       = 'P',  /* copy/_P_aste mode */
++	WINESC_REMOTE          = 'R',  /* title starts with @ */
+ 	WINESC_SESS_NAME       = 'S',
+ 	WINESC_WIN_SIZE        = 's',
+ 	WINESC_WIN_TTY         = 'T',
