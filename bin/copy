@@ -2,11 +2,24 @@
 # copy [file...] — put the file(s) (or stdin) into both CLIPBOARD (ctrl-v) and
 # PRIMARY (middle-click). wl-copy on Wayland, xclip on X11.
 
+if [ -n "$WAYLAND_DISPLAY" ]; then
+    tool=wl-copy pkg=wl-clipboard session=Wayland
+elif [ -n "$DISPLAY" ]; then
+    tool=xclip pkg=xclip session=X11
+else
+    echo "copy: no display (neither \$WAYLAND_DISPLAY nor \$DISPLAY is set) — over ssh? use ssh -X, or run it in a desktop terminal" >&2
+    exit 1
+fi
+if ! command -v "$tool" >/dev/null 2>&1; then
+    echo "copy: $session session but $tool isn't installed — sudo apt install $pkg" >&2
+    exit 1
+fi
+
 tmp=$(mktemp) || exit 1
 trap 'rm -f "$tmp"' EXIT
 cat -- "$@" > "$tmp" || exit 1
 
-if [ -n "$WAYLAND_DISPLAY" ]; then
+if [ "$tool" = wl-copy ]; then
     wl-copy < "$tmp"
     wl-copy --primary < "$tmp"
 else
