@@ -1,0 +1,44 @@
+#!/bin/bash
+#
+# scrn-attach — attach a terminal to a screen session, and hop between hosts.
+#
+#   scrn-attach [session]        default: "default"
+#
+# .cshrc runs this in every new terminal in place of a bare `scrn -x -R`. It
+# attaches the session; when screen lets go, it looks for a hop that scrx left
+# for this session. If there is one, it sshes to that host and attaches the
+# session there in this same terminal, so the remote screen replaces the local
+# one instead of running inside it. When you detach from the remote screen (or
+# the ssh fails), you are back in the local session. A plain detach with no
+# hop waiting ends it as before.
+#
+# While it waits on screen it leaves waiting.<session>.<pid> in the state
+# directory, so scrx can tell there is a terminal ready to hop.
+#
+
+name="${1:-default}"
+state="${XDG_STATE_HOME:-$HOME/.local/state}/scrn"
+mkdir -p "$state"
+waiting="$state/waiting.$name.$$"
+trap 'rm -f "$waiting"' EXIT
+
+while :; do
+  : >"$waiting"
+  # Not exec'd by scrn, so screen is this script's child: scrx finds it by that
+  # to detach this terminal in particular.
+  "$HOME/dotfiles/bin/scrn" -x -R -S "$name"
+  rm -f "$waiting"
+
+  # Take the hop, if one is waiting; mv makes sure only one terminal does.
+  hop="$state/hop.$name"
+  mv "$hop" "$hop.$$" 2>/dev/null || break
+  read -r host session <"$hop.$$"
+  rm -f "$hop.$$"
+
+  # The remote side runs in its login shell (tcsh or anything else): use its
+  # scrn when it has these dotfiles, else plain screen.
+  if ! ssh -t "$host" "test -x ~/bin/scrn && exec ~/bin/scrn -x -R -S $session || exec screen -x -R -S $session"; then
+    echo "scrn-attach: couldn't attach to $session on $host; back to $name here" >&2
+    sleep 2
+  fi
+done

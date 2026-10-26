@@ -208,8 +208,9 @@ if ( ! $?prompt ) exit
         # Inside VS Code terminal (local). Do nothing
     else
         # A blank terminal session.
-        # get or create a new session named 'mainsession'
-        scrn -x -R -S default
+        # Get or create the session named 'default'. scrn-attach also lets
+        # `scrx host` swap it for host's session in this same terminal.
+        ~/dotfiles/bin/scrn-attach default
     endif
 
 #eval `starship init tcsh`

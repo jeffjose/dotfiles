@@ -1,0 +1,49 @@
+#!/bin/sh
+#
+# scrx — go to the screen session on another host.
+#
+#   scrx <host> [session]        session default: "default"
+#
+# Outside screen it is `ssh -t host` and attach. Inside screen it doesn't nest
+# one screen in another: it leaves a hop for scrn-attach, the launcher that
+# .cshrc starts each terminal with, and detaches. scrn-attach then sshes to
+# the host in the same terminal, and brings you back to this session when you
+# detach from that one.
+#
+
+if [ -z "$1" ]; then
+  echo "usage: scrx <host> [session]" >&2
+  exit 2
+fi
+host=$1
+session=${2:-default}
+remote="test -x ~/bin/scrn && exec ~/bin/scrn -x -R -S $session || exec screen -x -R -S $session"
+
+if [ -z "$STY" ]; then
+  exec ssh -t "$host" "$remote"
+fi
+
+# Inside screen. $STY is "<pid>.<name>"; the hop is filed under the name.
+name=${STY#*.}
+state="${XDG_STATE_HOME:-$HOME/.local/state}/scrn"
+
+# The scrn-attach waiting on this session, the newest if there are several.
+loop=""
+for f in "$state/waiting.$name".*; do
+  [ -e "$f" ] && kill -0 "${f##*.}" 2>/dev/null && loop=${f##*.}
+done
+if [ -z "$loop" ]; then
+  echo "scrx: no terminal on this session was started by scrn-attach, so nothing can take the hop." >&2
+  echo "      Open a new terminal (it attaches through scrn-attach) and run scrx there," >&2
+  echo "      or detach (C-a d) and run: scrx $host $session" >&2
+  exit 1
+fi
+
+mkdir -p "$state"
+echo "$host $session" >"$state/hop.$name"
+
+# Detach that terminal and no other: a plain `screen -X detach` picks a display
+# itself, which with several terminals on the session may be the wrong one. A
+# screen client that gets SIGHUP asks the server to detach its own tty, and
+# it is scrn-attach's only child.
+pkill -HUP -P "$loop"
