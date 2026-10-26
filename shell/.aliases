@@ -389,7 +389,9 @@
     alias git_sync_upstream_lose_changes 'git fetch upstream; git checkout master; git pull upstream master'
     alias git_fetch_upstream_lose_changes git_sync_upstream_lose_changes
 
-    alias copytext 'xclip -sel clip < \!*'
+    # copy <file> lives in ~/dotfiles/bin: CLIPBOARD + PRIMARY, X11 or Wayland
+    alias copy '~/dotfiles/bin/copy \!*'
+    alias copytext copy
     alias copysshkey 'copytext ~/.ssh/id_rsa.pub'
 
 

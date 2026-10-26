@@ -13,6 +13,7 @@ meld
 tilix
 dconf-cli
 xclip
+wl-clipboard
 xdotool
 flameshot
 gpick

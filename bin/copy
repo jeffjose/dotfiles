@@ -1,0 +1,17 @@
+#!/bin/sh
+# copy [file...] — put the file(s) (or stdin) into both CLIPBOARD (ctrl-v) and
+# PRIMARY (middle-click). wl-copy on Wayland, xclip on X11.
+
+tmp=$(mktemp) || exit 1
+trap 'rm -f "$tmp"' EXIT
+cat -- "$@" > "$tmp" || exit 1
+
+if [ -n "$WAYLAND_DISPLAY" ]; then
+    wl-copy < "$tmp"
+    wl-copy --primary < "$tmp"
+else
+    xclip -selection clipboard < "$tmp"
+    xclip -selection primary < "$tmp"
+fi
+
+echo "copied $(wc -l < "$tmp") lines" >&2
