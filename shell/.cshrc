@@ -1,6 +1,13 @@
 # Environment & PATH: set for every shell, including non-interactive ones
 # (ssh host cmd, VS Code Remote extension host / tasks). Must stay silent.
 
+# tcsh runs postcmd before every line of a sourced file. On a re-source
+# (`source ~/.cshrc`) the hooks from the first load — twig's history append,
+# screen-title's date + scrn-title forks — would fire for each of the ~900
+# lines here and in .aliases, about 4s. twig and screen-title set it again at
+# the end.
+unalias postcmd
+
     # EDITOR
     setenv EDITOR nvim
 
