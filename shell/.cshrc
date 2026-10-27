@@ -198,13 +198,25 @@ if ( ! $?prompt ) exit
 ─────────────────────────────────────────\
     ")
 
+    # A terminal started by a program launched from inside screen (`code .`
+    # in a screen window) inherits STY and screen's TERMCAP but isn't in
+    # screen; TERM tells. Drop them, or the screen-title hooks write screen's
+    # title escapes into, say, VS Code's terminal.
+    if ($?STY) then
+        if ("$TERM" !~ screen*) unsetenv STY WINDOW TERMCAP
+    endif
+    set _vscode = 0
+    if ($?TERM_PROGRAM) then
+        if ("$TERM_PROGRAM" == vscode) set _vscode = 1
+    endif
+
     if ($?STY) then
         # Inside a screen session. Do nothing
     else if ($?SSH_CLIENT) then
         # Inside an ssh session. Do nothing
     else if ($?REMOTEHOST) then
         # Inside VS Code Remote Tunnel. Do nothing
-    else if ($?VSCODE_IPC_HOOK_CLI) then
+    else if ($?VSCODE_IPC_HOOK_CLI || $_vscode) then
         # Inside VS Code terminal (local). Do nothing
     else
         # A blank terminal session.
