@@ -56,6 +56,7 @@ claude = "latest"
 "cargo:https://github.com/jeffjose/mediainfo" = "branch:main"
 "cargo:https://github.com/jeffjose/safeclean" = "branch:main"
 "cargo:https://github.com/jeffjose/magicfs" = "branch:main"
+gcloud = "latest"
 
 [settings]
 experimental = true
