@@ -121,6 +121,14 @@ shopt -s histverify
 # SHELL BEHAVIOR (interactive only)
 # ============================================================================
 
+# Keep ~/.ssh/auth_sock pointed at a live agent; inside screen/tmux use the
+# symlink so reattached windows follow new SSH sessions.
+if [[ -x "$HOME/.ssh/ensure-auth-sock" ]] && "$HOME/.ssh/ensure-auth-sock"; then
+    if [[ -n "$STY" || -n "$TMUX" ]]; then
+        export SSH_AUTH_SOCK="$HOME/.ssh/auth_sock"
+    fi
+fi
+
 set -o ignoreeof                    # Prevent Ctrl-D exit
 shopt -s extglob                    # Extended globbing
 shopt -s nocaseglob                 # Case-insensitive globbing

@@ -210,6 +210,15 @@ if ( ! $?prompt ) exit
         if ("$TERM_PROGRAM" == vscode) set _vscode = 1
     endif
 
+    # Keep ~/.ssh/auth_sock pointed at a live agent; inside screen/tmux use the
+    # symlink so reattached windows follow new SSH sessions.
+    if ( -x ~/.ssh/ensure-auth-sock ) then
+        ~/.ssh/ensure-auth-sock
+        if ( $status == 0 && ( $?STY || $?TMUX ) ) then
+            setenv SSH_AUTH_SOCK ~/.ssh/auth_sock
+        endif
+    endif
+
     if ($?STY) then
         # Inside a screen session. Do nothing
     else if ($?SSH_CLIENT) then
