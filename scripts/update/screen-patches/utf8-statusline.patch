@@ -1,0 +1,75 @@
+utf8-statusline: a status line wider than the display, with UTF-8 in it, no
+longer scrolls the screen.
+
+With many windows the hardstatus is longer than the terminal. ShowHStatus cuts
+it to D_width bytes, and in a UTF-8 display PrePutWinMsg then writes extra bytes
+past that to make up for the multibyte characters (scrn-stats' ▁▂▃ graphs and
+↓↑ arrows). Screen counts bytes as columns while writing, so it thinks it has
+gone past the bottom-right corner; the terminal scrolls, and every redraw (a
+key press, the stats every 2s) stacks another copy of the bar up the screen.
+
+This ends the string at the cut, on a character boundary, while it is drawn.
+The line then stops a few columns short of the edge (one per multibyte
+character's extra bytes), as it already does when it fits.
+
+Applied by update_screen.sh with patch -p1 from inside the source tree.
+
+--- screen-5.0.2.orig/display.c
++++ screen-5.0.2/display.c
+@@ -1624,10 +1624,36 @@
+ 	}
+ }
+ 
++/* A UTF-8 status line wider than the display (a long window list) is cut to
++   D_width bytes, but PrePutWinMsg then writes extra bytes past that to make up
++   for the multibyte characters. Screen counts bytes as columns while it writes,
++   so it thinks it has gone past the bottom-right corner, and the terminal
++   scrolls the status line up, a fresh copy on every redraw. End the string at
++   *l, on a character boundary, for the write; returns what *l held, for
++   UnclipHStatus, or -1 when nothing was cut. */
++static int ClipHStatus(char *str, int *l, char *saved)
++{
++	if (D_encoding != UTF8 || (int)strlen(str) <= *l)
++		return -1;
++	while (*l > 0 && (str[*l] & 0xC0) == 0x80)
++		(*l)--;
++	*saved = str[*l];
++	str[*l] = 0;
++	return *l;
++}
++
++static void UnclipHStatus(char *str, int cut, char saved)
++{
++	if (cut >= 0)
++		str[cut] = saved;
++}
++
+ /* refresh the display's hstatus line */
+ void ShowHStatus(char *str)
+ {
+ 	int l, ox, oy, max;
++	int cut;
++	char saved;
+ 
+ 	if (D_status == STATUS_ON_WIN && (D_has_hstatus == HSTATUS_FIRSTLINE || D_has_hstatus == HSTATUS_LASTLINE) && STATLINE() == D_height - 1)
+ 		return;		/* sorry, in use */
+@@ -1661,7 +1687,9 @@
+ 			l = D_width;
+ 		GotoPos(0, D_height - 1);
+ 		SetRendition(&mchar_null);
++		cut = ClipHStatus(str, &l, &saved);
+ 		l = PrePutWinMsg(str, 0, l);
++		UnclipHStatus(str, cut, saved);
+ 		if (!captionalways && D_cvlist && !D_cvlist->c_next)
+ 			while (l++ < D_width)
+ 				PUTCHARLP(' ');
+@@ -1680,7 +1708,9 @@
+ 			l = D_width;
+ 		GotoPos(0, 0);
+ 		SetRendition(&mchar_null);
++		cut = ClipHStatus(str, &l, &saved);
+ 		l = PrePutWinMsg(str, 0, l);
++		UnclipHStatus(str, cut, saved);
+ 		if (!captionalways || (D_cvlist && !D_cvlist->c_next))
+ 			while (l++ < D_width)
+ 				PUTCHARLP(' ');

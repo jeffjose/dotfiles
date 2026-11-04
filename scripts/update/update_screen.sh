@@ -143,6 +143,13 @@ if [[ ${#deps[@]} -gt 0 ]]; then
   for deb in "$WORK"/debs/*.deb; do
     quietly dpkg -x "$deb" "$WORK/deps" || exit 1
   done
+  # A -dev package's libfoo.so is a relative link to libfoo.so.0, which lives in
+  # the runtime package, not here. Point each dangling one at the system's copy,
+  # or the linker skips it (24.04's libpam0g-dev, and configure finds no PAM).
+  for so in "$WORK/deps/$ARCH_LIB"/*.so; do
+    [[ -L "$so" && ! -e "$so" ]] || continue
+    ln -sfn "/$ARCH_LIB/$(readlink "$so")" "$so"
+  done
   cppflags="-I$WORK/deps/usr/include"
   ldflags="-L$WORK/deps/$ARCH_LIB"
 fi
