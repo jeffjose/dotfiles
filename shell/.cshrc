@@ -230,7 +230,7 @@ if ( ! $?prompt ) exit
     else
         # A blank terminal session.
         # Get or create the session named 'default'. scrn-attach also lets
-        # `scrx host` swap it for host's session in this same terminal.
+        # `scrnx host` swap it for host's session in this same terminal.
         ~/dotfiles/bin/scrn-attach default
     endif
 

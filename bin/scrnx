@@ -1,8 +1,9 @@
 #!/bin/sh
 #
-# scrx — go to the screen session on another host.
+# scrnx — go to the screen session on another host.
 #
-#   scrx <host> [session]        session default: "default"
+#   scrnx <host> [session]       session default: "default"
+#   sx                           short alias (symlink to scrnx)
 #
 # Outside screen it is `ssh -t host` and attach. Inside screen it doesn't nest
 # one screen in another: it leaves a hop for scrn-attach, the launcher that
@@ -12,7 +13,7 @@
 #
 
 if [ -z "$1" ]; then
-  echo "usage: scrx <host> [session]" >&2
+  echo "usage: scrnx <host> [session]" >&2
   exit 2
 fi
 host=$1
@@ -33,9 +34,9 @@ for f in "$state/waiting.$name".*; do
   [ -e "$f" ] && kill -0 "${f##*.}" 2>/dev/null && loop=${f##*.}
 done
 if [ -z "$loop" ]; then
-  echo "scrx: no terminal on this session was started by scrn-attach, so nothing can take the hop." >&2
-  echo "      Open a new terminal (it attaches through scrn-attach) and run scrx there," >&2
-  echo "      or detach (C-a d) and run: scrx $host $session" >&2
+  echo "scrnx: no terminal on this session was started by scrn-attach, so nothing can take the hop." >&2
+  echo "      Open a new terminal (it attaches through scrn-attach) and run scrnx there," >&2
+  echo "      or detach (C-a d) and run: scrnx $host $session" >&2
   exit 1
 fi
 

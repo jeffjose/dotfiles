@@ -5,7 +5,7 @@
 #   scrn-attach [session]        default: "default"
 #
 # .cshrc runs this in every new terminal in place of a bare `scrn -x -R`. It
-# attaches the session; when screen lets go, it looks for a hop that scrx left
+# attaches the session; when screen lets go, it looks for a hop that scrnx left
 # for this session. If there is one, it sshes to that host and attaches the
 # session there in this same terminal, so the remote screen replaces the local
 # one instead of running inside it. When you detach from the remote screen (or
@@ -13,7 +13,7 @@
 # hop waiting ends it as before.
 #
 # While it waits on screen it leaves waiting.<session>.<pid> in the state
-# directory, so scrx can tell there is a terminal ready to hop.
+# directory, so scrnx can tell there is a terminal ready to hop.
 #
 
 name="${1:-default}"
@@ -24,7 +24,7 @@ trap 'rm -f "$waiting"' EXIT
 
 while :; do
   : >"$waiting"
-  # Not exec'd by scrn, so screen is this script's child: scrx finds it by that
+  # Not exec'd by scrn, so screen is this script's child: scrnx finds it by that
   # to detach this terminal in particular.
   "$HOME/dotfiles/bin/scrn" -x -R -S "$name"
   rm -f "$waiting"
