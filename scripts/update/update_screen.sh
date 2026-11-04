@@ -45,7 +45,7 @@ ARCH_LIB="usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null || echo x
 # The configure options beyond --prefix. Changing them rebuilds screen on the
 # next run, even at the same version.
 CONFIG=(--with-system_screenrc="$PREFIX/etc/screenrc")
-PATCHES=("${BASH_SOURCE[0]%/*}"/screen-patches/*.patch)
+PATCHES=("$(cd "${BASH_SOURCE[0]%/*}" && pwd)"/screen-patches/*.patch)
 [[ -e "${PATCHES[0]}" ]] || PATCHES=()
 STAMP="$PREFIX/share/screen/uq-build"
 
