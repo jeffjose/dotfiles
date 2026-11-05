@@ -262,3 +262,16 @@ endif
 if ( ( $?STY || $_scrn_remote ) && -r ~/dotfiles/shell/screen-title.tcsh ) then
     source ~/dotfiles/shell/screen-title.tcsh
 endif
+
+# Back from a reboot, a VS Code terminal takes up the Claude Code session that
+# was open in its folder (dotfiles/bin/claude-sessions; twig's notice says when
+# some are waiting). Python starts only while some are, or once after a boot.
+if ( $?_vscode ) then
+    if ( $_vscode && -X claude-sessions ) then
+        if ( -e ~/.local/state/claude-sessions/pending.json || ! -e /run/user/$uid/claude-sessions-boot ) then
+            set _claude_resume = "`claude-sessions claim`"
+            if ( "$_claude_resume" != "" ) eval "$_claude_resume"
+            unset _claude_resume
+        endif
+    endif
+endif

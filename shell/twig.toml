@@ -94,3 +94,15 @@ name = "prodaccess"
 run = "test -d /google/src/files || echo '(run prodaccess)'"
 every = "30s"
 hosts = ["jeffjose.mtv.corp.google.com"]
+
+# Claude Code sessions: noted every minute (dotfiles/bin/claude-sessions);
+# after a reboot, says how many are waiting until a VS Code terminal in each
+# folder takes its own up, or `claude-sessions restore` opens them all. Only
+# where Claude Code has run.
+[[probe]]
+name = "claude_sessions"
+run = "claude-sessions save"
+when = "command -v claude-sessions >/dev/null && test -d ~/.claude/sessions"
+every = "1m"
+notice = "{value}: claude-sessions restore"
+level = "warn"

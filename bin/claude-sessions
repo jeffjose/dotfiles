@@ -1,0 +1,271 @@
+#!/usr/bin/env -S python3 -I
+"""Bring back the Claude Code sessions that were open before a reboot.
+
+  claude-sessions save      note the sessions open now (twig runs this every
+                            minute; it fails, saying how many, while some
+                            from before the last reboot are waiting)
+  claude-sessions restore   open each waiting one: a VS Code window on its
+                            folder, whose terminal takes it up; what no
+                            terminal took after a minute opens in ghostty
+  claude-sessions claim     for the shell: the command that resumes the
+                            session waiting in this folder, if there is one
+  claude-sessions list      what is open, and what is waiting
+  claude-sessions forget    stop waiting for them
+
+Claude Code keeps a file per running session in ~/.claude/sessions: its
+pid, session id, folder and name. `save` copies the live ones, with the
+flags each was started with, to ~/.local/state/claude-sessions/saved.json.
+After a reboot, the first `save` or `claim` moves them to pending.json.
+"""
+
+import fcntl
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import time
+
+HOME = os.path.expanduser("~")
+SESSIONS = os.path.join(HOME, ".claude", "sessions")
+STATE = os.path.join(os.environ.get("XDG_STATE_HOME") or os.path.join(HOME, ".local", "state"), "claude-sessions")
+SAVED = os.path.join(STATE, "saved.json")
+PENDING = os.path.join(STATE, "pending.json")
+# Gone at a reboot: while it is there, this boot has been looked at already,
+# and the shell hook needs to start python only while some are pending.
+MARK = os.path.join(os.environ.get("XDG_RUNTIME_DIR") or f"/run/user/{os.getuid()}", "claude-sessions-boot")
+
+# Flags that pick or name a session; a resume sets its own.
+DROP_WITH_VALUE = {"--session-id", "-n", "--name", "--from-pr"}
+DROP_MAYBE_VALUE = {"-r", "--resume"}
+DROP = {"-c", "--continue", "--fork-session"}
+
+
+def boot_id():
+    with open("/proc/sys/kernel/random/boot_id") as f:
+        return f.read().strip()
+
+
+def read_json(path, default):
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return default
+
+
+def write_json(path, data):
+    os.makedirs(STATE, exist_ok=True)
+    tmp = path + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(data, f, indent=2)
+    os.replace(tmp, path)
+
+
+def alive(pid, proc_start):
+    """The pid is running and is the same process (pids are reused)."""
+    try:
+        with open(f"/proc/{pid}/stat") as f:
+            stat = f.read()
+    except OSError:
+        return False
+    fields = stat.rsplit(")", 1)[1].split()
+    return proc_start is None or fields[19] == str(proc_start)
+
+
+def args_of(pid):
+    try:
+        with open(f"/proc/{pid}/cmdline", "rb") as f:
+            argv = [a.decode(errors="replace") for a in f.read().split(b"\0") if a]
+    except OSError:
+        return []
+    out, i = [], 1
+    while i < len(argv):
+        a = argv[i]
+        flag = a.split("=", 1)[0]
+        if flag in DROP_WITH_VALUE:
+            i += 1 if "=" in a else 2
+            continue
+        if flag in DROP_MAYBE_VALUE:
+            if "=" not in a and i + 1 < len(argv) and not argv[i + 1].startswith("-"):
+                i += 1
+            i += 1
+            continue
+        if a in DROP:
+            i += 1
+            continue
+        out.append(a)
+        i += 1
+    return out
+
+
+def live():
+    """The interactive sessions running now, by session id."""
+    found = {}
+    try:
+        names = os.listdir(SESSIONS)
+    except OSError:
+        return found
+    for n in names:
+        if not n.endswith(".json"):
+            continue
+        s = read_json(os.path.join(SESSIONS, n), None)
+        if not isinstance(s, dict) or s.get("kind") != "interactive" or not s.get("sessionId") or not s.get("cwd"):
+            continue
+        if not alive(s.get("pid"), s.get("procStart")):
+            continue
+        found[s["sessionId"]] = {
+            "id": s["sessionId"],
+            "dir": s["cwd"],
+            "name": s.get("name") or "",
+            "args": args_of(s["pid"]),
+        }
+    return found
+
+
+class Lock:
+    def __enter__(self):
+        os.makedirs(STATE, exist_ok=True)
+        self.f = open(os.path.join(STATE, "lock"), "w")
+        fcntl.flock(self.f, fcntl.LOCK_EX)
+        return self
+
+    def __exit__(self, *_):
+        self.f.close()
+
+
+def settle(now):
+    """Move the last boot's sessions to pending, and drop pending ones that
+    are running again. Returns the pending list. Call under the lock."""
+    boot = boot_id()
+    saved = read_json(SAVED, {})
+    pending = read_json(PENDING, [])
+    if saved.get("boot") != boot:
+        known = {p["id"] for p in pending}
+        pending += [s for s in saved.get("sessions", []) if s["id"] not in known]
+        write_json(SAVED, {"boot": boot, "sessions": []})
+    kept = [p for p in pending if p["id"] not in now]
+    if kept:
+        if kept != read_json(PENDING, None):
+            write_json(PENDING, kept)
+    elif os.path.exists(PENDING):
+        os.remove(PENDING)
+    try:
+        with open(MARK, "w") as f:
+            f.write(boot)
+    except OSError:
+        pass
+    return kept
+
+
+def command(s):
+    """The resume, as a line for tcsh's eval."""
+    def q(a):
+        if re.fullmatch(r"[A-Za-z0-9_./=:,@+%-]+", a):
+            return a
+        return "'" + a.replace("'", "'\\''").replace("!", "\\!") + "'"
+    return " ".join(q(a) for a in ["claude", *s["args"], "--resume", s["id"]])
+
+
+def save():
+    if not os.path.isdir(SESSIONS):
+        return 0
+    with Lock():
+        now = live()
+        pending = settle(now)
+        if now:
+            write_json(SAVED, {"boot": boot_id(), "sessions": sorted(now.values(), key=lambda s: s["dir"])})
+    if pending:
+        print(f"{len(pending)} Claude session{'s' if len(pending) != 1 else ''} from before the reboot")
+        return 1
+    return 0
+
+
+def claim():
+    here = os.path.realpath(os.getcwd())
+    with Lock():
+        pending = settle(live())
+        for p in pending:
+            if os.path.realpath(p["dir"]) == here:
+                rest = [x for x in pending if x is not p]
+                if rest:
+                    write_json(PENDING, rest)
+                else:
+                    os.remove(PENDING)
+                print(command(p))
+                return 0
+    return 0
+
+
+def restore(wait=60):
+    with Lock():
+        now = live()
+        pending = settle(now)
+        if not pending:
+            # Not a reboot: whatever was open at the last save and is gone
+            # now (VS Code killed, say).
+            pending = [s for s in read_json(SAVED, {}).get("sessions", []) if s["id"] not in now]
+            if pending:
+                write_json(PENDING, pending)
+    if not pending:
+        print("nothing to restore")
+        return 0
+    terminal_only = "--terminal" in sys.argv
+    if not terminal_only and shutil.which("code"):
+        for d in sorted({p["dir"] for p in pending}):
+            print(f"VS Code: {d}")
+            subprocess.Popen(["code", d], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+        end = time.time() + wait
+        while time.time() < end:
+            if not os.path.exists(PENDING):
+                print("all picked up")
+                return 0
+            time.sleep(2)
+    with Lock():
+        left = read_json(PENDING, [])
+        if os.path.exists(PENDING):
+            os.remove(PENDING)
+    for p in left:
+        print(f"ghostty: {p['name'] or p['dir']}")
+        subprocess.Popen(["ghostty", f"--working-directory={p['dir']}", "-e", "claude", *p["args"], "--resume", p["id"]],
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+    return 0
+
+
+def show():
+    now = live()
+    with Lock():
+        pending = settle(now)
+    print("open now:")
+    for s in sorted(now.values(), key=lambda s: s["dir"]):
+        print(f"  {s['name'] or '-':<24} {s['dir']}")
+    if pending:
+        print("waiting, from before the reboot:")
+        for p in pending:
+            print(f"  {p['name'] or '-':<24} {p['dir']}")
+    return 0
+
+
+def forget():
+    with Lock():
+        if os.path.exists(PENDING):
+            os.remove(PENDING)
+    return 0
+
+
+def main():
+    cmd = sys.argv[1] if len(sys.argv) > 1 else "list"
+    run = {"save": save, "claim": claim, "restore": restore, "list": show, "forget": forget}.get(cmd)
+    if not run:
+        print(__doc__.strip(), file=sys.stderr)
+        return 2
+    try:
+        return run()
+    except Exception as e:  # a probe and a shell hook: never a traceback
+        print(f"claude-sessions: {e}", file=sys.stderr)
+        return 0 if cmd in ("save", "claim") else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
