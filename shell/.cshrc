@@ -253,6 +253,12 @@ else
     alias cwdcmd 'source ~/.cwdcmd'
 endif
 
+# In jterm, mark prompts, commands and their output for it (OSC 133). It
+# adds to the precmd and postcmd set above.
+if ($?TERM_PROGRAM) then
+    if ("$TERM_PROGRAM" == jterm && -r ~/dotfiles/shell/jterm.tcsh) source ~/dotfiles/shell/jterm.tcsh
+endif
+
 # Inside screen, name each window after its folder and what it is running, for
 # the status line. It adds to the precmd and postcmd set above, so it goes last.
 # Over ssh from inside screen (TERM is screen's) the remote shell does the same,
