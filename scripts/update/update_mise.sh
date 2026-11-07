@@ -144,21 +144,55 @@ quietly() {
 # open and the time goes on the end of it. If something does print meanwhile
 # (quietly reporting a failure, -v's live output), the time goes on a line of
 # its own under it.
+#
+# On a terminal the open line also counts up while the step runs — "Installing
+# clutch 1a2b3c4 (47s)" — so a long cargo build is not a line sitting still: a
+# background ticker redraws it once a second, and end_step puts the final time
+# in its place.
 STEP_START=0
 STEP_OPEN=0
+STEP_LINE=""
+STEP_TICKER=""
 begin_step() {
   STEP_START=$(now_us)
   if [[ $verbose -eq 1 ]]; then
     say "$@"
   else
-    printf '%s%12s%s %s' "$1" "$2" "$RESET" "$3"
+    STEP_LINE=$(printf '%s%12s%s %s' "$1" "$2" "$RESET" "$3")
+    printf '%s' "$STEP_LINE"
     STEP_OPEN=1
+    [[ -t 1 ]] && start_ticker
   fi
 }
+start_ticker() {
+  local start=${EPOCHSECONDS:-$(date +%s)} s
+  (
+    trap 'exit 0' TERM
+    while sleep 1 && kill -0 $$ 2>/dev/null; do
+      s=$((${EPOCHSECONDS:-$(date +%s)} - start))
+      if ((s < 60)); then
+        printf '\r%s %s(%ds)%s\e[K' "$STEP_LINE" "$DIM" "$s" "$RESET"
+      else
+        printf '\r%s %s(%dm %ds)%s\e[K' "$STEP_LINE" "$DIM" $((s / 60)) $((s % 60)) "$RESET"
+      fi
+    done
+  ) &
+  STEP_TICKER=$!
+}
+# Stop the ticker and put the step line back as it was, without a time.
+stop_ticker() {
+  [[ -n "$STEP_TICKER" ]] || return 0
+  kill "$STEP_TICKER" 2>/dev/null
+  wait "$STEP_TICKER" 2>/dev/null
+  STEP_TICKER=""
+  printf '\r%s\e[K' "$STEP_LINE"
+}
+trap 'stop_ticker' EXIT
 end_step() {
   local took
   took=$(elapsed "$STEP_START")
   if [[ $STEP_OPEN -eq 1 ]]; then
+    stop_ticker
     printf ' %s(%s)%s\n' "$DIM" "$took" "$RESET"
     STEP_OPEN=0
   else
@@ -168,6 +202,7 @@ end_step() {
 # Close an open step line before anything else is printed.
 close_step() {
   [[ $STEP_OPEN -eq 1 ]] || return 0
+  stop_ticker
   printf '\n'
   STEP_OPEN=0
 }
