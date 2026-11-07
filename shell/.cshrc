@@ -205,11 +205,11 @@ if ( ! $?prompt ) exit
     if ($?STY) then
         if ("$TERM" !~ screen*) unsetenv STY WINDOW TERMCAP
     endif
-    # VS Code's terminal and jterm (~/scripts/jterm) have splits and
+    # VS Code's terminal and jot (~/scripts/jot) have splits and
     # workspaces of their own: screen is not started in either.
     set _vscode = 0
     if ($?TERM_PROGRAM) then
-        if ("$TERM_PROGRAM" == vscode || "$TERM_PROGRAM" == jterm) set _vscode = 1
+        if ("$TERM_PROGRAM" == vscode || "$TERM_PROGRAM" == jot) set _vscode = 1
     endif
 
     # Keep ~/.ssh/auth_sock pointed at a live agent; inside screen/tmux use the
@@ -253,10 +253,10 @@ else
     alias cwdcmd 'source ~/.cwdcmd'
 endif
 
-# In jterm, mark prompts, commands and their output for it (OSC 133). It
+# In jot, mark prompts, commands and their output for it (OSC 133). It
 # adds to the precmd and postcmd set above.
 if ($?TERM_PROGRAM) then
-    if ("$TERM_PROGRAM" == jterm && -r ~/dotfiles/shell/jterm.tcsh) source ~/dotfiles/shell/jterm.tcsh
+    if ("$TERM_PROGRAM" == jot && -r ~/dotfiles/shell/jot.tcsh) source ~/dotfiles/shell/jot.tcsh
 endif
 
 # Inside screen, name each window after its folder and what it is running, for
