@@ -195,7 +195,7 @@ if ($?REMOTEHOST) set use_color_prompt = 1
 # AppImage's integrated terminals have TERM_PROGRAM but no hook, and without
 # this they fell back to the all-white prompt.
 if ($?TERM_PROGRAM) then
-    if ("${TERM_PROGRAM}" == "vscode") set use_color_prompt = 1
+    if ("${TERM_PROGRAM}" == "vscode" || "${TERM_PROGRAM}" == "jterm") set use_color_prompt = 1
 endif
 
 if ($use_color_prompt) then

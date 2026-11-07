@@ -205,9 +205,11 @@ if ( ! $?prompt ) exit
     if ($?STY) then
         if ("$TERM" !~ screen*) unsetenv STY WINDOW TERMCAP
     endif
+    # VS Code's terminal and jterm (~/scripts/jterm) have splits and
+    # workspaces of their own: screen is not started in either.
     set _vscode = 0
     if ($?TERM_PROGRAM) then
-        if ("$TERM_PROGRAM" == vscode) set _vscode = 1
+        if ("$TERM_PROGRAM" == vscode || "$TERM_PROGRAM" == jterm) set _vscode = 1
     endif
 
     # Keep ~/.ssh/auth_sock pointed at a live agent; inside screen/tmux use the
