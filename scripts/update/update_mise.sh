@@ -161,7 +161,7 @@ begin_step() {
     STEP_LINE=$(printf '%s%12s%s %s' "$1" "$2" "$RESET" "$3")
     printf '%s' "$STEP_LINE"
     STEP_OPEN=1
-    [[ -t 1 ]] && start_ticker
+    if [[ -t 1 ]]; then start_ticker; fi
   fi
 }
 start_ticker() {
@@ -310,11 +310,17 @@ refresh_branch_tools() {
 
   BRANCH_TOOLS_STALE=${#stale[@]}
   [[ ${#stale[@]} -gt 0 ]] || return 0
-  local verb what
+  local verb what ok
   for entry in "${stale[@]}"; do
     IFS=$'\t' read -r tool path verb what <<<"$entry"
     begin_step "$GREEN" "$verb" "$what"
-    if quietly mise install --force "$tool"; then
+    ok=false
+    if [[ $verb == Rebuilding ]]; then
+      staged_rebuild "$tool" "$path" && ok=true
+    else
+      quietly mise install --force "$tool" && ok=true
+    fi
+    if $ok; then
       end_step
       drop_dev_copy "$path"
     else
@@ -322,6 +328,49 @@ refresh_branch_tools() {
       warn "building $tool failed; continuing"
     fi
   done
+}
+
+# staged_rebuild <tool> <mise install path>
+#
+# Rebuild an installed branch tool without taking it away while it compiles.
+# `mise install --force` empties the install dir first and then builds into
+# it, so for the minutes a cargo build takes the shim points at nothing and
+# the tool is gone. Instead build into a staging root next to the install dir
+# (same filesystem), with the options mise recorded for it, and only once that
+# has succeeded rename each new binary over the old one — an atomic swap, so
+# the tool is never missing, and running copies keep their old inode. The
+# cargo metadata goes across too, so the next check sees the new commit.
+staged_rebuild() {
+  local tool=$1 path=$2 url branch staging bin f status=0
+  local -a args
+  url=${tool#cargo:}
+  branch=$(mise ls --current --json 2>/dev/null |
+    jq -r --arg k "$tool" '.[$k][0].version | ltrimstr("branch:")')
+  args=(install --git "$url" --branch "$branch" --force)
+  if [[ -f "$path/.mise-cargo-install.toml" ]]; then
+    grep -qE '^locked *= *true' "$path/.mise-cargo-install.toml" && args+=(--locked)
+    grep -qE '^default_features *= *false' "$path/.mise-cargo-install.toml" && args+=(--no-default-features)
+    f=$(sed -nE 's/^features *= *\[(.*)\]/\1/p' "$path/.mise-cargo-install.toml" | tr -d '" ')
+    [[ -n "$f" ]] && args+=(--features "$f")
+  else
+    args+=(--locked)
+  fi
+  staging=$(mktemp -d "${path%/*}/.staging.XXXXXX") || return 1
+  # cargo from inside mise's environment, as the mise install would use.
+  quietly env -C "$HOME" mise exec -- cargo "${args[@]}" --root "$staging" || status=$?
+  if [[ $status -eq 0 ]] && compgen -G "$staging/bin/*" >/dev/null; then
+    mkdir -p "$path/bin"
+    for bin in "$staging"/bin/*; do
+      mv -f "$bin" "$path/bin/${bin##*/}"
+    done
+    for f in .crates.toml .crates2.json; do
+      [[ -f "$staging/$f" ]] && mv -f "$staging/$f" "$path/$f"
+    done
+  else
+    [[ $status -ne 0 ]] || status=1
+  fi
+  rm -rf "$staging"
+  return $status
 }
 
 # ~/.cargo/bin sits ahead of the mise shims on PATH, so that a `cargo install
