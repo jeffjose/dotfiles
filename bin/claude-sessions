@@ -113,6 +113,11 @@ def live():
         s = read_json(os.path.join(SESSIONS, n), None)
         if not isinstance(s, dict) or s.get("kind") != "interactive" or not s.get("sessionId") or not s.get("cwd"):
             continue
+        # Remote Control's workers (claude --print --sdk-url, entrypoint
+        # sdk-cli) say they are interactive too, but they are its to start
+        # again; resumed from a shell they only print errors and exit.
+        if s.get("entrypoint", "cli") != "cli":
+            continue
         if not alive(s.get("pid"), s.get("procStart")):
             continue
         found[s["sessionId"]] = {
