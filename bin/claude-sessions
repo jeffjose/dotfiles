@@ -184,13 +184,26 @@ def settle(now):
     return kept
 
 
+def once(args):
+    """Each switch once (--dangerously-skip-permissions, say): the claude
+    alias adds its own again at each resume, one more each reboot."""
+    out = []
+    for i, a in enumerate(args):
+        switch = a.startswith("-") and "=" not in a and (i + 1 == len(args) or args[i + 1].startswith("-"))
+        if switch and a in out:
+            continue
+        out.append(a)
+    return out
+
+
 def command(s):
-    """The resume, as a line for tcsh's eval."""
+    """The resume, as a line for tcsh's eval: claude itself, not an alias
+    of it (\\claude), with the flags it was started with."""
     def q(a):
         if re.fullmatch(r"[A-Za-z0-9_./=:,@+%-]+", a):
             return a
         return "'" + a.replace("'", "'\\''").replace("!", "\\!") + "'"
-    return " ".join(q(a) for a in ["claude", *s["args"], "--resume", s["id"]])
+    return "\\" + " ".join(q(a) for a in ["claude", *once(s["args"]), "--resume", s["id"]])
 
 
 def save():
