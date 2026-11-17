@@ -4,18 +4,24 @@
   claude-sessions save      note the sessions open now (twig runs this every
                             minute; it fails, saying how many, while some
                             from before the last reboot are waiting)
-  claude-sessions restore   open each waiting one: a VS Code window on its
-                            folder, whose terminal takes it up; what no
-                            terminal took after a minute opens in ghostty
+  claude-sessions restore   open each waiting one in jot: a workspace a
+                            folder, a pane a session, whose shell takes it
+                            up; what none took after a minute opens in
+                            ghostty (--terminal: ghostty only)
   claude-sessions claim     for the shell: the command that resumes the
-                            session waiting in this folder, if there is one
+                            session waiting for it, if there is one
   claude-sessions list      what is open, and what is waiting
   claude-sessions forget    stop waiting for them
 
 Claude Code keeps a file per running session in ~/.claude/sessions: its
 pid, session id, folder and name. `save` copies the live ones, with the
-flags each was started with, to ~/.local/state/claude-sessions/saved.json.
-After a reboot, the first `save` or `claim` moves them to pending.json.
+flags each was started with and the jot pane each runs in, to
+~/.local/state/claude-sessions/saved.json. After a reboot, the first
+`save` or `claim` moves them to pending.json.
+
+In jot, Restore brings back every pane, each with the key it had
+(JOT_PANE_KEY), and each pane's shell claims the session that ran in it.
+A session from no jot pane goes to a shell in its folder.
 """
 
 import fcntl
@@ -100,6 +106,19 @@ def args_of(pid):
     return out
 
 
+def pane_of(pid):
+    """The jot pane it runs in, by the name for good jot gives each pane's
+    shell (JOT_PANE_KEY, the same after a restart); "" outside jot."""
+    try:
+        with open(f"/proc/{pid}/environ", "rb") as f:
+            for kv in f.read().split(b"\0"):
+                if kv.startswith(b"JOT_PANE_KEY="):
+                    return kv.split(b"=", 1)[1].decode(errors="replace")
+    except OSError:
+        pass
+    return ""
+
+
 def live():
     """The interactive sessions running now, by session id."""
     found = {}
@@ -125,6 +144,7 @@ def live():
             "dir": s["cwd"],
             "name": s.get("name") or "",
             "args": args_of(s["pid"]),
+            "pane": pane_of(s["pid"]),
         }
     return found
 
@@ -187,20 +207,59 @@ def save():
     return 0
 
 
+def mine(pending, pane, here):
+    """The waiting session this shell takes up. A jot pane takes the one
+    that ran in it (by its key, wherever its folder is now); else, as any
+    other terminal does, one in its folder that was in no jot pane: one
+    from a jot pane is that pane's to take, not its neighbour's."""
+    if pane:
+        for p in pending:
+            if p.get("pane") == pane:
+                return p
+    for p in pending:
+        if not p.get("pane") and os.path.realpath(p["dir"]) == here:
+            return p
+    return None
+
+
 def claim():
     here = os.path.realpath(os.getcwd())
+    pane = os.environ.get("JOT_PANE_KEY", "")
     with Lock():
         pending = settle(live())
-        for p in pending:
-            if os.path.realpath(p["dir"]) == here:
-                rest = [x for x in pending if x is not p]
-                if rest:
-                    write_json(PENDING, rest)
-                else:
-                    os.remove(PENDING)
-                print(command(p))
-                return 0
+        p = mine(pending, pane, here)
+        if not p:
+            return 0
+        rest = [x for x in pending if x is not p]
+        if rest:
+            write_json(PENDING, rest)
+        else:
+            os.remove(PENDING)
+    print(command(p))
     return 0
+
+
+def jot(*args):
+    """The `jot` command at the jot window running; False if none is."""
+    try:
+        return subprocess.run(["jot", *args], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=10).returncode == 0
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+
+
+def jot_window():
+    """A jot window to open them in: the one running, or one started."""
+    if not shutil.which("jot"):
+        return False
+    if jot("list"):
+        return True
+    subprocess.Popen(["jot"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+    end = time.time() + 15
+    while time.time() < end:
+        time.sleep(0.5)
+        if jot("list"):
+            return True
+    return False
 
 
 def restore(wait=60):
@@ -209,18 +268,30 @@ def restore(wait=60):
         pending = settle(now)
         if not pending:
             # Not a reboot: whatever was open at the last save and is gone
-            # now (VS Code killed, say).
+            # now (its terminal closed, say).
             pending = [s for s in read_json(SAVED, {}).get("sessions", []) if s["id"] not in now]
-            if pending:
-                write_json(PENDING, pending)
+        # Each to be taken up by a shell in its folder, now: the jot panes
+        # they were in were not brought back (Restore in jot does that).
+        for p in pending:
+            p["pane"] = ""
+        if pending:
+            write_json(PENDING, pending)
     if not pending:
         print("nothing to restore")
         return 0
     terminal_only = "--terminal" in sys.argv
-    if not terminal_only and shutil.which("code"):
-        for d in sorted({p["dir"] for p in pending}):
-            print(f"VS Code: {d}")
-            subprocess.Popen(["code", d], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+    if not terminal_only and jot_window():
+        # A workspace a folder, a pane in it a session: each pane's shell
+        # takes one up (see claim).
+        dirs = {}
+        for p in pending:
+            dirs.setdefault(p["dir"], []).append(p)
+        for d in sorted(dirs):
+            print(f"jot: {d} ({len(dirs[d])})")
+            if not jot("open", d):
+                continue
+            for _ in dirs[d][1:]:
+                jot("split")
         end = time.time() + wait
         while time.time() < end:
             if not os.path.exists(PENDING):

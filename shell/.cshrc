@@ -271,8 +271,9 @@ if ( ( $?STY || $_scrn_remote ) && -r ~/dotfiles/shell/screen-title.tcsh ) then
     source ~/dotfiles/shell/screen-title.tcsh
 endif
 
-# Back from a reboot, a VS Code terminal takes up the Claude Code session that
-# was open in its folder (dotfiles/bin/claude-sessions; twig's notice says when
+# Back from a reboot, a jot pane takes up the Claude Code session that ran in
+# it (by JOT_PANE_KEY), and a VS Code terminal one from no jot pane in its folder
+# (dotfiles/bin/claude-sessions; twig's notice says when
 # some are waiting). Python starts only while some are, or once after a boot.
 if ( $?_vscode ) then
     if ( $_vscode && -X claude-sessions ) then
