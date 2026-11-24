@@ -28,6 +28,9 @@ DIRECTORIES=(
   "$HOME/.config/ranger"
   "$HOME/.config/twig"
   "$HOME/.config"
+  "$HOME/.ssh"
+  "$HOME/.ssh/cm"
+  "$HOME/.ssh/config.d"
 )
 
 # ... and the ones only a desktop needs
@@ -67,6 +70,7 @@ declare -A SYMLINKS=(
   ["$DOTFILES_DIR/shell/.bashrc"]="$HOME/.bashrc"
   ["$DOTFILES_DIR/shell/starship.toml"]="$HOME/.config/starship.toml"
   ["$DOTFILES_DIR/shell/twig.toml"]="$HOME/.config/twig/config.toml"
+  ["$DOTFILES_DIR/ssh/controlmaster.conf"]="$HOME/.ssh/config.d/99-controlmaster.conf"
 )
 
 # ... and the ones only a desktop needs
@@ -219,6 +223,20 @@ desktop=0 corp=0
 is_corp_host && corp=1
 conf_d "$desktop" desktop "$DESKTOP_MISE_CONFIG" "not a desktop"
 conf_d "$corp" corp "$CORP_MISE_CONFIG" "not a corp host"
+
+# SSH: keep machine-specific hosts in ~/.ssh/config untouched, and pull in
+# shared snippets (like ControlMaster) from ~/.ssh/config.d/*.conf at the end.
+chmod 700 "$HOME/.ssh" "$HOME/.ssh/cm" "$HOME/.ssh/config.d"
+ssh_config="$HOME/.ssh/config"
+if [ ! -e "$ssh_config" ]; then
+  run "$GREEN" "Creating" "$(short "$ssh_config")" sh -c 'umask 077 && : > "$1"' _ "$ssh_config"
+fi
+if grep -Eq '^[[:space:]]*Include[[:space:]]+config\.d/\*\.conf([[:space:]]|$)' "$ssh_config"; then
+  skip "$(short "$ssh_config") (includes config.d/*.conf)"
+else
+  run "$GREEN" "Updating" "$(short "$ssh_config") (Include config.d/*.conf)" \
+    sh -c 'printf "\nHost *\n  Include config.d/*.conf\n" >> "$1" && chmod 600 "$1"' _ "$ssh_config"
+fi
 
 elapsed_ms=$(((${EPOCHREALTIME//[^0-9]/} - start_us) / 1000))
 summary="$PROFILE profile, $changed changed, $fresh up to date in ${elapsed_ms}ms"
