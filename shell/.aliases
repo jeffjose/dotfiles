@@ -664,7 +664,7 @@
     # Google
     #
     #
-    if (${HOST} =~ {"*corp.google.com"}) then
+    if ("`hostname -f`" =~ *corp.google.com) then
       if (-f ~/.aliases.google.sh) source ~/.aliases.google.sh
     else
       # nothing
