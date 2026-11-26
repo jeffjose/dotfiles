@@ -368,10 +368,10 @@ fi
 
 
 # Added by Antigravity CLI installer
-export PATH="/home/jeffjose/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
 
 # ante
-export PATH="/home/jeffjose/.ante/bin:$PATH"
+export PATH="$HOME/.ante/bin:$PATH"
 
 # >>> grok installer >>>
 export PATH="$HOME/.grok/bin:$PATH"
@@ -379,5 +379,5 @@ export PATH="$HOME/.grok/bin:$PATH"
 # <<< grok installer <<<
 
 # >>> multi-cli >>>
-export PATH='/home/jeffjose/.local/share/multi-cli/bin':"$PATH"
+export PATH="$HOME/.local/share/multi-cli/bin:$PATH"
 # <<< multi-cli <<<

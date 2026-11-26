@@ -75,6 +75,7 @@ fi
 
 source "$DOTFILES_DIR/scripts/lib/ui.sh"
 source "$DOTFILES_DIR/scripts/lib/host.sh"
+source "$DOTFILES_DIR/scripts/lib/sudo.sh"
 
 # --- Steps and modules -------------------------------------------------------
 # name | who gets it | what it does. Each has a step_<name> function below, with
@@ -119,12 +120,22 @@ while [ $# -gt 0 ]; do
     --reconfigure) RECONFIGURE=1 ;;
     --list) LIST=1 ;;
     --only)
-      ONLY="${2:-}"
+      if [ $# -lt 2 ] || [ -z "$2" ]; then
+        err "--only requires a value"
+        detail "see: firstrun --help" >&2
+        exit 2
+      fi
+      ONLY="$2"
       shift
       ;;
     --only=*) ONLY="${1#*=}" ;;
     --with)
-      WITH="${2:-}" WITH_SET=1
+      if [ $# -lt 2 ]; then
+        err "--with requires a value"
+        detail "see: firstrun --help" >&2
+        exit 2
+      fi
+      WITH="$2" WITH_SET=1
       shift
       ;;
     --with=*) WITH="${1#*=}" WITH_SET=1 ;;
@@ -548,25 +559,6 @@ plan() {
   done
 }
 
-# sudo asks once, here, rather than at whichever step first needs it; then the
-# credential is kept warm, since the mise step can outlast its timeout.
-warm_sudo() {
-  command -v sudo >/dev/null 2>&1 || {
-    warn "sudo is not installed; the steps that need root will fail"
-    return 0
-  }
-  sudo -n true 2>/dev/null || sudo -v || {
-    warn "could not authorise sudo; the steps that need root may fail or ask again"
-    return 0
-  }
-  (while sleep 50; do
-    kill -0 "$$" 2>/dev/null || exit 0
-    sudo -n true 2>/dev/null || exit 0
-  done) &
-  SUDO_KEEPALIVE_PID=$!
-  trap 'kill "$SUDO_KEEPALIVE_PID" 2>/dev/null' EXIT
-}
-
 run_step() {
   local name="$1" what="$2" n="$3" started status
   started=$(now_us)
@@ -622,7 +614,7 @@ main() {
   mkdir -p "$LOG_DIR"
   for row in "${planned[@]}"; do
     case " $ROOT_STEPS " in *" ${row%%|*} "*)
-      warm_sudo
+      check_sudo
       break
       ;;
     esac

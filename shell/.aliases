@@ -184,7 +184,7 @@
     # \mplayer -loop 0 -zoom ../webm/test/*mkv
     # "f" for fullscreen
 
-    alias imgur-download '/usr/bin/python3 /home/jeffjose/scripts/imgur-album-downloader/imguralbum.py'
+    alias imgur-download '/usr/bin/python3 ~/scripts/imgur-album-downloader/imguralbum.py'
 
     alias skipper 'cd /run/user/1000/gvfs/smb-share:server=10.0.0.66,share=jeffjose'
 
@@ -265,7 +265,7 @@
 
     alias rsync rsync --progress
 
-    alias signapk java -jar /home/jeffjose/scripts/apktool/signapk.jar /home/jeffjose/scripts//apktool/certificate.pem /home/jeffjose/scripts//apktool/key.pk8
+    alias signapk 'java -jar ~/scripts/apktool/signapk.jar ~/scripts/apktool/certificate.pem ~/scripts/apktool/key.pk8'
 
     alias removepdfpassword 'qpdf --password=\!:2 --decrypt \!:1 `basename \!:1 .pdf`.nopw.pdf'
 
@@ -569,7 +569,7 @@
     alias klog      'sudo kubectl logs -f'
     alias helm      'sudo helm --kubeconfig /etc/rancher/k3s/k3s.yaml'
 
-    alias kssecretfile 'sudo kubectl create secret generic \!:2 --from-file=\!:1 --dry-run=client -o yaml | sudo ~jeffjose/bin/kubeseal --scope cluster-wide --controller-namespace argocd --controller-name sealed-secrets --format yaml --kubeconfig /etc/rancher/k3s/k3s.yaml | tee sealed-\!:2.yaml'
+    alias kssecretfile 'sudo kubectl create secret generic \!:2 --from-file=\!:1 --dry-run=client -o yaml | sudo ~/bin/kubeseal --scope cluster-wide --controller-namespace argocd --controller-name sealed-secrets --format yaml --kubeconfig /etc/rancher/k3s/k3s.yaml | tee sealed-\!:2.yaml'
 
     alias kbash     'sudo kubectl run test -it --rm --image \!* -- bash'
     alias kutils     'sudo kubectl run utils -it --rm --image jonlabelle/network-tools -- bash'
@@ -604,7 +604,7 @@
     # While the executable comes from /home/jeffjose, the .wine/ is /root/.wine/
     alias mp3tag 'sudo wine ~/.wine/drive_c/Program\ Files/Mp3tag/Mp3tag.exe'
 
-    alias tzupdate 'sudo /home/jeffjose/.cargo/bin/tzupdate'
+    alias tzupdate 'sudo ~/.cargo/bin/tzupdate'
 
     # Add alias
     # sudo ip address add 192.168.1.6/24 dev eno1

@@ -92,6 +92,7 @@ RETIRED_LINKS=(
   "$HOME/.config/espanso/default.yml"
 )
 
+source "$DOTFILES_DIR/scripts/lib/ui.sh"
 source "$DOTFILES_DIR/scripts/lib/host.sh"
 PROFILE=$(host_profile)
 if [ "$PROFILE" = desktop ]; then
@@ -106,19 +107,10 @@ fi
 VERBOSE=0
 [[ "${1:-}" == "-v" || "${1:-}" == "--verbose" ]] && VERBOSE=1
 
-if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
-  GREEN=$'\e[1;32m' YELLOW=$'\e[1;33m' RED=$'\e[1;31m' DIM=$'\e[2m' RESET=$'\e[0m'
-else
-  GREEN='' YELLOW='' RED='' DIM='' RESET=''
-fi
-
 changed=0
 fresh=0
 declare -a failed_tasks=()
-start_us=${EPOCHREALTIME//[^0-9]/}
-
-# say <colour> <verb> <detail>
-say() { printf '%s%12s%s %s\n' "$1" "$2" "$RESET" "$3"; }
+start_us=$(now_us)
 
 # Shorten a path for display: relative to the dotfiles repo, else ~-relative
 short() {
@@ -258,8 +250,7 @@ else
     sh -c 'printf "\nHost *\n  Include config.d/*.conf\n" >> "$1" && chmod 600 "$1"' _ "$ssh_config"
 fi
 
-elapsed_ms=$(((${EPOCHREALTIME//[^0-9]/} - start_us) / 1000))
-summary="$PROFILE profile, $changed changed, $fresh up to date in ${elapsed_ms}ms"
+summary="$PROFILE profile, $changed changed, $fresh up to date in $(elapsed "$start_us")"
 
 if [ ${#failed_tasks[@]} -gt 0 ]; then
   say "$RED" "Finished" "${#failed_tasks[@]} failed, $summary"
